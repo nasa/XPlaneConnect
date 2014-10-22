@@ -1,0 +1,384 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */; };
+		BE5F2FEE18F89E4900AFCD17 /* xpcPlugin.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* xpcPlugin.xpl */; };
+		BE5F2FF118FCA1D500AFCD17 /* xpcPluginTools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE5F2FF018FCA1D500AFCD17 /* xpcPluginTools.cpp */; };
+		BE8361EF18C5591C00E9C923 /* xpcPlugin.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* xpcPlugin.xpl */; };
+		BEDAC9FC19D364E500AD5DC0 /* xpcPlugin.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* xpcPlugin.xpl */; };
+		BEDC620418EDF1A7005DB364 /* xplaneConnect.c in Sources */ = {isa = PBXBuildFile; fileRef = BEDC620218EDF1A7005DB364 /* xplaneConnect.c */; };
+		BEDC620A18EDF277005DB364 /* xplaneConnect.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = BEDC620318EDF1A7005DB364 /* xplaneConnect.h */; };
+		BEDC620B18EDF27A005DB364 /* xplaneConnect.c in CopyFiles */ = {isa = PBXBuildFile; fileRef = BEDC620218EDF1A7005DB364 /* xplaneConnect.c */; };
+		D6A7BDAA16A1DEA200D1426A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDA916A1DEA200D1426A /* OpenGL.framework */; };
+		D6A7BDC116A1DEC000D1426A /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDC016A1DEC000D1426A /* CoreFoundation.framework */; };
+		D6A7BDF116A1DED200D1426A /* XPLM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDF016A1DED200D1426A /* XPLM.framework */; };
+		D6A7BDF316A1DED200D1426A /* XPWidgets.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDF216A1DED200D1426A /* XPWidgets.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BE5F2FED18F89E3D00AFCD17 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /Users/cteubert/Documents/xplaneconnect/xpcPlugin;
+			dstSubfolderSpec = 0;
+			files = (
+				BE5F2FEE18F89E4900AFCD17 /* xpcPlugin.xpl in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BE8361EE18C5591600E9C923 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "/Applications/X-Plane 10/Resources/plugins";
+			dstSubfolderSpec = 0;
+			files = (
+				BE8361EF18C5591C00E9C923 /* xpcPlugin.xpl in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BEDC620518EDF21F005DB364 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect;
+			dstSubfolderSpec = 0;
+			files = (
+				BEDAC9FC19D364E500AD5DC0 /* xpcPlugin.xpl in CopyFiles */,
+				BEDC620A18EDF277005DB364 /* xplaneConnect.h in CopyFiles */,
+				BEDC620B18EDF27A005DB364 /* xplaneConnect.c in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XPCPlugin.cpp; sourceTree = SOURCE_ROOT; usesTabs = 1; };
+		BE3C039719DF043D0063D8DD /* Readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Readme.txt; path = ../Readme.txt; sourceTree = "<group>"; };
+		BE5F2FEF18FCA13700AFCD17 /* xpcPluginTools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = xpcPluginTools.h; sourceTree = "<group>"; };
+		BE5F2FF018FCA1D500AFCD17 /* xpcPluginTools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xpcPluginTools.cpp; sourceTree = "<group>"; };
+		BEDC620218EDF1A7005DB364 /* xplaneConnect.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xplaneConnect.c; path = ../C/src/xplaneConnect.c; sourceTree = "<group>"; };
+		BEDC620318EDF1A7005DB364 /* xplaneConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xplaneConnect.h; path = ../C/src/xplaneConnect.h; sourceTree = "<group>"; };
+		D607B19909A556E400699BC3 /* xpcPlugin.xpl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = xpcPlugin.xpl; sourceTree = BUILT_PRODUCTS_DIR; };
+		D6A7BDA916A1DEA200D1426A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		D6A7BDC016A1DEC000D1426A /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		D6A7BDF016A1DED200D1426A /* XPLM.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XPLM.framework; path = SDK/Libraries/Mac/XPLM.framework; sourceTree = "<group>"; };
+		D6A7BDF216A1DED200D1426A /* XPWidgets.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XPWidgets.framework; path = SDK/Libraries/Mac/XPWidgets.framework; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D607B19709A556E400699BC3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D6A7BDAA16A1DEA200D1426A /* OpenGL.framework in Frameworks */,
+				D6A7BDC116A1DEC000D1426A /* CoreFoundation.framework in Frameworks */,
+				D6A7BDF116A1DED200D1426A /* XPLM.framework in Frameworks */,
+				D6A7BDF316A1DED200D1426A /* XPWidgets.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AC4E46B809C2E0B3006B7E1B /* C Source */ = {
+			isa = PBXGroup;
+			children = (
+				BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */,
+				BEDC620218EDF1A7005DB364 /* xplaneConnect.c */,
+				BEDC620318EDF1A7005DB364 /* xplaneConnect.h */,
+				BE5F2FF018FCA1D500AFCD17 /* xpcPluginTools.cpp */,
+				BE5F2FEF18FCA13700AFCD17 /* xpcPluginTools.h */,
+			);
+			name = "C Source";
+			sourceTree = "<group>";
+		};
+		D607B15F09A5563000699BC3 = {
+			isa = PBXGroup;
+			children = (
+				BE3C039719DF043D0063D8DD /* Readme.txt */,
+				D6A7BDAD16A1DEA700D1426A /* Frameworks */,
+				AC4E46B809C2E0B3006B7E1B /* C Source */,
+				D607B19A09A556E400699BC3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D607B19A09A556E400699BC3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D607B19909A556E400699BC3 /* xpcPlugin.xpl */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D6A7BDAD16A1DEA700D1426A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D6A7BDC016A1DEC000D1426A /* CoreFoundation.framework */,
+				D6A7BDA916A1DEA200D1426A /* OpenGL.framework */,
+				D6A7BDF016A1DED200D1426A /* XPLM.framework */,
+				D6A7BDF216A1DED200D1426A /* XPWidgets.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D607B19809A556E400699BC3 /* xpcPlugin */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D607B19B09A556E400699BC3 /* Build configuration list for PBXNativeTarget "xpcPlugin" */;
+			buildPhases = (
+				D607B19609A556E400699BC3 /* Sources */,
+				D607B19709A556E400699BC3 /* Frameworks */,
+				BEDC620518EDF21F005DB364 /* CopyFiles */,
+				BE8361EE18C5591600E9C923 /* CopyFiles */,
+				BE5F2FED18F89E3D00AFCD17 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = xpcPlugin;
+			productName = StarterPlugin;
+			productReference = D607B19909A556E400699BC3 /* xpcPlugin.xpl */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D607B16109A5563100699BC3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+			};
+			buildConfigurationList = D607B16209A5563100699BC3 /* Build configuration list for PBXProject "xpcPlugin" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = D607B15F09A5563000699BC3;
+			productRefGroup = D607B19A09A556E400699BC3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D607B19809A556E400699BC3 /* xpcPlugin */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D607B19609A556E400699BC3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEDC620418EDF1A7005DB364 /* xplaneConnect.c in Sources */,
+				BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */,
+				BE5F2FF118FCA1D500AFCD17 /* xpcPluginTools.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		D607B16309A5563100699BC3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CONFIGURATION_BUILD_DIR = ./Mac;
+				DYLIB_COMPATIBILITY_VERSION = "";
+				DYLIB_CURRENT_VERSION = "";
+				EXECUTABLE_EXTENSION = xpl;
+				FRAMEWORK_SEARCH_PATHS = "$(XPSDK_ROOT)/Libraries/Mac";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"APL=1",
+					"IBM=0",
+					"LIN=0",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = (
+					"$(XPSDK_ROOT)/CHeaders/Widgets",
+					"$(XPSDK_ROOT)/CHeaders/XPLM",
+					"$(HEADER_SEARCH_PATHS)",
+				);
+				MACH_O_TYPE = mh_bundle;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"$(OTHER_LDFLAGS)",
+					"-Wl,-exported_symbol",
+					"-Wl,_XPluginStart",
+					"-Wl,-exported_symbol",
+					"-Wl,_XPluginEnable",
+					"-Wl,-exported_symbol",
+					"-Wl,_XPluginReceiveMessage",
+					"-Wl,-exported_symbol",
+					"-Wl,_XPluginDisable",
+					"-Wl,-exported_symbol",
+					"-Wl,_XPluginStop",
+				);
+				PREBINDING = NO;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
+				SDKROOT = macosx10.8;
+				SYMROOT = build;
+				XPSDK_ROOT = SDK;
+			};
+			name = Debug;
+		};
+		D607B16409A5563100699BC3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CONFIGURATION_BUILD_DIR = ./Mac;
+				DYLIB_COMPATIBILITY_VERSION = "";
+				DYLIB_CURRENT_VERSION = "";
+				EXECUTABLE_EXTENSION = xpl;
+				FRAMEWORK_SEARCH_PATHS = "$(XPSDK_ROOT)/Libraries/Mac";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"APL=1",
+					"IBM=0",
+					"LIN=0",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = (
+					"$(XPSDK_ROOT)/CHeaders/Widgets",
+					"$(XPSDK_ROOT)/CHeaders/XPLM",
+					"$(HEADER_SEARCH_PATHS)",
+				);
+				MACH_O_TYPE = mh_bundle;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_LDFLAGS = (
+					"$(OTHER_LDFLAGS)",
+					"-Wl,-exported_symbol",
+					"-Wl,_XPluginStart",
+					"-Wl,-exported_symbol",
+					"-Wl,_XPluginEnable",
+					"-Wl,-exported_symbol",
+					"-Wl,_XPluginReceiveMessage",
+					"-Wl,-exported_symbol",
+					"-Wl,_XPluginDisable",
+					"-Wl,-exported_symbol",
+					"-Wl,_XPluginStop",
+				);
+				PREBINDING = NO;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
+				SDKROOT = macosx10.8;
+				SYMROOT = build;
+				XPSDK_ROOT = SDK;
+			};
+			name = Release;
+		};
+		D607B19C09A556E400699BC3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CLANG_WARN_CXX0X_EXTENSIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
+				CURRENT_PROJECT_VERSION = 0.24;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = NO;
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = NO;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(XPSDK_ROOT)/CHeaders/Widgets",
+					"$(XPSDK_ROOT)/CHeaders/XPLM",
+					"$(HEADER_SEARCH_PATHS)",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/xplaneConnect-asdjuezcjkhojuewbyxhyhabxfwc/Build/Products/Debug",
+				);
+				MACH_O_TYPE = mh_bundle;
+				PRODUCT_NAME = xpcPlugin;
+				STRIP_INSTALLED_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = XPC;
+			};
+			name = Debug;
+		};
+		D607B19D09A556E400699BC3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CLANG_WARN_CXX0X_EXTENSIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
+				CURRENT_PROJECT_VERSION = 0.24;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = NO;
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = NO;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_PARAMETER = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(XPSDK_ROOT)/CHeaders/Widgets",
+					"$(XPSDK_ROOT)/CHeaders/XPLM",
+					"$(HEADER_SEARCH_PATHS)",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/xplaneConnect-asdjuezcjkhojuewbyxhyhabxfwc/Build/Products/Debug",
+				);
+				MACH_O_TYPE = mh_bundle;
+				PRODUCT_NAME = xpcPlugin;
+				STRIP_INSTALLED_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = XPC;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D607B16209A5563100699BC3 /* Build configuration list for PBXProject "xpcPlugin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D607B16309A5563100699BC3 /* Debug */,
+				D607B16409A5563100699BC3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D607B19B09A556E400699BC3 /* Build configuration list for PBXNativeTarget "xpcPlugin" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D607B19C09A556E400699BC3 /* Debug */,
+				D607B19D09A556E400699BC3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D607B16109A5563100699BC3 /* Project object */;
+}

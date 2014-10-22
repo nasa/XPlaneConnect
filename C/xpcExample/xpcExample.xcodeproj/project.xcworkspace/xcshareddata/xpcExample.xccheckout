@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>2D8FADF5-8504-4A76-A99F-91CA115CE4E3</string>
+	<key>IDESourceControlProjectName</key>
+	<string>xpcExample</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>D7B4D224-FE26-406E-A48F-C604A5BE6975</key>
+		<string>https://babelfish.arc.nasa.gov/svn/pcoe/cteubert/xplaneconnect</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>C/xpcExample/xpcExample.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>D7B4D224-FE26-406E-A48F-C604A5BE6975</key>
+		<string>../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectRepositoryRootDictionary</key>
+	<dict>
+		<key>D7B4D224-FE26-406E-A48F-C604A5BE6975</key>
+		<string>https://babelfish.arc.nasa.gov/svn/pcoe</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://babelfish.arc.nasa.gov/svn/pcoe/cteubert/xplaneconnect/C/xpcExample/xpcExample.xcodeproj</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>D7B4D224-FE26-406E-A48F-C604A5BE6975</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.subversion</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>D7B4D224-FE26-406E-A48F-C604A5BE6975</string>
+			<key>IDESourceControlWCCName</key>
+			<string>xplaneconnect</string>
+		</dict>
+	</array>
+</dict>
+</plist>

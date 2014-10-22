@@ -1,0 +1,1 @@
+ const unsigned char XPCxpcPluginVersionString[] __attribute__ ((used)) = "@(#)PROGRAM:xpcPlugin  PROJECT:xpcPlugin-0.24" "\n"; const double XPCxpcPluginVersionNumber __attribute__ ((used)) = (double)0.24;

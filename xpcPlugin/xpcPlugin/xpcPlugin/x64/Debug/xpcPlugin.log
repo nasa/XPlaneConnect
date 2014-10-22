@@ -1,0 +1,19 @@
+﻿Build started 9/30/2014 4:05:30 PM.
+     1>Project "C:\Users\mfeary-admin\Documents\flightz\xpcPlugin\xpcPlugin\xpcPlugin\xpcPlugin.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /I./src /I"F:\work\Aide-777\dev\SDK\CHeaders\XPLM" /I"C:\Users\mfeary-admin\Documents\flightz\xpcPlugin" /Z7 /nologo /W3 /WX- /MP /Od /D IBM=1 /D XPLM200 /D _DEBUG /D _WINDOWS /D _USRDLL /D XPCPLUGIN_EXPORTS /D _WINDLL /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /wd4996 /wd4267 /errorReport:prompt ..\..\XPCPlugin.cpp
+         XPCPlugin.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"F:\work\X-Plane 10\Resources\Plugins\xpcPlugin.xpl" /INCREMENTAL /NOLOGO /LIBPATH:"F:\work\Aide-777\dev\SDK\Libraries\Win" XPLM_64.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:\work\X-Plane 10\Resources\Plugins\xpcPlugin.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\work\X-Plane 10\Resources\Plugins\xpcPlugin.lib" /MACHINE:X64 /DLL x64\Debug\xplaneConnect.obj
+         x64\Debug\XPCPlugin.obj
+         x64\Debug\xpcPluginTools.obj
+         ..\..\SDK\Libraries\Win\XPLM.lib
+         ..\..\SDK\Libraries\Win\XPLM_64.lib
+         ..\..\SDK\Libraries\Win\XPWidgets.lib
+         ..\..\SDK\Libraries\Win\XPWidgets_64.lib
+         xpcPlugin.vcxproj -> F:\work\X-Plane 10\Resources\Plugins\xpcPlugin.xpl
+     1>Done Building Project "C:\Users\mfeary-admin\Documents\flightz\xpcPlugin\xpcPlugin\xpcPlugin\xpcPlugin.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.65
