@@ -1,4 +1,4 @@
-function status = requestDREF( DREFArray, varargin )
+function result = requestDREF( DREFArray, varargin )
 %requestDREF request the value of a specific DataRef from X-Plane over UDP
 % Version 0.25
 %
@@ -8,31 +8,25 @@ function status = requestDREF( DREFArray, varargin )
 %     port (optional): Port on the receiving machine where the data will be sent. Default is 49009 (XPlaneConnect). In general use 49009 to send to the plugin
 %
 %Outputs
-%	status: If there was an error. Status<0 means there was an error.
+%	result: cell array of resulting data where 
 %
 %Use
 %	1. import XPlaneConnect.*;
 %   2. DREFArray = {'sim/cockpit2/controls/yoke_heading_ratio','sim/cockpit2/controls/yoke_roll_ratio'};
-%	3. status = requestDREF( DREFArray, '172.0.100.54' );
-%
-%Change Log
-%  10/02/14: [CT] V0.25: Updated to work with updated xpcPlugin
-%  04/19/14: [CT] V0.2: First Created
+%	3. result = requestDREF( DREFArray, '172.0.100.54' );
 %
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)
 %       christopher.a.teubert@nasa.gov
 %
-% To Do
-% 1. Complete- Receive response 
-%
 %BEGIN CODE
 
-disp('This Function is not functional yet-use the C version. Sorry for any inconvenience')
 import XPlaneConnect.*
 
 message = zeros(1,6);
 len = 7;
+socket = openUDP(49008);
+status = -1; %#ok<NASGU> % no data
 
 %% Handle Input
 p = inputParser;
@@ -55,5 +49,22 @@ parse(p,DREFArray,varargin{:});
         
     % Send UDP
         status = sendUDP(message, p.Results.IP, p.Results.port);
-                
+        
+    % Look for response 
+        for i=1:40
+            data = readUDP(socket);
+            if length(data) > 1 % Received Data
+                status = 0;
+                counter = 7;
+                nArrays = data(6);
+                result = cell(nArrays,1);
+                for j=1:nArrays
+                    sizeArray = data(counter);
+                    result{j} = typecast(uint8(data(counter+1:counter+sizeArray*4))','single');
+                    counter = counter + 1 + sizeArray * 4;
+                end
+                break;
+            end
+        end
+closeUDP(socket);      
 end
