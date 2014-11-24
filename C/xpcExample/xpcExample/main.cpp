@@ -24,7 +24,7 @@ int main() {
     float POSI[9] = {0.0};
     float CTRL[5] = {0.0};
     float gear;
-    char IP[16] = "143.232.73.41";//"127.0.0.1";//;// //IP Address of computer running X-Plane
+    char IP[16] = "127.0.0.1";// //IP Address of computer running X-Plane
     short PORT = 49009; //xpcPlugin Receiving port (usually 49009)
     
     printf("xplaneconnect Example Script\n- Setting up Simulation\n");
