@@ -1,0 +1,10 @@
+
+*.m~
+
+xpcPlugin/xpcPlugin.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
+
+xpcPlugin/xpcPlugin.xcodeproj/project.xcworkspace/xcshareddata/xpcPlugin.xccheckout
+
+xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/xpcPlugin.hmap
+
+xpcPlugin/xpcPlugin.xcodeproj/project.xcworkspace/xcshareddata/xpcPlugin.xccheckout

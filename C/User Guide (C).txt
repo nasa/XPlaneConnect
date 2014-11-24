@@ -140,7 +140,7 @@ BASIC FUNCTIONS
     9. requestDREF Request the value of specific dref(s). Dataref list found at http://www.xsquawkbox.net/xpsdk/docs/DataRefs.html
         INPUT:
         outSocket (xpcSocket): Socket to use to send the command
-        inSocket (xpcSocket): Socket to use to send the command
+        inSocket (xpcSocket): Socket to use to receive the result
         DREFArray (char[][100]): Array of DataRefs to be requested
         DREFSizes (int[]): Array of string lengths for each DataRef in DREFArray
         listLength (short): Number of DataRefs in DREFArray
