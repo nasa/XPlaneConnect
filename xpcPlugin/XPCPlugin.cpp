@@ -804,8 +804,8 @@ int handleGETD(char buf[])
 	char the_message[5000];
 	char header[5] = {0};
 	int count = 6;
-	float values[40] = {-998};
-	int intArray[40] = {-998};
+	float values[100] = {-998};
+	int intArray[100] = {-998};
 	int DREFSizes[100] = {0};
 	char *DREFArray[100];
 	
@@ -871,12 +871,12 @@ int handleGETD(char buf[])
 					
 				{case 8: //Float Array
 					length = XPLMGetDatavf(connectionList[current_connection].XPLMRequestedDRefs[i],NULL,0,8); //find size of array
-					XPLMGetDatavf(connectionList[current_connection].XPLMRequestedDRefs[i],values,0,length);
+					XPLMGetDatavf(connectionList[current_connection].XPLMRequestedDRefs[i],values,0,fminl(length,100));
 					break;}
 					
 				{case 16: //Integer Array
 					length = XPLMGetDatavi(connectionList[current_connection].XPLMRequestedDRefs[i],NULL,0,8); //find size of array
-					XPLMGetDatavi(connectionList[current_connection].XPLMRequestedDRefs[i],intArray,0,length);
+					XPLMGetDatavi(connectionList[current_connection].XPLMRequestedDRefs[i],intArray,0,fminl(length,100));
 					for (k=0; k < length; k++) {
 						values[k]=(float) intArray[k];
 					}
