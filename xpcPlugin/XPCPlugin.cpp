@@ -1,5 +1,5 @@
 //
-//  XPCPlugin Version 0.25 Beta
+//  XPCPlugin Beta
 //
 //  DESCRIPTION
 //      XPCPlugin Facilitates Communication to and from the XPlane
@@ -42,28 +42,6 @@
 //
 //  CONTACT
 //      For questions email Christopher Teubert (christopher.a.teubert@nasa.gov)
-//
-//  VERSION HISTORY
-//      10.16.14: (CT) Added Notices and Disclaimers
-//		08.21.14 (V0.24): (CT) Changed setPOSI to handle multiple aircraft
-//				- Better handling of reaching maxconn
-//		08.04.14 (V0.23): (CT) Fixed CTRL invalid dref message
-//				- Added message buffer, type XPCMessage
-//		05.21.14 (V0.22): (CT) Updated to use new xpcSocket Struct
-//				- Fixed gear for POSI message.
-//				- Completed SetFlaps
-//				- Forwards certain commands + Unknown DATA DREFs to UDP
-//		05.12.14 (V0.215): (CT) Completed CTRL Option, added flap handle DREF
-//		05.07.14 (V0.21): (CT) Added more DATA DREFS
-//				- Moved handleDREFSIM to tools file
-//				- Created setORIENT,setPOSI, setGEAR, setDREF functions;
-//		04.30.14 (V0.205): (CT) Added NaN data handling (DATA,DREF,CONN,SIMU)
-//				- Added up to 5 signal reading per loop + run every cycle
-//		04.15.14 (V0.2): (CT) Added benchmarking tools, Expanded DATA, added ability to send velocity magnitude, created xpcPluginTools
-//		03.21.14 (V0.18): (CT) Added ability to set pause instead of toggle. Expanded DATA.
-//		02.13.14 (V0.17): (CT) Completed GETD option, saved connections, added ability to receive dref w/o sim/ preceeding it (saves 4 bytes/request), general stability improvements
-//      1.28.14 (V0.1): (CT) First Beta: DATA (11.0-2, 14.0-1, 16.0-2, 17.0-2, 20.0-2, 21.0-5, 25.0), SIMU, DREF
-//      12.10.13 (V0.0): (CT) First Version
 //
 //	CONTRIBUTORS
 //		CT: Christopher Teubert (christopher.a.teubert@nasa.gov)

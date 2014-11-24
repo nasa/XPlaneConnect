@@ -37,22 +37,6 @@
 //  CONTACT
 //      For questions email Christopher Teubert (christopher.a.teubert@nasa.gov)
 //
-//  VERSION HISTORY
-//      06.24.14 (V0.23): (CT) General Fixes for Windows compatability
-//      05.23.14 (V0.22): (CT) Combined request/readDREF
-//          -fixed readPOSI (gear issue)
-//      05.21.14 (V0.2175): (CT) Added Throttle to CTRL
-//      05.12.14 (V0.215): (CT) Read/Parse/Send Control
-//      05.07.14 (V0.21): (CT) Read/Parse/Send Position
-//      04.29.14 (V0.205): (CT) Added check that data was received in read functions
-//      03.15.14 (V0.2): (CT) General performance updates, added preconditions
-//      02.04.14 (V0.11): (CT) Fixed problem that caused for loops not to work with some compilers. General Stability Improvements, added readRequest, readDREF
-//      01.27.14 (V0.1): (CT) First Beta: sendDATA, sendDREF, requestDREF, pauseSim, readDATA
-//      11.10.13 (V0.0): (CT) First Version
-//
-//	CONTRIBUTORS
-//		CT: Christopher Teubert (christopher.a.teubert@nasa.gov)
-//
 //  TO DO
 //      1. Update SelectData
 //      2. RequestDREF: look into removing DREFSizes
