@@ -1,7 +1,6 @@
 function status = setConn( recvPort, IP, port )
 % setConn Send a command to set up the port where you will receive data on
 % this computer.
-% Version 0.25
 %
 % Inputs
 %     Receiving Port: Port that data will be sent to in the future for this connection
@@ -14,10 +13,6 @@ function status = setConn( recvPort, IP, port )
 % Use
 %   1. import XPlaneConnect.*
 %   2. status = setConn(49011);
-% 
-% Change Log
-%  10/02/14: [CT] V0.25: Updated to work with updated xpcPlugin
-%  04/21/14: [CT] V0.2: First Version
 %  
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)

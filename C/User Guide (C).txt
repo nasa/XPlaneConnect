@@ -1,5 +1,4 @@
 X-Plane Connect-C (XPC-C) Readme
-XPC-C V0.22 May 21, 2014
 
 DESCRIPTION
 	XPC-C is a series of C functions that facilitate communication with X-Plane.
@@ -187,11 +186,3 @@ PLANNED FUNCTIONS
 -----------------------------------
 CONTACT
     Email Christopher Teubert (christopher.a.teubert@nasa.gov) with any questions.
-    
------------------------------------
-VERSION HISTORY
-    2014.05.23 (V0.22): (CT) Combined request/readDREF
-    2014.05.21 (V0.21): (CT) Initial Version
-    
-CONTRIBUTORS
-    CT: Christopher Teubert (christopher.a.teubert@nasa.gov)

@@ -28,9 +28,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "890"
-            endingLineNumber = "890"
-            landmarkName = "handleGETD(char buf[])"
-            landmarkType = "7">
+            endingLineNumber = "890">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

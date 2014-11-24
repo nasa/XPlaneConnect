@@ -1,6 +1,5 @@
 function [ status ] = sendDATA(data, varargin)
 % sendDATA Send X-Plane formatted DATA over UDP
-% Version 0.25
 % 
 % Inputs
 %     data: X-Plane formatted data. Is a matlab structure with the following fields:
@@ -19,11 +18,6 @@ function [ status ] = sendDATA(data, varargin)
 % 4. status = sendDATA(data, '172.0.100.54', 49005);
 % 
 % Note: send the value -998 to not overwrite that parameter. That is, if -998 is sent, the parameter will stay at the current X-Plane value
-% 
-% Change Log
-%  10/02/14: [CT] V0.25: Updated to work with updated xpcPlugin
-%  04/18/14: [CT] V0.2: Updated to work with new Plugin
-%  06/10/13: [CT] Code created
 % 
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)

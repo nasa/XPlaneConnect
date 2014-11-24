@@ -1,6 +1,5 @@
 function [ status ] = sendSTRU( STRU, varargin )
 %sendSTRU Send a MATLAB structure over UDP
-% Version 0.25
 %
 %Inputs
 %     stru: A MATLAB structure
@@ -15,11 +14,6 @@ function [ status ] = sendSTRU( STRU, varargin )
 %	2. data = struct('a',[1:20],'b',1.853,'name','Example Structure');
 %	3. #Send the data structure to port 49005 on the computer at IP address 172.0.100.54
 %	4. status = sendUDP( data, '172.0.100.54', 49005 );
-%
-%Change Log
-%  10/02/14: [CT] V0.25: Updated to work with updated xpcPlugin
-%  04/18/14: [CT] V0.2: Added Versioning
-%  08/01/13: [CT] Code created
 %
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)

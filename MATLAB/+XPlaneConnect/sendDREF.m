@@ -1,6 +1,5 @@
 function status = sendDREF( dataRef, Value, varargin )
 % sendDREF Send a command to change any DataRef in X-Plane over UDP. This requires the X-Plane Connect Plugin to be running
-% Version 0.25
 %
 % Inputs
 %     dataRef: The X-Plane Dataref that will be chaged
@@ -16,10 +15,6 @@ function status = sendDREF( dataRef, Value, varargin )
 %   2. dataRef  = 'sim/aircraft/parts/acf_gear_deploy'; // Landing Gear
 %   3. Value    = 0;
 %   4. status = sendDREF(dataRef, Value);
-% 
-% Change Log
-%  10/02/14: [CT] V0.25: Updated to work with updated xpcPlugin
-%  04/18/14: [CT] V0.2: First Version
 %  
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)

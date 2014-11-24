@@ -1,5 +1,5 @@
 //
-//  xPlaneConnect.c Version 0.25 Beta
+//  xPlaneConnect.c Beta
 //
 //  DESCRIPTION
 //      XPLANECONNECT (XPC) Facilitates Communication to and from the XPCPlugin

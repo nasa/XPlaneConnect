@@ -1,6 +1,5 @@
 function [ data ] = readUDP( input )
 %readUDP Read Array from UDP Socket
-% Version 0.25
 % 
 % Inputs
 % 	input: Either an opened UDP Socket or integer port number
@@ -22,12 +21,6 @@ function [ data ] = readUDP( input )
 % NOTE: sending in a port number instead of an opened socket clears the 
 %UDP buffer. This only works if the data is being sent at a fast rate. 
 %Sending in a UDP Socket reads the first packet in the buffer. 
-%
-% Change Log
-%  10/02/14: [CT] V0.25: Updated to work with updated xpcPlugin
-%  04/18/14: [CT] V0.2: Added Versioning
-%  09/08/13: [CT] Added option for either UDP Socket or port number input
-%  06/10/13: [CT] Code created
 %
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)

@@ -1,6 +1,5 @@
 function [ sensor ] = readDATA( socket )
 % readDATA Reads UDP Socket and interprets data
-% Version 0.25
 %
 % Inputs
 %     location: Either an opened UDP Socket or integer port number
@@ -29,13 +28,7 @@ function [ sensor ] = readDATA( socket )
 % 2. data = readDATA(49005);
 % 
 % NOTE: sending in a port number instead of an opened socket clears the UDP buffer. This only works if the data is being sent at a fast rate. Sending in a UDP Socket reads the first packet in the buffer.
-% 
-% Change Log
-%  10/02/14: [CT] V0.25: Updated to work with updated xpcPlugin
-%  04/18/14: [CT] V0.2: Updated to work with new Plugin
-%  09/10/13: [CT] Updated to receive UDP socket or port number
-%  06/10/13: [CT] Code created
-% 
+%
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)
 %       christopher.a.teubert@nasa.gov

@@ -1,5 +1,4 @@
 // xpcPluginTools functions to support xpcPlugin
-//  Version 0.25
 //
 //  FUNCTIONS
 //      buildXPLMDataRefs
@@ -14,19 +13,6 @@
 //
 //  CONTACT
 //      For questions email Christopher Teubert (christopher.a.teubert@nasa.gov)
-//
-//  VERSION HISTORY
-//      09.24.14 (V0.25): (CT) Changed testi() to test(int)
-//              - Added Landing Gear to Multiplayer
-//              - Changed readMessage to void-receiving socket reference and message reference
-//              - Changed one line conditional statements to have brackets- programming standard
-//      08.21.14 (V0.23): (CT) Added multiplayer array, fixed multiplayer XPLMDataRefs
-//      08.04.14 (V0.22): (CT) Added parseMessage and type XPCMessage
-//      05.06.14 (V0.21): (CT) Added handleDREFSIM
-//      04.29.14 (V0.2): (CT) Fixed printbuffertolog bug sometimes displaying numbers >255
-//              - Added documentation/Versioning/comments
-//              - Added min function
-//      04.14.14 (V0.1): (CT) First Version
 //
 //	CONTRIBUTORS
 //		CT: Christopher Teubert (christopher.a.teubert@nasa.gov)

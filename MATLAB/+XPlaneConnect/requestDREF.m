@@ -1,6 +1,5 @@
 function result = requestDREF( DREFArray, varargin )
 %requestDREF request the value of a specific DataRef from X-Plane over UDP
-% Version 0.25
 %
 %Inputs
 %     DREFArray: Cell Array of DataRefs to be requested

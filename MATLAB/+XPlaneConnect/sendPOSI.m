@@ -1,6 +1,5 @@
 function [ status ] = sendPOSI( posi, varargin )
 % sendPOSI Send X-Plane Aircraft Position over UDP
-% Version 0.25
 % 
 % Inputs
 %     posi: Position array where the elements are as follows:
@@ -24,10 +23,6 @@ function [ status ] = sendPOSI( posi, varargin )
 % 3. status = sendPOSI([37.5242422, -122.06899, 2500, 0, 0, 0, 1], 1, '172.0.100.54');
 % 
 % Note: send the value -998 to not overwrite that parameter. That is, if -998 is sent, the parameter will stay at the current X-Plane value
-% 
-% Change Log
-%  10/02/14: [CT] V0.25: Updated to work with updated xpcPlugin
-%  09/25/14: [CT] Code created
 % 
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)

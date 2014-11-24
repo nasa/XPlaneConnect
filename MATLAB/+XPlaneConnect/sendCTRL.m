@@ -1,6 +1,5 @@
 function [ status ] = sendCTRL( ctrl, acft, IP, port )
 % sendCTRL Send X-Plane Aircraft Control Commands over UDP
-% Version 0.25
 % 
 % Inputs
 %     ctrl: control array where the elements are as follows:
@@ -23,10 +22,6 @@ function [ status ] = sendCTRL( ctrl, acft, IP, port )
 % 3. status = sendCTRL([0, 0, 0, 0.8, 0, 1], 1, '172.0.100.54',49009);
 % 
 % Note: send the value -998 to not overwrite that parameter. That is, if -998 is sent, the parameter will stay at the current X-Plane value
-% 
-% Change Log
-%  10/02/14: [CT] V0.25: Updated to work with updated xpcPlugin
-%  09/26/14: [CT] Code created
 % 
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)

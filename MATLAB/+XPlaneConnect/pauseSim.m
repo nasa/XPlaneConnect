@@ -1,6 +1,5 @@
 function status = pauseSim( pause, varargin )
 %pauseSim pause Simulation
-% Version 0.25
 %
 %Inputs
 %     Pause: binary value 0=run, 1=pause
@@ -13,10 +12,6 @@ function status = pauseSim( pause, varargin )
 %Use
 %	1. import XPlaneConnect.*;
 %	2. status = pauseSim(1);
-%
-%Change Log
-%   10/02/14: [CT] V0.25: Updated to work with updated xpcPlugin
-%   04/19/14: [CT] V0.2: First Created
 %
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)

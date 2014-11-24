@@ -1,6 +1,5 @@
 function [socket] = openUDP(port, varargin)
 %openUDP  Script that opens an UDP Socket
-% Version 0.25
 %
 %Inputs
 %   port: UDP Port for socket
@@ -13,12 +12,6 @@ function [socket] = openUDP(port, varargin)
 % 2. Socket = openUDP(49005); %Open socket at port 49005 with timeout=0.1 sec
 % or
 % 2. Socket = openUDP(49005); %Open socket at port 49005 with timeout=0.2 sec
-%
-%Change Log
-%  10/02/14: [CT] V0.25: Updated to work with updated xpcPlugin
-%  04/18/14: [CT] Added Versioning
-%  09/12/13: [CT] Added optional timeout input argument
-%  09/10/13: [CT] Code created
 %
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)

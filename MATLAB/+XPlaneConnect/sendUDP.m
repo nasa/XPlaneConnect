@@ -1,6 +1,5 @@
 function [ status ] = sendUDP( data, IP, port )
 %sendUDP Send an one dimensional array of type uint8 data over an UDP connection using a java DatagramSocket
-% Version 0.25
 %
 %Inputs
 %     Data: 1-D array of type uint8 data to be sent
@@ -15,12 +14,6 @@ function [ status ] = sendUDP( data, IP, port )
 %	2. data = uint8([1:20]);
 %	3. #Send the data array to port 49005 on the computer at IP address 172.0.100.54.
 %	4. status = sendUDP( data, '172.0.100.54', 49005 );
-%
-%Change Log
-%  10/02/14: [CT] V0.25: Updated to work with updated xpcPlugin
-%  09/25/14: [CT] V0.24: Added persistant socket
-%  04/21/14: [CT] V0.2:Added Versioning, support for DREF/SIMU/GETD/CONN
-%  06/10/13: [CT] Code created
 %
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)
