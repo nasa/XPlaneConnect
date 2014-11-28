@@ -7,10 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BE9C6BAF1A253FA100EBE08A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE9C6BAE1A253FA100EBE08A /* main.cpp */; };
-		BE9C6BB11A253FA100EBE08A /* XPC_Tests.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE9C6BB01A253FA100EBE08A /* XPC_Tests.1 */; };
-		BE9C6BB91A25402300EBE08A /* xplaneConnect.c in Sources */ = {isa = PBXBuildFile; fileRef = BE9C6BB71A25402300EBE08A /* xplaneConnect.c */; };
-		BE9C6BBA1A25402300EBE08A /* xplaneConnect.h in Sources */ = {isa = PBXBuildFile; fileRef = BE9C6BB81A25402300EBE08A /* xplaneConnect.h */; };
+		BE7C5C021A28F72F00F246B9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE7C5C001A28F72F00F246B9 /* main.cpp */; };
+		BEB0F4F81A28F7B0001975A6 /* xplaneConnect.c in Sources */ = {isa = PBXBuildFile; fileRef = BEB0F4F61A28F7B0001975A6 /* xplaneConnect.c */; };
+		BEB0F4F91A28F7B0001975A6 /* xplaneConnect.h in Sources */ = {isa = PBXBuildFile; fileRef = BEB0F4F71A28F7B0001975A6 /* xplaneConnect.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -20,18 +19,17 @@
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
-				BE9C6BB11A253FA100EBE08A /* XPC_Tests.1 in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		BE7C5C001A28F72F00F246B9 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = "CPP Tests/main.cpp"; sourceTree = SOURCE_ROOT; };
+		BE7C5C011A28F72F00F246B9 /* XPC_Tests.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; name = XPC_Tests.1; path = "CPP Tests/XPC_Tests.1"; sourceTree = SOURCE_ROOT; };
 		BE9C6BAB1A253FA100EBE08A /* Cpp Tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Cpp Tests"; sourceTree = BUILT_PRODUCTS_DIR; };
-		BE9C6BAE1A253FA100EBE08A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		BE9C6BB01A253FA100EBE08A /* XPC_Tests.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = XPC_Tests.1; sourceTree = "<group>"; };
-		BE9C6BB71A25402300EBE08A /* xplaneConnect.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = xplaneConnect.c; path = ../../C/src/xplaneConnect.c; sourceTree = "<group>"; };
-		BE9C6BB81A25402300EBE08A /* xplaneConnect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = xplaneConnect.h; path = ../../C/src/xplaneConnect.h; sourceTree = "<group>"; };
+		BEB0F4F61A28F7B0001975A6 /* xplaneConnect.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = xplaneConnect.c; path = ../C/src/xplaneConnect.c; sourceTree = "<group>"; };
+		BEB0F4F71A28F7B0001975A6 /* xplaneConnect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = xplaneConnect.h; path = ../C/src/xplaneConnect.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,8 +46,8 @@
 		BE9C6BA21A253FA100EBE08A = {
 			isa = PBXGroup;
 			children = (
-				BE9C6BB71A25402300EBE08A /* xplaneConnect.c */,
-				BE9C6BB81A25402300EBE08A /* xplaneConnect.h */,
+				BEB0F4F61A28F7B0001975A6 /* xplaneConnect.c */,
+				BEB0F4F71A28F7B0001975A6 /* xplaneConnect.h */,
 				BE9C6BAD1A253FA100EBE08A /* Cpp Tests */,
 				BE9C6BAC1A253FA100EBE08A /* Products */,
 			);
@@ -66,8 +64,8 @@
 		BE9C6BAD1A253FA100EBE08A /* Cpp Tests */ = {
 			isa = PBXGroup;
 			children = (
-				BE9C6BAE1A253FA100EBE08A /* main.cpp */,
-				BE9C6BB01A253FA100EBE08A /* XPC_Tests.1 */,
+				BE7C5C001A28F72F00F246B9 /* main.cpp */,
+				BE7C5C011A28F72F00F246B9 /* XPC_Tests.1 */,
 			);
 			name = "Cpp Tests";
 			path = "XPC Tests";
@@ -124,9 +122,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BE9C6BB91A25402300EBE08A /* xplaneConnect.c in Sources */,
-				BE9C6BBA1A25402300EBE08A /* xplaneConnect.h in Sources */,
-				BE9C6BAF1A253FA100EBE08A /* main.cpp in Sources */,
+				BEB0F4F81A28F7B0001975A6 /* xplaneConnect.c in Sources */,
+				BEB0F4F91A28F7B0001975A6 /* xplaneConnect.h in Sources */,
+				BE7C5C021A28F72F00F246B9 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -234,6 +232,7 @@
 				BE9C6BB61A253FA100EBE08A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
