@@ -589,7 +589,7 @@ char setGEAR(short aircraft, float gear, char posi)
 	
 	if (posi)
 	{
-		XPLMSetDatavf(XPLMDataRefs[14][0], gearArray, 0, 8);
+		XPLMSetDatavf(XPLMDataRefs[14][0], gearArray, 0, 1);
 	}
 	
 	return 0;
@@ -709,7 +709,7 @@ int handlePOSI(char buf[])
 	//Landing Gear
 	if (gear != -1)
 	{
-		setGEAR(aircraft, gear,1);
+		setGEAR(aircraft, gear, 1);
 	}
 	
 	return 0;
@@ -752,7 +752,7 @@ int handleCTRL(char buf[])
 	// SET Gear/Flaps
 	if ( gear != -1 )
 	{
-		setGEAR(0, gear,0); // Gear
+		setGEAR(0, gear, 0); // Gear
 	}
 	if ( flaps > -999.5 && flaps < -997.5 ) // Flaps
 	{
@@ -1061,13 +1061,6 @@ int handleDATA(char buf[], int buflen)
 				memcpy(floatArray,&recValues[i][1],8*sizeof(float));
 				for (j=0; j<8; j++)
 				{
-					if (dataRef==14 && j==0)
-					{
-						setGEAR(0, recValues[i][j+1],1); // Landing Gear
-						continue;
-					}
-					
-					// Set DATAREF
 					if (debugSwitch > 0)
 					{
 						char theString[100] = {0};
@@ -1075,6 +1068,13 @@ int handleDATA(char buf[], int buflen)
 						updateLog(theString, strlen(theString));
 					}
 					
+					if (dataRef==14 && j==0)
+					{
+						setGEAR(0, recValues[i][j+1], 1); // Landing Gear
+						continue;
+					}
+					
+					// Set DATAREF
 					if (setDREF(XPLMDataRefs[dataRef][j],floatArray,j,8) == -1)
 						sendBUF(buf,buflen);
 				} //End for j=1:8

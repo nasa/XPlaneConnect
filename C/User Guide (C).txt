@@ -24,7 +24,7 @@ BASIC FUNCTIONS
         
         USE:
         unsigned short portNumber = 49067;
-        struct xpcSocket theSocket = openUDP(portNumber);
+        struct xpcSocket theSocket = openUDP(portNumber, “127.0.0.1”, 49009);
     
     2. closeUDP closes an opened UDP Socket for communication. This is to be done after the program has finished using that socket. Use opedUDP to open socket.
         INPUT:

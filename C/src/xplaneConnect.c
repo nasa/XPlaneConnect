@@ -238,7 +238,7 @@ short sendDATA(struct xpcSocket recfd, float dataRef[][9], unsigned short rows)
 
 short sendDREF(struct xpcSocket recfd, const char *dataRef, unsigned short length_of_DREF, float *values, unsigned short number_of_values) {
     char message[5000];
-    int length = 6+length_of_DREF+number_of_values*sizeof(float);
+    int length = 7+length_of_DREF+number_of_values*sizeof(float);
     
     //HEADER
     strncpy(message,"DREF",4);
@@ -285,7 +285,7 @@ short requestDREF(struct xpcSocket sendfd, struct xpcSocket recfd, char DREFArra
     
     sendRequest(sendfd, DREFArray, DREFSizes, listLength);
     
-    for (i=0; i<40; i++)
+    for (i=0; i<80; i++)
     {
         int size = readDREF(recfd, resultArray, arraySizes);
         if (size != -1) // Received input
@@ -404,7 +404,7 @@ short sendCTRL(struct xpcSocket recfd, short numArgs, float valueArray[])
 
 //READ
 //----------------------------------------
-int readUDP(struct xpcSocket recfd, char *dataRef, struct sockaddr *recvaddr)
+short readUDP(struct xpcSocket recfd, char *dataRef, struct sockaddr *recvaddr)
 {
     socklen_t recvaddrlen = sizeof(*recvaddr);
     int status = 0;
