@@ -41,7 +41,7 @@
         struct xpcSocket openUDP(unsigned short port, const char *xpIP, unsigned short xpPort);
         void closeUDP(struct xpcSocket);
         short sendUDP(struct xpcSocket recfd, char my_message[], short messageLength);
-        int readUDP(struct xpcSocket recfd, char *dataRef, struct sockaddr *recvaddr);
+        short readUDP(struct xpcSocket recfd, char *dataRef, struct sockaddr *recvaddr);
     
     // Configuration
         short setCONN(struct xpcSocket recfd, unsigned short recPort);
