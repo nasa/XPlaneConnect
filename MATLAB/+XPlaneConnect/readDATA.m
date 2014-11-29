@@ -67,7 +67,7 @@ function [ sensor ] = readDATA( socket )
                 dim1 = sensor.raw(a);
                 dim2 = sensor.raw(a+1);
                 if dim1 == 0 %String                    
-                    value = char(sensor.raw(a+2:a+1+dim2));
+                    value = char(sensor.raw(a+2:a+1+dim2))';
                     a = a + dim2 + 2;
                 else
                     value = [];

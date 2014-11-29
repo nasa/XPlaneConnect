@@ -36,4 +36,6 @@ if ~isempty(varargin)
     end
 end
 
+assert(isequal(socket.isClosed(),0),'openUDP: Error- Could not open port');
+
 end

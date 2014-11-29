@@ -42,16 +42,8 @@ function [ status ] = sendUDP( data, IP, port )
         end
     end
     
-	try 
-        IP = InetAddress.getByName(IP);
-        packet = DatagramPacket(data, length(data), IP, port); %create packet
-	    socket.send(packet);
-    catch err
-	    status = 1; 
-	    disp(err)
-	end
-	    
-	
-
+    IP = InetAddress.getByName(IP);
+    packet = DatagramPacket(data, length(data), IP, port); %create packet
+    socket.send(packet);
 end
 

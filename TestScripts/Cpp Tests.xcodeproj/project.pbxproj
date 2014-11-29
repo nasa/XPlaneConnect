@@ -26,7 +26,7 @@
 
 /* Begin PBXFileReference section */
 		BE7C5C001A28F72F00F246B9 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = "CPP Tests/main.cpp"; sourceTree = SOURCE_ROOT; };
-		BE7C5C011A28F72F00F246B9 /* XPC_Tests.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; name = XPC_Tests.1; path = "CPP Tests/XPC_Tests.1"; sourceTree = SOURCE_ROOT; };
+		BE7C5C011A28F72F00F246B9 /* Cpp_Tests.1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.man; name = Cpp_Tests.1; path = "CPP Tests/Cpp_Tests.1"; sourceTree = SOURCE_ROOT; };
 		BE9C6BAB1A253FA100EBE08A /* Cpp Tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Cpp Tests"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEB0F4F61A28F7B0001975A6 /* xplaneConnect.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = xplaneConnect.c; path = ../C/src/xplaneConnect.c; sourceTree = "<group>"; };
 		BEB0F4F71A28F7B0001975A6 /* xplaneConnect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = xplaneConnect.h; path = ../C/src/xplaneConnect.h; sourceTree = "<group>"; };
@@ -65,7 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				BE7C5C001A28F72F00F246B9 /* main.cpp */,
-				BE7C5C011A28F72F00F246B9 /* XPC_Tests.1 */,
+				BE7C5C011A28F72F00F246B9 /* Cpp_Tests.1 */,
 			);
 			name = "Cpp Tests";
 			path = "XPC Tests";
