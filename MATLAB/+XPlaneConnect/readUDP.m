@@ -50,7 +50,7 @@ function [ data ] = readUDP( input )
         data = int16(data);
         data(data(:)<0) = uint8(data(data(:)<0) + 256); %fix signed issue
         size = int16(data(5)); %size of data stream
-        
+
         %% trim trailing data
         for i=1:floor(length(data)/256)+1
             if data(size+1:end)==0

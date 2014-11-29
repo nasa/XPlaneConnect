@@ -23,4 +23,6 @@ function [socket] = closeUDP(socket)
 
 socket.close;
 
+assert(isequal(socket.isClosed(),1),'closeUDP: Error- Could not close socket');
+
 end

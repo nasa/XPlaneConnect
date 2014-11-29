@@ -36,7 +36,7 @@ import XPlaneConnect.*
 
 %% Handle Input
     % Optional parameters
-    if ~exist('IP','var'), IP = "127.0.0.1"; end
+    if ~exist('IP','var'), IP = '127.0.0.1'; end
     if ~exist('port','var'), port = 49009; end
     if ~exist('acft','var'), acft = 0; end
 
@@ -44,7 +44,7 @@ import XPlaneConnect.*
 
 %%BODY
     header = ['CTRL'-0,0];
-    dataStream = [header, acft];
+    dataStream = header; %TODO-ADD ACFT
     
     % Deal with position update
     control = [0, 0, 0, 0.8, 0, 1];
@@ -55,7 +55,7 @@ import XPlaneConnect.*
     dataStream = [dataStream, typecast(single(control),'uint8')];
     
     % Send DATA
-    status = sendUDP(IP, port, dataStream);
-    
+    status = sendUDP(dataStream, IP, port);
+
 end
 
