@@ -93,7 +93,7 @@
       <PreprocessorDefinitions>IBM=1;XPLM200;_DEBUG;_WINDOWS;_USRDLL;XPCPLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>./src;\\vmware-host\Shared Folders\Documents\xplaneconnect\xpcPlugin\SDK\CHeaders\XPLM;\\vmware-host\Shared Folders\Documents\xplaneconnect\xpcPlugin;\\vmware-host\Shared Folders\Documents\xplaneconnect\C\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./src;../../SDK/CHeaders/XPLM;../../;../../../C/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers />

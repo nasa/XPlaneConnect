@@ -32,14 +32,14 @@ void runTest(short (*f)())
     }
 }
 
-short test1() // openUDP Test
+short openTest() // openUDP Test
 {
     printf("openUDP - ");
     struct xpcSocket sendPort = openUDP( 49062, "127.0.0.1", 49009 );
     return 0;
 }
 
-short test2() // closeUDP test
+short closeTest() // closeUDP test
 {
     printf("closeUDP - ");
     struct xpcSocket sendPort = openUDP( 49063, "127.0.0.1", 49009 );
@@ -48,7 +48,7 @@ short test2() // closeUDP test
     return 0;
 }
 
-short test3() // send/read Test
+short sendReadTest() // send/read Test
 {
     printf("send/readUDP - ");
     
@@ -82,7 +82,7 @@ short test3() // send/read Test
     return 0;
 }
 
-short test4() // Request DREF Test (Required for next tests)
+short requestDREFTest() // Request DREF Test (Required for next tests)
 {
     printf("requestDREF - ");
     
@@ -126,7 +126,7 @@ short test4() // Request DREF Test (Required for next tests)
     return 0;
 }
 
-short test5() // sendDREF test
+short sendDREFTest() // sendDREF test
 {
     printf("sendDREF - ");
     
@@ -175,7 +175,7 @@ short test5() // sendDREF test
     return 0;
 }
 
-short test6() // sendDATA test
+short sendDATATest() // sendDATA test
 {
     printf("sendData - ");
     
@@ -230,7 +230,7 @@ short test6() // sendDATA test
     return 0;
 }
 
-short test7() // sendCTRL test
+short sendCTRLTest() // sendCTRL test
 {
     printf("sendCTRL - ");
     
@@ -285,7 +285,7 @@ short test7() // sendCTRL test
     return 0;
 }
 
-short test8() // sendPOSI test
+short sendPOSITest() // sendPOSI test
 {
     printf("sendPOSI - ");
     
@@ -352,7 +352,7 @@ short test8() // sendPOSI test
     return 0;
 }
 
-short test9() // pauseSim test
+short pauseTest() // pauseSim test
 {
     printf("pauseSim - ");
     
@@ -420,7 +420,7 @@ short test9() // pauseSim test
     return 0;
 }
 
-short test10() // setConn test
+short connTest() // setConn test
 {
     printf("setConn - ");
     
@@ -475,16 +475,16 @@ int main(int argc, const char * argv[])
     printf("(Linux) \n");
 #endif
     
-    runTest(test1);
-    runTest(test2);
-    runTest(test3);
-    runTest(test4);
-    runTest(test5);
-    runTest(test6);
-    runTest(test7);
-    runTest(test8);
-    runTest(test9);
-    runTest(test10);
+    runTest(openTest);
+    runTest(closeTest);
+    runTest(sendReadTest);
+    runTest(requestDREFTest);
+    runTest(sendDREFTest);
+    runTest(sendDATATest);
+    runTest(sendCTRLTest);
+    runTest(sendPOSITest);
+    runTest(pauseTest);
+    runTest(connTest);
     
     printf( "----------------\nTest Summary\n\tFailed: %i\n\tPassed: %i\n", testFailed, testPassed );
     
