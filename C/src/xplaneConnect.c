@@ -89,6 +89,7 @@ struct xpcSocket openUDP(unsigned short port_number, const char *xpIP, unsigned 
 
 #if (__APPLE__ || __linux)
     struct timeval tv;
+    int optval = 1;
 #endif
     
     // Setup Port
@@ -146,6 +147,10 @@ struct xpcSocket openUDP(unsigned short port_number, const char *xpIP, unsigned 
         perror((char*) "ERROR: openUDP- ");
         return theSocket;
     }
+    
+    // Options
+        setsockopt(theSocket.sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+        setsockopt(theSocket.sock, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
     
     //Bind
     if ( bind(theSocket.sock, (struct sockaddr *) &server, sizeof(server)) == -1)
