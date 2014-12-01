@@ -571,9 +571,8 @@ short parseRequest(const char my_message[], float *resultArray[], short arraySiz
     int i, j;
     short count = my_message[5];
     short place = 6;
-    float *tmp;
-    float data[10];
-    tmp = malloc(sizeof(float));
+    float tmp;
+    float data[25];
     
     for (i=0; i<count; i++)
     {
@@ -582,8 +581,8 @@ short parseRequest(const char my_message[], float *resultArray[], short arraySiz
         
         for (j=0; j< arraySizes[i]; j++)
         {
-            memcpy(tmp,&my_message[place+1],sizeof(float));
-            data[j] = *tmp;
+            memcpy(&tmp,&my_message[place+1],sizeof(float));
+            data[j] = tmp;
         }
         
         resultArray[i] = malloc(arraySizes[i]*sizeof(float));
@@ -592,7 +591,6 @@ short parseRequest(const char my_message[], float *resultArray[], short arraySiz
         place += 1 + arraySizes[i]*sizeof(float);
     }
     
-    free(tmp);
     return count;
 }
 

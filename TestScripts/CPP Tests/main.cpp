@@ -48,6 +48,7 @@ void test2() // closeUDP test
     std::cout << "closeUDP - ";
     struct xpcSocket sendPort = openUDP( 49063, "127.0.0.1", 49009 );
     closeUDP(sendPort);
+    sendPort = openUDP( 49063, "127.0.0.1", 49009 );
 }
 
 void test3() // send/read Test
@@ -239,82 +240,112 @@ void test7() // sendCTRL test
         float *recDATA[100];
         short DREFSizes[100];
         struct xpcSocket sendPort, recvPort;
+        short result;
     
     // Setup
         for (i = 0; i < 100; i++) {
             recDATA[i]   = (float *) malloc(40*sizeof(float));
             memset(DREFArray[i],0,100);
         }
-        sendPort = openUDP( 49067, "127.0.0.1", 49009 );
+        sendPort = openUDP( 49066, "127.0.0.1", 49009 );
         recvPort = openUDP( 49008, "127.0.0.1", 49009 );
-        strcpy(DREFArray[0],"sim/cockpit/switches/gear_handle_status");
-        for (i=0;i<1;i++) {
-            DREFSizes[i] = (int) strlen(DREFArray[i]);
-        }
-        CTRL[3] = 0.8; // Throttle
+    strcpy(DREFArray[0],"sim/cockpit2/controls/yoke_pitch_ratio");
+    strcpy(DREFArray[1],"sim/cockpit2/controls/yoke_roll_ratio");
+    strcpy(DREFArray[2],"sim/cockpit2/controls/yoke_heading_ratio");
+    strcpy(DREFArray[3],"sim/flightmodel/engine/ENGN_thro");
+    strcpy(DREFArray[4],"sim/cockpit/switches/gear_handle_status");
+    strcpy(DREFArray[5],"sim/flightmodel/controls/flaprqsts");
+    for (i=0;i<5;i++) {
+        DREFSizes[i] = (int) strlen(DREFArray[i]);
+    }
+    CTRL[3] = 0.8; // Throttle
     
     // Execute
-        sendCTRL(sendPort, 4, CTRL);
+    sendCTRL(sendPort, 4, CTRL);
+    result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 1, recDATA, DREFSizes); // Test
     
     // Close
-        closeUDP(sendPort);
-        closeUDP(recvPort);
+    closeUDP(sendPort);
+    closeUDP(recvPort);
     
-    // Test
-    
-//    if (requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 1, recDATA, DREFSizes) < 0)// Request 1 value
-//    {
-//        throw 1;
-//    }
-//    if (DREFSizes[0] != 1)
-//    {
-//        throw 2;
-//    }
-//    if (*recDATA[0] != value)
-//    {
-//        throw 3;
-//    }
+    // Tests
+    if ( result < 0 )// Request 1 value
+    {
+        throw -6;
+    }
+    for (i=0;i<6-1;i++)
+    {
+        if (abs(recDATA[i][0]-CTRL[i])>1e-4)
+        {
+            throw -i;
+        }
+    }
 }
 
 void test8() // sendPOSI test
 {
     std::cout << "sendPOSI - ";
     
-    // Initialization
-        int i; // Iterator
-        char DREFArray[100][100];
-        float POSI[8] = {0.0};
-        float *recDATA[100];
-        short DREFSizes[100];
-        struct xpcSocket sendPort, recvPort;
+    // Initialize
+    int i; // Iterator
+    char DREFArray[100][100];
+    float *recDATA[100];
+    short DREFSizes[100],RECSizes[100];
+    struct xpcSocket sendPort, recvPort;
+    short result;
     
     // Setup
-        for (i = 0; i < 100; i++) {
-            recDATA[i]   = (float *) malloc(40*sizeof(float));
-            memset(DREFArray[i],0,100);
-        }
-        sendPort = openUDP( 49067, "127.0.0.1", 49009 );
-        recvPort = openUDP( 49008, "127.0.0.1", 49009 );
-        strcpy(DREFArray[0],"sim/cockpit/switches/gear_handle_status");
-        for (i=0;i<1;i++) {
-            DREFSizes[i] = (int) strlen(DREFArray[i]);
-        }
-        POSI[0] = 37.524; // Lat
-        POSI[1] = -122.06899; // Lon
-        POSI[2] = 2500; // Alt
-        POSI[3] = 0; // Pitch
-        POSI[4] = 0; // Roll
-        POSI[5] = 0; // Heading
-        POSI[6] = 1; // Gear
+    for (i = 0; i < 100; i++) {
+        recDATA[i]   = (float *) malloc(40*sizeof(float));
+        memset(DREFArray[i],0,100);
+    }
     
-    // Execution
-        sendPOSI( sendPort, 0, 7, POSI );
+    // Setup
+    sendPort = openUDP( 49064, "127.0.0.1", 49009 );
+    recvPort = openUDP( 49008, "127.0.0.1", 49009 );
+    strcpy(DREFArray[0],"sim/operation/override/override_planepath");
+    for (i=0;i<1;i++) {
+        DREFSizes[i] = (int) strlen(DREFArray[i]);
+    }
+    
+    // Execute
+    pauseSim(sendPort, 1);
+    result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 1, recDATA, RECSizes); // Test
     
     // Close
-        closeUDP(sendPort);
-        closeUDP(recvPort);
+    closeUDP(sendPort);
+    closeUDP(recvPort);
     
     // Test
+    if (result < 0)     {
+        throw -1;
+    }
+    if (recDATA[0][0] != 1)
+    {
+        throw -2;
+    }
+    
+    // Reopen
+    sendPort = openUDP( 49064, "127.0.0.1", 49009 );
+    recvPort = openUDP( 49008, "127.0.0.1", 49009 );
+    
+    // Execute 2
+    pauseSim(sendPort, 0);
+    result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 1, recDATA, RECSizes); // Test
+    
+    // Close 2
+    closeUDP(sendPort);
+    closeUDP(recvPort);
+    
+    // Test 2
+    if (result < 0)
+    {
+        throw -3;
+    }
+    if (recDATA[0][0] != 0)
+    {
+        throw -4;
+    }
 }
 
 void test9() // pauseSim test
