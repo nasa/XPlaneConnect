@@ -431,7 +431,9 @@ short connTest() // setConn test
     short DREFSizes[100];
     struct xpcSocket sendPort, recvPort;
     short result = 0;
+#if (__APPLE__ || __linux)
     usleep(0);
+#endif
     
     // Setup
     sendPort = openUDP( 49067, "127.0.0.1", 49009 );
