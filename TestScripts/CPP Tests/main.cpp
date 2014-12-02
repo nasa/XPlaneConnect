@@ -286,6 +286,70 @@ void test8() // sendPOSI test
 {
     std::cout << "sendPOSI - ";
     
+    // Initialization
+    int i; // Iterator
+    char DREFArray[100][100];
+    float POSI[8] = {0.0};
+    float *recDATA[100];
+    short DREFSizes[100];
+    struct xpcSocket sendPort, recvPort;
+    short result;
+    
+    // Setup
+    for (i = 0; i < 100; i++) {
+        recDATA[i]   = (float *) malloc(40*sizeof(float));
+        memset(DREFArray[i],0,100);
+    }
+    sendPort = openUDP( 49063, "127.0.0.1", 49009 );
+    recvPort = openUDP( 49008, "127.0.0.1", 49009 );
+    strcpy(DREFArray[0],"sim/flightmodel/position/latitude");
+    strcpy(DREFArray[1],"sim/flightmodel/position/longitude");
+    strcpy(DREFArray[2],"sim/flightmodel/position/y_agl");
+    strcpy(DREFArray[3],"sim/flightmodel/position/phi");
+    strcpy(DREFArray[4],"sim/flightmodel/position/theta");
+    strcpy(DREFArray[5],"sim/flightmodel/position/psi");
+    strcpy(DREFArray[6],"sim/cockpit/switches/gear_handle_status");
+    for (i=0;i<7;i++) {
+        DREFSizes[i] = (int) strlen(DREFArray[i]);
+    }
+    POSI[0] = 37.524; // Lat
+    POSI[1] = -122.06899; // Lon
+    POSI[2] = 2500; // Alt
+    POSI[3] = 0; // Pitch
+    POSI[4] = 0; // Roll
+    POSI[5] = 0; // Heading
+    POSI[6] = 1; // Gear
+    
+    // Execution
+    sendPOSI( sendPort, 0, 7, POSI );
+    result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 7, recDATA, DREFSizes); // Test
+    
+    // Close
+    closeUDP(sendPort);
+    closeUDP(recvPort);
+    
+    // Tests
+    if ( result < 0 )// Request 1 value
+    {
+        throw -7;
+    }
+    for (i=0;i<7-1;i++)
+    {
+        if (i==2)
+        {
+            continue;
+        }
+        if (abs(recDATA[i][0]-POSI[i])>1e-4)
+        {
+            throw -i;
+        }
+    }
+}
+
+void test9() // pauseSim test
+{
+    std::cout << "pauseSim - ";
+    
     // Initialize
     int i; // Iterator
     char DREFArray[100][100];
@@ -348,27 +412,6 @@ void test8() // sendPOSI test
     }
 }
 
-void test9() // pauseSim test
-{
-    std::cout << "pauseSim - ";
-    
-    // Initialize
-        struct xpcSocket sendPort, recvPort;
-    
-    // Setup
-        sendPort = openUDP( 49067, "127.0.0.1", 49009 );
-        recvPort = openUDP( 49008, "127.0.0.1", 49009 );
-    
-    // Execute
-        pauseSim(sendPort, 1);
-    
-    // Close
-        closeUDP(sendPort);
-        closeUDP(recvPort);
-    
-    // Test
-}
-
 void test10() // setConn test
 {
     std::cout << "setConn - ";
@@ -380,7 +423,9 @@ void test10() // setConn test
         short DREFSizes[100];
         struct xpcSocket sendPort, recvPort;
         short result = 0;
+#if (__APPLE__ || __linux)
         usleep(0);
+#endif
     
     // Setup
         sendPort = openUDP( 49067, "127.0.0.1", 49009 );
