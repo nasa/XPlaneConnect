@@ -37,13 +37,13 @@ void runTest(void (*f)())
     
 }
 
-void test1() // openUDP Test
+void openUDPTest() // openUDP Test
 {
     std::cout << "openUDP - ";
     struct xpcSocket sendPort = openUDP( 49062, "127.0.0.1", 49009 );
 }
 
-void test2() // closeUDP test
+void closeUDPTest() // closeUDP test
 {
     std::cout << "closeUDP - ";
     struct xpcSocket sendPort = openUDP( 49063, "127.0.0.1", 49009 );
@@ -51,7 +51,7 @@ void test2() // closeUDP test
     sendPort = openUDP( 49063, "127.0.0.1", 49009 );
 }
 
-void test3() // send/read Test
+void sendReadTest() // send/read Test
 {
     std::cout << "send/readUDP - ";
     
@@ -84,7 +84,7 @@ void test3() // send/read Test
     
 }
 
-void test4() // Request DREF Test (Required for next tests)
+void requestDREFTest() // Request DREF Test (Required for next tests)
 {
     std::cout << "requestDREF - ";
     
@@ -127,7 +127,7 @@ void test4() // Request DREF Test (Required for next tests)
         }
 }
 
-void test5() // sendDREF test
+void sendDREFTest() // sendDREF test
 {
     std::cout << "sendDREF - ";
     
@@ -175,7 +175,7 @@ void test5() // sendDREF test
         }
 }
 
-void test6() // sendDATA test
+void sendDATATest() // sendDATA test
 {
     std::cout << "sendData - ";
     
@@ -229,7 +229,7 @@ void test6() // sendDATA test
         }
 }
 
-void test7() // sendCTRL test
+void sendCTRLTest() // sendCTRL test
 {
     std::cout << "sendCTRL - ";
     
@@ -282,7 +282,7 @@ void test7() // sendCTRL test
     }
 }
 
-void test8() // sendPOSI test
+void sendPOSITest() // sendPOSI test
 {
     std::cout << "sendPOSI - ";
     
@@ -346,7 +346,7 @@ void test8() // sendPOSI test
     }
 }
 
-void test9() // pauseSim test
+void pauseTest() // pauseSim test
 {
     std::cout << "pauseSim - ";
     
@@ -412,7 +412,7 @@ void test9() // pauseSim test
     }
 }
 
-void test10() // setConn test
+void connTest() // setConn test
 {
     std::cout << "setConn - ";
     
@@ -468,16 +468,16 @@ int main(int argc, const char * argv[])
     std::cout << "(Linux) \n";
 #endif
     
-    runTest(test1);
-    runTest(test2);
-    runTest(test3);
-    runTest(test4);
-    runTest(test5);
-    runTest(test6);
-    runTest(test7);
-    runTest(test8);
-    runTest(test9);
-    runTest(test10);
+    runTest(openUDPTest);
+    runTest(closeUDPTest);
+    runTest(sendReadTest);
+    runTest(requestDREFTest);
+    runTest(sendDREFTest);
+    runTest(sendDATATest);
+    runTest(sendCTRLTest);
+    runTest(sendPOSITest);
+    runTest(pauseTest);
+    runTest(connTest);
     
     std::cout << "----------------\nTest Summary\n\tFailed: " << testFailed << "\n\tPassed: " << testPassed << std::endl;
     
