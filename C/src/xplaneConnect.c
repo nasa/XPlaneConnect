@@ -159,14 +159,14 @@ struct xpcSocket openUDP(unsigned short port_number, const char *xpIP, unsigned 
 #endif
     
     //Set Timout
-	int msTimeOut = 500;
+	int usTimeOut = 500;
 
 #ifdef _WIN32
-	DWORD msTimeOutWin = msTimeOut;
+	DWORD msTimeOutWin = 1; // Minimum socket timeout in Windows is 1ms
 	setsockopt(theSocket.sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&msTimeOutWin, sizeof(msTimeOutWin));
 #else
 	tv.tv_sec = 0;  /* Sec Timeout */
-	tv.tv_usec = msTimeOut * 1000;  // Microsec Timeout
+	tv.tv_usec = msTimeOut;  // Microsec Timeout
     setsockopt(theSocket.sock, SOL_SOCKET, SO_RCVTIMEO, (char *) &tv, sizeof(struct timeval));
 #endif
     
