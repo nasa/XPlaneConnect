@@ -140,8 +140,6 @@ struct xpcSocket openUDP(unsigned short port_number, const char *xpIP, unsigned 
     }
 #elif (__APPLE__ || __linux)
     // Create a SOCKET
-    theSocket.sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    
     if ((theSocket.sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
         perror((char*) "ERROR: openUDP- ");
@@ -164,11 +162,11 @@ struct xpcSocket openUDP(unsigned short port_number, const char *xpIP, unsigned 
 	int msTimeOut = 500;
 
 #ifdef _WIN32
-	DWORD msTimeOutWin = 1;
+	DWORD msTimeOutWin = msTimeOut;
 	setsockopt(theSocket.sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&msTimeOutWin, sizeof(msTimeOutWin));
 #else
 	tv.tv_sec = 0;  /* Sec Timeout */
-	tv.tv_usec = msTimeOut;  // Microsec Timeout
+	tv.tv_usec = msTimeOut * 1000;  // Microsec Timeout
     setsockopt(theSocket.sock, SOL_SOCKET, SO_RCVTIMEO, (char *) &tv, sizeof(struct timeval));
 #endif
     
