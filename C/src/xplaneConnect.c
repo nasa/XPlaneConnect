@@ -166,7 +166,7 @@ struct xpcSocket openUDP(unsigned short port_number, const char *xpIP, unsigned 
 	setsockopt(theSocket.sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&msTimeOutWin, sizeof(msTimeOutWin));
 #else
 	tv.tv_sec = 0;  /* Sec Timeout */
-	tv.tv_usec = msTimeOut;  // Microsec Timeout
+	tv.tv_usec = usTimeOut;  // Microsec Timeout
     setsockopt(theSocket.sock, SOL_SOCKET, SO_RCVTIMEO, (char *) &tv, sizeof(struct timeval));
 #endif
     
