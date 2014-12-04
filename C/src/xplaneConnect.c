@@ -519,9 +519,8 @@ short parseDATA(const char my_message[], short messageLength, float dataRef[][9]
 {
     int i, j;
     unsigned short totalColumns = ((messageLength-5)/36);
-    float *tmp;
+    float tmp;
     float data[20][9];
-    tmp = malloc(sizeof(float));
     
     // Input Validation
     
@@ -530,11 +529,10 @@ short parseDATA(const char my_message[], short messageLength, float dataRef[][9]
         data[i][0] = my_message[5+36*i];
         for (j=1;j<9;j++)
         {
-            memcpy(tmp,&my_message[5]+4*j+36*i,4);
-            data[i][j] = *tmp;
+            memcpy(&tmp,&my_message[5]+4*j+36*i,4);
+            data[i][j] = tmp;
         }
     }
-    free(tmp);
     memcpy(dataRef,data,sizeof(data));
     return totalColumns;
 }
