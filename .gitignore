@@ -10,3 +10,31 @@ xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/xpcPlugin.hmap
 xpcPlugin/xpcPlugin.xcodeproj/project.xcworkspace/xcshareddata/xpcPlugin.xccheckout
 
 Docs/~$Capability Matrix.xlsx
+
+*.xcuserstate
+
+*.o
+
+TestScripts/C Tests.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
+
+*.xcuserstate
+
+TestScripts/Cpp Tests.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
+
+xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.o
+
+xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.o
+
+xpcPlugin/xpcPlugin.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
+
+TestScripts/C Tests.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
+
+TestScripts/C Tests.xcodeproj/xcuserdata/cteubert.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+
+TestScripts/Cpp Tests.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
+
+xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.o
+
+xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.o
+
+xpcPlugin/xpcPlugin.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
