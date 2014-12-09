@@ -72,8 +72,18 @@ class XPlaneConnect:
         self.send_udp(msg)
 
     # UDP Data
-    def parse_data(self, data):
-        pass
+    def parse_data(self, msg):
+        total_cols = ((len(data) - 5) / 36)
+        data = []
+
+        # Input Validation
+        for i in range(total_cols):
+            data.append([])
+            data[i].append(struct.unpack_from("f", msg, 5 + 36*i))
+            for j in range(1, 9):
+                data[i].append(struct.unpack_from("f", msg, 5 + 4*j + 36*i))
+        
+        return data  
 
     def read_data(self):
         buf = self.read_udp()
@@ -92,8 +102,16 @@ class XPlaneConnect:
         self.send_udp(msg)
 
     # Position
-    def parse_pos(self, data):
-        pass
+    def parse_pos(self, msg, array_size):
+        if array_size < 1:
+            return None
+
+        gear = struct.unpack_from("f", msg, 30)
+        result = []
+        for i in range(min(array_size, 6)):
+            result.append(struct.unpack_from("f", msg, i*4 + 6))
+
+        return result, gear
 
     def read_pos(self, resultArray, gear):
         buf = self.read_udp()
@@ -109,7 +127,6 @@ class XPlaneConnect:
 
         # Header and Aircraft num
         msg = struct.pack("!4sB", ("POSI", ac_num))
-
         # States
         for i in range(7):
             val = -998.5 # TODO: Why?
@@ -119,10 +136,15 @@ class XPlaneConnect:
 
         # Send
         self.send_udp(msg)
-#}
+
     # Controls
-    def parse_ctrl(self, data):
-        pass
+    def parse_ctrl(self, msg):
+        result = []
+        for i in range(4):
+            result.append(struct.unpack_from("f", msg, i*4 + i))
+        gear = struct.unpack_from("B", msg, 21)
+        flaps = struct.unpack_from("f", msg, 22)
+        return flaps, gear, result
 
     def read_ctrol(self, resultArray, gear):
         buf = self.read_udp()
@@ -157,8 +179,12 @@ class XPlaneConnect:
         else:
             return None
 
-    def parse_dref(self, data):
-        pass
+    def parse_dref(self, msg):
+        len_dref = struct.unpack_from("B", msg, 5)
+        dref = struct.unpack_from(str(len_dref) + "B", msg, 6)
+        len_val = struct.unpack_from("B", msg, 6 + len_dref)
+        values = struct.unpack_from(str(len_val) + "f", msg, 7 + len_dref)
+        return dref, values
 
     def send_dref(self, data_ref, values):
         '''Sends X-Plane dref over the underlying UDP socket.'''
@@ -188,7 +214,16 @@ class XPlaneConnect:
         return -1
 
     def parse_getd(self, msg, dref_array, dref_sizes):
-        pass
+        len_list = struct.unpack_from("B", msg, 5)
+        counter = 6
+        drefs = []
+        
+        for i in range(len_list):
+            dref_size = struct.unpack_from("B", msg, counter)
+            drefs.append(struct.unpack_from(str(dref_size) + "B", msg, counter + 1))
+            counter += dref_size + 1
+
+        return drefs
 
     def send_request(self, dref_array):
         '''Sends a request over the underlying UDP socket.'''
@@ -205,10 +240,19 @@ class XPlaneConnect:
 
         self.send_udp(msg)
 
-    def parse_request(self, data):
-        pass
+    def parse_request(self, msg):
+        count = msg[5]
+        cursor = 6
+        result = []
+        for i in range(count):
+            arr_size = msg[cursor]
+            data = struct.unpack_from(str(arr_size) + "f", msg, cursor)
+            result.append(data)
+            cursor += arr_size
 
-    def read_request(self, data_ref, array_sizes, recv_addr):
+        return result
+
+    def read_request(self, recv_addr):
         buf = self.read_udp()
         if buf[0] != 0:
             return self.parse_request(buf)
