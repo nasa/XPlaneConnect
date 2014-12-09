@@ -564,26 +564,20 @@ int parseGETD(const char my_message[], char *DREFArray[], int DREFSizes[])
 
 short parseRequest(const char my_message[], float *resultArray[], short arraySizes[])
 {
-    int i, j;
+    int i;
     short count = my_message[5];
     short place = 6;
-    float tmp;
-    float data[25];
     
     for (i=0; i<count; i++)
     {
         arraySizes[i] = my_message[place];
-        if (arraySizes[i] > 1) realloc(resultArray[i],arraySizes[i]);
-        
-        for (j=0; j< arraySizes[i]; j++)
+        if (resultArray[i] != NULL)
         {
-            memcpy(&tmp,&my_message[place+1],sizeof(float));
-            data[j] = tmp;
+            free(resultArray[i]);
         }
-        
         resultArray[i] = malloc(arraySizes[i]*sizeof(float));
         
-        memcpy(resultArray[i],&data,arraySizes[i]*sizeof(float));
+        memcpy(resultArray[i],&my_message[place + 1],arraySizes[i]*sizeof(float));
         place += 1 + arraySizes[i]*sizeof(float);
     }
     
