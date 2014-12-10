@@ -9,7 +9,7 @@ class XPlaneConnect:
         '''Creates a new XPlaneConnect interface, and binds a UDP socket based on the specified parameters.'''
 
         # Setup server port
-        server = (socket.INADDR_ANY, socket.htons(port))
+        self.server = ("0.0.0.0", port)
 
         # Setup XPlane IP and port
         if xp_ip == 'localhost' or xp_ip is None:
@@ -22,11 +22,11 @@ class XPlaneConnect:
         # Create and bind socket
         # TODO: Raise a friendly error if socket creation/binding fails
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        self.socket.bind(server)
+        self.socket.bind(self.server)
         
         # Set timeout
         timeout_us = 500
-        self.socket.settimeout(timeout_ms / 1000000)
+        self.socket.settimeout(timeout_us / 1000000)
 
     def __del__(self):
         self.close()
@@ -40,16 +40,19 @@ class XPlaneConnect:
     def send_udp(self, msg):
         '''Sends a message over the underlying UDP socket.'''
         msg_len = len(msg)
-        msg[4] = msg_len
+        msg = list(msg)
+        msg[4] = chr(msg_len)
+        msg = "".join(msg)
 
         # Preconditions
         if(msg_len <= 0): # Require message length greater than 0.
             raise RuntimeError("send_udp: message length must be psoitive >0")
 
+        on = 1
         # Code
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1) # TODO: Why?
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, on)
 
-        self.socket.send(msg)
+        self.socket.sendto(msg, 0, (self.xp_ip, self.xp_port))
 
     def read_udp(self, recv_addr = None):
         if recv_addr is None:
@@ -172,7 +175,7 @@ class XPlaneConnect:
         self.send_udp(msg)
         
     # DREF Manipulation
-    def read_dref(self, resultArray):
+    def read_dref(self):
         buf = self.read_udp()
         if buf[0] != 0:
             return self.parse_dref(buf)
@@ -203,15 +206,15 @@ class XPlaneConnect:
 
         self.send_udp(msg)
 
-    def request_dref(self, dref_array, resultArray):
+    def request_dref(self, dref_array):
         '''Requests drefs and reads the response.'''
         self.send_request(dref_array)
         for i in range(80):
-            size = self.read_dref(resultArray)
-            if size != -1:
-                return size
+            result = self.read_dref()
+            if siresultze is not None:
+                return result
 
-        return -1
+        return None
 
     def parse_getd(self, msg, dref_array, dref_sizes):
         len_list = struct.unpack_from("B", msg, 5)
