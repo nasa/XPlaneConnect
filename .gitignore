@@ -38,3 +38,5 @@ xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCP
 xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.o
 
 xpcPlugin/xpcPlugin.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
+
+build/
