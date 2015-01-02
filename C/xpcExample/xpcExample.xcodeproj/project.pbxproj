@@ -16,14 +16,14 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		BE60308318E5F7A5004B5E1D /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
+			buildActionMask = 8;
 			dstPath = /Users/cteubert/Documents/flightdeckz/connections/src/xplaneconnect;
 			dstSubfolderSpec = 0;
 			files = (
 				BEDC620818EDF254005DB364 /* xplaneConnect.c in CopyFiles */,
 				BEDC620918EDF257005DB364 /* xplaneConnect.h in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -31,7 +31,7 @@
 		BEDC61FF18EDF0F5005DB364 /* xplaneConnect.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xplaneConnect.c; path = ../src/xplaneConnect.c; sourceTree = "<group>"; };
 		BEDC620018EDF0F5005DB364 /* xplaneConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xplaneConnect.h; path = ../src/xplaneConnect.h; sourceTree = "<group>"; };
 		BEF9890B18E4E7F7005554D1 /* xpcExample */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = xpcExample; sourceTree = BUILT_PRODUCTS_DIR; };
-		BEF9890E18E4E7F7005554D1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		BEF9890E18E4E7F7005554D1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = src/main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,7 +105,7 @@
 		BEF9890318E4E7F7005554D1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = "Chris Teubert";
 			};
 			buildConfigurationList = BEF9890618E4E7F7005554D1 /* Build configuration list for PBXProject "xpcExample" */;
@@ -209,7 +209,6 @@
 		BEF9891518E4E7F7005554D1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -222,7 +221,6 @@
 		BEF9891618E4E7F7005554D1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
