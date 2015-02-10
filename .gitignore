@@ -40,3 +40,16 @@ xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpla
 xpcPlugin/xpcPlugin.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
 
 build/
+xpcPlugin/Win/xpcPlugin.exp
+xpcPlugin/Win/xpcPlugin.ilk
+xpcPlugin/Win/xpcPlugin.lib
+xpcPlugin/Win/xpcPlugin.pdb
+xpcPlugin/Win/xpcPlugin32.exp
+xpcPlugin/Win/xpcPlugin32.ilk
+xpcPlugin/Win/xpcPlugin32.lib
+*.pdb
+*.ilk
+xpcPlugin/Win/xpcPlugin64.lib
+xpcPlugin/Win/xpcPlugin64.exp
+xpcPlugin/xpcPlugin/xpcPlugin/Debug/xplaneConnect.obj
+xpcPlugin/xpcPlugin/xpcPlugin/Debug/xpcPluginTools.obj

@@ -1,4 +1,4 @@
-X-Plane Connect (XPC) Toolbox
+﻿X-Plane Connect (XPC) Toolbox
 
 Description
 The X-Plane Connect (XPC) Toolbox facilitates communication with X-Plane. This toolbox allows for the real-time manipulation of X-Plane variables. Possible applications include active control of an XPlane simulation, flight visualization, recording states during a flight, or interacting with a mission over UDP.
@@ -17,7 +17,8 @@ xpcScripts
 Instructions:
     1. Purchase/Install X-Plane
     2. Copy the X-Plane Plugin to the plugin directory
-        Windows Plugin: xpcPlugin/Win/xpcPlugin.xpl
+        Windows Plugin (32-bit): xpcPlugin/Win/xpcPlugin32.xpl
+	Windows Plugin (63-bit): xpcPlugin/Win/xpcPlugin64.xpl
         Mac Plugin: xpcPlugin/Mac/xpcPlugin.xpl
         Plugin Directory: [X-Plane Directory]/Resources/plugins/
     3. Write code using the xpcScrips to manipulate X-Plane
@@ -33,7 +34,7 @@ Compatability:
     Windows: 
         Tested on Windows Vista and Windows 7
     Mac OSX
-        Tested on OS X 10.8-10.10
+        Tested on OS X 10.8-10.9
     X-Plane
         Tested with X-Plane 9 & 10
 
