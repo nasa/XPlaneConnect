@@ -44,7 +44,8 @@ short closeTest() // closeUDP test
     printf("closeUDP - ");
     struct xpcSocket sendPort = openUDP( 49063, "127.0.0.1", 49009 );
     closeUDP(sendPort);
-    sendPort = openUDP( 49063, "127.0.0.1", 49009 );
+    sendPort = openUDP(49063, "127.0.0.1", 49009);
+    closeUDP(sendPort);
     return 0;
 }
 
