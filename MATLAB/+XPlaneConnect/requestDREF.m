@@ -63,6 +63,8 @@ parse(p,DREFArray,varargin{:});
                     counter = counter + 1 + sizeArray * 4;
                 end
                 break;
+            else
+                result = cell(0,1);
             end
         end
 closeUDP(socket);      
