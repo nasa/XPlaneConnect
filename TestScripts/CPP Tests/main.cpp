@@ -49,6 +49,7 @@ void closeUDPTest() // closeUDP test
     struct xpcSocket sendPort = openUDP( 49063, "127.0.0.1", 49009 );
     closeUDP(sendPort);
     sendPort = openUDP( 49063, "127.0.0.1", 49009 );
+    closeUDP(sendPort);
 }
 
 void sendReadTest() // send/read Test
