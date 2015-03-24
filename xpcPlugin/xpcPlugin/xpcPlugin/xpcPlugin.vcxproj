@@ -70,14 +70,17 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\..\Win</OutDir>
     <TargetExt>.xpl</TargetExt>
-    <IncludePath>\\vmware-host\Shared Folders\Documents\xplaneconnect\xpcPlugin\SDK\CHeaders\XPLM;\\vmware-host\Shared Folders\Documents\xplaneconnect\C\src;$(IncludePath)</IncludePath>
-    <LibraryPath>\\vmware-host\Shared Folders\Documents\xplaneconnect\xpcPlugin\SDK\Libraries\Win;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\xpcPlugin\SDK\CHeaders\XPLM;..\..\C\src;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\xpcPlugin\SDK\Libraries\Win;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName)32</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.xpl</TargetExt>
+    <IncludePath>..\..\xpcPlugin\SDK\CHeaders\XPLM;..\..\C\src;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\xpcPlugin\SDK\Libraries\Win;$(LibraryPath)</LibraryPath>
+    <TargetName>$(ProjectName)64</TargetName>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\mfeary-admin\Documents\flightz\xpcPlugin;C:\Users\mfeary-admin\Documents\flightz\C\src;$(IncludePath)</IncludePath>
-    <OutDir>$(XplaneDir)\Resources\Plugins\</OutDir>
+    <OutDir>..\..\Win</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -114,20 +117,18 @@
       <PreprocessorDefinitions>IBM=1;XPLM200;_DEBUG;_WINDOWS;_USRDLL;XPCPLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>
       </SDLCheck>
-      <AdditionalIncludeDirectories>./src;$(XplaneSDK)\CHeaders\XPLM;C:\Users\mfeary-admin\Documents\flightz\xpcPlugin;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./src;../../SDK/CHeaders/XPLM;../../;../../../C/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>
       </OmitFramePointers>
       <FunctionLevelLinking>false</FunctionLevelLinking>
-      <DisableSpecificWarnings>4996;4267</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(XplaneSDK)\Libraries\Win;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>XPLM_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -175,6 +176,7 @@
     <ClCompile Include="..\..\XPCPlugin.cpp" />
     <ClCompile Include="..\..\xpcPluginTools.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\mfeary-admin\Documents\flightz\xpcPlugin;C:\Users\mfeary-admin\Documents\flightz\C\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\mfeary-admin\Documents\flightz\xpcPlugin;C:\Users\mfeary-admin\Documents\flightz\C\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

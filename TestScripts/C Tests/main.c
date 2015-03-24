@@ -55,7 +55,7 @@ short sendReadTest() // send/read Test
     
     // Initialization
     int i; // Iterator
-    char test[] = {0, 1, 2, 3};
+    char test[] = {0, 1, 2, 3, 5};
     char buf[5] = {0};
     struct xpcSocket sendPort, recvPort;
     
@@ -257,9 +257,9 @@ short sendCTRLTest() // sendCTRL test
     strcpy(DREFArray[3],"sim/flightmodel/engine/ENGN_thro");
     strcpy(DREFArray[4],"sim/cockpit/switches/gear_handle_status");
     strcpy(DREFArray[5],"sim/flightmodel/controls/flaprqsts");
-    for (i=0;i<5;i++) {
-        DREFSizes[i] = (int) strlen(DREFArray[i]);
-    }
+	for (i = 0; i < 100; i++) {
+		DREFSizes[i] = (int)strlen(DREFArray[i]);
+	}
     CTRL[3] = 0.8; // Throttle
     
     // Execute

@@ -272,28 +272,19 @@ int updateLog(const char *buffer, int length)
     
 	time_t rawtime;
 	struct tm * timeinfo;
-	char logBuffer[522] = {0};
+	char logBuffer[523] = { 0 };
 	FILE * logFile;
-	char errorMessage[100] = "Log Message Omitted-Too Long (500 character max)";
 	
 	logFile = fopen("xpcLog.txt","a");
 	
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
-#if defined _WIN32
-	// strftime(logBuffer,500,"[%F %T] ",timeinfo);
-#else
-	strftime(logBuffer,500,"[%F %T] ",timeinfo);
-#endif
+	// Format is equivalent to [%F %T], but neither of those specifiers is
+	// supported on Windows as of Visual Studio 13
+	strftime(logBuffer, 523, "[%Y-%m-%d %H:%M:%S] ", timeinfo);
 	
-	if (length <= 500)
-    {
-		memcpy(&(logBuffer[22]),buffer,length);
-	}
-    else
-    {
-		memcpy(&(logBuffer[22]),errorMessage,strlen(errorMessage));
-	}
+	length = length < 500 ? length : 500;
+	memcpy(&(logBuffer[22]), buffer, length);
 	
 	fprintf(logFile,"%s\n",logBuffer);
 	
