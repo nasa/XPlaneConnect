@@ -139,8 +139,8 @@ PLUGIN_API int XPluginStart(	char *		outName,
 {
 	static FILE				*logFile;	// Log File
 	strcpy(outName, "xplaneConnect");
-	strcpy(outSig, "xplanesdk.xplaneConnect");
-	strcpy(outDesc, "Work in progress");
+	strcpy(outSig, "NASA.xplaneConnect");
+	strcpy(outDesc, "X Plane Communications Toolbox");
 	
 	logFile = fopen("xpcLog.txt","w");
 	if (logFile != NULL) // If opened correctly
