@@ -373,7 +373,7 @@ short sendPOSI(struct xpcSocket recfd, short ACNum, short numArgs, float valueAr
 
 short sendCTRL(struct xpcSocket recfd, short numArgs, float valueArray[])
 {
-    char message[22] = {0};
+    char message[29] = {0};
     int i;
     short position = 5;
     
@@ -401,7 +401,7 @@ short sendCTRL(struct xpcSocket recfd, short numArgs, float valueArray[])
         position += sizeof(float);
     }
     
-    sendUDP(recfd, message, 22);
+    sendUDP(recfd, message, 29);
     return 0;
 }
 
@@ -571,10 +571,10 @@ short parseRequest(const char my_message[], float *resultArray[], short arraySiz
     for (i=0; i<count; i++)
     {
         arraySizes[i] = my_message[place];
-        if (resultArray[i] != NULL)
-        {
-            free(resultArray[i]);
-        }
+        //if (resultArray[i] != NULL)
+        //{
+        //    free(resultArray[i]);
+        //}
         resultArray[i] = malloc(arraySizes[i]*sizeof(float));
         
         memcpy(resultArray[i],&my_message[place + 1],arraySizes[i]*sizeof(float));
