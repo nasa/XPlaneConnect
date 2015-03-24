@@ -53,3 +53,11 @@ xpcPlugin/Win/xpcPlugin64.lib
 xpcPlugin/Win/xpcPlugin64.exp
 xpcPlugin/xpcPlugin/xpcPlugin/Debug/xplaneConnect.obj
 xpcPlugin/xpcPlugin/xpcPlugin/Debug/xpcPluginTools.obj
+
+*.sdf
+*.opensdf
+*.suo
+xpcPlugin/xpcPlugin/xpcPlugin/Debug
+xpcPlugin/xpcPlugin/xpcPlugin/x64/Debug
+TestScripts/C Tests.win/Debug
+TestScripts/C Tests.win/x64/Debug
