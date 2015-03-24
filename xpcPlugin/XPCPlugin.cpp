@@ -457,9 +457,10 @@ int handleCONN(char buf[])
 	updateLog(logmsg,strlen(logmsg));
 	
 	// SEND CONFIRMATION
-	memcpy(sendSocket.xpIP,connectionList[current_connection].IP, sizeof(connectionList[current_connection].IP));
-	sendSocket.xpPort = connectionList[current_connection].recPort;
-	sendUDP(sendSocket, the_message, 5);
+	// TODO: Ivestigate why sending confirmation causes crashes on Windows 8
+	//memcpy(sendSocket.xpIP,connectionList[current_connection].IP, sizeof(connectionList[current_connection].IP));
+	//sendSocket.xpPort = connectionList[current_connection].recPort;
+	//sendUDP(sendSocket, the_message, 5);
 	
 	return 0;
 }

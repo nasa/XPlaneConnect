@@ -571,10 +571,10 @@ short parseRequest(const char my_message[], float *resultArray[], short arraySiz
     for (i=0; i<count; i++)
     {
         arraySizes[i] = my_message[place];
-        if (resultArray[i] != NULL)
-        {
-            free(resultArray[i]);
-        }
+        //if (resultArray[i] != NULL)
+        //{
+        //    free(resultArray[i]);
+        //}
         resultArray[i] = malloc(arraySizes[i]*sizeof(float));
         
         memcpy(resultArray[i],&my_message[place + 1],arraySizes[i]*sizeof(float));
