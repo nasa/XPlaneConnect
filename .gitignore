@@ -1,65 +1,85 @@
-
-*.m~
-
-xpcPlugin/xpcPlugin.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
-
-xpcPlugin/xpcPlugin.xcodeproj/project.xcworkspace/xcshareddata/xpcPlugin.xccheckout
-
-xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/xpcPlugin.hmap
-
-xpcPlugin/xpcPlugin.xcodeproj/project.xcworkspace/xcshareddata/xpcPlugin.xccheckout
-
-Docs/~$Capability Matrix.xlsx
-
-*.xcuserstate
-
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
 *.o
+*.so
 
-TestScripts/C Tests.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
-
-*.xcuserstate
-
-TestScripts/Cpp Tests.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
-
-xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.o
-
-xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.o
-
-xpcPlugin/xpcPlugin.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
-
-TestScripts/C Tests.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
-
-TestScripts/C Tests.xcodeproj/xcuserdata/cteubert.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
-
-TestScripts/Cpp Tests.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
-
-xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.o
-
-xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.o
-
-xpcPlugin/xpcPlugin.xcodeproj/project.xcworkspace/xcuserdata/cteubert.xcuserdatad/UserInterfaceState.xcuserstate
-
-build/
-xpcPlugin/Win/xpcPlugin.exp
-xpcPlugin/Win/xpcPlugin.ilk
-xpcPlugin/Win/xpcPlugin.lib
-xpcPlugin/Win/xpcPlugin.pdb
-xpcPlugin/Win/xpcPlugin32.exp
-xpcPlugin/Win/xpcPlugin32.ilk
-xpcPlugin/Win/xpcPlugin32.lib
-*.pdb
-*.ilk
-xpcPlugin/Win/xpcPlugin64.lib
-xpcPlugin/Win/xpcPlugin64.exp
-xpcPlugin/xpcPlugin/xpcPlugin/Debug/xplaneConnect.obj
-xpcPlugin/xpcPlugin/xpcPlugin/Debug/xpcPluginTools.obj
-
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite0
 *.sdf
 *.opensdf
-*.suo
-xpcPlugin/xpcPlugin/xpcPlugin/Debug
-xpcPlugin/xpcPlugin/xpcPlugin/x64/Debug
-TestScripts/C Tests.win/Debug
-TestScripts/C Tests.win/x64/Debug
 
-*.o
+# OS generated files #
+######################
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db
+.Trashes
+.swp
+*.lock
+
+# Debug Files #
+###############
+*.ilk
+*.pdb
+*.exp
+*.lib
+*.tlog
+*.manifest
+*.manifest.res
+*.lastbuildstate
+*.obj
+*.rc
+*.idb
+
+# VS Files #
+#################
+bin/
+obj/
+Debug/
+Release/
+TestResults/
+ipch/
+*.suo
+*.user
+*.sdf
+*.sbr
+
+# XCode Files #
+###############
+*~.nib
+DerivedData/
+build/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+!default.pbxuser
+!default.mode1v3
+!default.mode2v3
+!default.perspectivev3
+xcuserdata
+*.moved-aside
+*.xccheckout
+
+# MATLAB backup files #
+#######################
+*.m~
+
+# Reinclude XPLM SDK libraries #
+################################
+!XPLM.lib
+!XPLM_64.lib
+!XPWidgets.lib
+!XPWidgets_64.lib
+
+# Internal Docs #
+#################
+Docs/~$Capability Matrix.xlsx
