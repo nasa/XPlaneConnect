@@ -1,320 +1,0 @@
-TxpcPlugin
-v6
-r1
-cCheck dependencies
-cCompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.o /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c normal x86_64 c com.apple.compilers.llvm.clang.1_0.compiler
-cCompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.o /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cCompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPluginTools.o /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/xpcPluginTools.cpp normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler
-cCompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin_vers.o /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/xpcPlugin_vers.c normal x86_64 c com.apple.compilers.llvm.clang.1_0.compiler
-cLd /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/./Mac/xpcPlugin.xpl normal x86_64
-cPBXCp Mac/xpcPlugin.xpl /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xpcPlugin.xpl
-cPBXCp /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.h /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xplaneConnect.h
-cPBXCp /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xplaneConnect.c
-cPBXCp Mac/xpcPlugin.xpl /Applications/X-Plane\ 10/Resources/plugins/xpcPlugin.xpl
-cPBXCp Mac/xpcPlugin.xpl /Users/cteubert/Documents/xplaneconnect/xpcPlugin/xpcPlugin.xpl
-
-N/Applications/X-Plane 10/Resources/plugins/xpcPlugin.xpl
-t1412194298
-s42268
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk
-c000000005228144B00000000000000AA
-t1378358347
-s170
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/SDKSettings.plist
-c000000005228143200000000000004B3
-t1378358322
-s1203
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/CoreServices/SystemVersion.plist
-c000000005227ECC800000000000001DE
-t1378348232
-s478
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation
-c0000000052784338000000000008163C
-t1383613240
-s529980
-
-N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/OpenGL.framework/OpenGL
-c0000000052784340000000000000ADDC
-t1383613248
-s44508
-
-N/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/5.0/include/module.map
-c00000000525638CE0000000000000AC9
-t1381382350
-s2761
-
-N/Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xpcPlugin.xpl
-t1412194298
-s42268
-
-N/Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xplaneConnect.c
-t1412180052
-s16047
-
-N/Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xplaneConnect.h
-t1411583582
-s3170
-
-N/Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c
-c00000000543FFD340000000000004C61
-t1413479732
-s19553
-
-N/Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.h
-c0000000054230E5E0000000000000C62
-t1411583582
-s3170
-
-N/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac/xpcPlugin.xpl
-t1414017248
-s48676
-
-N/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/SDK/Libraries/Mac/XPLM.framework/XPLM
-c000000005412355A000000000009ED9C
-t1410479450
-s650652
-
-N/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/SDK/Libraries/Mac/XPWidgets.framework/XPWidgets
-c000000005412355A00000000000337D8
-t1410479450
-s210904
-
-N/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp
-c00000000543FF93100000000000084F1
-t1413478705
-s34033
-
-N/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/xpcPlugin_vers.c
-c00000000544830E000000000000000CE
-t1414017248
-s206
-
-N/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.o
-t1414017248
-s45756
-
-N/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin.LinkFileList
-c00000000544830E0000000000000020E
-t1414017248
-s526
-
-N/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPluginTools.o
-t1414017248
-s29484
-
-N/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin_vers.o
-t1414017248
-s2768
-
-N/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.o
-t1414017248
-s29224
-
-N/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/xpcPluginTools.cpp
-c00000000542B0AE200000000000048E2
-t1412106978
-s18658
-
-N/Users/cteubert/Documents/xplaneconnect/xpcPlugin/xpcPlugin.xpl
-t2
-s0
-
-CBuild AST from /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c
-r0
-
-CBuild AST from /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp
-r0
-
-CBuild AST from /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/xpcPluginTools.cpp
-r0
-
-CCheck dependencies
-r0
-lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Check dependencies18"Check dependencieseb3a046068f8b941^78d4086068f8b941^---0#1#1#--18"Check dependencies36"D90087D1-5879-4BC8-9BE5-ACE23DD16CB9-
-
-CCompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.o /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s435710048.040247
-e435710048.237686
-r1
-xCompileC
-xbuild/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.o
-x/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp
-xnormal
-xx86_64
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/SDK/CHeaders/XPLM/XPLMProcessing.h
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/SDK/CHeaders/XPLM/XPLMDefs.h
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/SDK/CHeaders/XPLM/XPLMGraphics.h
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/xpcPluginTools.h
-d/Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.h
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/SDK/CHeaders/XPLM/XPLMDataAccess.h
-o/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp:241:53: warning: unused parameter 'inFromWho' [-Wunused-parameter]
-oPLUGIN_API void XPluginReceiveMessage(  XPLMPluginID    inFromWho,
-o                                                        ^
-o/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp:242:19: warning: unused parameter 'inMessage' [-Wunused-parameter]
-o                                                                          int                           inMessage,
-o                                                                                                        ^
-o/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp:243:21: warning: unused parameter 'inParam' [-Wunused-parameter]
-o                                                                          void *                        inParam)
-o                                                                                                        ^
-o/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp:248:18: warning: unused parameter 'inElapsedTimeSinceLastFlightLoop' [-Wunused-parameter]
-o                                                         float    inElapsedTimeSinceLastFlightLoop,
-o                                                                  ^
-o/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp:249:18: warning: unused parameter 'inCounter' [-Wunused-parameter]
-o                                                         int      inCounter,
-o                                                                  ^
-o/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp:250:18: warning: unused parameter 'inRefcon' [-Wunused-parameter]
-o                                                         void *   inRefcon)
-o                                                                  ^
-o6 warnings generated.
-lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection71"Compile /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp162"CompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.o XPCPlugin.cpp normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler98c30a6068f8b941^99d83c6068f8b941^-1850"/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp:241:53: warning: unused parameter 'inFromWho' [-Wunused-parameter]PLUGIN_API void XPluginReceiveMessage(  XPLMPluginID    inFromWho,                                                        ^/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp:242:19: warning: unused parameter 'inMessage' [-Wunused-parameter]                                                                          int                           inMessage,                                                                                                        ^/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp:243:21: warning: unused parameter 'inParam' [-Wunused-parameter]                                                                          void *                        inParam)                                                                                                        ^/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp:248:18: warning: unused parameter 'inElapsedTimeSinceLastFlightLoop' [-Wunused-parameter]                                                         float    inElapsedTimeSinceLastFlightLoop,                                                                  ^/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp:249:18: warning: unused parameter 'inCounter' [-Wunused-parameter]                                                         int      inCounter,                                                                  ^/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp:250:18: warning: unused parameter 'inRefcon' [-Wunused-parameter]                                                         void *   inRefcon)                                                                  ^6 warnings generated.6(36%IDEClangDiagnosticActivityLogMessage2@28"Unused parameter 'inFromWho'-435710048#18446744073709551615#0#-1#27"com.apple.dt.IDE.diagnostic23%DVTTextDocumentLocation3@70"file:///Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp0000000000000000^240#52#240#52#10805#0#14"Semantic Issue--2@28"Unused parameter 'inMessage'-435710048#18446744073709551615#0#-1#27"com.apple.dt.IDE.diagnostic3@70"file:///Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp0000000000000000^241#18#241#18#10835#0#14"Semantic Issue--2@26"Unused parameter 'inParam'-435710048#18446744073709551615#0#-1#27"com.apple.dt.IDE.diagnostic3@70"file:///Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp0000000000000000^242#20#242#20#10867#0#14"Semantic Issue--2@51"Unused parameter 'inElapsedTimeSinceLastFlightLoop'-435710048#18446744073709551615#0#-1#27"com.apple.dt.IDE.diagnostic3@70"file:///Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp0000000000000000^247#17#247#17#10965#0#14"Semantic Issue--2@28"Unused parameter 'inCounter'-435710048#18446744073709551615#0#-1#27"com.apple.dt.IDE.diagnostic3@70"file:///Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp0000000000000000^248#17#248#17#11017#0#14"Semantic Issue--2@27"Unused parameter 'inRefcon'-435710048#18446744073709551615#0#-1#27"com.apple.dt.IDE.diagnostic3@70"file:///Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp0000000000000000^249#17#249#17#11046#0#14"Semantic Issue--0#0#1#-19%DVTDocumentLocation4@70"file:///Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp0000000000000000^2550"CompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.o XPCPlugin.cpp normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/cteubert/Documents/XPlaneConnect/xpcPlugin    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch x86_64 -fmessage-length=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit=0 -fmodules -fmodules-cache-path=/Users/cteubert/Library/Developer/Xcode/DerivedData/ModuleCache -Wno-trigraphs -fpascal-strings -Os -Wmissing-field-initializers -Wmissing-prototypes -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-shorten-64-to-32 -Wnewline-eof -Wc++11-extensions -DAPL=1 -DIBM=0 -DLIN=0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk -fasm-blocks -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.6 -g -fvisibility=hidden -fvisibility-inlines-hidden -Wno-sign-conversion -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/xpcPlugin.hmap -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac/include -ISDK/CHeaders/Widgets -ISDK/CHeaders/XPLM -ISDK/CHeaders/Widgets -ISDK/CHeaders/XPLM -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/x86_64 -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources -F/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac -FSDK/Libraries/Mac -MMD -MT dependencies -MF /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.d --serialize-diagnostics /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.dia -c /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/XPCPlugin.cpp -o /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.o36"21A78A8F-8E23-4947-8102-1952712301F4-
-bA5C1CF6A-0171-480C-9310-95ED1F3C170D
-
-CCompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPluginTools.o /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/xpcPluginTools.cpp normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler
-s435710048.040490
-e435710048.207416
-r1
-xCompileC
-xbuild/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPluginTools.o
-x/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/xpcPluginTools.cpp
-xnormal
-xx86_64
-xc++
-xcom.apple.compilers.llvm.clang.1_0.compiler
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/xpcPluginTools.cpp
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/xpcPluginTools.h
-d/Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.h
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/SDK/CHeaders/XPLM/XPLMDataAccess.h
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/SDK/CHeaders/XPLM/XPLMDefs.h
-lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection76"Compile /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/xpcPluginTools.cpp172"CompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPluginTools.o xpcPluginTools.cpp normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compilerfcc30a6068f8b941^611b356068f8b941^---0#0#1#-19%DVTDocumentLocation2@75"file:///Users/cteubert/Documents/XPlaneConnect/xpcPlugin/xpcPluginTools.cpp0000000000000000^2580"CompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPluginTools.o xpcPluginTools.cpp normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/cteubert/Documents/XPlaneConnect/xpcPlugin    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch x86_64 -fmessage-length=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit=0 -fmodules -fmodules-cache-path=/Users/cteubert/Library/Developer/Xcode/DerivedData/ModuleCache -Wno-trigraphs -fpascal-strings -Os -Wmissing-field-initializers -Wmissing-prototypes -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-shorten-64-to-32 -Wnewline-eof -Wc++11-extensions -DAPL=1 -DIBM=0 -DLIN=0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk -fasm-blocks -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.6 -g -fvisibility=hidden -fvisibility-inlines-hidden -Wno-sign-conversion -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/xpcPlugin.hmap -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac/include -ISDK/CHeaders/Widgets -ISDK/CHeaders/XPLM -ISDK/CHeaders/Widgets -ISDK/CHeaders/XPLM -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/x86_64 -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources -F/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac -FSDK/Libraries/Mac -MMD -MT dependencies -MF /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPluginTools.d --serialize-diagnostics /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPluginTools.dia -c /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/xpcPluginTools.cpp -o /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPluginTools.o36"5B08043D-729C-4F10-9B46-539DDC4AC614-
-bA5C1CF6A-0171-480C-9310-95ED1F3C170D
-
-CCompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin_vers.o /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/xpcPlugin_vers.c normal x86_64 c com.apple.compilers.llvm.clang.1_0.compiler
-s435710048.040650
-e435710048.105734
-r1
-xCompileC
-xbuild/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin_vers.o
-x/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/xpcPlugin_vers.c
-xnormal
-xx86_64
-xc
-xcom.apple.compilers.llvm.clang.1_0.compiler
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/xpcPlugin_vers.c
-lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection133"Compile /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/xpcPlugin_vers.c227"CompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin_vers.o build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/xpcPlugin_vers.c normal x86_64 c com.apple.compilers.llvm.clang.1_0.compiler72c40a6068f8b941^1f111b6068f8b941^---0#0#1#-19%DVTDocumentLocation2@132"file:///Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/xpcPlugin_vers.c0000000000000000^2566"CompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin_vers.o build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/xpcPlugin_vers.c normal x86_64 c com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/cteubert/Documents/XPlaneConnect/xpcPlugin    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -arch x86_64 -fmessage-length=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit=0 -fmodules -fmodules-cache-path=/Users/cteubert/Library/Developer/Xcode/DerivedData/ModuleCache -Wno-trigraphs -fpascal-strings -Os -Wmissing-field-initializers -Wmissing-prototypes -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-shorten-64-to-32 -Wpointer-sign -Wnewline-eof -DAPL=1 -DIBM=0 -DLIN=0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk -fasm-blocks -fstrict-aliasing -Wdeprecated-declarations -mmacosx-version-min=10.6 -g -fvisibility=hidden -Wno-sign-conversion -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/xpcPlugin.hmap -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac/include -ISDK/CHeaders/Widgets -ISDK/CHeaders/XPLM -ISDK/CHeaders/Widgets -ISDK/CHeaders/XPLM -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/x86_64 -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources -F/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac -FSDK/Libraries/Mac -MMD -MT dependencies -MF /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin_vers.d --serialize-diagnostics /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin_vers.dia -c /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/xpcPlugin_vers.c -o /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin_vers.o36"676597E6-4211-4105-83A3-58709A9E3738-
-bA5C1CF6A-0171-480C-9310-95ED1F3C170D
-
-CCompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.o /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c normal x86_64 c com.apple.compilers.llvm.clang.1_0.compiler
-s435710048.040026
-e435710048.214554
-r1
-xCompileC
-xbuild/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.o
-x/Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c
-xnormal
-xx86_64
-xc
-xcom.apple.compilers.llvm.clang.1_0.compiler
-d/Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c
-d/Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.h
-lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection69"Compile /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c212"CompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.o /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c normal x86_64 c com.apple.compilers.llvm.clang.1_0.compiler33c30a6068f8b941^80ef366068f8b941^---0#0#1#-19%DVTDocumentLocation2@68"file:///Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c0000000000000000^2484"CompileC build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.o /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c normal x86_64 c com.apple.compilers.llvm.clang.1_0.compiler    cd /Users/cteubert/Documents/XPlaneConnect/xpcPlugin    setenv LANG en_US.US-ASCII    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -arch x86_64 -fmessage-length=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit=0 -fmodules -fmodules-cache-path=/Users/cteubert/Library/Developer/Xcode/DerivedData/ModuleCache -Wno-trigraphs -fpascal-strings -Os -Wmissing-field-initializers -Wmissing-prototypes -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wunused-label -Wunused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-shorten-64-to-32 -Wpointer-sign -Wnewline-eof -DAPL=1 -DIBM=0 -DLIN=0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk -fasm-blocks -fstrict-aliasing -Wdeprecated-declarations -mmacosx-version-min=10.6 -g -fvisibility=hidden -Wno-sign-conversion -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/xpcPlugin.hmap -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac/include -ISDK/CHeaders/Widgets -ISDK/CHeaders/XPLM -ISDK/CHeaders/Widgets -ISDK/CHeaders/XPLM -I/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources/x86_64 -I/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/DerivedSources -F/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac -FSDK/Libraries/Mac -MMD -MT dependencies -MF /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.d --serialize-diagnostics /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.dia -c /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c -o /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.o36"2697A664-158A-4048-A2BD-B67D2620B463-
-bA5C1CF6A-0171-480C-9310-95ED1F3C170D
-
-CLd /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/./Mac/xpcPlugin.xpl normal x86_64
-s435710048.239214
-e435710048.334350
-r1
-xLd
-x/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/./Mac/xpcPlugin.xpl
-xnormal
-xx86_64
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin.LinkFileList
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xplaneConnect.o
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/XPCPlugin.o
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPluginTools.o
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin_vers.o
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/OpenGL.framework/OpenGL
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/SDK/Libraries/Mac/XPLM.framework/XPLM
-d/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/SDK/Libraries/Mac/XPWidgets.framework/XPWidgets
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/libstdc++.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/libSystem.dylib
-d/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/5.0/lib/darwin/libclang_rt.osx.a
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLU.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libcache.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libcommonCrypto.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libcompiler_rt.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libcopyfile.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libdispatch.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libdnsinfo.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libdyld.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libkeymgr.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/liblaunch.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libmacho.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libquarantine.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libremovefile.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libsystem_blocks.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libsystem_c.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libsystem_dnssd.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libsystem_info.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libsystem_kernel.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libsystem_m.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libsystem_network.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libsystem_notify.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libsystem_sandbox.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libunc.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libunwind.dylib
-d/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/usr/lib/system/libxpc.dylib
-lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection74"Link /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/./Mac/xpcPlugin.xpl36"Ld ./Mac/xpcPlugin.xpl normal x86_64a14a3d6068f8b941^4a98556068f8b941^---0#0#1#--1345"Ld ./Mac/xpcPlugin.xpl normal x86_64    cd /Users/cteubert/Documents/XPlaneConnect/xpcPlugin    setenv MACOSX_DEPLOYMENT_TARGET 10.6    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -arch x86_64 -bundle -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk -L/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac -L/Users/cteubert/Library/Developer/Xcode/DerivedData/xplaneConnect-asdjuezcjkhojuewbyxhyhabxfwc/Build/Products/Debug -F/Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac -FSDK/Libraries/Mac -filelist /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin.LinkFileList -mmacosx-version-min=10.6 -Wl,-exported_symbol -Wl,_XPluginStart -Wl,-exported_symbol -Wl,_XPluginEnable -Wl,-exported_symbol -Wl,_XPluginReceiveMessage -Wl,-exported_symbol -Wl,_XPluginDisable -Wl,-exported_symbol -Wl,_XPluginStop -framework OpenGL -framework CoreFoundation -framework XPLM -framework XPWidgets -single_module -Xlinker -dependency_info -Xlinker /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/build/xpcPlugin.build/Debug/xpcPlugin.build/Objects-normal/x86_64/xpcPlugin_dependency_info.dat -o /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/./Mac/xpcPlugin.xpl36"21288B9F-AACD-4712-91E7-57FAAC7B0930-
-bA5C1CF6A-0171-480C-9310-95ED1F3C170D
-
-CPBXCp /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xplaneConnect.c
-s435710048.335937
-e435710048.341109
-r1
-xPBXCp
-x/Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c
-x/Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xplaneConnect.c
-lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection99"Copy /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xplaneConnect.c162"PBXCp /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xplaneConnect.c3a08566068f8b941^6153576068f8b941^---0#0#1#-19%DVTDocumentLocation2@101"file:///Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xplaneConnect.c0000000000000000^599"PBXCp /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xplaneConnect.c    cd /Users/cteubert/Documents/XPlaneConnect/xpcPlugin    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-debug-symbols -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.c /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect36"0E3C0D0C-1A34-42E6-8C09-9E69E8F2ABCE-
-bA5C1CF6A-0171-480C-9310-95ED1F3C170D
-
-CPBXCp /Users/cteubert/Documents/XPlaneConnect/C/src/xplaneConnect.h /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xplaneConnect.h
-r0
-
-CPBXCp Mac/xpcPlugin.xpl /Applications/X-Plane\ 10/Resources/plugins/xpcPlugin.xpl
-s435710048.348572
-e435710048.354370
-r1
-xPBXCp
-xMac/xpcPlugin.xpl
-x/Applications/X-Plane 10/Resources/plugins/xpcPlugin.xpl
-lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection61"Copy /Applications/X-Plane 10/Resources/plugins/xpcPlugin.xpl81"PBXCp Mac/xpcPlugin.xpl /Applications/X-Plane\ 10/Resources/plugins/xpcPlugin.xpled44596068f8b941^d8b85a6068f8b941^-224"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -S /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac/xpcPlugin.xpl -o /Applications/X-Plane 10/Resources/plugins/xpcPlugin.xpl-0#0#1#-19%DVTDocumentLocation2@65"file:///Applications/X-Plane%2010/Resources/plugins/xpcPlugin.xpl0000000000000000^489"PBXCp Mac/xpcPlugin.xpl /Applications/X-Plane\ 10/Resources/plugins/xpcPlugin.xpl    cd /Users/cteubert/Documents/XPlaneConnect/xpcPlugin    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-debug-symbols -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac/xpcPlugin.xpl /Applications/X-Plane\ 10/Resources/plugins36"EAE4F793-526E-4DFE-93A2-0368160B91BD-
-bA5C1CF6A-0171-480C-9310-95ED1F3C170D
-
-CPBXCp Mac/xpcPlugin.xpl /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xpcPlugin.xpl
-s435710048.335006
-e435710048.348315
-r1
-xPBXCp
-xMac/xpcPlugin.xpl
-x/Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xpcPlugin.xpl
-lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection97"Copy /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xpcPlugin.xpl116"PBXCp Mac/xpcPlugin.xpl /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xpcPlugin.xpl63d0556068f8b941^d05e596068f8b941^-260"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -S /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac/xpcPlugin.xpl -o /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xpcPlugin.xpl-0#0#1#-19%DVTDocumentLocation2@99"file:///Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xpcPlugin.xpl0000000000000000^559"PBXCp Mac/xpcPlugin.xpl /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect/xpcPlugin.xpl    cd /Users/cteubert/Documents/XPlaneConnect/xpcPlugin    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-debug-symbols -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac/xpcPlugin.xpl /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect36"A7CA227E-10EE-4D77-B51B-94EC01E35586-
-bA5C1CF6A-0171-480C-9310-95ED1F3C170D
-
-CPBXCp Mac/xpcPlugin.xpl /Users/cteubert/Documents/xplaneconnect/xpcPlugin/xpcPlugin.xpl
-s435710048.354624
-e435710048.357140
-r1
-xPBXCp
-xMac/xpcPlugin.xpl
-x/Users/cteubert/Documents/xplaneconnect/xpcPlugin/xpcPlugin.xpl
-lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection68"Copy /Users/cteubert/Documents/xplaneconnect/xpcPlugin/xpcPlugin.xpl87"PBXCp Mac/xpcPlugin.xpl /Users/cteubert/Documents/xplaneconnect/xpcPlugin/xpcPlugin.xplc4d05a6068f8b941^1e6e5b6068f8b941^-231"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -S /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac/xpcPlugin.xpl -o /Users/cteubert/Documents/xplaneconnect/xpcPlugin/xpcPlugin.xpl-0#0#1#-19%DVTDocumentLocation2@70"file:///Users/cteubert/Documents/xplaneconnect/xpcPlugin/xpcPlugin.xpl0034800edcffdf42^501"PBXCp Mac/xpcPlugin.xpl /Users/cteubert/Documents/xplaneconnect/xpcPlugin/xpcPlugin.xpl    cd /Users/cteubert/Documents/XPlaneConnect/xpcPlugin    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-debug-symbols -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks /Users/cteubert/Documents/XPlaneConnect/xpcPlugin/Mac/xpcPlugin.xpl /Users/cteubert/Documents/xplaneconnect/xpcPlugin36"E0790432-122B-4DFE-8FAF-17B09D2A805B-
-bA5C1CF6A-0171-480C-9310-95ED1F3C170D
-
