@@ -29,7 +29,7 @@ function status = setConn( recvPort, IP, port )
     
 %% Handle Input
     % Optional parameters
-        if ~exist('IP','var'), IP = "127.0.0.1"; end
+        if ~exist('IP','var'), IP = '127.0.0.1'; end
         if ~exist('port','var'), port = 49009; end
 
     % Check format of input-TODO
