@@ -16,11 +16,7 @@ xpcScripts
     
 Instructions:
     1. Purchase/Install X-Plane
-    2. Copy the X-Plane Plugin to the plugin directory
-        Windows Plugin (32-bit): xpcPlugin/Win/xpcPlugin32.xpl
-	Windows Plugin (63-bit): xpcPlugin/Win/xpcPlugin64.xpl
-        Mac Plugin: xpcPlugin/Mac/xpcPlugin.xpl
-        Plugin Directory: [X-Plane Directory]/Resources/plugins/
+    2. Copy the X-Plane Plugin folder (xpcPlugin/XPlaneConnect) to the plugin directory ([X-Plane Directory]/Resources/plugins/)
     3. Write code using the xpcScrips to manipulate X-Plane
     
 Capabilities:
