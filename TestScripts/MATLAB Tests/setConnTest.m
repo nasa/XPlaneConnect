@@ -1,6 +1,5 @@
 function setConnTest(  )
 
-disp('Not Functional Yet!')
 %setConnTest Summary of this function goes here
 %   Detailed explanation goes here
 addpath('../../MATLAB')

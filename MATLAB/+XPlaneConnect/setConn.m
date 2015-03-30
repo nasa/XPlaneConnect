@@ -25,7 +25,7 @@ function status = setConn( recvPort, IP, port )
     import XPlaneConnect.*
 
     status = 0;
-    message = zeros(1,9);
+    message = zeros(1,7);
     
 %% Handle Input
     % Optional parameters
@@ -39,9 +39,12 @@ function status = setConn( recvPort, IP, port )
         message(1:4) = 'CONN'-0;
     
     % RecvPort
-        message(6:9) = typecast(uint32(recvPort),'uint8');
+        message(6:7) = typecast(uint16(recvPort),'uint8');
         
     % Send
-        sendUDP(IP,port,message);
+        sendUDP(message,IP,port);
+        
+        global udpReadPort;
+        udpReadPort = recvPort;
 
 end

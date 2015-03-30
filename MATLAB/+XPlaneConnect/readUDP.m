@@ -1,4 +1,4 @@
-function [ data ] = readUDP( input )
+function [ data ] = readUDP( varargin )
 %readUDP Read Array from UDP Socket
 % 
 % Inputs
@@ -36,9 +36,20 @@ function [ data ] = readUDP( input )
     bits = 2000;
     
     %% Interpret Input
-    socket = input;
-    if isnumeric(input) 
-        socket=openUDP(input);
+    global udpReadPort;
+    if isempty(varargin)
+        if isempty(udpReadPort)
+            udpReadPort = 49008;
+        end
+        socket = openUDP(udpReadPort);
+        ownSocket = 1;
+    else
+        socket = varargin{1};
+        ownSocket = 0;
+        if isnumeric(varargin{1}) 
+            socket=openUDP(varargin{1});
+            ownSocket = 1;
+        end
     end
     
     %% Try reading packet
@@ -65,7 +76,7 @@ function [ data ] = readUDP( input )
     end
     
     %% Close Port (if opened in code)
-    if isnumeric(input)
+    if ownSocket
         socket.close()
     end
 end
