@@ -8,7 +8,8 @@ import XPlaneConnect.*
 %% Setup
 % Create variables and open connection to X-Plane
 
-disp('xplaneconnect Example Script\n- Setting up Simulation');
+disp('xplaneconnect Example Script-');
+disp('Setting up Simulation');
 Socket = openUDP(49005);
 %% Set position of the player aircraft
 disp('Setting position');
@@ -25,12 +26,12 @@ disp('Setting rates');
 %                  Alpha Velocity PQR
 data = struct('h',[18,   3,       16],...
               'd',[0,-999,0,-999,-999,-999,-999,-999;... % Alpha data
-                   3,130,130,130,130,-999,-999,-999;...  % Velocity data
-                   16,0,0,0,-999,-999,-999,-999]);       % PQR data
+                   130,130,130,130,-999,-999,-999,-999;...  % Velocity data
+                   0,0,0,-999,-999,-999,-999,-999]);       % PQR data
 sendDATA(data);
  %% Set CTRL
  %                      Throttle
- CTRL = [0,0,0.8];
+ CTRL = [0,0,0,0.8];
  sendCTRL(CTRL);
  pause(5);
  pauseSim(0);
