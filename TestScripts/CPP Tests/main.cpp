@@ -453,7 +453,7 @@ void connTest() // setConn test
     
     // Set up for next test
         sendPort = openUDP( 49067, "127.0.0.1", 49009 );
-        setCONN(sendPort, 49009);
+        setCONN(sendPort, 49008);
         closeUDP(sendPort);
 }
 
