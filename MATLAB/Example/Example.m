@@ -12,31 +12,28 @@ disp('xplaneconnect Example Script\n- Setting up Simulation');
 Socket = openUDP(49005);
 %% Set position of the player aircraft
 disp('Setting position');
+ pauseSim(1);
 %       Lat     Lon         Alt   Pitch Roll Heading Gear
 POSI = [37.524, -122.06899, 2500, 0,    0,   0,      1];
-sendPOSI(POSI);
-pause(5);
-posi(1) = 37.52465;   % Move aircraft North a bit
-posi(4) = 20;         % Set aircraft pitch up 20 degrees
-sendPOSI(POSI);
+sendPOSI(POSI); % Set own aircraft position
+
+%       Lat     Lon           Alt   Pitch Roll Heading Gear
+POSI = [37.52465, -122.06899, 2500, 0,    20,  0,      1];
+sendPOSI(POSI, 1); % Place another aircraft just north of us
 %% Set rates
 disp('Setting rates');
-data = struct('h',18,'d',[0,-999,0,-999,-999,-999,-999,-999]);
-sendDATA(data);
-data = struct('h',3,'d',[3,130,130,130,130,-999,-999,-999]);
-sendDATA(data);
-data = struct('h',16,'d',[16,0,0,0,-999,-999,-999,-999]);
-sendDATA(data);
 %                  Alpha Velocity PQR
-% data = struct('h',[18,   3,       16],...
-%               'd',[[0,-999,0,-999,-999,-999,-999,-999],... % Alpha data
-%                    [3,130,130,130,130,-999,-999,-999],...  % Velocity data
-%                    [16,0,0,0,-999,-999,-999,-999]]);       % PQR data
-% sendDATA(data);
+data = struct('h',[18,   3,       16],...
+              'd',[0,-999,0,-999,-999,-999,-999,-999;... % Alpha data
+                   3,130,130,130,130,-999,-999,-999;...  % Velocity data
+                   16,0,0,0,-999,-999,-999,-999]);       % PQR data
+sendDATA(data);
  %% Set CTRL
  %                      Throttle
- CTRL = [-999,-999,-999,0.8,-999];
+ CTRL = [0,0,0.8];
  sendCTRL(CTRL);
+ pause(5);
+ pauseSim(0);
  pause(5) % Run sim for 5 seconds
  %% Pause sim
  disp('Pausing simulation');

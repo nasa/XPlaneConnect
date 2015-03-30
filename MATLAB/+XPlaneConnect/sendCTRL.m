@@ -47,7 +47,7 @@ import XPlaneConnect.*
     dataStream = header; %TODO-ADD ACFT
     
     % Deal with position update
-    control = [0, 0, 0, 0.8, 0, 1];
+    control = [-998.5, -998.5, -998.5, -998.5, -998.5, -998.5];
     
     for i=1:min(length(ctrl),length(control))
         control(i) = ctrl(i);
