@@ -24,7 +24,6 @@ import XPlaneConnect.*
 
 message = zeros(1,6);
 len = 7;
-socket = openUDP(49008);
 status = -1; %#ok<NASGU> % no data
 
 %% Handle Input
@@ -51,7 +50,7 @@ parse(p,DREFArray,varargin{:});
         
     % Look for response 
         for i=1:40
-            data = readUDP(socket);
+            data = readUDP();
             if length(data) > 1 % Received Data
                 status = 0;
                 counter = 7;
@@ -66,6 +65,5 @@ parse(p,DREFArray,varargin{:});
             else
                 result = cell(0,1);
             end
-        end
-closeUDP(socket);      
+        end 
 end
