@@ -8,13 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */; };
-		BE5F2FEE18F89E4900AFCD17 /* xpcPlugin.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* xpcPlugin.xpl */; };
 		BE5F2FF118FCA1D500AFCD17 /* xpcPluginTools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE5F2FF018FCA1D500AFCD17 /* xpcPluginTools.cpp */; };
 		BE8361EF18C5591C00E9C923 /* xpcPlugin.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* xpcPlugin.xpl */; };
-		BEDAC9FC19D364E500AD5DC0 /* xpcPlugin.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* xpcPlugin.xpl */; };
 		BEDC620418EDF1A7005DB364 /* xplaneConnect.c in Sources */ = {isa = PBXBuildFile; fileRef = BEDC620218EDF1A7005DB364 /* xplaneConnect.c */; };
-		BEDC620A18EDF277005DB364 /* xplaneConnect.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = BEDC620318EDF1A7005DB364 /* xplaneConnect.h */; };
-		BEDC620B18EDF27A005DB364 /* xplaneConnect.c in CopyFiles */ = {isa = PBXBuildFile; fileRef = BEDC620218EDF1A7005DB364 /* xplaneConnect.c */; };
 		D6A7BDAA16A1DEA200D1426A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDA916A1DEA200D1426A /* OpenGL.framework */; };
 		D6A7BDC116A1DEC000D1426A /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDC016A1DEC000D1426A /* CoreFoundation.framework */; };
 		D6A7BDF116A1DED200D1426A /* XPLM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDF016A1DED200D1426A /* XPLM.framework */; };
@@ -22,16 +18,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		BE5F2FED18F89E3D00AFCD17 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /Users/cteubert/Documents/xplaneconnect/xpcPlugin;
-			dstSubfolderSpec = 0;
-			files = (
-				BE5F2FEE18F89E4900AFCD17 /* xpcPlugin.xpl in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		BE8361EE18C5591600E9C923 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
@@ -39,18 +25,6 @@
 			dstSubfolderSpec = 0;
 			files = (
 				BE8361EF18C5591C00E9C923 /* xpcPlugin.xpl in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BEDC620518EDF21F005DB364 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /Users/cteubert/Documents/FDzProject/flightdeckz/connections/src/xplaneconnect;
-			dstSubfolderSpec = 0;
-			files = (
-				BEDAC9FC19D364E500AD5DC0 /* xpcPlugin.xpl in CopyFiles */,
-				BEDC620A18EDF277005DB364 /* xplaneConnect.h in CopyFiles */,
-				BEDC620B18EDF27A005DB364 /* xplaneConnect.c in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,9 +109,7 @@
 			buildPhases = (
 				D607B19609A556E400699BC3 /* Sources */,
 				D607B19709A556E400699BC3 /* Frameworks */,
-				BEDC620518EDF21F005DB364 /* CopyFiles */,
 				BE8361EE18C5591600E9C923 /* CopyFiles */,
-				BE5F2FED18F89E3D00AFCD17 /* CopyFiles */,
 			);
 			buildRules = (
 			);
