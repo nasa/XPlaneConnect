@@ -35,11 +35,10 @@ import XPlaneConnect.*
     % Check format of input-TODO
 
 %% BODY
-    message = zeros(1,7);
+    message = zeros(1,6);
     
     message(1:4) = 'SIMU'-0;
     message(6) = uint8(p.Results.pause);
-    message(7) = 0;
 
     status = sendUDP(message, p.Results.IP, p.Results.port);
 end
