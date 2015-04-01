@@ -373,7 +373,7 @@ short sendPOSI(struct xpcSocket recfd, short ACNum, short numArgs, float valueAr
 
 short sendCTRL(struct xpcSocket recfd, short numArgs, float valueArray[])
 {
-    char message[29] = {0};
+    char message[26] = {0};
     int i;
     short position = 5;
     
@@ -396,12 +396,21 @@ short sendCTRL(struct xpcSocket recfd, short numArgs, float valueArray[])
             val = valueArray[i];
         }
         
-        // Float Values
-        memcpy(&message[position],&val,sizeof(float));
-        position += sizeof(float);
+        if (i==4) // Integer-gear
+        {
+            message[position] = (short int) val;
+            position += 1;
+        }
+        else // float
+        {
+            // Float Values
+            memcpy(&message[position],&val,sizeof(float));
+            position += sizeof(float);
+        }
+        
     }
     
-    sendUDP(recfd, message, 29);
+    sendUDP(recfd, message, 26);
     return 0;
 }
 
