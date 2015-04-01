@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */; };
 		BE5F2FF118FCA1D500AFCD17 /* xpcPluginTools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE5F2FF018FCA1D500AFCD17 /* xpcPluginTools.cpp */; };
-		BE8361EF18C5591C00E9C923 /* xpcPlugin.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* xpcPlugin.xpl */; };
+		BE8361EF18C5591C00E9C923 /* mac.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* mac.xpl */; };
 		BEDC620418EDF1A7005DB364 /* xplaneConnect.c in Sources */ = {isa = PBXBuildFile; fileRef = BEDC620218EDF1A7005DB364 /* xplaneConnect.c */; };
 		D6A7BDAA16A1DEA200D1426A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDA916A1DEA200D1426A /* OpenGL.framework */; };
 		D6A7BDC116A1DEC000D1426A /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDC016A1DEC000D1426A /* CoreFoundation.framework */; };
@@ -21,10 +21,10 @@
 		BE8361EE18C5591600E9C923 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
-			dstPath = "/Applications/X-Plane 10/Resources/plugins";
+			dstPath = "/Applications/X-Plane 10/Resources/plugins/XPlaneConnect";
 			dstSubfolderSpec = 0;
 			files = (
-				BE8361EF18C5591C00E9C923 /* xpcPlugin.xpl in CopyFiles */,
+				BE8361EF18C5591C00E9C923 /* mac.xpl in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -37,7 +37,7 @@
 		BE5F2FF018FCA1D500AFCD17 /* xpcPluginTools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xpcPluginTools.cpp; sourceTree = "<group>"; };
 		BEDC620218EDF1A7005DB364 /* xplaneConnect.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xplaneConnect.c; path = ../C/src/xplaneConnect.c; sourceTree = "<group>"; };
 		BEDC620318EDF1A7005DB364 /* xplaneConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xplaneConnect.h; path = ../C/src/xplaneConnect.h; sourceTree = "<group>"; };
-		D607B19909A556E400699BC3 /* xpcPlugin.xpl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = xpcPlugin.xpl; sourceTree = BUILT_PRODUCTS_DIR; };
+		D607B19909A556E400699BC3 /* mac.xpl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = mac.xpl; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6A7BDA916A1DEA200D1426A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		D6A7BDC016A1DEC000D1426A /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		D6A7BDF016A1DED200D1426A /* XPLM.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XPLM.framework; path = SDK/Libraries/Mac/XPLM.framework; sourceTree = "<group>"; };
@@ -84,7 +84,7 @@
 		D607B19A09A556E400699BC3 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D607B19909A556E400699BC3 /* xpcPlugin.xpl */,
+				D607B19909A556E400699BC3 /* mac.xpl */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -117,7 +117,7 @@
 			);
 			name = xpcPlugin;
 			productName = StarterPlugin;
-			productReference = D607B19909A556E400699BC3 /* xpcPlugin.xpl */;
+			productReference = D607B19909A556E400699BC3 /* mac.xpl */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 /* End PBXNativeTarget section */
@@ -165,7 +165,7 @@
 		D607B16309A5563100699BC3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CONFIGURATION_BUILD_DIR = ./Mac;
+				CONFIGURATION_BUILD_DIR = ./XPlaneConnect;
 				DYLIB_COMPATIBILITY_VERSION = "";
 				DYLIB_CURRENT_VERSION = "";
 				EXECUTABLE_EXTENSION = xpl;
@@ -284,7 +284,7 @@
 					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/xplaneConnect-asdjuezcjkhojuewbyxhyhabxfwc/Build/Products/Debug",
 				);
 				MACH_O_TYPE = mh_bundle;
-				PRODUCT_NAME = xpcPlugin;
+				PRODUCT_NAME = mac;
 				STRIP_INSTALLED_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = XPC;
@@ -322,7 +322,7 @@
 					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/xplaneConnect-asdjuezcjkhojuewbyxhyhabxfwc/Build/Products/Debug",
 				);
 				MACH_O_TYPE = mh_bundle;
-				PRODUCT_NAME = xpcPlugin;
+				PRODUCT_NAME = mac;
 				STRIP_INSTALLED_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = XPC;
