@@ -9,6 +9,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cmath>
 #include <time.h>
 #include <exception>
 #include "xplaneconnect.h"
@@ -237,7 +238,7 @@ void sendCTRLTest() // sendCTRL test
     // Initialize
         int i; // Iterator
         char DREFArray[100][100];
-        float CTRL[5] = {0.0};
+        float CTRL[6] = {0.0};
         float *recDATA[100];
         short DREFSizes[100];
         struct xpcSocket sendPort, recvPort;
@@ -255,14 +256,16 @@ void sendCTRLTest() // sendCTRL test
     strcpy(DREFArray[2],"sim/cockpit2/controls/yoke_heading_ratio");
     strcpy(DREFArray[3],"sim/flightmodel/engine/ENGN_thro");
     strcpy(DREFArray[4],"sim/cockpit/switches/gear_handle_status");
-    strcpy(DREFArray[5],"sim/flightmodel/controls/flaprqsts");
+    strcpy(DREFArray[5],"sim/flightmodel/controls/flaprqst");
 	for (i = 0; i < 100; i++) {
 		DREFSizes[i] = (int)strlen(DREFArray[i]);
 	}
     CTRL[3] = 0.8; // Throttle
+    CTRL[4] = 1.0; // Gear
+    CTRL[5] = 0.5; // Flaps
     
     // Execute
-    sendCTRL(sendPort, 4, CTRL);
+    sendCTRL(sendPort, 6, CTRL);
     result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 6, recDATA, DREFSizes); // Test
     
     // Close
@@ -274,9 +277,9 @@ void sendCTRLTest() // sendCTRL test
     {
         throw -6;
     }
-    for (i=0;i<6-1;i++)
+    for (i=0;i<6;i++)
     {
-        if (abs(recDATA[i][0]-CTRL[i])>1e-4)
+        if (std::abs( recDATA[i][0]-CTRL[i])>1e-4)
         {
             throw -i;
         }
@@ -340,7 +343,7 @@ void sendPOSITest() // sendPOSI test
         {
             continue;
         }
-        if (abs(recDATA[i][0]-POSI[i])>1e-4)
+        if (std::abs(recDATA[i][0]-POSI[i])>1e-4)
         {
             throw -i;
         }
