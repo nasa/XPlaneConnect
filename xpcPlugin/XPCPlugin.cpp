@@ -755,7 +755,7 @@ int handleCTRL(char buf[])
 	{
 		setGEAR(0, gear, 0); // Gear
 	}
-	if ( flaps > -999.5 && flaps < -997.5 ) // Flaps
+	if ( flaps < -999.5 || flaps > -997.5 ) // Flaps
 	{
 		XPLMSetDataf(XPLMDataRefs[13][3],flaps);
 	}
