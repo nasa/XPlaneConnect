@@ -829,7 +829,6 @@ int handleGETD(char buf[])
 	{
 		if (listLength > 0)
 		{
-			handleDREFSIM(DREFArray[i]);// Adds "sim/" if not present
 			connectionList[current_connection].XPLMRequestedDRefs[i] = XPLMFindDataRef(DREFArray[i]);
 		}
 		
@@ -908,8 +907,6 @@ int handleDREF(char buf[])
 	}
 	
 	// Handle DREF
-	handleDREFSIM(DREF);// Adds "sim/" if not present
-	
 	sprintf(logmsg,"[DREF] Request to set DREF value received (Conn %i): %s",current_connection+1,DREF);
 	updateLog(logmsg,strlen(logmsg));
 	

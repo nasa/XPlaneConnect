@@ -41,9 +41,7 @@
     unsigned short getIP(struct sockaddr recvaddr, char *IP);
     
     int printBufferToLog(struct XPCMessage & msg);
-    
-    int handleDREFSIM(char *DREF);
-    
+        
     int fmini(int a, int b);
     
     

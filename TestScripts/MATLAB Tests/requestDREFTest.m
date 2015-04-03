@@ -5,7 +5,7 @@ addpath('../../MATLAB')
 import XPlaneConnect.*
 
 DREFS = {'sim/cockpit/switches/gear_handle_status',...
-    'cockpit2/switches/panel_brightness_ratio'};
+    'sim/cockpit2/switches/panel_brightness_ratio'};
 
 result = requestDREF(DREFS);
 

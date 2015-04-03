@@ -304,23 +304,6 @@ unsigned short getIP(struct sockaddr recvaddr, char *IP)
 	return ntohs((*sendaddr).sin_port);
 }
 
-int handleDREFSIM(char *DREF)
-{
-    //checks if sim/ is at the beginning of the dref string. If not, adds it.
-	char firstFour[5] = {0};
-	char fullDREF[200] = {0};
-	
-	memcpy(firstFour,DREF,4);
-	
-	if (strcmp(firstFour,"sim/") != 0)
-    {
-		sprintf(fullDREF, "sim/%s",DREF);
-		memcpy(DREF,fullDREF,strlen(fullDREF));
-	}
-    
-	return 0;
-}
-
 // DEBUGGING TOOLS
 // --------------------------------
 int printBufferToLog(struct XPCMessage & msg)
