@@ -18,7 +18,9 @@ import java.util.Arrays;
  */
 public class XPlaneConnect implements AutoCloseable
 {
-    private DatagramSocket socket;
+    private static int clientNum;
+    private DatagramSocket outSocket;
+    private DatagramSocket inSocket;
     private InetAddress xplaneAddr;
     private int xplanePort;
 
@@ -27,7 +29,7 @@ public class XPlaneConnect implements AutoCloseable
      *
      * @return The incoming port number.
      */
-    public int getRecvPort() { return socket.getLocalPort(); }
+    public int getRecvPort() { return inSocket.getLocalPort(); }
 
     /**
      * Gets the port on which the client sends data to X-Plane.
@@ -89,10 +91,11 @@ public class XPlaneConnect implements AutoCloseable
      */
     public XPlaneConnect(int timeout) throws SocketException
     {
-        this.socket = new DatagramSocket(49008);
+        this.inSocket = new DatagramSocket(49008);
+        this.outSocket = new DatagramSocket(50000 + ++clientNum);
         this.xplaneAddr = InetAddress.getLoopbackAddress();
         this.xplanePort = 49009;
-        this.socket.setSoTimeout(timeout);
+        this.inSocket.setSoTimeout(timeout);
     }
 
     /**
@@ -123,21 +126,27 @@ public class XPlaneConnect implements AutoCloseable
     public XPlaneConnect(int port, String xplaneHost, int xplanePort, int timeout)
             throws java.net.SocketException, java.net.UnknownHostException
     {
-        this.socket = new DatagramSocket(port);
+        this.inSocket = new DatagramSocket(port);
+        this.outSocket = new DatagramSocket(50000 + ++clientNum);
         this.xplaneAddr = InetAddress.getByName(xplaneHost);
         this.xplanePort = xplanePort;
-        this.socket.setSoTimeout(timeout);
+        this.inSocket.setSoTimeout(timeout);
     }
 
     /**
-     * Closes the underlying socket.
+     * Closes the underlying inSocket.
      */
     public void close()
     {
-        if(socket != null)
+        if(inSocket != null)
         {
-            socket.close();
-            socket = null;
+            inSocket.close();
+            inSocket = null;
+        }
+        if(outSocket != null)
+        {
+            outSocket.close();
+            outSocket = null;
         }
     }
 
@@ -153,7 +162,7 @@ public class XPlaneConnect implements AutoCloseable
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         try
         {
-            socket.receive(packet);
+            inSocket.receive(packet);
             return Arrays.copyOf(buffer, buffer[4]);
         }
         catch (SocketTimeoutException ex)
@@ -178,7 +187,7 @@ public class XPlaneConnect implements AutoCloseable
         buffer[4] = (byte)buffer.length;
 
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, xplaneAddr, xplanePort);
-        socket.send(packet);
+        outSocket.send(packet);
     }
 
     /**
@@ -583,9 +592,9 @@ public class XPlaneConnect implements AutoCloseable
         os.write((byte) (recvPort >> 8));
         sendUDP(os.toByteArray());
 
-        int soTimeout = socket.getSoTimeout();
-        socket.close();
-        socket = new DatagramSocket(recvPort);
-        socket.setSoTimeout(soTimeout);
+        int soTimeout = inSocket.getSoTimeout();
+        inSocket.close();
+        inSocket = new DatagramSocket(recvPort);
+        inSocket.setSoTimeout(soTimeout);
     }
 }
