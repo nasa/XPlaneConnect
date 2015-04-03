@@ -579,11 +579,13 @@ public class XPlaneConnect implements AutoCloseable
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         os.write("CONN".getBytes(StandardCharsets.UTF_8));
         os.write(0xFF); //Placeholder for message length
-        os.write((byte)recvPort);
-        os.write((byte)(recvPort >> 8));
+        os.write((byte) recvPort);
+        os.write((byte) (recvPort >> 8));
         sendUDP(os.toByteArray());
 
+        int soTimeout = socket.getSoTimeout();
         socket.close();
         socket = new DatagramSocket(recvPort);
+        socket.setSoTimeout(soTimeout);
     }
 }

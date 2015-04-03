@@ -467,6 +467,8 @@ public class XPlaneConnectTest
 
             xpc.setCONN(p);
             assertEquals(p, xpc.getRecvPort());
+            result = xpc.requestDREF(dref);
+            assertEquals(1, result.length);
         }
     }
 
