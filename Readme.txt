@@ -1,4 +1,4 @@
-﻿X-Plane Connect (XPC) Toolbox
+X-Plane Connect (XPC) Toolbox
 
 Description
 The X-Plane Connect (XPC) Toolbox facilitates communication with X-Plane. This toolbox allows for the real-time manipulation of X-Plane variables. Possible applications include active control of an XPlane simulation, flight visualization, recording states during a flight, or interacting with a mission over UDP.
@@ -11,7 +11,7 @@ xpcPlugin (Directory: xpcPlugin/)
 xpcScripts
     C: (Directory: C/src/, Example: C/xpcExample/)
     MATLAB: (Directory: Matlab/+XPlaneConnect/, Example: MATLAB/xpcExample/)
-    java: (future-Not complete yet): (Directory: java/src/, Example: java/xpcExample/)
+    java: (Directory: java/src/, Example: java/xpcExample/)
     python: (future-Not complete yet): (Directory: python/xpc/, Example: python/xpcExample/)
     
 Instructions:
@@ -30,7 +30,7 @@ Compatability:
     Windows: 
         Tested on Windows Vista and Windows 7
     Mac OSX
-        Tested on OS X 10.8-10.9
+        Tested on OS X 10.8-10.10
     X-Plane
         Tested with X-Plane 9 & 10
 
