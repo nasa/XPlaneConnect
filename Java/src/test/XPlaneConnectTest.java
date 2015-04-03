@@ -133,7 +133,7 @@ public class XPlaneConnectTest
         String[] drefs =
         {
             "sim/cockpit/switches/gear_handle_status",
-            "cockpit2/switches/panel_brightness_ratio"
+            "sim/cockpit2/switches/panel_brightness_ratio"
         };
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
