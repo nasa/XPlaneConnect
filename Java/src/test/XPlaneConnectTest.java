@@ -53,7 +53,7 @@ public class XPlaneConnectTest
     {
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            assertEquals(49007, xpc.getRecvPort());
+            assertEquals(49008, xpc.getRecvPort());
         }
     }
 
@@ -314,12 +314,6 @@ public class XPlaneConnectTest
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendCTRL(ctrl);
-            try
-            {
-                //TODO: Without this, The rudder dref seems to consistently report -2.00802304E8
-                Thread.sleep(200);
-            }
-            catch (InterruptedException ex){}
             float[][] result = xpc.requestDREFs(drefs);
             if(result.length < ctrl.length)
             {
@@ -327,7 +321,7 @@ public class XPlaneConnectTest
             }
             for(int i = 0; i < 6; ++i)
             {
-                assertEquals(ctrl[i], Math.abs(result[i][0]), 1e-2);
+                assertEquals(ctrl[i], result[i][0], 1e-2);
             }
         }
     }
@@ -366,16 +360,19 @@ public class XPlaneConnectTest
         float[] posi = new float[] {37.524F, -122.06899F, 2500, 0, 0, 0, 1};
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
+            xpc.pauseSim(true);
             xpc.sendPOSI(posi);
             //TODO: It seems that these calls are a bit too fast. The dref request often gets stale data, causing the test to fail incorrectly.
+            try {Thread.sleep(100);}catch(InterruptedException ex){}
             float[][] result = xpc.requestDREFs(drefs);
+            xpc.pauseSim(false);
             if(result.length < posi.length)
             {
                 fail();
             }
             assertEquals(posi[0], result[0][0], 1e-4);
             assertEquals(posi[1], result[1][0], 1e-4);
-            assertEquals(posi[2], result[2][0], 1e-4);
+            assertEquals(posi[2], result[2][0], 10);
             assertEquals(posi[3], result[3][0], 1e-4);
             assertEquals(posi[4], result[4][0], 1e-4);
             assertEquals(posi[5], result[5][0], 1e-4);

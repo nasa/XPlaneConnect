@@ -335,6 +335,7 @@ public class XPlaneConnect implements AutoCloseable
         os.write(0xFF); //Placeholder for message length
         os.write(drefBytes.length);
         os.write(drefBytes, 0, drefBytes.length);
+        os.write(value.length);
         os.write(bb.array());
         sendUDP(os.toByteArray());
     }
