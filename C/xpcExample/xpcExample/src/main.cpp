@@ -105,7 +105,7 @@ int main() {
 	// SendDREF (Landing Gear)
 	printf("- Stowing Landing Gear\n");
 
-	strcpy(DREF, "cockpit/switches/gear_handle_status"); // Gear handle data reference
+	strcpy(DREF, "sim/cockpit/switches/gear_handle_status"); // Gear handle data reference
 	DREFSizes[0] = strlen(DREF);
 	gear = 1; // Stow gear
 

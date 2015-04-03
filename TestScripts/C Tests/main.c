@@ -103,7 +103,7 @@ short requestDREFTest() // Request DREF Test (Required for next tests)
     sendPort = openUDP( 49064, "127.0.0.1", 49009 );
     recvPort = openUDP( 49008, "127.0.0.1", 49009 );
     strcpy(DREFArray[0],"sim/cockpit/switches/gear_handle_status");
-    strcpy(DREFArray[1],"cockpit2/switches/panel_brightness_ratio");
+    strcpy(DREFArray[1],"sim/cockpit2/switches/panel_brightness_ratio");
     for (i=0;i<2;i++) {
         DREFSizes[i] = (int) strlen(DREFArray[i]);
     }

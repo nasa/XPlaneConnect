@@ -45,7 +45,7 @@ sendDATA(data);
  pause(10) % Run sim for 10 seconds
  %% Use DREF to raise landing gear
  disp('Raising gear');
- gearDREF = 'cockpit/switches/gear_handle_status';
+ gearDREF = 'sim/cockpit/switches/gear_handle_status';
  sendDREF(gearDREF, 0);
  pause(10) % Run sim for 10 seconds
  %% Confirm gear and paus status by reading DREFs
