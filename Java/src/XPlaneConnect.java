@@ -564,10 +564,10 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
+     * Sets the port on which the client will receive data from X-Plane.
      *
-     *
-     * @param recvPort
-     * @throws IOException
+     * @param recvPort The new incoming port number.
+     * @throws IOException If the command cannnot be sent.
      */
     public void setCONN(int recvPort) throws IOException
     {
