@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="XPlaneConnect:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/XPlaneConnect_jar</output-path>
+    <root id="archive" name="XPlaneConnect.jar">
+      <element id="module-output" name="XPlaneConnect" />
+    </root>
+  </artifact>
+</component>

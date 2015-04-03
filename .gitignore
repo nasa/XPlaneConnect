@@ -69,6 +69,13 @@ xcuserdata
 *.moved-aside
 *.xccheckout
 
+# IntelliJ Files #
+##################
+*/.idea/workspace.xml
+*/.idea/tasks.xml
+*/.idea/dictionaries/
+out/
+
 # MATLAB backup files #
 #######################
 *.m~
