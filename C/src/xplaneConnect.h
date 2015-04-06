@@ -70,8 +70,9 @@
         
     // Controls
         xpcCtrl parseCTRL(const char data[]);
-        xpcCtrl readCTRL(struct xpcSocket recfd);
-        short sendCTRL(struct xpcSocket recfd, short numArgs, float valueArray[]);
+		xpcCtrl readCTRL(struct xpcSocket recfd);
+		short sendCTRL(struct xpcSocket recfd, short numArgs, float valueArray[]);
+		short sendpCTRL(struct xpcSocket recfd, short numArgs, float valueArray[], char acNum);
     
     // DREF Manipulation
         short readDREF(struct xpcSocket recfd, float *resultArray[], short arraySizes[]);
