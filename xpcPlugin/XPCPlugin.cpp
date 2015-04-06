@@ -728,36 +728,70 @@ int handleCTRL(char buf[])
 	updateLog(logmsg, strlen(logmsg));
 	
 	ctrl = parseCTRL(buf);
-	
-	if (ctrl.aircraft == -1) //parseCTRL failed
+	if (ctrl.aircraft < 0) //parseCTRL failed
 	{
 		return 1;
 	}
-	
-	// SET CONTROLS
-	XPLMSetDataf(XPLMDataRefs[11][0], ctrl.pitch);
-	XPLMSetDataf(XPLMDataRefs[11][1], ctrl.roll);
-	XPLMSetDataf(XPLMDataRefs[11][2], ctrl.yaw);
-	
-	// SET Throttle
-	for ( i=0; i<8; i++ )
+	if (ctrl.aircraft > 19) //Can only handle 19 non-player aircraft right now
 	{
-		thr[i] = ctrl.throttle;
+		return 2;
 	}
-	XPLMSetDatavf(XPLMDataRefs[25][0], thr, 0, 8);
-	XPLMSetDatavf(XPLMDataRefs[26][0], thr, 0, 8);
-	setDREF(XPLMFindDataRef("sim/flightmodel/engine/ENGN_thro_override"), thr, 0, 1);
-	
-	// SET Gear/Flaps
-	if (ctrl.gear != -1)
+	if (ctrl.aircraft == 0) //player aircraft
 	{
-		setGEAR(0, ctrl.gear, 0); // Gear
+		// SET CONTROLS
+		XPLMSetDataf(XPLMDataRefs[11][0], ctrl.pitch);
+		XPLMSetDataf(XPLMDataRefs[11][1], ctrl.roll);
+		XPLMSetDataf(XPLMDataRefs[11][2], ctrl.yaw);
+
+		// SET Throttle
+		for (i = 0; i<8; i++)
+		{
+			thr[i] = ctrl.throttle;
+		}
+		XPLMSetDatavf(XPLMDataRefs[25][0], thr, 0, 8);
+		XPLMSetDatavf(XPLMDataRefs[26][0], thr, 0, 8);
+		setDREF(XPLMFindDataRef("sim/flightmodel/engine/ENGN_thro_override"), thr, 0, 1);
+
+		// SET Gear/Flaps
+		if (ctrl.gear != -1)
+		{
+			setGEAR(0, ctrl.gear, 0); // Gear
+		}
+		if (ctrl.flaps < -999.5 || ctrl.flaps > -997.5) // Flaps
+		{
+			XPLMSetDataf(XPLMDataRefs[13][3], ctrl.flaps);
+		}
 	}
-	if (ctrl.flaps < -999.5 || ctrl.flaps > -997.5) // Flaps
+	else //non-player aircraft
 	{
-		XPLMSetDataf(XPLMDataRefs[13][3], ctrl.flaps);
-	}
-	
+		// SET CONTROLS
+		XPLMSetDataf(multiplayer[ctrl.aircraft][14], ctrl.pitch);
+		XPLMSetDataf(multiplayer[ctrl.aircraft][15], ctrl.roll);
+		XPLMSetDataf(multiplayer[ctrl.aircraft][16], ctrl.yaw);
+
+		// SET Throttle
+		for (i = 0; i<8; i++)
+		{
+			thr[i] = ctrl.throttle;
+		}
+		XPLMSetDatavf(multiplayer[ctrl.aircraft][13], thr, 0, 8);
+
+		// SET Gear/Flaps
+		if (ctrl.gear != -1)
+		{
+			float gear[10];
+			for (int i = 0; i < 10; ++i)
+			{
+				gear[i] = ctrl.gear;
+			}
+			XPLMSetDatavf(multiplayer[ctrl.aircraft][6], gear, 0, 10);
+		}
+		if (ctrl.flaps < -999.5 || ctrl.flaps > -997.5) // Flaps
+		{
+			XPLMSetDataf(multiplayer[ctrl.aircraft][7], ctrl.flaps);
+			XPLMSetDataf(multiplayer[ctrl.aircraft][8], ctrl.flaps);
+		}
+	}	
 	return 0;
 }
 
