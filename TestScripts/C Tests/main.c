@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 #include "xplaneconnect.h"
 
 int testFailed = 0;
@@ -281,7 +282,7 @@ short sendCTRLTest() // sendCTRL test
     {
         if (fabs(recDATA[i][0]-CTRL[i])>1e-4)
         {
-            return -i;
+            return -i - 1;
         }
     }
 
