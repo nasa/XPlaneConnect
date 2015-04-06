@@ -36,6 +36,17 @@
             int sock;
         #endif
     };
+
+	typedef struct
+	{
+		float pitch;
+		float roll;
+		float yaw;
+		float throttle;
+		char gear;
+		float flaps;
+		char aircraft;
+	} xpcCtrl;
         
     // Basic Functions
         struct xpcSocket openUDP(unsigned short port, const char *xpIP, unsigned short xpPort);
@@ -58,8 +69,8 @@
         short sendPOSI(struct xpcSocket recfd, short ACNum, short numArgs, float valueArray[]);
         
     // Controls
-        float parseCTRL(const char my_message[], float resultArray[4], short *gear);
-        float readCTRL(struct xpcSocket recfd, float resultArray[4], short *gear);
+        xpcCtrl parseCTRL(const char data[]);
+        xpcCtrl readCTRL(struct xpcSocket recfd);
         short sendCTRL(struct xpcSocket recfd, short numArgs, float valueArray[]);
     
     // DREF Manipulation

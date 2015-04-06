@@ -378,12 +378,9 @@ int printBufferToLog(struct XPCMessage & msg)
     }
     else if (strncmp(msg.head,"CTRL",4)==0)
     {// Header = CTRL (Control)
-        float flaps;
-        float controls[4];
-        short gear;
-        flaps = parseCTRL(msg.msg,controls,&gear);
+        xpcCtrl ctrl = parseCTRL(msg.msg);
         
-        sprintf(logmsg,"%s (%f %f %f) %f %hi %f",logmsg, controls[0], controls[1], controls[2], controls[3] , gear, flaps);
+        sprintf(logmsg,"%s (%f %f %f) %f %hi %f",logmsg, ctrl.pitch, ctrl.roll, ctrl.yaw, ctrl.throttle, ctrl.gear, ctrl.flaps);
         
         updateLog(logmsg,strlen(logmsg));
         

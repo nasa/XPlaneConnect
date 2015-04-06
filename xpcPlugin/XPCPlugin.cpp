@@ -719,45 +719,43 @@ int handlePOSI(char buf[])
 int handleCTRL(char buf[])
 {
 	char logmsg[100];
-	float flaps;
-	float controls[4] = {0.0};
-	float throtArray[8] = {0};
+	xpcCtrl ctrl;
+	float thr[8] = { 0 };
 	short i;
-	short gear = -1;
 	
 	// UPDATE LOG
 	sprintf(logmsg,"[CTRL] Message Received (Conn %i)", current_connection+1);
 	updateLog(logmsg, strlen(logmsg));
 	
-	flaps = parseCTRL(buf,controls,&gear);
+	ctrl = parseCTRL(buf);
 	
-	if ( flaps != flaps ) // Is NaN
+	if (ctrl.aircraft == -1) //parseCTRL failed
 	{
 		return 1;
 	}
 	
 	// SET CONTROLS
-	XPLMSetDataf(XPLMDataRefs[11][0],controls[0]);
-	XPLMSetDataf(XPLMDataRefs[11][1],controls[1]);
-	XPLMSetDataf(XPLMDataRefs[11][2],controls[2]);
+	XPLMSetDataf(XPLMDataRefs[11][0], ctrl.pitch);
+	XPLMSetDataf(XPLMDataRefs[11][1], ctrl.roll);
+	XPLMSetDataf(XPLMDataRefs[11][2], ctrl.yaw);
 	
 	// SET Throttle
 	for ( i=0; i<8; i++ )
 	{
-		throtArray[i]=controls[3];
+		thr[i] = ctrl.throttle;
 	}
-	XPLMSetDatavf(XPLMDataRefs[25][0],throtArray,0,8);
-	XPLMSetDatavf(XPLMDataRefs[26][0],throtArray,0,8);
-	setDREF(XPLMFindDataRef("sim/flightmodel/engine/ENGN_thro_override"),controls,3,1);
+	XPLMSetDatavf(XPLMDataRefs[25][0], thr, 0, 8);
+	XPLMSetDatavf(XPLMDataRefs[26][0], thr, 0, 8);
+	setDREF(XPLMFindDataRef("sim/flightmodel/engine/ENGN_thro_override"), thr, 0, 1);
 	
 	// SET Gear/Flaps
-	if ( gear != -1 )
+	if (ctrl.gear != -1)
 	{
-		setGEAR(0, gear, 0); // Gear
+		setGEAR(0, ctrl.gear, 0); // Gear
 	}
-	if ( flaps < -999.5 || flaps > -997.5 ) // Flaps
+	if (ctrl.flaps < -999.5 || ctrl.flaps > -997.5) // Flaps
 	{
-		XPLMSetDataf(XPLMDataRefs[13][3],flaps);
+		XPLMSetDataf(XPLMDataRefs[13][3], ctrl.flaps);
 	}
 	
 	return 0;
