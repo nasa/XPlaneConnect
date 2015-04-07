@@ -457,7 +457,7 @@ public class XPlaneConnect implements AutoCloseable
                 cur += 4;
             }
         }
-        bb.put(cur, (byte)aircraft);
+        bb.put(cur, (byte) aircraft);
 
         //Build and send message
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -583,6 +583,55 @@ public class XPlaneConnect implements AutoCloseable
         os.write("DATA".getBytes(StandardCharsets.UTF_8));
         os.write(0xFF); //Placeholder for message length
         os.write(bb.array());
+        sendUDP(os.toByteArray());
+    }
+
+    /**
+     * Sets a message to be displayed on the screen in X-Plane at the default screen location.
+     *
+     * @param msg The message to display. Should not contain any newline characters.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void sendTEXT(String msg) throws IOException
+    {
+        sendTEXT(msg, -1, -1);
+    }
+
+    /**
+     * Sets a message to be displayed on the screen in X-Plane at the specified coordinates.
+     *
+     * @param msg The message to display. Should not contain any newline characters.
+     * @param x   The number of pixels from the right edge of the screen to display the text.
+     * @param y   The number of pixels from the bottom edge of the screen to display the text.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void sendTEXT(String msg, int x, int y) throws IOException
+    {
+        //Preconditions
+        if(msg == null)
+        {
+            msg = "";
+        }
+
+        //Convert drefs to bytes.
+        byte[] msgBytes = msg.getBytes(StandardCharsets.UTF_8);
+        if(msgBytes.length > 255)
+        {
+            throw new IllegalArgumentException("msg must be less than 255 bytes in UTF-8.");
+        }
+
+        ByteBuffer bb = ByteBuffer.allocate(8);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.putInt(0, x);
+        bb.putInt(4, y);
+
+        //Build and send message
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write("TEXT".getBytes(StandardCharsets.UTF_8));
+        os.write(0xFF); //Placeholder for message length
+        os.write(bb.array());
+        os.write(msgBytes.length);
+        os.write(msgBytes);
         sendUDP(os.toByteArray());
     }
 

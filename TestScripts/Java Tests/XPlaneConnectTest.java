@@ -218,6 +218,16 @@ public class XPlaneConnectTest
     }
 
     @Test
+    public void testSendTEXT() throws IOException
+    {
+        String msg = "XPlaneConnect Java message test.";
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.sendTEXT(msg, 200, 400);
+        }
+    }
+
+    @Test
     public void testSendDREF() throws IOException
     {
         String dref = "sim/cockpit/switches/gear_handle_status";
