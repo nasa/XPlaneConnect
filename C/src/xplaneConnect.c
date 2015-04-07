@@ -419,6 +419,20 @@ short sendpCTRL(struct xpcSocket recfd, short numArgs, float valueArray[], char 
     return 0;
 }
 
+short sendTEXT(struct xpcSocket sendfd, char* msg, int x, int y)
+{
+	char buf[269] = { 0 };
+	size_t msgLen = strnlen(msg, 255);
+	size_t len = 14 + msgLen;
+	strcpy(buf, "TEXT");
+	memcpy(buf + 5, &x, sizeof(int));
+	memcpy(buf + 9, &y, sizeof(int));
+	buf[13] = msgLen;
+	strncpy(buf + 14, msg, msgLen);
+
+	sendUDP(sendfd, buf, len);
+}
+
 //READ
 //----------------------------------------
 short readUDP(struct xpcSocket recfd, char *dataRef, struct sockaddr *recvaddr)

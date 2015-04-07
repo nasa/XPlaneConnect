@@ -81,7 +81,11 @@
         short requestDREF(struct xpcSocket sendfd, struct xpcSocket recfd, char DREFArray[][100], short DREFSizes[], short listLength,  float *resultArray[], short arraySizes[]);
         int parseGETD(const char my_message[], char *DREFArray[], int DREFSizes[]);
         short parseRequest(const char my_message[], float *resultArray[], short arraySizes[]);
-        short readRequest(struct xpcSocket recfd, float *dataRef[], short arraySizes[], struct sockaddr *recvaddr);
+		short readRequest(struct xpcSocket recfd, float *dataRef[], short arraySizes[], struct sockaddr *recvaddr);
+
+	// Screen Text
+		short sendTEXT(struct xpcSocket sendfd, int x, int y, char* msg);
+
         
     #endif //ifdef _h
         
