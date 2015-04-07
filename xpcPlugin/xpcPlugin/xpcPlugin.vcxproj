@@ -97,10 +97,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\C\src\xplaneConnect.h" />
+    <ClInclude Include="..\xpcDrawing.h" />
     <ClInclude Include="..\xpcPluginTools.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\C\src\xplaneConnect.c" />
+    <ClCompile Include="..\xpcDrawing.cpp" />
     <ClCompile Include="..\XPCPlugin.cpp" />
     <ClCompile Include="..\xpcPluginTools.cpp" />
   </ItemGroup>
