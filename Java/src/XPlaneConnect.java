@@ -410,7 +410,7 @@ public class XPlaneConnect implements AutoCloseable
      * @param aircraft The aircraft to set. 0 for the player's aircraft.
      * @throws IOException If the command cannot be sent.
      */
-    private void sendCTRL(float[] ctrl, int aircraft) throws IOException
+    public void sendCTRL(float[] ctrl, int aircraft) throws IOException
     {
         //Preconditions
         if(ctrl == null)
@@ -421,13 +421,9 @@ public class XPlaneConnect implements AutoCloseable
         {
             throw new IllegalArgumentException("ctrl must have 6 or fewer elements.");
         }
-        if(aircraft < 0)
+        if(aircraft < 0 || aircraft > 9)
         {
-            throw new IllegalArgumentException("aircraft must be non-negative.");
-        }
-        if(aircraft != 0) //TODO: Implement support for non-player aircraft on plugin side.
-        {
-            throw new Error("Non-player aircraft not supported yet.");
+            throw new IllegalArgumentException("aircraft must be non-negative and less than 9.");
         }
 
         //Pad command values and convert to bytes
@@ -461,6 +457,7 @@ public class XPlaneConnect implements AutoCloseable
                 cur += 4;
             }
         }
+        bb.put(cur, (byte)aircraft);
 
         //Build and send message
         ByteArrayOutputStream os = new ByteArrayOutputStream();
