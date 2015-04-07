@@ -14,7 +14,7 @@
 #include "XPLMDataAccess.h"
     
     extern XPLMDataRef XPLMDataRefs[134][8];
-    extern XPLMDataRef multiplayer[19][8];
+    extern XPLMDataRef multiplayer[20][17];
     extern XPLMDataRef AIswitch;
     
     struct XPCMessage

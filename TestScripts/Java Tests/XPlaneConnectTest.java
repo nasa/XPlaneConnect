@@ -303,12 +303,12 @@ public class XPlaneConnectTest
     public void testSendCTRL() throws IOException
     {
         String[] drefs = {
-            "sim/cockpit2/controls/yoke_pitch_ratio",
-            "sim/cockpit2/controls/yoke_roll_ratio",
-            "sim/cockpit2/controls/yoke_heading_ratio",
-            "sim/flightmodel/engine/ENGN_thro",
-            "sim/cockpit/switches/gear_handle_status",
-            "sim/flightmodel/controls/flaprqst"
+                "sim/cockpit2/controls/yoke_pitch_ratio",
+                "sim/cockpit2/controls/yoke_roll_ratio",
+                "sim/cockpit2/controls/yoke_heading_ratio",
+                "sim/flightmodel/engine/ENGN_thro",
+                "sim/cockpit/switches/gear_handle_status",
+                "sim/flightmodel/controls/flaprqst"
         };
         float[] ctrl = new float[] {0, 0, 1, 0.8F, 0, 1};
         try(XPlaneConnect xpc = new XPlaneConnect())
@@ -322,6 +322,40 @@ public class XPlaneConnectTest
             for(int i = 0; i < 6; ++i)
             {
                 assertEquals(ctrl[i], result[i][0], 1e-2);
+            }
+        }
+    }
+
+    @Test
+    public void testSendCTRL_NPC() throws IOException
+    {
+        String[] drefs1 = {
+                "sim/multiplayer/position/plane1_yolk_pitch",
+                "sim/multiplayer/position/plane1_yolk_roll",
+                "sim/multiplayer/position/plane1_yolk_yaw",
+                "sim/multiplayer/position/plane1_throttle"
+        };
+        String[] drefs2 = {
+                "sim/multiplayer/position/plane1_gear_deploy",
+                "sim/multiplayer/position/plane1_flap_ratio"
+        };
+        float[] ctrl = new float[] {0, 0, 1, 0.8F, 0, 0.5F};
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.sendCTRL(ctrl, 1);
+            float[][] result1 = xpc.requestDREFs(drefs1);
+            float[][] result2 = xpc.requestDREFs(drefs2);
+            if(result1.length != 4 || result2.length != 2)
+            {
+                fail();
+            }
+            for(int i = 0; i < 4; ++i)
+            {
+                assertEquals(ctrl[i], result1[i][0], 1e-2);
+            }
+            for(int i = 0; i < 2; ++i)
+            {
+                assertEquals(ctrl[i + 4], result2[i][0], 1e-2);
             }
         }
     }

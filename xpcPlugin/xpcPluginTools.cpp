@@ -32,7 +32,7 @@
 #include "xpcPluginTools.h"
 
 XPLMDataRef XPLMDataRefs[134][8];
-XPLMDataRef multiplayer[19][8];
+XPLMDataRef multiplayer[20][17];
 XPLMDataRef AIswitch;
 
 void readMessage(struct xpcSocket * recSocket, struct XPCMessage * pMessage)
@@ -234,22 +234,42 @@ void buildXPLMDataRefs()
     
     
     // Multiplayer
-    for ( i = 0; i < 19; i++ )
+    for ( i = 1; i < 20; i++ )
     {
-        sprintf(multi,"sim/multiplayer/position/plane%i_x",i); // X
+		sprintf(multi, "sim/multiplayer/position/plane%i_x", i); // X
         multiplayer[i][0] = XPLMFindDataRef(multi);
-        sprintf(multi,"sim/multiplayer/position/plane%i_y",i); // Y
+		sprintf(multi, "sim/multiplayer/position/plane%i_y", i); // Y
         multiplayer[i][1] = XPLMFindDataRef(multi);
-        sprintf(multi,"sim/multiplayer/position/plane%i_z",i); // Z
+        sprintf(multi,"sim/multiplayer/position/plane%i_z", i); // Z
         multiplayer[i][2] = XPLMFindDataRef(multi);
-        sprintf(multi,"sim/multiplayer/position/plane%i_the",i); // Theta (Pitch)
+        sprintf(multi,"sim/multiplayer/position/plane%i_the", i); // Theta (Pitch)
         multiplayer[i][3] = XPLMFindDataRef(multi);
-        sprintf(multi,"sim/multiplayer/position/plane%i_phi",i); // Phi (Roll)
+        sprintf(multi,"sim/multiplayer/position/plane%i_phi", i); // Phi (Roll)
         multiplayer[i][4] = XPLMFindDataRef(multi);
-        sprintf(multi,"sim/multiplayer/position/plane%i_psi",i); // Psi (Heading-True)
-        multiplayer[i][5] = XPLMFindDataRef(multi);
-        sprintf(multi,"sim/multiplayer/position/plane%i_gear_deploy",i); // Landing Gear
-        multiplayer[i][6] = XPLMFindDataRef(multi);
+        sprintf(multi,"sim/multiplayer/position/plane%i_psi", i); // Psi (Heading-True)
+		multiplayer[i][5] = XPLMFindDataRef(multi);
+		sprintf(multi, "sim/multiplayer/position/plane%i_gear_deploy", i); // Landing Gear
+		multiplayer[i][6] = XPLMFindDataRef(multi);
+		sprintf(multi, "sim/multiplayer/position/plane%i_flap_ratio", i);
+		multiplayer[i][7] = XPLMFindDataRef(multi);
+		sprintf(multi, "sim/multiplayer/position/plane%i_flap_ratio2", i);
+		multiplayer[i][8] = XPLMFindDataRef(multi);
+		sprintf(multi, "sim/multiplayer/position/plane%i_spoiler_ratio", i);
+		multiplayer[i][9] = XPLMFindDataRef(multi);
+		sprintf(multi, "sim/multiplayer/position/plane%i_speedbrake_ratio", i);
+		multiplayer[i][10] = XPLMFindDataRef(multi);
+		sprintf(multi, "sim/multiplayer/position/plane%i_slat_ratio", i);
+		multiplayer[i][11] = XPLMFindDataRef(multi);
+		sprintf(multi, "sim/multiplayer/position/plane%i_wing_sweep", i);
+		multiplayer[i][12] = XPLMFindDataRef(multi);
+		sprintf(multi, "sim/multiplayer/position/plane%i_throttle", i);
+		multiplayer[i][13] = XPLMFindDataRef(multi);
+		sprintf(multi, "sim/multiplayer/position/plane%i_yolk_pitch", i);
+		multiplayer[i][14] = XPLMFindDataRef(multi);
+		sprintf(multi, "sim/multiplayer/position/plane%i_yolk_roll", i);
+		multiplayer[i][15] = XPLMFindDataRef(multi);
+		sprintf(multi, "sim/multiplayer/position/plane%i_yolk_yaw", i);
+		multiplayer[i][16] = XPLMFindDataRef(multi);
     }
     AIswitch = XPLMFindDataRef("sim/operation/override/override_plane_ai_autopilot");
 }
@@ -358,12 +378,9 @@ int printBufferToLog(struct XPCMessage & msg)
     }
     else if (strncmp(msg.head,"CTRL",4)==0)
     {// Header = CTRL (Control)
-        float flaps;
-        float controls[4];
-        short gear;
-        flaps = parseCTRL(msg.msg,controls,&gear);
+        xpcCtrl ctrl = parseCTRL(msg.msg);
         
-        sprintf(logmsg,"%s (%f %f %f) %f %hi %f",logmsg, controls[0], controls[1], controls[2], controls[3] , gear, flaps);
+        sprintf(logmsg,"%s (%f %f %f) %f %hi %f",logmsg, ctrl.pitch, ctrl.roll, ctrl.yaw, ctrl.throttle, ctrl.gear, ctrl.flaps);
         
         updateLog(logmsg,strlen(logmsg));
         

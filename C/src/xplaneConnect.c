@@ -373,7 +373,12 @@ short sendPOSI(struct xpcSocket recfd, short ACNum, short numArgs, float valueAr
 
 short sendCTRL(struct xpcSocket recfd, short numArgs, float valueArray[])
 {
-    char message[26] = {0};
+	return sendpCTRL(recfd, numArgs, valueArray, 0);
+}
+
+short sendpCTRL(struct xpcSocket recfd, short numArgs, float valueArray[], char acNum)
+{
+	char message[27] = { 0 };
     int i;
     short position = 5;
     
@@ -406,11 +411,11 @@ short sendCTRL(struct xpcSocket recfd, short numArgs, float valueArray[])
             // Float Values
             memcpy(&message[position],&val,sizeof(float));
             position += sizeof(float);
-        }
-        
+        }        
     }
+	message[position] = acNum;
     
-    sendUDP(recfd, message, 26);
+    sendUDP(recfd, message, 27);
     return 0;
 }
 
@@ -509,17 +514,21 @@ short readPOSI(struct xpcSocket recfd, float resultArray[], int arraySize,  floa
     return -1;
 }
 
-float readCTRL(struct xpcSocket recfd, float resultArray[4], short *gear)
+xpcCtrl readCTRL(struct xpcSocket recfd)
 {
-    char buf[5000] = {0};
-    readUDP(recfd,buf, NULL);
-    
+    xpcCtrl result;
+    char buf[5000] = { 0 };
+    readUDP(recfd, buf, NULL);
+
     if (buf[0] != '\0') // Buffer is not empty
     {
-        return parseCTRL(buf, resultArray, gear);
+        result = parseCTRL(buf);
     }
-    
-    return NAN;
+    else
+    {
+        result.aircraft = -1;
+    }
+    return result;
 }
 
 //PARSE
@@ -610,21 +619,38 @@ short parsePOSI(const char my_message[], float resultArray[], int arraySize, flo
     return my_message[5]; // Aircraft
 }
 
-float parseCTRL(const char my_message[], float resultArray[], short *gear)
+xpcCtrl parseCTRL(const char data[])
 {
-    int i;
-    float flaps = 0;
-    
-    // Controls
-    for (i = 0; i < 4; i++)
+    xpcCtrl result;
+    unsigned char len = data[4];
+    //Preconditions
+    //Validate message prefix to ensure we are looking at the right kind of packet.
+    if (strncmp(data, "CTRL", 4) != 0)
     {
-        memcpy(&resultArray[i],&my_message[5+4*i],4);
+        result.aircraft = -1;
     }
-    
-    // Gear, Flaps
-    *gear = (short) my_message[21];
-    
-    memcpy(&flaps,&my_message[22],4);
-    
-    return flaps;
+    //Legacy packets that don't specify an aircraft number should be 22 bytes long.
+    //Packets specifying an A/C num should be 24 bytes.
+    else if (len != 26 && len != 27)
+    {
+        result.aircraft = -1;
+    }
+    //Everything checks out, so we can skip over the header and copy the raw data
+    //into the struct.
+    else
+	{
+		//NOTE: It's tempting to just do a single memcpy here, but we can't do that because the
+		//      compiler is allowed to add padding to the struct type.
+		result.pitch = *((float*)(data + 5));
+		result.roll = *((float*)(data + 9));
+		result.yaw = *((float*)(data + 13));
+		result.throttle = *((float*)(data + 17));
+		result.gear = data[21];
+		result.flaps = *((float*)(data + 22));
+		if (len == 27)
+		{
+			result.aircraft = data[26];
+		}
+    }
+    return result;
 }
