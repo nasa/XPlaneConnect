@@ -29,7 +29,7 @@ void XPCClearMessage()
 	msgVal = NULL;
 	if (msgEnabled)
 	{
-		XPLMUnregisterDrawCallback(MessageDrawCallback, xplm_Phase_LastCockpit, 0, NULL);
+		XPLMUnregisterDrawCallback(MessageDrawCallback, xplm_Phase_Window, 0, NULL);
 		msgEnabled = 0;
 	}
 }
