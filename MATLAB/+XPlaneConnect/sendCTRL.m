@@ -52,7 +52,10 @@ import XPlaneConnect.*
     for i=1:min(length(ctrl),length(control))
         control(i) = ctrl(i);
     end
-    dataStream = [dataStream, typecast(single(control),'uint8')];
+    dataStream = [dataStream, typecast(single(control(1:4)),'uint8')];
+    dataStream = [dataStream, uint8(control(5))];
+    dataStream = [dataStream, typecast(single(control(6)),'uint8')];
+    dataStream = [dataStream, uint8(acft)];
     
     % Send DATA
     status = sendUDP(dataStream, IP, port);
