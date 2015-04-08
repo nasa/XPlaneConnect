@@ -1,6 +1,8 @@
 #include "xpcDrawing.h"
 #include "XPLMDisplay.h"
 #include "XPLMGraphics.h"
+#include <stdlib.h>
+#include <string.h>
 
 //Internal Memory
 static int msgEnabled = 0;
