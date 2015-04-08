@@ -6,7 +6,7 @@ DESCRIPTION
 -----------------------------------
 SETUP
         Before using XPC Functions you must
-               1. Copy the file XPCPlugin.xpl to the "[X-Plane Directory]/Resources/plugins" directory.
+               1. Copy the folder "[XPC Directory]/xpcPlugin/XPlaneConnect" to the "[X-Plane Directory]/Resources/plugins" directory.
                2. Put in X-Plane CD 1 or X-Plane USB Key.
                3. Start X-Plane.
         4. #include "xplaneConnect.h"
