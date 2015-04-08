@@ -431,6 +431,7 @@ short sendTEXT(struct xpcSocket sendfd, char* msg, int x, int y)
 	strncpy(buf + 14, msg, msgLen);
 
 	sendUDP(sendfd, buf, len);
+    return 0;
 }
 
 //READ
