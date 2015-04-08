@@ -228,6 +228,26 @@ public class XPlaneConnectTest
     }
 
     @Test
+    public void testSendTEXT_Multiline() throws IOException
+    {
+        String msg = "XPlaneConnect Java message test.\nNow with new lines!\rAnd another...\r\nAnd now a double.";
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.sendTEXT(msg, 200, 400);
+        }
+    }
+
+    @Test
+    public void testSendTEXT_Long() throws IOException
+    {
+        String msg = "XPlaneConnect Java message test.\nNow with new lines!\rAnd another...\r\nAnd now a double\nAnd finally a really long line because that seemed to break things.";
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.sendTEXT(msg, 200, 400);
+        }
+    }
+
+    @Test
     public void testSendDREF() throws IOException
     {
         String dref = "sim/cockpit/switches/gear_handle_status";

@@ -5,18 +5,23 @@
 #include <string.h>
 
 //Internal Memory
-static int msgEnabled = 0;
+static bool msgEnabled = false;
 static int msgX = -1;
 static int msgY = -1;
-static char* msgVal = NULL;
-static float rgb[4] = { 0.5F, 1.0F, 0.5F };
+static char msgVal[256] = { 0 };
+static size_t newLineCount = 0;
+static size_t newLines[64] = { 0 };
+static float rgb[3] = { 0.25F, 1.0F, 0.25F };
 
 //Internal Functions
 static int MessageDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void * inRefcon)
 {
-	if (msgVal)
+	XPLMDrawString(rgb, msgX, msgY, msgVal, NULL, xplmFont_Basic);
+	int y = msgY - 16;
+	for (size_t i = 0; i < newLineCount; ++i)
 	{
-		XPLMDrawString(rgb, msgX, msgY, msgVal, NULL, xplmFont_Basic);
+		XPLMDrawString(rgb, msgX, y, msgVal + newLines[i], NULL, xplmFont_Basic);
+		y -= 16;
 	}
 	return 1;
 }
@@ -24,52 +29,39 @@ static int MessageDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void * 
 //Public Functions
 void XPCClearMessage()
 {
-	if (msgVal != NULL)
-	{
-		free(msgVal);
-	}
-	msgVal = NULL;
-	if (msgEnabled)
-	{
-		XPLMUnregisterDrawCallback(MessageDrawCallback, xplm_Phase_Window, 0, NULL);
-		msgEnabled = 0;
-	}
+	XPLMUnregisterDrawCallback(MessageDrawCallback, xplm_Phase_Window, 0, NULL);
+	msgEnabled = false;
 }
 
 void XPCSetMessage(int x, int y, char* msg)
 {
 	//Determine size of message and clear instead if the message string
 	//is empty.
-	size_t len = strlen(msg);
+	size_t len = strnlen(msg, 255);
 	if (len == 0)
 	{
 		XPCClearMessage();
 		return;
 	}
 
-	//Try to size msgVal to fit the new message. If we fail for any
-	//reason, clear the message and bail.
-	if (msgVal != NULL)
+	//Set the message, location, and mark new lines.
+	strncpy(msgVal, msg, len);
+	newLineCount = 0;
+	for (size_t i = 0; i < len && newLineCount < 64; ++i)
 	{
-		msgVal = (char*)realloc(msgVal, len);
+		if (msgVal[i] == '\n' || msgVal[i] == '\r')
+		{
+			msgVal[i] = 0;
+			newLines[newLineCount++] = i + 1;
+		}
 	}
-	else
-	{
-		msgVal = (char*)malloc(len);
-	}
-	if (!msgVal)
-	{
-		XPCClearMessage();
-		return;
-	}
-
-	//Set the message, location, and enable drawing if necessary.
-	strcpy(msgVal, msg);
 	msgX = x < 0 ? 10 : x;
 	msgY = y < 0 ? 600 : y;
+
+	//Enable drawing if necessary
 	if (!msgEnabled)
 	{
 		XPLMRegisterDrawCallback(MessageDrawCallback, xplm_Phase_LastCockpit, 0, NULL);
-		msgEnabled = 1;
+		msgEnabled = true;
 	}
 }

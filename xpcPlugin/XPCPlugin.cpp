@@ -507,19 +507,19 @@ int handleTEXT(char *buf, int len)
 		updateLog("[TEXT] ERROR: Length less than 14 bytes", 39);
 		return -1;
 	}
-	int msgLen = buf[13];
+	size_t msgLen = (unsigned char)buf[13];
 	if (msgLen == 0)
 	{
-		updateLog("[TEXT] Text cleared", 19);
 		XPCClearMessage();
+		updateLog("[TEXT] Text cleared", 19);
 	}
 	else
 	{
-		updateLog("[TEXT] Text set", 15);
 		int x = *((int*)(buf + 5));
 		int y = *((int*)(buf + 9));
 		strncpy(msg, buf + 14, msgLen);
 		XPCSetMessage(x, y, msg);
+		updateLog("[TEXT] Text set", 15);
 	}
 	return 0;
 }
