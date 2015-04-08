@@ -216,6 +216,8 @@ PLUGIN_API int XPluginEnable(void)
 		sprintf(logmsg,"[EXEC] Debug Enabled (Verbosity: %i)",debugSwitch);
 		updateLog(logmsg,strlen(logmsg));
 	}
+
+	XPCSetMessage(20, 700, "TEST");
 	
 	return 1;
 }
