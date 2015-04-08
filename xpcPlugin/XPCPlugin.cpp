@@ -423,7 +423,7 @@ short handleInput(struct XPCMessage * theMessage)
 		}
 		else
 		{ //unrecognized header
-			sprintf(logmsg,"[EXEC] ERROR: Command %s not recognised",theMessage->head);
+			sprintf(logmsg,"[EXEC] ERROR: Command %s not recognized",theMessage->head);
 			updateLog(logmsg, strlen(logmsg));
 		}
 		current_connection = -1;

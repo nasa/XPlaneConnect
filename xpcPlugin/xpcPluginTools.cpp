@@ -380,7 +380,7 @@ int printBufferToLog(struct XPCMessage & msg)
     {// Header = CTRL (Control)
         xpcCtrl ctrl = parseCTRL(msg.msg);
         
-        sprintf(logmsg,"%s (%f %f %f) %f %hi %f",logmsg, ctrl.pitch, ctrl.roll, ctrl.yaw, ctrl.throttle, ctrl.gear, ctrl.flaps);
+        sprintf(logmsg,"%s (%f %f %f) %f %hhi %f",logmsg, ctrl.pitch, ctrl.roll, ctrl.yaw, ctrl.throttle, ctrl.gear, ctrl.flaps);
         
         updateLog(logmsg,strlen(logmsg));
         
