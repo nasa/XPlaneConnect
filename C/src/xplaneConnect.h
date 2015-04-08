@@ -84,7 +84,7 @@
 		short readRequest(struct xpcSocket recfd, float *dataRef[], short arraySizes[], struct sockaddr *recvaddr);
 
 	// Screen Text
-		short sendTEXT(struct xpcSocket sendfd, int x, int y, char* msg);
+        short sendTEXT(struct xpcSocket sendfd, char* msg, int x, int y);
 
         
     #endif //ifdef _h
