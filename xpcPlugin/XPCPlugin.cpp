@@ -68,6 +68,7 @@
 //#include "XPLMPlanes.h"
 #include "XPLMProcessing.h"
 #include "XPLMGraphics.h"
+#include "xpcDrawing.h"
 #include "xpcPluginTools.h"
 
 #ifdef _WIN32 /* WIN32 SYSTEM */
@@ -124,6 +125,7 @@ int handleGETD(char *buf);
 int handleDREF(char *buf);
 int handleVIEW();
 int handleDATA(char *buf, int buflen);
+int handleTEXT(char *buf, int len);
 short handleInput(struct XPCMessage * theMessage);
 
 char setPOSI(short aircraft, float pos[3]);
@@ -189,6 +191,8 @@ PLUGIN_API void XPluginDisable(void)
 	closeUDP(recSocket);
 	closeUDP(sendSocket);
 	updateLog(logmsg,strlen(logmsg));
+
+	XPCClearMessage();
 }
 
 PLUGIN_API int XPluginEnable(void)
@@ -369,6 +373,10 @@ short handleInput(struct XPCMessage * theMessage)
 		{
 			handleDATA(theMessage->msg, theMessage->msglen);
 		}
+		else if (strncmp(theMessage->head, "TEXT", 4) == 0) // Header = TEXT (Screen message)
+		{
+			handleTEXT(theMessage->msg, theMessage->msglen);
+		}
 		else if ((strncmp(theMessage->head,"DSEL",4)==0) || (strncmp(theMessage->head,"USEL",4)==0)) // Header = DSEL/USEL (Select UDP Send)
 		{
 			sendBUF(theMessage->msg,theMessage->msglen); // Send to UDP
@@ -409,13 +417,13 @@ short handleInput(struct XPCMessage * theMessage)
 		{
 			sendBUF(theMessage->msg,theMessage->msglen); // Send to UDP
 		}
-		else if (strncmp(theMessage->head,"BOAT",4)==0)
+		else if (strncmp(theMessage->head, "BOAT", 4) == 0)
 		{
-			sendBUF(theMessage->msg,theMessage->msglen); // Send to UDP
+			sendBUF(theMessage->msg, theMessage->msglen); // Send to UDP
 		}
 		else
 		{ //unrecognized header
-			sprintf(logmsg,"[EXEC] ERROR: Command %s not recognised",theMessage->head);
+			sprintf(logmsg,"[EXEC] ERROR: Command %s not recognized",theMessage->head);
 			updateLog(logmsg, strlen(logmsg));
 		}
 		current_connection = -1;
@@ -488,6 +496,31 @@ int handleSIMU(char buf[])
 		updateLog(logmsg,strlen(logmsg));
 	}
 	
+	return 0;
+}
+
+int handleTEXT(char *buf, int len)
+{
+	char msg[256] = { 0 };
+	if (len < 14)
+	{
+		updateLog("[TEXT] ERROR: Length less than 14 bytes", 39);
+		return -1;
+	}
+	size_t msgLen = (unsigned char)buf[13];
+	if (msgLen == 0)
+	{
+		XPCClearMessage();
+		updateLog("[TEXT] Text cleared", 19);
+	}
+	else
+	{
+		int x = *((int*)(buf + 5));
+		int y = *((int*)(buf + 9));
+		strncpy(msg, buf + 14, msgLen);
+		XPCSetMessage(x, y, msg);
+		updateLog("[TEXT] Text set", 15);
+	}
 	return 0;
 }
 

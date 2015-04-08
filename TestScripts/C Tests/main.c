@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include <math.h>
 #include "xplaneconnect.h"
 
@@ -82,6 +83,25 @@ short sendReadTest() // send/read Test
     }
     
     return 0;
+}
+
+short sendTEXTTest()
+{
+	printf("sendTEXT - ");
+
+	// Setup
+	struct xpcSocket sendPort = openUDP(49064, "127.0.0.1", 49009);
+	int x = 100;
+	int y = 700;
+	char* msg = "XPlaneConnect test message. Now with 100% fewer new lines!";
+
+	// Test
+	sendTEXT(sendPort, msg, x, y);
+	// NOTE: Manually verify that msg appears on the screen in X-Plane!
+
+	// Cleanup
+	closeUDP(sendPort);
+	return 0;
 }
 
 short requestDREFTest() // Request DREF Test (Required for next tests)
@@ -542,15 +562,16 @@ int main(int argc, const char * argv[])
     
     runTest(openTest);
     runTest(closeTest);
-    runTest(sendReadTest);
+	runTest(sendReadTest);
+	runTest(sendTEXTTest);
     runTest(requestDREFTest);
     runTest(sendDREFTest);
 	runTest(sendDATATest);
 	runTest(sendCTRLTest);
 	runTest(sendpCTRLTest);
     runTest(sendPOSITest);
-    runTest(pauseTest);
-    runTest(connTest);
+	runTest(pauseTest);
+	runTest(connTest);
     
     printf( "----------------\nTest Summary\n\tFailed: %i\n\tPassed: %i\n", testFailed, testPassed );
     
