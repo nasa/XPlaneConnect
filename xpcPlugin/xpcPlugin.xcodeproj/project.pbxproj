@@ -11,6 +11,7 @@
 		BE5F2FF118FCA1D500AFCD17 /* xpcPluginTools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE5F2FF018FCA1D500AFCD17 /* xpcPluginTools.cpp */; };
 		BE8361EF18C5591C00E9C923 /* mac.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* mac.xpl */; };
 		BEDC620418EDF1A7005DB364 /* xplaneConnect.c in Sources */ = {isa = PBXBuildFile; fileRef = BEDC620218EDF1A7005DB364 /* xplaneConnect.c */; };
+		BEFBC0CB1AD4A0290025705B /* xpcDrawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEFBC0C91AD4A0290025705B /* xpcDrawing.cpp */; };
 		D6A7BDAA16A1DEA200D1426A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDA916A1DEA200D1426A /* OpenGL.framework */; };
 		D6A7BDC116A1DEC000D1426A /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDC016A1DEC000D1426A /* CoreFoundation.framework */; };
 		D6A7BDF116A1DED200D1426A /* XPLM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDF016A1DED200D1426A /* XPLM.framework */; };
@@ -37,6 +38,8 @@
 		BE5F2FF018FCA1D500AFCD17 /* xpcPluginTools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xpcPluginTools.cpp; sourceTree = "<group>"; };
 		BEDC620218EDF1A7005DB364 /* xplaneConnect.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xplaneConnect.c; path = ../C/src/xplaneConnect.c; sourceTree = "<group>"; };
 		BEDC620318EDF1A7005DB364 /* xplaneConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xplaneConnect.h; path = ../C/src/xplaneConnect.h; sourceTree = "<group>"; };
+		BEFBC0C91AD4A0290025705B /* xpcDrawing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xpcDrawing.cpp; sourceTree = "<group>"; };
+		BEFBC0CA1AD4A0290025705B /* xpcDrawing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xpcDrawing.h; sourceTree = "<group>"; };
 		D607B19909A556E400699BC3 /* mac.xpl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = mac.xpl; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6A7BDA916A1DEA200D1426A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		D6A7BDC016A1DEC000D1426A /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -67,6 +70,8 @@
 				BEDC620318EDF1A7005DB364 /* xplaneConnect.h */,
 				BE5F2FF018FCA1D500AFCD17 /* xpcPluginTools.cpp */,
 				BE5F2FEF18FCA13700AFCD17 /* xpcPluginTools.h */,
+				BEFBC0C91AD4A0290025705B /* xpcDrawing.cpp */,
+				BEFBC0CA1AD4A0290025705B /* xpcDrawing.h */,
 			);
 			name = "C Source";
 			sourceTree = "<group>";
@@ -155,6 +160,7 @@
 			files = (
 				BEDC620418EDF1A7005DB364 /* xplaneConnect.c in Sources */,
 				BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */,
+				BEFBC0CB1AD4A0290025705B /* xpcDrawing.cpp in Sources */,
 				BE5F2FF118FCA1D500AFCD17 /* xpcPluginTools.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
