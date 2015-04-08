@@ -155,6 +155,13 @@ BASIC FUNCTIONS
         char DREFArray[][100] = {"sim/cockpit/switches/gear_handle_status"};
         requestDREF(theSocket, IP, 49009, DREFArray, strlen(DREFArray[0]),1);
 
+    10. sendTEXT write some text to the screen.
+	INPUT:
+	outSocket (xpcSocket): Socket to use to send the command
+	message (char*): The string to be wrote to the screen
+	x (int): The x position where the text will be written. Set to -1 to use default position.
+	y (int): The y position where the text will be written. Set to -1 to use default position.
+
 -----------------------------------
 ADVANCED FUNCTIONS (These are mostly used by the xpcPlugin to read requests)
     1. sendUDP
@@ -179,9 +186,6 @@ PLANNED FUNCTIONS
     5. parseWYPT
     6. readWYPT
     7. selectDATA
-    8. sendTEXT
-    9. readTEXT
-    10. parseTEXT
 
 -----------------------------------
 CONTACT
