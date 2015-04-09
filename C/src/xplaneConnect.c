@@ -453,7 +453,7 @@ short sendWYPT(struct xpcSocket sendfd, WYPT_OP op, float points[], int numPoint
 	{
 		buf[5] = op;
 		buf[6] = numPoints;
-		size_t len = sizeof(float) * numPoints;
+		size_t len = sizeof(float) * 3 * numPoints;
 		memcpy(buf + 7, points, len);
 		sendUDP(sendfd, buf, len + 7);
 		return 0;
@@ -721,7 +721,7 @@ xpcWypt parseWYPT(const char data[])
 	{
 		result.op = data[5];
 		result.numPoints = data[6];
-		char* ptr = data[7];
+		char* ptr = data + 7;
 		for (size_t i = 0; i < result.numPoints; ++i)
 		{
 			result.points[i].latitude = *((float*)ptr);

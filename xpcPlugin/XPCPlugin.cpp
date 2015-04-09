@@ -216,8 +216,6 @@ PLUGIN_API int XPluginEnable(void)
 		sprintf(logmsg,"[EXEC] Debug Enabled (Verbosity: %i)",debugSwitch);
 		updateLog(logmsg,strlen(logmsg));
 	}
-
-	XPCSetMessage(20, 700, "TEST");
 	
 	return 1;
 }
@@ -843,6 +841,11 @@ int handleWYPT(char buf[], int len)
 		sprintf(logmsg, "[WYPT] Failed to parse command. ERR:%i", wypt.op);
 		updateLog(logmsg, strlen(logmsg));
 		return -1;
+	}
+	else
+	{
+		sprintf(logmsg, "[WYPT] Performing operation %i", wypt.op);
+		updateLog(logmsg, strlen(logmsg));
 	}
 
 	switch (wypt.op)
