@@ -2,13 +2,7 @@
 #define xpcDrawing_h
 
 #include <stdlib.h>
-
-typedef struct
-{
-	double lattitude;
-	double longitude;
-	double altitude;
-} Waypoint;
+#include "xplaneConnect.h"
 
 void XPCClearMessage();
 

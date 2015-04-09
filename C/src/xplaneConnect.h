@@ -47,6 +47,27 @@
 		float flaps;
 		char aircraft;
 	} xpcCtrl;
+
+	typedef struct
+	{
+		double latitude;
+		double longitude;
+		double altitude;
+	} Waypoint;
+
+	typedef enum
+	{
+		xpc_WYPT_ADD = 1,
+		xpc_WYPT_DEL = 2,
+		xpc_WYPT_CLR = 3
+	} WYPT_OP;
+
+	typedef struct
+	{
+		WYPT_OP op;
+		Waypoint points[20];
+		size_t numPoints;
+	} xpcWypt;
         
     // Basic Functions
         struct xpcSocket openUDP(unsigned short port, const char *xpIP, unsigned short xpPort);
@@ -82,6 +103,10 @@
         int parseGETD(const char my_message[], char *DREFArray[], int DREFSizes[]);
         short parseRequest(const char my_message[], float *resultArray[], short arraySizes[]);
 		short readRequest(struct xpcSocket recfd, float *dataRef[], short arraySizes[], struct sockaddr *recvaddr);
+
+	// Waypoints
+		xpcWypt parseWYPT(const char data[]);
+		short sendWYPT(struct xpcSocket sendfd, WYPT_OP op, float points[], int numPoints);
 
 	// Screen Text
         short sendTEXT(struct xpcSocket sendfd, char* msg, int x, int y);

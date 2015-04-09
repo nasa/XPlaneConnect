@@ -113,7 +113,7 @@ static int RouteDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void * in
 	{
 		g = &waypoints[i];
 		l = &localPoints[i];
-		XPLMWorldToLocal(g->lattitude, g->longitude, g->altitude,
+		XPLMWorldToLocal(g->latitude, g->longitude, g->altitude,
 			&l->x, &l->y, &l->z);
 	}
 
@@ -147,7 +147,7 @@ static int RouteDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void * in
 		float xoff = (float)l->x - px;
 		float yoff = (float)l->y - py;
 		float zoff = (float)l->z - pz;
-		float d = sqrtf(xoff*xoff + zoff*zoff);
+		float d = sqrtf(xoff*xoff + yoff*yoff + zoff*zoff);
 		gl_drawCube((float)l->x, (float)l->y, (float)l->z, d);
 	}
 	return 1;
@@ -239,7 +239,7 @@ void XPCRemoveWaypoints(Waypoint points[], size_t numPoints)
 		for (size_t j = 0; j < numWaypoints; ++j)
 		{
 			Waypoint q = waypoints[j];
-			if (p.lattitude == q.lattitude &&
+			if (p.latitude == q.latitude &&
 				p.longitude == q.longitude &&
 				p.altitude == q.altitude)
 			{
@@ -255,7 +255,7 @@ void XPCRemoveWaypoints(Waypoint points[], size_t numPoints)
 	size_t copyCur = 0;
 	size_t count = delPointsCur;
 	delPointsCur = 0;
-	for (size_t i = 0; i < count; ++i)
+	for (size_t i = 0; i < numWaypoints; ++i)
 	{
 		if (i == delPoints[delPointsCur])
 		{
