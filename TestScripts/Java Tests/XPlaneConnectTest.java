@@ -1,5 +1,6 @@
 package gov.nasa.xpc.test;
 
+import gov.nasa.xpc.WaypointOp;
 import gov.nasa.xpc.XPlaneConnect;
 
 import static org.junit.Assert.*;
@@ -244,6 +245,57 @@ public class XPlaneConnectTest
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendTEXT(msg, 200, 400);
+        }
+    }
+
+    @Test
+    public void testSendWYPT_Add() throws IOException
+    {
+        float points[] =
+        {
+            37.455397F, -122.050037F, 2500F,
+            37.469567F, -122.051411F, 2500F,
+            37.479376F, -122.060509F, 2300F,
+            37.482237F, -122.076130F, 2100F,
+            37.474881F, -122.087288F, 1900F,
+            37.467660F, -122.079391F, 1700F,
+            37.466298F, -122.090549F, 1500F,
+            37.362562F, -122.039223F, 1000F,
+            37.361448F, -122.034416F, 1000F,
+            37.361994F, -122.026348F, 1000F,
+            37.365541F, -122.022572F, 1000F,
+            37.373727F, -122.024803F, 1000F,
+            37.403869F, -122.041283F, 50F,
+            37.418544F, -122.049222F, 6F
+        };
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.sendWYPT(WaypointOp.Add, points);
+        }
+    }
+
+    @Test
+    public void testSendWYPT_Delete() throws IOException
+    {
+        float points[] =
+        {
+            37.361448F, -122.034416F, 1000F,
+            37.361994F, -122.026348F, 1000F,
+            37.365541F, -122.022572F, 1000F,
+            37.373727F, -122.024803F, 1000F,
+        };
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.sendWYPT(WaypointOp.Del, points);
+        }
+    }
+
+    @Test
+    public void testSendWYPT_Clear() throws IOException
+    {
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.sendWYPT(WaypointOp.Clr, new float[0]);
         }
     }
 
