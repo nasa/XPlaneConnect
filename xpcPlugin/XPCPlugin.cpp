@@ -120,7 +120,7 @@ int handleSIMU(char buf[]);
 int handleCONN(char buf[]);
 int handlePOSI(char buf[]);
 int handleCTRL(char buf[]);
-int handleWYPT();
+int handleWYPT(char buf[], int len);
 int handleGETD(char *buf);
 int handleDREF(char *buf);
 int handleVIEW();
@@ -355,7 +355,7 @@ short handleInput(struct XPCMessage * theMessage)
 		}
 		else if (strncmp(theMessage->head,"WYPT",4)==0) // Header = WYPT (Waypoint Draw)
 		{
-			handleWYPT();
+			handleWYPT(theMessage->msg, theMessage->msglen);
 		}
 		else if (strncmp(theMessage->head,"GETD",4)==0) // Header = GETD (Data Request)
 		{
@@ -828,14 +828,40 @@ int handleCTRL(char buf[])
 	return 0;
 }
 
-int handleWYPT()
+int handleWYPT(char buf[], int len)
 {
-	char logmsg[100];
-	
 	// UPDATE LOG
-	sprintf(logmsg,"[WYPT] Message Received (Conn %i)- WAYPOINT DRAWING FEATURE UNDER CONSTRUCTION", current_connection+1);
+	char logmsg[100];
+	sprintf(logmsg,"[WYPT] Message Received (Conn %i)", current_connection+1);
 	updateLog(logmsg, strlen(logmsg));
-	
+
+	xpcWypt wypt = parseWYPT(buf);
+	if (wypt.op < 0)
+	{
+		sprintf(logmsg, "[WYPT] Failed to parse command. ERR:%i", wypt.op);
+		updateLog(logmsg, strlen(logmsg));
+		return -1;
+	}
+	else
+	{
+		sprintf(logmsg, "[WYPT] Performing operation %i", wypt.op);
+		updateLog(logmsg, strlen(logmsg));
+	}
+
+	switch (wypt.op)
+	{
+	case xpc_WYPT_ADD:
+		XPCAddWaypoints(wypt.points, wypt.numPoints);
+		break;
+	case xpc_WYPT_DEL:
+		XPCRemoveWaypoints(wypt.points, wypt.numPoints);
+		break;
+	case xpc_WYPT_CLR:
+		XPCClearWaypoints();
+		break;
+	default: //If parseWYPT is doing its job, we shouldn't ever hit this.
+		return -2;
+	}
 	return 0;
 }
 

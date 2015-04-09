@@ -434,6 +434,32 @@ short sendTEXT(struct xpcSocket sendfd, char* msg, int x, int y)
     return 0;
 }
 
+short sendWYPT(struct xpcSocket sendfd, WYPT_OP op, float points[], int numPoints)
+{
+	char buf[255] = "WYPT";
+	//Preconditions
+	//Validate operation
+	if (op < xpc_WYPT_ADD || op > xpc_WYPT_CLR)
+	{
+		return -1;
+	}
+	//Validate number of points
+	else if (numPoints > 19)
+	{
+		return -2;
+	}
+	//Everything checks out; send the message
+	else
+	{
+		buf[5] = op;
+		buf[6] = numPoints;
+		size_t len = sizeof(float) * 3 * numPoints;
+		memcpy(buf + 7, points, len);
+		sendUDP(sendfd, buf, len + 7);
+		return 0;
+	}
+}
+
 //READ
 //----------------------------------------
 short readUDP(struct xpcSocket recfd, char *dataRef, struct sockaddr *recvaddr)
@@ -668,4 +694,41 @@ xpcCtrl parseCTRL(const char data[])
 		}
     }
     return result;
+}
+
+xpcWypt parseWYPT(const char data[])
+{
+	xpcWypt result;
+	unsigned char len = data[4];
+	//Preconditions
+	//Validate message prefix to ensure we are looking at the right kind of packet.
+	if (strncmp(data, "WYPT", 4) != 0)
+	{
+		result.op = -1;
+	}
+	//Validate operation
+	else if (data[5] < xpc_WYPT_ADD || data[5] > xpc_WYPT_CLR)
+	{
+		result.op = -1;
+	}
+	//Validate number of points
+	else if (data[6] > 19)
+	{
+		result.op = -2;
+	}
+	//Everything checks out; copy the points into result
+	else
+	{
+		result.op = data[5];
+		result.numPoints = data[6];
+		char* ptr = data + 7;
+		for (size_t i = 0; i < result.numPoints; ++i)
+		{
+			result.points[i].latitude = *((float*)ptr);
+			result.points[i].longitude = *((float*)(ptr + 4));
+			result.points[i].altitude = *((float*)(ptr + 8));
+			ptr += 12;
+		}
+	}
+	return result;
 }

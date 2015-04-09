@@ -435,6 +435,39 @@ short sendPOSITest() // sendPOSI test
     return 0;
 }
 
+short sendWYPTTest()
+{
+	printf("sendWYPT - ");
+
+	// Setup
+	struct xpcSocket sendPort = openUDP(49064, "127.0.0.1", 49009);
+	float points[] =
+	{
+		37.5245, -122.06899, 2500,
+		37.455397, -122.050037, 2500,
+		37.469567, -122.051411, 2500,
+		37.479376, -122.060509, 2300,
+		37.482237, -122.076130, 2100,
+		37.474881, -122.087288, 1900,
+		37.467660, -122.079391, 1700,
+		37.466298, -122.090549, 1500,
+		37.362562, -122.039223, 1000,
+		37.361448, -122.034416, 1000,
+		37.361994, -122.026348, 1000,
+		37.365541, -122.022572, 1000,
+		37.373727, -122.024803, 1000,
+		37.403869, -122.041283, 50,
+		37.418544, -122.049222, 6
+	};
+
+	// Test
+	sendWYPT(sendPort, xpc_WYPT_ADD, points, 15);
+
+	// Cleanup
+	closeUDP(sendPort);
+	return 0;
+}
+
 short pauseTest() // pauseSim test
 {
     printf("pauseSim - ");
@@ -560,16 +593,17 @@ int main(int argc, const char * argv[])
     printf("(Linux) \n");
 #endif
     
-    runTest(openTest);
-    runTest(closeTest);
+	runTest(openTest);
+	runTest(closeTest);
 	runTest(sendReadTest);
 	runTest(sendTEXTTest);
-    runTest(requestDREFTest);
-    runTest(sendDREFTest);
+	runTest(requestDREFTest);
+	runTest(sendDREFTest);
 	runTest(sendDATATest);
 	runTest(sendCTRLTest);
 	runTest(sendpCTRLTest);
-    runTest(sendPOSITest);
+	runTest(sendPOSITest);
+	runTest(sendWYPTTest);
 	runTest(pauseTest);
 	runTest(connTest);
     
