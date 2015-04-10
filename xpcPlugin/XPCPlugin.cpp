@@ -60,18 +60,21 @@
 
 #define _WINSOCKAPI_  
 
+// XPC Includes
 #include "Log.h"
+#include "Drawing.h"
+#include "xpcPluginTools.h"
+
+// XPLM Includes
+//#include "XPLMPlanes.h"
+#include "XPLMProcessing.h"
+#include "XPLMGraphics.h"
+
+// System Includes
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-
-//#include "XPLMPlanes.h"
-#include "XPLMProcessing.h"
-#include "XPLMGraphics.h"
-#include "xpcDrawing.h"
-#include "xpcPluginTools.h"
-
 #ifdef _WIN32 /* WIN32 SYSTEM */
 #include <windows.h>
 #elif (__APPLE__)
@@ -191,10 +194,10 @@ PLUGIN_API void XPluginDisable(void)
 	closeUDP(sendSocket);
 
 	// Stop rendering messages to screen.
-	XPCClearMessage();
+	XPC::Drawing::ClearMessage();
 
 	// Stop rendering waypoints to screen.
-	XPCClearWaypoints();
+	XPC::Drawing::ClearWaypoints();
 
 	XPC::Log::WriteLine("[EXEC] xpcPlugin Disabled, sockets closed");
 }
@@ -498,7 +501,7 @@ int handleTEXT(char *buf, int len)
 	size_t msgLen = (unsigned char)buf[13];
 	if (msgLen == 0)
 	{
-		XPCClearMessage();
+		XPC::Drawing::ClearMessage();
 		XPC::Log::WriteLine("[TEXT] Text cleared");
 	}
 	else
@@ -506,7 +509,7 @@ int handleTEXT(char *buf, int len)
 		int x = *((int*)(buf + 5));
 		int y = *((int*)(buf + 9));
 		strncpy(msg, buf + 14, msgLen);
-		XPCSetMessage(x, y, msg);
+		XPC::Drawing::SetMessage(x, y, msg);
 		XPC::Log::WriteLine("[TEXT] Text set");
 	}
 	return 0;
@@ -837,13 +840,13 @@ int handleWYPT(char buf[], int len)
 	switch (wypt.op)
 	{
 	case xpc_WYPT_ADD:
-		XPCAddWaypoints(wypt.points, wypt.numPoints);
+		XPC::Drawing::AddWaypoints(wypt.points, wypt.numPoints);
 		break;
 	case xpc_WYPT_DEL:
-		XPCRemoveWaypoints(wypt.points, wypt.numPoints);
+		XPC::Drawing::RemoveWaypoints(wypt.points, wypt.numPoints);
 		break;
 	case xpc_WYPT_CLR:
-		XPCClearWaypoints();
+		XPC::Drawing::ClearWaypoints();
 		break;
 	default: //If parseWYPT is doing its job, we shouldn't ever hit this.
 		return -2;

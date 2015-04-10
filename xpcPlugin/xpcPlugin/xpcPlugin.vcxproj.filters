@@ -21,10 +21,10 @@
     <ClInclude Include="..\xpcPluginTools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\xpcDrawing.h">
+    <ClInclude Include="..\Log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Log.h">
+    <ClInclude Include="..\Drawing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,10 +38,10 @@
     <ClCompile Include="..\xpcPluginTools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\xpcDrawing.cpp">
+    <ClCompile Include="..\Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Log.cpp">
+    <ClCompile Include="..\Drawing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
