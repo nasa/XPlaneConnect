@@ -63,6 +63,7 @@
 // XPC Includes
 #include "Log.h"
 #include "Drawing.h"
+#include "UDPSocket.h"
 #include "xpcPluginTools.h"
 
 // XPLM Includes
@@ -87,8 +88,8 @@
 #define OPS_PER_CYCLE 20 // Max Number of operations per cycle
 
 static XPLMDataRef      XPLMSwitch; // for turning on/off simulation
-struct xpcSocket        recSocket;
-struct xpcSocket        sendSocket;
+XPC::UDPSocket* recvSocket = nullptr;
+XPC::UDPSocket* sendSocket = nullptr;
 
 short					number_of_connections = 0;
 short					current_connection = -1;
@@ -190,8 +191,10 @@ PLUGIN_API void	XPluginStop(void)
 PLUGIN_API void XPluginDisable(void)
 {
 	// Close sockets
-	closeUDP(recSocket);
-	closeUDP(sendSocket);
+	delete recvSocket;
+	delete sendSocket;
+	recvSocket = nullptr;
+	sendSocket = nullptr;
 
 	// Stop rendering messages to screen.
 	XPC::Drawing::ClearMessage();
@@ -205,19 +208,17 @@ PLUGIN_API void XPluginDisable(void)
 PLUGIN_API int XPluginEnable(void)
 {
 	// Open sockets
-	char IP[16] = "127.0.0.1";
-	recSocket = openUDP(RECVPORT, IP, 49009);
-	sendSocket = openUDP(SENDPORT, IP, 49099);
+	recvSocket = new XPC::UDPSocket(RECVPORT);
+	sendSocket = new XPC::UDPSocket(SENDPORT);
 
 	XPC::Log::WriteLine("[EXEC] xpcPlugin Enabled, sockets opened");
 	if (benchmarkingSwitch > 0)
 	{
 		XPC::Log::FormatLine("[EXEC] Benchmarking Enabled (Verbosity: %i)", benchmarkingSwitch);
-	}	
-	if (LOG_VERBOSITY > 0)
-	{
-		XPC::Log::FormatLine("[EXEC] Debug Logging Enabled (Verbosity: %i)", LOG_VERBOSITY);
 	}
+#if LOG_VERBOSITY > 0
+	XPC::Log::FormatLine("[EXEC] Debug Logging Enabled (Verbosity: %i)", LOG_VERBOSITY);
+#endif
 	
 	return 1;
 }
@@ -254,7 +255,7 @@ float	MyFlightLoopCallback(		float    inElapsedSinceLastCall,
 			start = (double)mach_absolute_time( ) * timeConvert;
 #endif
 		}
-		readMessage(&recSocket, &theMessage);
+		readMessage(recvSocket, &theMessage);
 		result = handleInput(&theMessage);
 
 		if (benchmarkingSwitch > 0)
@@ -274,10 +275,8 @@ float	MyFlightLoopCallback(		float    inElapsedSinceLastCall,
 		if (counter%cyclesToClear==0)
 		{
 			XPC::Log::WriteLine("[EXEC] Cleared UDP Buffer");
-			char IP[16] = "127.0.0.1";
-			closeUDP(recSocket);
-			recSocket = openUDP(RECVPORT, IP, 49009);
-			
+			delete recvSocket;
+			recvSocket = new XPC::UDPSocket(RECVPORT);
 		}
 	}
 	return -1;
@@ -426,10 +425,7 @@ short handleInput(struct XPCMessage * theMessage)
 
 void sendBUF( char buf[], int buflen)
 {
-	char IP[16] = "127.0.0.1";
-	memcpy(sendSocket.xpIP,IP,16);
-	sendSocket.xpPort = 49000;
-	sendUDP(sendSocket,buf,buflen);
+	sendSocket->SendTo((std::uint8_t*)buf, buflen, "127.0.0.1", 49000);
 }
 
 int handleCONN(char buf[])
@@ -459,9 +455,9 @@ int handleCONN(char buf[])
 	
 	// SEND CONFIRMATION
 	// TODO: Ivestigate why sending confirmation causes crashes on Windows 8
-	//memcpy(sendSocket.xpIP,connectionList[current_connection].IP, sizeof(connectionList[current_connection].IP));
-	//sendSocket.xpPort = connectionList[current_connection].recPort;
-	//sendUDP(sendSocket, the_message, 5);
+	//memcpy(sendSocketet.xpIP,connectionList[current_connection].IP, sizeof(connectionList[current_connection].IP));
+	//sendSocketet.xpPort = connectionList[current_connection].recPort;
+	//sendUDP(sendSocketet, the_message, 5);
 	
 	return 0;
 }
@@ -952,13 +948,12 @@ int handleGETD(char buf[])
 		}
 	}
 	the_message[5] = (char) connectionList[current_connection].requestLength;
-	
-	memcpy(sendSocket.xpIP,connectionList[current_connection].IP, sizeof(connectionList[current_connection].IP));
-	sendSocket.xpPort = connectionList[current_connection].recPort;
-	
+
 	if (count > 6)
 	{
-		sendUDP(sendSocket, the_message, count);
+		char* host = connectionList[current_connection].IP;
+		std::uint16_t port = connectionList[current_connection].recPort;
+		sendSocket->SendTo((std::uint8_t*)the_message, count, host, port);
 	}
 		
 	return 0;

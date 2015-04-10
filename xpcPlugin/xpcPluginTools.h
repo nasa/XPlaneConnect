@@ -8,6 +8,8 @@
     
 #ifndef xpcPlugin_xpcPluginTools_h
 #define xpcPlugin_xpcPluginTools_h
+
+#include "UDPSocket.h"
     
 #include <time.h>
 #include "xplaneConnect.h"
@@ -26,7 +28,7 @@
         struct sockaddr         recvaddr;
     };
     
-    void readMessage(struct xpcSocket * recSocket, struct XPCMessage * pMessage);
+    void readMessage(XPC::UDPSocket* socket, struct XPCMessage * pMessage);
     
     void buildXPLMDataRefs(void);
         

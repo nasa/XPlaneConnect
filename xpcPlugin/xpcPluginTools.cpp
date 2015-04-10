@@ -36,9 +36,9 @@ XPLMDataRef XPLMDataRefs[134][8];
 XPLMDataRef multiplayer[20][17];
 XPLMDataRef AIswitch;
 
-void readMessage(struct xpcSocket * recSocket, struct XPCMessage * pMessage)
+void readMessage(XPC::UDPSocket* socket, struct XPCMessage * pMessage)
 {
-    pMessage->msglen = readUDP( *recSocket, pMessage->msg, &(pMessage->recvaddr) );
+	pMessage->msglen = socket->Read((std::uint8_t*)pMessage->msg, 5000, &pMessage->recvaddr);
     
     if ( pMessage->msglen <= 0 ) // No Message
     {
