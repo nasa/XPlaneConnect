@@ -66,7 +66,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <MinimalRebuild>false</MinimalRebuild>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -89,7 +89,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <MinimalRebuild>false</MinimalRebuild>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -99,11 +99,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\C\src\xplaneConnect.h" />
+    <ClInclude Include="..\Log.h" />
     <ClInclude Include="..\xpcDrawing.h" />
     <ClInclude Include="..\xpcPluginTools.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\C\src\xplaneConnect.c" />
+    <ClCompile Include="..\Log.cpp" />
     <ClCompile Include="..\xpcDrawing.cpp" />
     <ClCompile Include="..\XPCPlugin.cpp" />
     <ClCompile Include="..\xpcPluginTools.cpp" />

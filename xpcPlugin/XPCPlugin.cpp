@@ -60,6 +60,7 @@
 
 #define _WINSOCKAPI_  
 
+#include "Log.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -92,7 +93,6 @@ short					current_connection = -1;
 double					start,lap;
 static double			timeConvert = 0.0;
 int						benchmarkingSwitch = 0; // 1 = time for operations, 2 = time for op + cycle;
-int						debugSwitch = 2;
 int						cyclesToClear = -1; // Clear message bus every n cycles. -1 == dont clear
 int						counter = 0;
 
@@ -150,8 +150,8 @@ PLUGIN_API int XPluginStart(	char *		outName,
 		fprintf(logFile,"\n");
 		fclose(logFile);
 	}
-		
-	updateLog("[EXEC] xpcPlugin Start", 22);
+	
+	XPC::Log::WriteLine("[EXEC] xpcPlugin Start");
 	
 #if (__APPLE__)
 	if ( abs(timeConvert) <= 1e-9 ) // is about 0
@@ -180,41 +180,40 @@ PLUGIN_API int XPluginStart(	char *		outName,
 
 PLUGIN_API void	XPluginStop(void)
 {
-	char logmsg[100] = "[EXEC] xpcPlugin Shutdown";
 	XPLMUnregisterFlightLoopCallback(MyFlightLoopCallback, NULL);
-	updateLog(logmsg,strlen(logmsg));
+	XPC::Log::WriteLine("[EXEC] xpcPlugin Shutdown");
 }
 
 PLUGIN_API void XPluginDisable(void)
 {
-	char logmsg[100] = "[EXEC] xpcPlugin Disabled, sockets closed";
+	// Close sockets
 	closeUDP(recSocket);
 	closeUDP(sendSocket);
-	updateLog(logmsg,strlen(logmsg));
 
+	// Stop rendering messages to screen.
 	XPCClearMessage();
+
+	// Stop rendering waypoints to screen.
+	XPCClearWaypoints();
+
+	XPC::Log::WriteLine("[EXEC] xpcPlugin Disabled, sockets closed");
 }
 
 PLUGIN_API int XPluginEnable(void)
 {
-	char logmsg[100] = "[EXEC] xpcPlugin Enabled, sockets opened";
+	// Open sockets
 	char IP[16] = "127.0.0.1";
 	recSocket = openUDP(RECVPORT, IP, 49009);
-    sendSocket = openUDP(SENDPORT, IP, 49099);
-	updateLog(logmsg,strlen(logmsg));
-	memset(logmsg,0,strlen(logmsg));
-	
-	if (benchmarkingSwitch>0)
+	sendSocket = openUDP(SENDPORT, IP, 49099);
+
+	XPC::Log::WriteLine("[EXEC] xpcPlugin Enabled, sockets opened");
+	if (benchmarkingSwitch > 0)
 	{
-		sprintf(logmsg,"[EXEC] Benchmarking Enabled (Verbosity: %i)",benchmarkingSwitch);
-		updateLog(logmsg,strlen(logmsg));
-		memset(logmsg,0,strlen(logmsg));
-	}
-	
-	if (debugSwitch>0)
+		XPC::Log::FormatLine("[EXEC] Benchmarking Enabled (Verbosity: %i)", benchmarkingSwitch);
+	}	
+	if (LOG_VERBOSITY > 0)
 	{
-		sprintf(logmsg,"[EXEC] Debug Enabled (Verbosity: %i)",debugSwitch);
-		updateLog(logmsg,strlen(logmsg));
+		XPC::Log::FormatLine("[EXEC] Debug Logging Enabled (Verbosity: %i)", LOG_VERBOSITY);
 	}
 	
 	return 1;
@@ -233,7 +232,6 @@ float	MyFlightLoopCallback(		float    inElapsedSinceLastCall,
 {
 	int i;
 	short result;
-	char logmsg[100] = {0};
 #if (__APPLE__)
 	double diff_t;
 #endif
@@ -242,9 +240,7 @@ float	MyFlightLoopCallback(		float    inElapsedSinceLastCall,
 	counter++;
 	if (benchmarkingSwitch > 1)
 	{
-		sprintf(logmsg,"Cycle time %.6f",inElapsedSinceLastCall);
-		updateLog(logmsg,strlen(logmsg));
-		memset(logmsg,0,strlen(logmsg));
+		XPC::Log::FormatLine("Cycle time %.6f", inElapsedSinceLastCall);
 	}
 	
 	for (i=0;i<OPS_PER_CYCLE;i++)
@@ -263,9 +259,7 @@ float	MyFlightLoopCallback(		float    inElapsedSinceLastCall,
 #if (__APPLE__)
 			lap = (double)mach_absolute_time( ) * timeConvert;
 			diff_t = lap-start;
-			sprintf(logmsg,"Runtime %.6f",diff_t);
-			updateLog(logmsg,strlen(logmsg));
-			memset(logmsg,0,strlen(logmsg));
+			XPC::Log::FormatLine("Runtime %.6f",diff_t);
 #endif
 		}
 		
@@ -276,8 +270,7 @@ float	MyFlightLoopCallback(		float    inElapsedSinceLastCall,
 	{
 		if (counter%cyclesToClear==0)
 		{
-			strcpy(logmsg,"[EXEC] Cleared UDP Buffer");
-			updateLog(logmsg,strlen(logmsg));
+			XPC::Log::WriteLine("[EXEC] Cleared UDP Buffer");
 			char IP[16] = "127.0.0.1";
 			closeUDP(recSocket);
 			recSocket = openUDP(RECVPORT, IP, 49009);
@@ -290,7 +283,6 @@ float	MyFlightLoopCallback(		float    inElapsedSinceLastCall,
 short handleInput(struct XPCMessage * theMessage)
 {
 	int i;
-	char logmsg[100] = {0};
 	char IP[16] = {0};
 	unsigned short port = 0;
 	
@@ -298,7 +290,7 @@ short handleInput(struct XPCMessage * theMessage)
 	
     if (theMessage->msglen > 0)  // If message received
 	{
-		if (debugSwitch>0)
+		if (LOG_VERBOSITY > 0)
 		{
 #ifdef _WIN32
 #else
@@ -321,7 +313,7 @@ short handleInput(struct XPCMessage * theMessage)
 		{
 			if (number_of_connections>=MAXCONN) // Handle hitting MAXCONN (COME UP WITH A BETTER SOLUTION)
 			{
-				updateLog("[EXEC] Hit maximum number of connections-Removing old ones",58);
+				XPC::Log::WriteLine("[EXEC] Hit maximum number of connections-Removing old ones");
 				number_of_connections = 0;
 			}
 			
@@ -332,9 +324,7 @@ short handleInput(struct XPCMessage * theMessage)
 			number_of_connections ++;
 			
 			// Log Connection
-			sprintf(logmsg,"[EXEC] New Connection [%i].  IP=%s, port=%i",number_of_connections,IP, port);
-			updateLog(logmsg,strlen(logmsg));
-			memset(logmsg,0,strlen(logmsg));
+			XPC::Log::FormatLine("[EXEC] New Connection [%i].  IP=%s, port=%i", number_of_connections, IP, port);
 		}
 		
         if (strncmp(theMessage->head,"CONN",4)==0) // Header = CONN (Connection)
@@ -423,8 +413,7 @@ short handleInput(struct XPCMessage * theMessage)
 		}
 		else
 		{ //unrecognized header
-			sprintf(logmsg,"[EXEC] ERROR: Command %s not recognized",theMessage->head);
-			updateLog(logmsg, strlen(logmsg));
+			XPC::Log::FormatLine("[EXEC] ERROR: Command %s not recognized", theMessage->head);
 		}
 		current_connection = -1;
     } // end if (buflen > 0)
@@ -442,7 +431,6 @@ void sendBUF( char buf[], int buflen)
 
 int handleCONN(char buf[])
 {
-	char logmsg[100] = {0};
 	char the_message[7];
 	char header[5];
 	
@@ -456,13 +444,15 @@ int handleCONN(char buf[])
 	if (connectionList[current_connection].recPort <= 1) // Is not valid port
 	{
 		connectionList[current_connection].recPort = 49008;
-		return updateLog("[CONN] ERROR: Port Number must be a number (NaN received)",51);
+		XPC::Log::WriteLine("[CONN] ERROR: Port Number must be a number (NaN received)");
+		return 1;
 	}
 	
 	
 	// UPDATE LOG
-	sprintf(logmsg,"[CONN] Update Connection %i- Sending to port: %i",current_connection+1,connectionList[current_connection].recPort);
-	updateLog(logmsg,strlen(logmsg));
+	XPC::Log::FormatLine("[CONN] Update Connection %i- Sending to port: %i",
+		current_connection + 1,
+		connectionList[current_connection].recPort);
 	
 	// SEND CONFIRMATION
 	// TODO: Ivestigate why sending confirmation causes crashes on Windows 8
@@ -476,24 +466,22 @@ int handleCONN(char buf[])
 int handleSIMU(char buf[])
 {
 	int SIMUArray[1] = {buf[5]};
-	char logmsg[100] = {0};
 	
 	if (SIMUArray[0] != SIMUArray[0]) // Is NaN
 	{
-		return updateLog("[SIMU] ERROR: Value must be a number (NaN received)",51);
+		XPC::Log::WriteLine("[SIMU] ERROR: Value must be a number (NaN received)");
+		return 1;
 	}
 	
 	XPLMSetDatavi(XPLMSwitch, SIMUArray, 0, 1);
 	
 	if (buf[5] == 0)
 	{
-		sprintf(logmsg,"[SIMU] Simulation Resumed (Conn %i)", current_connection+1);
-		updateLog(logmsg,strlen(logmsg));
+		XPC::Log::FormatLine("[SIMU] Simulation Resumed (Conn %i)", current_connection + 1);
 	}
 	else
 	{
-		sprintf(logmsg,"[SIMU] Simulation Paused (Conn %i)", current_connection+1);
-		updateLog(logmsg,strlen(logmsg));
+		XPC::Log::FormatLine("[SIMU] Simulation Paused (Conn %i)", current_connection + 1);
 	}
 	
 	return 0;
@@ -504,14 +492,14 @@ int handleTEXT(char *buf, int len)
 	char msg[256] = { 0 };
 	if (len < 14)
 	{
-		updateLog("[TEXT] ERROR: Length less than 14 bytes", 39);
+		XPC::Log::WriteLine("[TEXT] ERROR: Length less than 14 bytes");
 		return -1;
 	}
 	size_t msgLen = (unsigned char)buf[13];
 	if (msgLen == 0)
 	{
 		XPCClearMessage();
-		updateLog("[TEXT] Text cleared", 19);
+		XPC::Log::WriteLine("[TEXT] Text cleared");
 	}
 	else
 	{
@@ -519,7 +507,7 @@ int handleTEXT(char *buf, int len)
 		int y = *((int*)(buf + 9));
 		strncpy(msg, buf + 14, msgLen);
 		XPCSetMessage(x, y, msg);
-		updateLog("[TEXT] Text set", 15);
+		XPC::Log::WriteLine("[TEXT] Text set");
 	}
 	return 0;
 }
@@ -584,12 +572,15 @@ char setDREF(XPLMDataRef theDREF, float floatarray[], short arrayStart, short ar
 		}
 	}
 	else
-		return updateLog("[DREF] ERROR: invalid DREF",26);
-	
+	{
+		XPC::Log::WriteLine("[DREF] ERROR: invalid DREF");
+		return 1;
+	}
 	return 0;
 	
 NANMessage:
-	return updateLog("[DREF] ERROR: Value must be a number (NaN received)",51);
+	XPC::Log::WriteLine("[DREF] ERROR: Value must be a number (NaN received)");
+	return 1;
 }
 
 char setGEAR(short aircraft, float gear, char posi)
@@ -604,7 +595,8 @@ char setGEAR(short aircraft, float gear, char posi)
 	
 	if ( ( gear != gear ) || ( gear < -1.f ) || ( gear > 1.f ) ) // NaN & Positive test
 	{
-		return updateLog("[GEAR] ERROR: Value must be 0 or 1",51);
+		XPC::Log::WriteLine("[GEAR] ERROR: Value must be 0 or 1");
+		return 1;
 	}
 	
 	for (i=0;i<8;i++)
@@ -637,7 +629,8 @@ char setPOSI(short aircraft, float pos[3])
 	
 	if (tPos != tPos) // Is NaN
 	{
-		return updateLog("[POSI] ERROR: Position must be a number (NaN received)",51);
+		XPC::Log::WriteLine("[POSI] ERROR: Position must be a number (NaN received)");
+		return 1;
 	}
 	
 	XPLMWorldToLocal(pos[0],pos[1],pos[2],&local[0],&local[1],&local[2]);
@@ -669,7 +662,8 @@ char setORIENT(short aircraft, float orient[3])
 	
 	if ( tOrient != tOrient ) // Is NaN
 	{
-		return updateLog("[ORIENT] ERROR: Orientation must be a number (NaN received)",53);
+		XPC::Log::WriteLine("[ORIENT] ERROR: Orientation must be a number (NaN received)");
+		return 1;
 	}
 	
 	if ( aircraft <= 0 ) // Main aircraft
@@ -711,7 +705,6 @@ char setFLAP(float flap)
 
 int handlePOSI(char buf[])
 {
-	char logmsg[100];
 	float position[8] = {0.0};
 	float pos[3],orient[3];
 	short aircraft = 0;
@@ -719,8 +712,7 @@ int handlePOSI(char buf[])
 	int autopilot[20] = {0};
 	
 	// UPDATE LOG
-	sprintf(logmsg,"[POSI] Message Received (Conn %i)", current_connection+1);
-	updateLog(logmsg, strlen(logmsg));
+	XPC::Log::FormatLine("[POSI] Message Received (Conn %i)", current_connection + 1);
 	
 	aircraft = fmini(parsePOSI(buf,position,6, &gear),19);
 	
@@ -751,14 +743,12 @@ int handlePOSI(char buf[])
 
 int handleCTRL(char buf[])
 {
-	char logmsg[100];
 	xpcCtrl ctrl;
 	float thr[8] = { 0 };
 	short i;
 	
 	// UPDATE LOG
-	sprintf(logmsg,"[CTRL] Message Received (Conn %i)", current_connection+1);
-	updateLog(logmsg, strlen(logmsg));
+	XPC::Log::FormatLine("[CTRL] Message Received (Conn %i)", current_connection + 1);
 	
 	ctrl = parseCTRL(buf);
 	if (ctrl.aircraft < 0) //parseCTRL failed
@@ -831,21 +821,17 @@ int handleCTRL(char buf[])
 int handleWYPT(char buf[], int len)
 {
 	// UPDATE LOG
-	char logmsg[100];
-	sprintf(logmsg,"[WYPT] Message Received (Conn %i)", current_connection+1);
-	updateLog(logmsg, strlen(logmsg));
+	XPC::Log::FormatLine("[WYPT] Message Received (Conn %i)", current_connection + 1);
 
 	xpcWypt wypt = parseWYPT(buf);
 	if (wypt.op < 0)
 	{
-		sprintf(logmsg, "[WYPT] Failed to parse command. ERR:%i", wypt.op);
-		updateLog(logmsg, strlen(logmsg));
+		XPC::Log::FormatLine("[WYPT] Failed to parse command. ERR:%i", wypt.op);
 		return -1;
 	}
 	else
 	{
-		sprintf(logmsg, "[WYPT] Performing operation %i", wypt.op);
-		updateLog(logmsg, strlen(logmsg));
+		XPC::Log::FormatLine("[WYPT] Performing operation %i", wypt.op);
 	}
 
 	switch (wypt.op)
@@ -869,7 +855,6 @@ int handleGETD(char buf[])
 {
 	int length,i,k;
 	XPLMDataTypeID dataType;
-	char logmsg[400] = {0};
 	int listLength = buf[5];
 	char the_message[5000];
 	char header[5] = {0};
@@ -884,14 +869,14 @@ int handleGETD(char buf[])
 	
 	if (listLength == 0) // USE LAST REQUEST
 	{
-		sprintf(logmsg,"[GETD] DATA Requested- repeat last request from connection %i (%i data refs)",current_connection+1,connectionList[current_connection].requestLength);
-		
+		XPC::Log::FormatLine("[GETD] DATA Requested- repeat last request from connection %i (%i data refs)",
+			current_connection + 1,
+			connectionList[current_connection].requestLength);
+
 		if (connectionList[current_connection].requestLength < 0) // No past requests
 		{
-			updateLog(logmsg, strlen(logmsg));
-			memset(logmsg,0,strlen(logmsg));
-			sprintf(logmsg,"[GETD] ERROR- No previous requests from connection %i.",current_connection+1);
-			return updateLog(logmsg, strlen(logmsg));
+			XPC::Log::FormatLine("[GETD] ERROR- No previous requests from connection %i.", current_connection + 1);
+			return 1;
 		}
 	}
 	else if (listLength > 0) // NEW REQUEST
@@ -905,16 +890,14 @@ int handleGETD(char buf[])
 		}
 		
 		parseGETD(buf,DREFArray,DREFSizes);
-		sprintf(logmsg,"[GETD] DATA Requested- New Request for connection %i [%i]:",current_connection+1,listLength);
+		XPC::Log::FormatLine("[GETD] DATA Requested- New Request for connection %i [%i]:",
+			current_connection + 1,
+			listLength);
 	}
 	else
 	{
 		return -1;
 	}
-	
-	// Update Log
-	updateLog(logmsg,strlen(logmsg));
-	memset(logmsg,0,strlen(logmsg));
 	
 	for (i=0;i<connectionList[current_connection].requestLength;i++)
 	{
@@ -962,8 +945,7 @@ int handleGETD(char buf[])
 		}
 		else
 		{
-			sprintf(logmsg,"%s-ERROR: invalid DREF",DREFArray[i]);
-			updateLog(logmsg, strlen(logmsg));
+			XPC::Log::FormatLine("%s-ERROR: invalid DREF", DREFArray[i]);
 		}
 	}
 	the_message[5] = (char) connectionList[current_connection].requestLength;
@@ -980,9 +962,7 @@ int handleGETD(char buf[])
 }
 
 int handleDREF(char buf[])
-{
-	char logmsg[400]={0};
-	
+{	
 	char DREF[100] = {0};
 	unsigned short lenDREF = 0;
 	unsigned short lenVALUE = 0;
@@ -998,8 +978,7 @@ int handleDREF(char buf[])
 	}
 	
 	// Handle DREF
-	sprintf(logmsg,"[DREF] Request to set DREF value received (Conn %i): %s",current_connection+1,DREF);
-	updateLog(logmsg,strlen(logmsg));
+	XPC::Log::FormatLine("[DREF] Request to set DREF value received (Conn %i): %s", current_connection + 1, DREF);
 	
 	theDREF = XPLMFindDataRef(DREF);
 	setDREF(theDREF, values, 0, lenVALUE);
@@ -1009,19 +988,14 @@ int handleDREF(char buf[])
 
 int handleVIEW()
 {
-	char logmsg[100];
-	
-	// UPDATE LOG
-	sprintf(logmsg,"[VIEW] Message Received (Conn %i)- VIEW FEATURE UNDER CONSTRUCTION",current_connection+1);
-	updateLog(logmsg, strlen(logmsg));
-	
+	XPC::Log::FormatLine("[VIEW] Message Received (Conn %i)- VIEW FEATURE UNDER CONSTRUCTION",
+		current_connection + 1);
 	return 0;
 }
 
 int handleDATA(char buf[], int buflen)
 {
 	int i,j,lines;
-	char logmsg[100] = {0};
 	float floatArray[10] = {0};
 	float recValues[20][9] = {0};
 	const float deg2rad = (float) 0.0174532925;
@@ -1032,15 +1006,12 @@ int handleDATA(char buf[], int buflen)
 	if (lines > 0)
 	{
 		// UPDATE LOG
-		sprintf(logmsg,"[DATA] Message Received (Conn %i)",current_connection+1);
-		updateLog(logmsg, strlen(logmsg));
-		memset(logmsg,0,strlen(logmsg));
+		XPC::Log::FormatLine("[DATA] Message Received (Conn %i)", current_connection + 1);
 	}
 	else
 	{
 		// UPDATE LOG
-		sprintf(logmsg,"[DATA] WARNING: Empty data packet received (Conn %i)",current_connection+1);
-		return updateLog(logmsg, strlen(logmsg));
+		XPC::Log::FormatLine("[DATA] WARNING: Empty data packet received (Conn %i)", current_connection + 1);
 	}
 	
 	for (i = 0; i<lines; i++) //Execute changes one line at a time
@@ -1049,9 +1020,7 @@ int handleDATA(char buf[], int buflen)
 		
 		if ( dataRef<0 || dataRef >134 )
 		{   // DREF Check 1: This ensures that the received dataRef is in the range of 0-134
-			sprintf(logmsg,"[DATA] ERROR: DataRef # must be between 0-134 (Rec: %hi)",dataRef);
-			updateLog(logmsg,strlen(logmsg));
-			memset(logmsg,0,strlen(logmsg));
+			XPC::Log::FormatLine("[DATA] ERROR: DataRef # must be between 0 - 134 (Rec: %hi)",dataRef);
 			continue;
 		}
 		
@@ -1077,7 +1046,7 @@ int handleDATA(char buf[], int buflen)
 				
 				if ( ( hpath != hpath ) && ( alpha != alpha ) && ( theta != theta ) ) // NaN Check
 				{
-					updateLog("[DATA] ERROR: Value must be a number (NaN received)",51);
+					XPC::Log::WriteLine("[DATA] ERROR: Value must be a number (NaN received)");
 					break;
 				}
 				
@@ -1109,7 +1078,7 @@ int handleDATA(char buf[], int buflen)
 			{case 18: // Alpha, hpath etc.
 				if ( ( recValues[i][1] != recValues[i][1] ) && ( recValues[i][3] != recValues[i][3] ) ) // NaN Check
 	 			{
-					updateLog("[DATA] ERROR: Value must be a number (NaN received)",51);
+					XPC::Log::WriteLine("[DATA] ERROR: Value must be a number (NaN received)");
 					break;
 				}
 				
@@ -1136,7 +1105,7 @@ int handleDATA(char buf[], int buflen)
 			{case 25: // Throttle
 				if ( recValues[i][1] != recValues[i][1] )
 				{
-					updateLog("[DATA] ERROR: Value must be a number (NaN received)",51);
+					XPC::Log::WriteLine("[DATA] ERROR: Value must be a number (NaN received)");
 					break;
 				}
 				
@@ -1150,11 +1119,9 @@ int handleDATA(char buf[], int buflen)
 				memcpy(floatArray,&recValues[i][1],8*sizeof(float));
 				for (j=0; j<8; j++)
 				{
-					if (debugSwitch > 0)
+					if (LOG_VERBOSITY > 0)
 					{
-						char theString[100] = {0};
-						sprintf(theString,"Setting Dataref %i.%i to %f",dataRef,j,floatArray[j]);
-						updateLog(theString, strlen(theString));
+						XPC::Log::FormatLine("Setting Dataref %i.%i to %f", dataRef, j, floatArray[j]);
 					}
 					
 					if (dataRef==14 && j==0)

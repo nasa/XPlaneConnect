@@ -24,6 +24,9 @@
     <ClInclude Include="..\xpcDrawing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\C\src\xplaneConnect.c">
@@ -36,6 +39,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\xpcDrawing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -36,8 +36,6 @@
     
     int test(int buffer);
     
-    int updateLog(const char *buffer, int length);
-    
     unsigned short getIP(struct sockaddr recvaddr, char *IP);
     
     int printBufferToLog(struct XPCMessage & msg);

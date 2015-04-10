@@ -24,6 +24,7 @@
 //
 //  BEGIN CODE
 
+#include "Log.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -286,33 +287,6 @@ int almostequal(float arg1, float arg2, float tol)
     return (abs(arg1-arg2)<tol);
 }
 
-int updateLog(const char *buffer, int length)
-{
-    // Writes buffer to logfile (xpcLog.txt)
-    
-	time_t rawtime;
-	struct tm * timeinfo;
-	char logBuffer[523] = { 0 };
-	FILE * logFile;
-	
-	logFile = fopen("xpcLog.txt","a");
-	
-	time(&rawtime);
-	timeinfo = localtime(&rawtime);
-	// Format is equivalent to [%F %T], but neither of those specifiers is
-	// supported on Windows as of Visual Studio 13
-	strftime(logBuffer, 523, "[%Y-%m-%d %H:%M:%S] ", timeinfo);
-	
-	length = length < 500 ? length : 500;
-	memcpy(&(logBuffer[22]), buffer, length);
-	
-	fprintf(logFile,"%s\n",logBuffer);
-	
-	fclose(logFile);
-	
-	return 1;
-}
-
 unsigned short getIP(struct sockaddr recvaddr, char *IP)
 {
     // Gets the IP Address from sockaddr
@@ -337,7 +311,7 @@ int printBufferToLog(struct XPCMessage & msg)
         sprintf(logmsg,"%s %hhu",logmsg,msg.msg[i]);
     }
     
-    updateLog(logmsg,strlen(logmsg));
+	XPC::Log::WriteLine(logmsg);
     memset(logmsg,0,strlen(logmsg));
     
     sprintf(logmsg,"[%s-DEBUG](%i)",msg.head,msg.msg[4]);
@@ -345,13 +319,13 @@ int printBufferToLog(struct XPCMessage & msg)
 	//Switch for header
     if (strncmp(msg.head,"CONN",4)==0)
     {// Header = CONN (Connection)
-        updateLog(logmsg,strlen(logmsg));
+		XPC::Log::WriteLine(logmsg);
         
     }
     else if (strncmp(msg.head,"SIMU",4)==0)
     {// Header = SIMU
         sprintf(logmsg,"%s %i",logmsg,msg.msg[5]);
-        updateLog(logmsg,strlen(logmsg));
+		XPC::Log::WriteLine(logmsg);
         
     }
     else if (strncmp(msg.head,"POSI",4)==0)
@@ -374,7 +348,7 @@ int printBufferToLog(struct XPCMessage & msg)
         
         sprintf(logmsg,"%s %i (%f %f %f) (%f %f %f) %f",logmsg,aircraft,pos[0],pos[1],pos[2],orient[0],orient[1],orient[2],gear);
         
-        updateLog(logmsg,strlen(logmsg));
+		XPC::Log::WriteLine(logmsg);
     }
     else if (strncmp(msg.head,"CTRL",4)==0)
     {// Header = CTRL (Control)
@@ -382,13 +356,13 @@ int printBufferToLog(struct XPCMessage & msg)
         
         sprintf(logmsg,"%s (%f %f %f) %f %hhi %f",logmsg, ctrl.pitch, ctrl.roll, ctrl.yaw, ctrl.throttle, ctrl.gear, ctrl.flaps);
         
-        updateLog(logmsg,strlen(logmsg));
+		XPC::Log::WriteLine(logmsg);
         
     }
     else if (strncmp(msg.head,"WYPT",4)==0)
     {// Header = WYPT (Waypoint Draw)
         
-        updateLog(logmsg,strlen(logmsg));
+		XPC::Log::WriteLine(logmsg);
         
     }
     else if (strncmp(msg.head,"GETD",4)==0)
@@ -396,7 +370,7 @@ int printBufferToLog(struct XPCMessage & msg)
         char DREF[100];
         int counter = 6;
         
-        updateLog(logmsg,strlen(logmsg));
+		XPC::Log::WriteLine(logmsg);
         memset(logmsg,0,strlen(logmsg));
         
         for (i=0;i<msg.msg[5];i++)
@@ -404,7 +378,7 @@ int printBufferToLog(struct XPCMessage & msg)
             memcpy(DREF,&msg.msg[counter+1],msg.msg[counter]);
             sprintf(logmsg,"\t#%i/%i (size:%i) %s",i+1,msg.msg[5],msg.msg[counter],DREF);
             
-            updateLog(logmsg,strlen(logmsg));
+			XPC::Log::WriteLine(logmsg);
             memset(logmsg,0,strlen(logmsg));
             memset(DREF,0,sizeof(DREF));
             
@@ -415,12 +389,12 @@ int printBufferToLog(struct XPCMessage & msg)
     {// Header = DREF (By Data Ref) (this is slower than DATA)
         char DREF[100]={0};
         float tmp;
-        updateLog(logmsg,strlen(logmsg));
+		XPC::Log::WriteLine(logmsg);
         memset(logmsg,0,strlen(logmsg));
         
         memcpy(DREF,&msg.msg[6],msg.msg[5]);
         sprintf(logmsg,"-\tDREF (size %i)= %s",msg.msg[5],DREF);
-        updateLog(logmsg,strlen(logmsg));
+		XPC::Log::WriteLine(logmsg);
         memset(logmsg,0,strlen(logmsg));
         sprintf(logmsg,"-\tValues(Size %i)=",msg.msg[6+msg.msg[5]]);
         for (i=0;i<msg.msg[6+msg.msg[5]];i++)
@@ -428,11 +402,11 @@ int printBufferToLog(struct XPCMessage & msg)
             memcpy(&tmp,&msg.msg[7+msg.msg[5]+sizeof(float)*i],sizeof(float));
             sprintf(logmsg,"%s %f",logmsg,tmp);
         }
-        updateLog(logmsg,strlen(logmsg));
+		XPC::Log::WriteLine(logmsg);
     }
     else if (strncmp(msg.head,"VIEW",4)==0)
     {// Header = VIEW (Change View)
-        updateLog(logmsg,strlen(logmsg));
+		XPC::Log::WriteLine(logmsg);
     }
     else if (strncmp(msg.head,"DATA",4)==0)
     {// Header = DATA (UDP Data)
@@ -441,7 +415,7 @@ int printBufferToLog(struct XPCMessage & msg)
         float dataRef[30][9];
         
         sprintf(logmsg,"%s (%i lines)",logmsg,totalColumns);
-        updateLog(logmsg,strlen(logmsg));
+		XPC::Log::WriteLine(logmsg);
         memset(logmsg,0,strlen(logmsg));
         
         totalColumns = parseDATA(msg.msg, msg.msg[4], dataRef);
@@ -455,7 +429,7 @@ int printBufferToLog(struct XPCMessage & msg)
                 sprintf(logmsg,"%s %f",logmsg,dataRef[i][j]);
                 if (dataRef[i][j]!=dataRef[i][j]) sprintf(logmsg,"%s (not a number)",logmsg);
             }
-            updateLog(logmsg,strlen(logmsg));
+			XPC::Log::WriteLine(logmsg);
             memset(logmsg,0,strlen(logmsg));
         }
     }
@@ -470,12 +444,10 @@ int printBufferToLog(struct XPCMessage & msg)
 int test(const char *buffer)
 {
     // Prints "test buffer" to log (for debugging)
-	char logmsg[100] = {0};
     char buffer2[95] = {0};
     strncpy(buffer2, buffer, 95);
-	sprintf(logmsg,"[TEST] %s",buffer2);
 	
-	updateLog(logmsg,strlen(logmsg));
+	XPC::Log::FormatLine("[TEST] %s", buffer2);
 	
 	return 0;
 }
@@ -483,10 +455,7 @@ int test(const char *buffer)
 int test(int buffer)
 {
     // Prints "test #[buffer]" to log (for debugging)
-	char logmsg[100] = {0};
-	sprintf(logmsg,"[TEST] #%i",buffer);
-	
-	updateLog(logmsg,strlen(logmsg));
+	XPC::Log::FormatLine("[TEST] #%i", buffer);
 	
 	return 0;
 }
