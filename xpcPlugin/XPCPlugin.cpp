@@ -62,6 +62,8 @@
 
 // XPC Includes
 #include "Log.h"
+#include "DataManager.h"
+#include "DataMaps.h"
 #include "Drawing.h"
 #include "Message.h"
 #include "UDPSocket.h"
@@ -88,7 +90,6 @@
 #define SENDPORT 49097 // Port that the plugin sends on
 #define OPS_PER_CYCLE 20 // Max Number of operations per cycle
 
-static XPLMDataRef      XPLMSwitch; // for turning on/off simulation
 XPC::UDPSocket* recvSocket = nullptr;
 XPC::UDPSocket* sendSocket = nullptr;
 
@@ -109,7 +110,7 @@ struct connectionHistory
 	unsigned short			recPort;
 	unsigned short			fromPort;
 	short					requestLength;
-	XPLMDataRef				XPLMRequestedDRefs[100];
+	std::string				XPLMRequestedDRefs[100];
 };
 
 connectionHistory connectionList[MAXCONN];
@@ -133,11 +134,6 @@ int handleDATA(char *buf, int buflen);
 int handleTEXT(char *buf, int len);
 short handleInput(XPC::Message& msg);
 
-char setPOSI(short aircraft, float pos[3]);
-char setORIENT(short aircraft, float orient[3]);
-char setDREF(XPLMDataRef theDREF, float floatarray[], short arrayStart, short arraySize);
-char setGEAR(short aircraft, float gear, char posi);
-char setFLAP(float flap);
 void sendBUF(char buf[], int buflen);
 
 PLUGIN_API int XPluginStart(	char *		outName,
@@ -168,12 +164,7 @@ PLUGIN_API int XPluginStart(	char *		outName,
 		1000000000.0;
 	}
 #endif
-	
-	// Build the DataRef Array
-	buildXPLMDataRefs();
-    
-    //On/Off Switch for simulation
-	XPLMSwitch = XPLMFindDataRef("sim/operation/override/override_planepath");
+	XPC::DataManager::Initialize();
 	
 	XPLMRegisterFlightLoopCallback(
 								   MyFlightLoopCallback,	/* Callback */
@@ -470,7 +461,8 @@ int handleSIMU(char buf[])
 		return 1;
 	}
 	
-	XPLMSetDatavi(XPLMSwitch, SIMUArray, 0, 1);
+	int value = buf[5];
+	XPC::DataManager::Set(XPC::DREF::Pause, &value, 1);
 	
 	if (buf[5] == 0)
 	{
@@ -509,197 +501,6 @@ int handleTEXT(char *buf, int len)
 	return 0;
 }
 
-char setDREF(XPLMDataRef theDREF, float floatarray[], short arrayStart, short arraySize)
-{
-	XPLMDataTypeID dataType;
-	short i=arrayStart;
-	
-	if ((floatarray[i]<-997.5 && floatarray[i]>-999.5))
-	{
-		return 0; // Do not change
-	}
-	
-	if (theDREF == XPLMDataRefs[0][0])
-	{
-		return -1;
-	}
-	
-	if (theDREF) // VALID POINTER
-	{
-		if (floatarray[i] != floatarray[i]) // Is NaN
-		{
-			goto NANMessage;
-		}
-		
-		dataType = XPLMGetDataRefTypes(theDREF);
-		switch (dataType)
-		{
-			{case 1: //Integer
-				XPLMSetDatai(theDREF,(int) floatarray[i]);
-				break;}
-				
-			{case 4: //Double
-				XPLMSetDatad(theDREF,(double) floatarray[i]);
-				break;}
-				
-			{case 8: //Float Array
-				fmini(XPLMGetDatavf(theDREF,NULL,0,8),arraySize); //find size of array
-				if ( floatarray[0] != floatarray[0] ) // NaN Check
-				{
-					goto NANMessage;
-				}
-				
-				XPLMSetDatavf(theDREF,floatarray,arrayStart,arraySize);
-				break;}
-				
-			{case 16: //Integer Array
-				int intArray[20];
-				short length;
-				length = fmini(XPLMGetDatavi(theDREF,NULL,0,8),arraySize); //find size of array
-				for (i=arrayStart; i < arrayStart+length; i++)
-				{
-					intArray[i] = (int) floatarray[i];
-				}
-				XPLMSetDatavi(theDREF,intArray,0,length);
-				break;}
-				
-			{default: //Float
-				XPLMSetDataf(theDREF,floatarray[i]);
-				break;}
-		}
-	}
-	else
-	{
-		XPC::Log::WriteLine("[DREF] ERROR: invalid DREF");
-		return 1;
-	}
-	return 0;
-	
-NANMessage:
-	XPC::Log::WriteLine("[DREF] ERROR: Value must be a number (NaN received)");
-	return 1;
-}
-
-char setGEAR(short aircraft, float gear, char posi)
-{
-	int i;
-	float gearArray[8];
-	
-	if ((gear < - 8.5f && gear > 9.5f) || (gear < -997.9f && gear > -999.1f))
-	{
-		return -1; // Don't change command
-	}
-	
-	if ( ( gear != gear ) || ( gear < -1.f ) || ( gear > 1.f ) ) // NaN & Positive test
-	{
-		XPC::Log::WriteLine("[GEAR] ERROR: Value must be 0 or 1");
-		return 1;
-	}
-	
-	for (i=0;i<8;i++)
-	{
-		gearArray[i] = gear;
-	}
-	
-	if (!aircraft)
-	{ // Own Aircraft
-		setDREF(XPLMDataRefs[14][7], gearArray, 0, 8);
-	}
-	else
-	{ // Multiplayer
-		setDREF(multiplayer[aircraft][6], gearArray, 0, 8);
-	}
-	
-	if (posi)
-	{
-		XPLMSetDatavf(XPLMDataRefs[14][0], gearArray, 0, 1);
-	}
-	
-	return 0;
-}
-
-char setPOSI(short aircraft, float pos[3])
-{
-	double local[3] = {0};
-	int i;
-	float tPos = pos[0] + pos[1] + pos[2];
-	
-	if (tPos != tPos) // Is NaN
-	{
-		XPC::Log::WriteLine("[POSI] ERROR: Position must be a number (NaN received)");
-		return 1;
-	}
-	
-	XPLMWorldToLocal(pos[0],pos[1],pos[2],&local[0],&local[1],&local[2]);
-	if (aircraft <= 0)
-	{ // Main aircraft
-		for (i=0; i<3; i++)
-		{
-			XPLMSetDatad(XPLMDataRefs[21][i],local[i]);
-			XPLMSetDatad(XPLMDataRefs[20][i], pos[i]);
-		}
-	}
-	else
-	{ // Multiplayer
-		for (i=0; i<3; i++)
-		{
-			XPLMSetDatad(multiplayer[aircraft][i], local[i]);
-		}
-	}
-	
-	return 0;
-}
-
-char setORIENT(short aircraft, float orient[3])
-{
-	int i;
-	float q[4] = {0};
-	float pi = (float) 0.00872664625997; // 1/2 rad
-	float tOrient = orient[0] + orient[1] + orient[2];
-	
-	if ( tOrient != tOrient ) // Is NaN
-	{
-		XPC::Log::WriteLine("[ORIENT] ERROR: Orientation must be a number (NaN received)");
-		return 1;
-	}
-	
-	if ( aircraft <= 0 ) // Main aircraft
-	{
-		XPLMSetDataf(XPLMDataRefs[17][0],orient[0]);
-		XPLMSetDataf(XPLMDataRefs[17][1],orient[1]);
-		XPLMSetDataf(XPLMDataRefs[17][2],orient[2]);
-		
-		//Convert to Quartonians (from: http://www.xsquawkbox.net/xpsdk/mediawiki/MovingThePlane), http://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19770024290.pdf pA2)
-		orient[2] = pi * orient[2]; // 1/2 raidians
-		orient[0] = pi * orient[0]; // 1/2 raidians
-		orient[1] = pi * orient[1]; // 1/2 raidians
-		q[0] =  cos(orient[2]) * cos(orient[0]) * cos(orient[1]) + sin(orient[2]) * sin(orient[0]) * sin(orient[1]);
-		q[1] =  cos(orient[2]) * cos(orient[0]) * sin(orient[1]) - sin(orient[2]) * sin(orient[0]) * cos(orient[1]);
-		q[2] =  cos(orient[2]) * sin(orient[0]) * cos(orient[1]) + sin(orient[2]) * cos(orient[0]) * sin(orient[1]);
-		q[3] =  sin(orient[2]) * cos(orient[0]) * cos(orient[1]) - cos(orient[2]) * sin(orient[0]) * sin(orient[1]);
-		
-		XPLMSetDatavf(XPLMDataRefs[17][4],q,0,4);
-	}
-	else
-	{
-		for (i=0; i<3; i++)
-		{
-			XPLMSetDataf(multiplayer[aircraft][i+3],orient[i]);
-		}
-	}
-	
-	return 0;
-}
-
-char setFLAP(float flap)
-{
-	float floatArray[1] = {flap};
-	setDREF(XPLMDataRefs[13][3],floatArray,0,1);
-	setDREF(XPLMDataRefs[13][4],floatArray,0,1);
-	
-	return 0;
-}
-
 int handlePOSI(char buf[])
 {
 	float position[8] = {0.0};
@@ -713,26 +514,30 @@ int handlePOSI(char buf[])
 	
 	aircraft = fmini(parsePOSI(buf,position,6, &gear),19);
 	
-	//ADD AIRCRAFT HANDLING- (-1 = single aircraft for player)
-	if (aircraft > 0) // Multiplayer aircraft
+	if (aircraft > 0)
 	{
-		XPLMGetDatavi(AIswitch, autopilot, 0, 20);
-		autopilot[aircraft] = 1;
-		XPLMSetDatavi(AIswitch, autopilot, 0, 20);
+		// Enable AI for the aircraft we are setting
+		float ai[20];
+		std::size_t result = XPC::DataManager::GetFloatArray(XPC::DREF::PauseAI, ai, 20);
+		if (result == 20) // Only set values if they were retrieved successfully.
+		{
+			ai[aircraft] = 1;
+			XPC::DataManager::Set(XPC::DREF::PauseAI, ai, 0, 20);
+		}
 	}
 	
 	// Position
 	memcpy(pos,position,3*sizeof(float));
-	setPOSI(aircraft, pos);
+	XPC::DataManager::SetPosition(pos, aircraft);
 	
 	// Orientation
 	memcpy(orient,&position[3],3*sizeof(float));
-	setORIENT(aircraft, orient);
+	XPC::DataManager::SetOrientation(orient, aircraft);
 	
 	//Landing Gear
 	if (gear != -1)
 	{
-		setGEAR(aircraft, gear, 1);
+		XPC::DataManager::SetGear(gear, false, aircraft);
 	}
 	
 	return 0;
@@ -756,62 +561,32 @@ int handleCTRL(char buf[])
 	{
 		return 2;
 	}
-	if (ctrl.aircraft == 0) //player aircraft
+	// SET CONTROLS
+	XPC::DataManager::Set(XPC::DREF::YokePitch, ctrl.pitch, ctrl.aircraft);
+	XPC::DataManager::Set(XPC::DREF::YokeRoll, ctrl.roll, ctrl.aircraft);
+	XPC::DataManager::Set(XPC::DREF::YokeHeading, ctrl.yaw, ctrl.aircraft);
+
+	// SET Throttle
+	for (i = 0; i<8; i++)
 	{
-		// SET CONTROLS
-		XPLMSetDataf(XPLMDataRefs[11][0], ctrl.pitch);
-		XPLMSetDataf(XPLMDataRefs[11][1], ctrl.roll);
-		XPLMSetDataf(XPLMDataRefs[11][2], ctrl.yaw);
-
-		// SET Throttle
-		for (i = 0; i<8; i++)
-		{
-			thr[i] = ctrl.throttle;
-		}
-		XPLMSetDatavf(XPLMDataRefs[25][0], thr, 0, 8);
-		XPLMSetDatavf(XPLMDataRefs[26][0], thr, 0, 8);
-		setDREF(XPLMFindDataRef("sim/flightmodel/engine/ENGN_thro_override"), thr, 0, 1);
-
-		// SET Gear/Flaps
-		if (ctrl.gear != -1)
-		{
-			setGEAR(0, ctrl.gear, 0); // Gear
-		}
-		if (ctrl.flaps < -999.5 || ctrl.flaps > -997.5) // Flaps
-		{
-			XPLMSetDataf(XPLMDataRefs[13][3], ctrl.flaps);
-		}
+		thr[i] = ctrl.throttle;
 	}
-	else //non-player aircraft
+	XPC::DataManager::Set(XPC::DREF::ThrottleSet, thr, 8, ctrl.aircraft);
+	XPC::DataManager::Set(XPC::DREF::ThrottleActual, thr, 8, ctrl.aircraft);
+	if (ctrl.aircraft == 0)
 	{
-		// SET CONTROLS
-		XPLMSetDataf(multiplayer[ctrl.aircraft][14], ctrl.pitch);
-		XPLMSetDataf(multiplayer[ctrl.aircraft][15], ctrl.roll);
-		XPLMSetDataf(multiplayer[ctrl.aircraft][16], ctrl.yaw);
+		XPC::DataManager::Set("sim/flightmodel/engine/ENGN_thro_override", thr, 1);
+	}
 
-		// SET Throttle
-		for (i = 0; i<8; i++)
-		{
-			thr[i] = ctrl.throttle;
-		}
-		XPLMSetDatavf(multiplayer[ctrl.aircraft][13], thr, 0, 8);
-
-		// SET Gear/Flaps
-		if (ctrl.gear != -1)
-		{
-			float gear[10];
-			for (int i = 0; i < 10; ++i)
-			{
-				gear[i] = ctrl.gear;
-			}
-			XPLMSetDatavf(multiplayer[ctrl.aircraft][6], gear, 0, 10);
-		}
-		if (ctrl.flaps < -999.5 || ctrl.flaps > -997.5) // Flaps
-		{
-			XPLMSetDataf(multiplayer[ctrl.aircraft][7], ctrl.flaps);
-			XPLMSetDataf(multiplayer[ctrl.aircraft][8], ctrl.flaps);
-		}
-	}	
+	// SET Gear/Flaps
+	if (ctrl.gear != -1)
+	{
+		XPC::DataManager::SetGear(ctrl.gear, false, ctrl.aircraft);
+	}
+	if (ctrl.flaps < -999.5 || ctrl.flaps > -997.5) // Flaps
+	{
+		XPC::DataManager::Set(XPC::DREF::FlapSetting, ctrl.flaps, ctrl.aircraft);
+	}
 	return 0;
 }
 
@@ -850,21 +625,10 @@ int handleWYPT(char buf[], int len)
 
 int handleGETD(char buf[])
 {
-	int length,i,k;
-	XPLMDataTypeID dataType;
-	int listLength = buf[5];
-	char the_message[5000];
-	char header[5] = {0};
-	int count = 6;
-	float values[100] = {-998};
-	int intArray[100] = {-998};
-	int DREFSizes[100] = {0};
+	int DREFSizes[100] = { 0 };
 	char *DREFArray[100];
-	
-	strncpy(header,"RESP",4);
-	memcpy(&the_message,&header,4);
-	
-	if (listLength == 0) // USE LAST REQUEST
+	std::uint8_t drefCount = buf[5];
+	if (drefCount == 0) // USE LAST REQUEST
 	{
 		XPC::Log::FormatLine("[GETD] DATA Requested- repeat last request from connection %i (%i data refs)",
 			current_connection + 1,
@@ -876,83 +640,41 @@ int handleGETD(char buf[])
 			return 1;
 		}
 	}
-	else if (listLength > 0) // NEW REQUEST
+	else if (drefCount > 0) // NEW REQUEST
 	{
-		connectionList[current_connection].requestLength = (short) listLength;
-		
+		connectionList[current_connection].requestLength = (short)drefCount;
+
 		for (int i = 0; i < connectionList[current_connection].requestLength; i++)
 		{
-			DREFArray[i] = (char *) malloc(100);
-			memset(DREFArray[i],0,100);
+			DREFArray[i] = (char *)malloc(100);
+			memset(DREFArray[i], 0, 100);
 		}
-		
-		parseGETD(buf,DREFArray,DREFSizes);
+
+		parseGETD(buf, DREFArray, DREFSizes);
 		XPC::Log::FormatLine("[GETD] DATA Requested- New Request for connection %i [%i]:",
 			current_connection + 1,
-			listLength);
+			drefCount);
 	}
 	else
 	{
 		return -1;
 	}
-	
-	for (i=0;i<connectionList[current_connection].requestLength;i++)
-	{
-		if (listLength > 0)
-		{
-			connectionList[current_connection].XPLMRequestedDRefs[i] = XPLMFindDataRef(DREFArray[i]);
-		}
-		
-		if (connectionList[current_connection].XPLMRequestedDRefs[i]) //Valid Pointer
-		{
-			dataType = XPLMGetDataRefTypes(connectionList[current_connection].XPLMRequestedDRefs[i]);
-			switch (dataType)
-			{
-				{case 1: //Integer
-					length = 1;
-					values[0] = (float) XPLMGetDatai(connectionList[current_connection].XPLMRequestedDRefs[i]);
-					break;}
-					
-				{case 4: //Double
-					length = 1;
-					values[0] = (float) XPLMGetDatad(connectionList[current_connection].XPLMRequestedDRefs[i]);
-					break;}
-					
-				{case 8: //Float Array
-					length = XPLMGetDatavf(connectionList[current_connection].XPLMRequestedDRefs[i],NULL,0,8); //find size of array
-					XPLMGetDatavf(connectionList[current_connection].XPLMRequestedDRefs[i],values,0,fminl(length,100));
-					break;}
-					
-				{case 16: //Integer Array
-					length = XPLMGetDatavi(connectionList[current_connection].XPLMRequestedDRefs[i],NULL,0,8); //find size of array
-					XPLMGetDatavi(connectionList[current_connection].XPLMRequestedDRefs[i],intArray,0,fminl(length,100));
-					for (k=0; k < length; k++) {
-						values[k]=(float) intArray[k];
-					}
-					break;}
-					
-				{default: //Float
-					length = 1;
-					values[0] = XPLMGetDataf(connectionList[current_connection].XPLMRequestedDRefs[i]);
-					break;}
-			}
-			the_message[count] = length;
-			memcpy(&the_message[count+1],&values,length*sizeof(float));
-			count += 1 + length*sizeof(float);
-		}
-		else
-		{
-			XPC::Log::FormatLine("%s-ERROR: invalid DREF", DREFArray[i]);
-		}
-	}
-	the_message[5] = (char) connectionList[current_connection].requestLength;
 
-	if (count > 6)
+	std::uint8_t response[4096] = "RESP";
+	response[5] = drefCount;
+	std::size_t cur = 6;
+	for (int i = 0; i < drefCount; ++i)
 	{
-		char* host = connectionList[current_connection].IP;
-		std::uint16_t port = connectionList[current_connection].recPort;
-		sendSocket->SendTo((std::uint8_t*)the_message, count, host, port);
+		float values[255];
+		std::size_t count = XPC::DataManager::Get(DREFArray[i], values, 255);
+		response[cur] = count;
+		memcpy(response + 1 + cur, values, count * sizeof(float));
+		cur += 1 + count * sizeof(float);
 	}
+
+	char* host = connectionList[current_connection].IP;
+	std::uint16_t port = connectionList[current_connection].recPort;
+	sendSocket->SendTo(response, cur, host, port);
 		
 	return 0;
 }
@@ -963,7 +685,6 @@ int handleDREF(char buf[])
 	unsigned short lenDREF = 0;
 	unsigned short lenVALUE = 0;
 	float values[40] = {0.0};
-	XPLMDataRef theDREF;
 	
 	parseDREF(buf, DREF, &lenDREF,values,&lenVALUE);
 	
@@ -976,8 +697,7 @@ int handleDREF(char buf[])
 	// Handle DREF
 	XPC::Log::FormatLine("[DREF] Request to set DREF value received (Conn %i): %s", current_connection + 1, DREF);
 	
-	theDREF = XPLMFindDataRef(DREF);
-	setDREF(theDREF, values, 0, lenVALUE);
+	XPC::DataManager::Set(DREF, values, lenVALUE);
 	
 	return 0;
 }
@@ -1028,17 +748,17 @@ int handleDATA(char buf[], int buflen)
 				
 				float theta, alpha, hpath,v;
 				int ind[3] = {1,3,4};
-				theta = XPLMGetDataf(XPLMDataRefs[17][0]); //Theta
+				theta = XPC::DataManager::GetFloat(XPC::DREF::Pitch);
 				
 				if (savedAlpha != -998)
 					alpha = savedAlpha;
 				else
-					alpha = XPLMGetDataf(XPLMDataRefs[18][0]); //Alpha
+					alpha = XPC::DataManager::GetFloat(XPC::DREF::AngleOfAttack);
 				
 				if (savedHPath != -998)
 					hpath = savedHPath;
 				else
-					hpath = XPLMGetDataf(XPLMDataRefs[18][2]); //Velocity Heading
+					hpath = XPC::DataManager::GetFloat(XPC::DREF::HPath); //Velocity Heading
 				
 				if ( ( hpath != hpath ) && ( alpha != alpha ) && ( theta != theta ) ) // NaN Check
 				{
@@ -1051,24 +771,21 @@ int handleDATA(char buf[], int buflen)
 					if (recValues[i][ind[j]] != -998)
 					{
 						v = recValues[i][ind[j]];
-						
-						XPLMSetDataf(XPLMDataRefs[21][3],v*cos((theta-alpha)*deg2rad)*sin(hpath*deg2rad));
-						XPLMSetDataf(XPLMDataRefs[21][4],v*sin((theta-alpha)*deg2rad));
-						XPLMSetDataf(XPLMDataRefs[21][5],-v*cos((theta-alpha)*deg2rad)*cos(hpath*deg2rad));
+
+						XPC::DataManager::Set(XPC::DREF::LocalVX, v*cos((theta - alpha)*deg2rad)*sin(hpath*deg2rad));
+						XPC::DataManager::Set(XPC::DREF::LocalVY, v*sin((theta - alpha)*deg2rad));
+						XPC::DataManager::Set(XPC::DREF::LocalVZ, -v*cos((theta - alpha)*deg2rad)*cos(hpath*deg2rad));
 					}
 				}
 				break;}
 			{case 17: // Orientation
-				float orient[3] = {0};
-				
-				for (j=1; j<4; j++)
-					if (recValues[i][j] == -998)
-						recValues[i][j] = XPLMGetDataf(XPLMDataRefs[17][j-1]);
-				
-				memcpy(orient,&recValues[i][1],3*sizeof(float));
-				
-				setORIENT(0, orient);
-				
+				float orient[3]
+				{
+					recValues[i][1] == -998 ? XPC::DataManager::GetFloat(XPC::DREF::Pitch) : recValues[i][1],
+					recValues[i][2] == -998 ? XPC::DataManager::GetFloat(XPC::DREF::Roll) : recValues[i][2],
+					recValues[i][3] == -998 ? XPC::DataManager::GetFloat(XPC::DREF::HeadingTrue) : recValues[i][3]
+				};
+				XPC::DataManager::SetOrientation(orient);
 				break;}
 				
 			{case 18: // Alpha, hpath etc.
@@ -1087,15 +804,13 @@ int handleDATA(char buf[], int buflen)
 				break;}
 				
 			{case 20: // Position
-				float local[3] = {0};
-				
-				for (j=1; j<4; j++)
-					if (recValues[i][j+1] == -998)
-						recValues[i][j+1] = XPLMGetDataf(XPLMDataRefs[20][j]);
-				
-				memcpy(local,&recValues[i][1],3*sizeof(float));
-				setPOSI(0, local);
-				
+				float pos[3]
+				{
+					recValues[i][2] == -998 ? XPC::DataManager::GetFloat(XPC::DREF::Latitude) : recValues[i][2],
+					recValues[i][3] == -998 ? XPC::DataManager::GetFloat(XPC::DREF::Longitude) : recValues[i][3],
+					recValues[i][4] == -998 ? XPC::DataManager::GetFloat(XPC::DREF::AGL) : recValues[i][4]
+				};
+				XPC::DataManager::SetPosition(pos);
 				break;}
 				
 			{case 25: // Throttle
@@ -1108,7 +823,7 @@ int handleDATA(char buf[], int buflen)
 				for (j=0; j<8; j++)
 					floatArray[j] = recValues[i][1];
 				
-				XPLMSetDatavf(XPLMDataRefs[25][0],floatArray,0,8);
+				XPC::DataManager::Set(XPC::DREF::ThrottleSet, floatArray, 8);
 				break;}
 				
 			{default: // Non-Special dataRefs (everything else)
@@ -1122,13 +837,19 @@ int handleDATA(char buf[], int buflen)
 					
 					if (dataRef==14 && j==0)
 					{
-						setGEAR(0, recValues[i][j+1], 1); // Landing Gear
+						XPC::DataManager::SetGear(recValues[i][j + 1], false);
 						continue;
 					}
-					
-					// Set DATAREF
-					if (setDREF(XPLMDataRefs[dataRef][j],floatArray,j,8) == -1)
-						sendBUF(buf,buflen);
+
+					XPC::DREF dref = XPC::XPData[dataRef][j];
+					if (dref == XPC::DREF::None)
+					{
+						sendBUF(buf, buflen);
+					}
+					else
+					{
+						XPC::DataManager::Set(dref, floatArray, 8);
+					}
 				} //End for j=1:8
 				break;}
 		} // End switch(dataRef)

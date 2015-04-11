@@ -8,18 +8,9 @@
     
 #ifndef xpcPlugin_xpcPluginTools_h
 #define xpcPlugin_xpcPluginTools_h
-
-#include "UDPSocket.h"
     
 #include <time.h>
 #include "xplaneConnect.h"
-#include "XPLMDataAccess.h"
-    
-    extern XPLMDataRef XPLMDataRefs[134][8];
-    extern XPLMDataRef multiplayer[20][17];
-    extern XPLMDataRef AIswitch;
-    
-    void buildXPLMDataRefs(void);
         
     int almostequal(float arg1, float arg2, float tol);
     

@@ -72,17 +72,17 @@ namespace XPC
 		Log::WriteLine(ss.str());
 
 		ss.str("");
-		ss << "[" << GetHead() << "-DEBUG](" << buffer[4] << ")";
-		switch (GetMagicNumber())
+		ss << "[" << GetHead() << "-DEBUG] (" << GetSize() << ")";
+		switch (GetMagicNumber()) // Binary version of head
 		{
-		case 0x434F4E4E: // CONN
-        case 0x57595054: // WYPT
-        case 0x54455854: // TEXT
+		case 0x4E4EF443: // CONN
+        case 0x54505957: // WYPT
+        case 0x54584554: // TEXT
         {
             Log::WriteLine(ss.str());
             break;
         }
-        case 0x4354524C: // CTRL
+        case 0x4C525443: // CTRL
         {
             xpcCtrl ctrl = parseCTRL((char*)buffer);
             ss << " (" << ctrl.pitch << " " << ctrl.roll << " " << ctrl.yaw << ") ";
@@ -90,7 +90,7 @@ namespace XPC
             Log::WriteLine(ss.str());
             break;
         }
-        case 0x44415441: // DATA
+        case 0x41544144: // DATA
         {
             float dataRef[30][9];
             short numCols = parseDATA((char*)buffer, size, dataRef);
@@ -108,7 +108,7 @@ namespace XPC
             }
             break;
         }
-        case 0x44524546: // DREF
+        case 0x46455244: // DREF
         {
             Log::WriteLine(ss.str());
             std::string dref((char*)buffer + 6, buffer[5]);
@@ -123,19 +123,19 @@ namespace XPC
             Log::WriteLine(ss.str());
             break;
         }
-        case 0x47455444: // GETD
+        case 0x44544547: // GETD
         {
             Log::WriteLine(ss.str());
             int cur = 6;
             for (int i = 0; i < buffer[5]; ++i)
             {
                 std::string dref((char*)buffer + cur + 1, buffer[cur]);
-                Log::FormatLine("\t#%i/%i (size:%i) %s", i + 1, buffer[5], dref.length(), dref);
+                Log::FormatLine("\t#%i/%i (size:%i) %s", i + 1, buffer[5], dref.length(), dref.c_str());
                 cur += 1 + buffer[cur];
             }
             break;
         }
-        case 0x504F5349: // POSI
+        case 0x49534F50: // POSI
         {
             float position[6] = { 0.0 };
             short aircraft = 0;
@@ -148,15 +148,15 @@ namespace XPC
             Log::WriteLine(ss.str());
             break;
         }
-        case 0x53494D55: // SIMU
+        case 0x554D4953: // SIMU
         {
-            ss << ' ' << buffer[5];
+            ss << ' ' << (int)buffer[5];
             Log::WriteLine(ss.str());
             break;
         }
         default:
         {
-            ss << " UNKNOWN HEADER";
+            ss << " UNKNOWN HEADER ";
             Log::WriteLine(ss.str());
             break;
         }

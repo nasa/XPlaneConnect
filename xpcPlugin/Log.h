@@ -4,7 +4,7 @@
 #define XPC_LOG_H
 #include <string>
 
-#define LOG_VERBOSITY 2
+#define LOG_VERBOSITY 999
 
 namespace XPC
 {

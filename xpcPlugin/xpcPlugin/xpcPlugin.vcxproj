@@ -99,6 +99,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\C\src\xplaneConnect.h" />
+    <ClInclude Include="..\DataManager.h" />
+    <ClInclude Include="..\DataMaps.h" />
     <ClInclude Include="..\Drawing.h" />
     <ClInclude Include="..\Log.h" />
     <ClInclude Include="..\Message.h" />
@@ -107,6 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\C\src\xplaneConnect.c" />
+    <ClCompile Include="..\DataManager.cpp" />
     <ClCompile Include="..\Drawing.cpp" />
     <ClCompile Include="..\Log.cpp" />
     <ClCompile Include="..\Message.cpp" />
