@@ -36,7 +36,7 @@
     <ClInclude Include="..\DataMaps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\xpcPluginTools.h">
+    <ClInclude Include="..\MessageHandlers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -62,7 +62,10 @@
     <ClCompile Include="..\DataManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\xpcPluginTools.cpp">
+    <ClCompile Include="..\MessageHandlers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataMaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

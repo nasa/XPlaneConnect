@@ -104,18 +104,19 @@
     <ClInclude Include="..\Drawing.h" />
     <ClInclude Include="..\Log.h" />
     <ClInclude Include="..\Message.h" />
+    <ClInclude Include="..\MessageHandlers.h" />
     <ClInclude Include="..\UDPSocket.h" />
-    <ClInclude Include="..\xpcPluginTools.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\C\src\xplaneConnect.c" />
     <ClCompile Include="..\DataManager.cpp" />
+    <ClCompile Include="..\DataMaps.cpp" />
     <ClCompile Include="..\Drawing.cpp" />
     <ClCompile Include="..\Log.cpp" />
     <ClCompile Include="..\Message.cpp" />
+    <ClCompile Include="..\MessageHandlers.cpp" />
     <ClCompile Include="..\UDPSocket.cpp" />
     <ClCompile Include="..\XPCPlugin.cpp" />
-    <ClCompile Include="..\xpcPluginTools.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\SDK\Libraries\Win\XPLM.lib" />
