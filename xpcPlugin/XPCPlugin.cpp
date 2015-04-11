@@ -63,6 +63,7 @@
 // XPC Includes
 #include "Log.h"
 #include "Drawing.h"
+#include "Message.h"
 #include "UDPSocket.h"
 #include "xpcPluginTools.h"
 
@@ -130,7 +131,7 @@ int handleDREF(char *buf);
 int handleVIEW();
 int handleDATA(char *buf, int buflen);
 int handleTEXT(char *buf, int len);
-short handleInput(struct XPCMessage * theMessage);
+short handleInput(XPC::Message& msg);
 
 char setPOSI(short aircraft, float pos[3]);
 char setORIENT(short aircraft, float orient[3]);
@@ -239,7 +240,6 @@ float	MyFlightLoopCallback(		float    inElapsedSinceLastCall,
 #if (__APPLE__)
 	double diff_t;
 #endif
-	XPCMessage theMessage;
 	
 	counter++;
 	if (benchmarkingSwitch > 1)
@@ -255,8 +255,8 @@ float	MyFlightLoopCallback(		float    inElapsedSinceLastCall,
 			start = (double)mach_absolute_time( ) * timeConvert;
 #endif
 		}
-		readMessage(recvSocket, &theMessage);
-		result = handleInput(&theMessage);
+		XPC::Message msg = XPC::Message::ReadFrom(*recvSocket);
+		result = handleInput(msg);
 
 		if (benchmarkingSwitch > 0)
 		{
@@ -282,145 +282,143 @@ float	MyFlightLoopCallback(		float    inElapsedSinceLastCall,
 	return -1;
 }
 
-short handleInput(struct XPCMessage * theMessage)
+short handleInput(XPC::Message& msg)
 {
 	int i;
-	char IP[16] = {0};
+	char IP[16] = { 0 };
 	unsigned short port = 0;
-	
+
 	current_connection = -1;
-	
-    if (theMessage->msglen > 0)  // If message received
+
+	if (msg.GetSize() == 0)
 	{
-		if (LOG_VERBOSITY > 0)
+		// No message received
+		return 0;
+	}
+
+	msg.PrintToLog();
+
+	// Check for existing connection
+	port = getIP(msg.GetSource(), IP);
+	for (i = 0; i < number_of_connections; i++)
+	{
+		if (strcmp(connectionList[i].IP, IP) == 0 && port == connectionList[i].fromPort && port > 0)
 		{
-#ifdef _WIN32
-#else
-			printBufferToLog(*theMessage);
-#endif
+			current_connection = i;
+			break;
 		}
-		
-		// Check for existing connection
-		port = getIP(theMessage->recvaddr,IP);
-		for (i=0; i<number_of_connections; i++)
+	}
+
+	if (current_connection == -1) //SETUP NEW CONNECTION
+	{
+		if (number_of_connections >= MAXCONN) // Handle hitting MAXCONN (COME UP WITH A BETTER SOLUTION)
 		{
-			if (strcmp(connectionList[i].IP,IP) == 0 && port == connectionList[i].fromPort && port > 0)
-			{
-				current_connection=i;
-				break;
-			}
+			XPC::Log::WriteLine("[EXEC] Hit maximum number of connections-Removing old ones");
+			number_of_connections = 0;
 		}
-		
-		if (current_connection == -1) //SETUP NEW CONNECTION
-		{
-			if (number_of_connections>=MAXCONN) // Handle hitting MAXCONN (COME UP WITH A BETTER SOLUTION)
-			{
-				XPC::Log::WriteLine("[EXEC] Hit maximum number of connections-Removing old ones");
-				number_of_connections = 0;
-			}
-			
-			memcpy(connectionList[number_of_connections].IP,IP,16);
-			connectionList[number_of_connections].recPort = 49008;
-			connectionList[number_of_connections].fromPort = port;
-			current_connection = number_of_connections;
-			number_of_connections ++;
-			
-			// Log Connection
-			XPC::Log::FormatLine("[EXEC] New Connection [%i].  IP=%s, port=%i", number_of_connections, IP, port);
-		}
-		
-        if (strncmp(theMessage->head,"CONN",4)==0) // Header = CONN (Connection)
-		{
-			handleCONN(theMessage->msg);
-		}
-		else if (strncmp(theMessage->head,"SIMU",4)==0) // Header = SIMU
-		{
-			handleSIMU(theMessage->msg);
-		}
-		else if (strncmp(theMessage->head,"POSI",4)==0) // Header = POSI (Position)
-		{
-			handlePOSI(theMessage->msg);
-		}
-		else if (strncmp(theMessage->head,"CTRL",4)==0) // Header = CTRL (Control)
-		{
-			handleCTRL(theMessage->msg);
-		}
-		else if (strncmp(theMessage->head,"WYPT",4)==0) // Header = WYPT (Waypoint Draw)
-		{
-			handleWYPT(theMessage->msg, theMessage->msglen);
-		}
-		else if (strncmp(theMessage->head,"GETD",4)==0) // Header = GETD (Data Request)
-		{
-			handleGETD(theMessage->msg);
-		}
-		else if (strncmp(theMessage->head,"DREF",4)==0) // Header = DREF (By Data Ref) (this is slower than DATA)
-		{
-			handleDREF(theMessage->msg);
-		}
-		else if (strncmp(theMessage->head,"VIEW",4)==0) // Header = VIEW (Change View)
-		{
-			handleVIEW();
-		}
-		else if (strncmp(theMessage->head,"DATA",4)==0) // Header = DATA (UDP Data)
-		{
-			handleDATA(theMessage->msg, theMessage->msglen);
-		}
-		else if (strncmp(theMessage->head, "TEXT", 4) == 0) // Header = TEXT (Screen message)
-		{
-			handleTEXT(theMessage->msg, theMessage->msglen);
-		}
-		else if ((strncmp(theMessage->head,"DSEL",4)==0) || (strncmp(theMessage->head,"USEL",4)==0)) // Header = DSEL/USEL (Select UDP Send)
-		{
-			sendBUF(theMessage->msg,theMessage->msglen); // Send to UDP
-		}
-		else if ((strncmp(theMessage->head,"DCOC",4)==0) || (strncmp(theMessage->head,"UCOC",4)==0))
-		{
-			sendBUF(theMessage->msg,theMessage->msglen); // Send to UDP
-		}
-		else if ((strncmp(theMessage->head,"MOUS",4)==0) || (strncmp(theMessage->head,"CHAR",4)==0))
-		{
-			sendBUF(theMessage->msg,theMessage->msglen); // Send to UDP
-		}
-		else if (strncmp(theMessage->head,"MENU",4)==0)
-		{
-			sendBUF(theMessage->msg,theMessage->msglen); // Send to UDP
-		}
-		else if (strncmp(theMessage->head,"SOUN",4)==0)
-		{
-			sendBUF(theMessage->msg,theMessage->msglen); // Send to UDP
-		}
-		else if ((strncmp(theMessage->head,"FAIL",4)==0) || (strncmp(theMessage->head,"RECO",4)==0))
-		{
-			sendBUF(theMessage->msg,theMessage->msglen); // Send to UDP
-		}
-		else if (strncmp(theMessage->head,"PAPT",4)==0)
-		{
-			sendBUF(theMessage->msg,theMessage->msglen); // Send to UDP
-		}
-		else if ((strncmp(theMessage->head,"VEHN",4)==0) || (strncmp(theMessage->head,"VEH1",4)==0) || (strncmp(theMessage->head,"VEHA",4)==0))
-		{
-			sendBUF(theMessage->msg,theMessage->msglen); // Send to UDP
-		}
-		else if ((strncmp(theMessage->head,"OBJN",4)==0) || (strncmp(theMessage->head,"OBJL",4)==0))
-		{
-			sendBUF(theMessage->msg,theMessage->msglen); // Send to UDP
-		}
-		else if ((strncmp(theMessage->head,"GSET",4)==0) || (strncmp(theMessage->head,"ISET",4)==0))
-		{
-			sendBUF(theMessage->msg,theMessage->msglen); // Send to UDP
-		}
-		else if (strncmp(theMessage->head, "BOAT", 4) == 0)
-		{
-			sendBUF(theMessage->msg, theMessage->msglen); // Send to UDP
-		}
-		else
-		{ //unrecognized header
-			XPC::Log::FormatLine("[EXEC] ERROR: Command %s not recognized", theMessage->head);
-		}
-		current_connection = -1;
-    } // end if (buflen > 0)
-	
-	return theMessage->msglen;
+
+		memcpy(connectionList[number_of_connections].IP, IP, 16);
+		connectionList[number_of_connections].recPort = 49008;
+		connectionList[number_of_connections].fromPort = port;
+		current_connection = number_of_connections;
+		number_of_connections++;
+
+		// Log Connection
+		XPC::Log::FormatLine("[EXEC] New Connection [%i].  IP=%s, port=%i", number_of_connections, IP, port);
+	}
+
+	std::string head = msg.GetHead();
+	if (head == "CONN") // Header = CONN (Connection)
+	{
+		handleCONN((char*)msg.GetBuffer());
+	}
+	else if (head == "SIMU") // Header = SIMU
+	{
+		handleSIMU((char*)msg.GetBuffer());
+	}
+	else if (head == "POSI") // Header = POSI (Position)
+	{
+		handlePOSI((char*)msg.GetBuffer());
+	}
+	else if (head == "CTRL") // Header = CTRL (Control)
+	{
+		handleCTRL((char*)msg.GetBuffer());
+	}
+	else if (head == "WYPT") // Header = WYPT (Waypoint Draw)
+	{
+		handleWYPT((char*)msg.GetBuffer(), msg.GetSize());
+	}
+	else if (head == "GETD") // Header = GETD (Data Request)
+	{
+		handleGETD((char*)msg.GetBuffer());
+	}
+	else if (head == "DREF") // Header = DREF (By Data Ref) (this is slower than DATA)
+	{
+		handleDREF((char*)msg.GetBuffer());
+	}
+	else if (head == "VIEW") // Header = VIEW (Change View)
+	{
+		handleVIEW();
+	}
+	else if (head == "DATA") // Header = DATA (UDP Data)
+	{
+		handleDATA((char*)msg.GetBuffer(), msg.GetSize());
+	}
+	else if (head == "TEXT") // Header = TEXT (Screen message)
+	{
+		handleTEXT((char*)msg.GetBuffer(), msg.GetSize());
+	}
+	else if ((head == "DSEL") || (head == "USEL")) // Header = DSEL/USEL (Select UDP Send)
+	{
+		sendBUF((char*)msg.GetBuffer(), msg.GetSize()); // Send to UDP
+	}
+	else if ((head == "DCOC") || (head == "UCOC"))
+	{
+		sendBUF((char*)msg.GetBuffer(), msg.GetSize()); // Send to UDP
+	}
+	else if ((head == "MOUS") || (head == "CHAR"))
+	{
+		sendBUF((char*)msg.GetBuffer(), msg.GetSize()); // Send to UDP
+	}
+	else if (head == "MENU")
+	{
+		sendBUF((char*)msg.GetBuffer(), msg.GetSize()); // Send to UDP
+	}
+	else if (head == "SOUN")
+	{
+		sendBUF((char*)msg.GetBuffer(), msg.GetSize()); // Send to UDP
+	}
+	else if ((head == "FAIL") || (head == "RECO"))
+	{
+		sendBUF((char*)msg.GetBuffer(), msg.GetSize()); // Send to UDP
+	}
+	else if (head == "PAPT")
+	{
+		sendBUF((char*)msg.GetBuffer(), msg.GetSize()); // Send to UDP
+	}
+	else if ((head == "VEHN") || head == "VEH1" || (head == "VEHA"))
+	{
+		sendBUF((char*)msg.GetBuffer(), msg.GetSize()); // Send to UDP
+	}
+	else if ((head == "OBJN") || (head == "OBJL"))
+	{
+		sendBUF((char*)msg.GetBuffer(), msg.GetSize()); // Send to UDP
+	}
+	else if ((head == "GSET") || (head == "ISET"))
+	{
+		sendBUF((char*)msg.GetBuffer(), msg.GetSize()); // Send to UDP
+	}
+	else if (head == "BOAT")
+	{
+		sendBUF((char*)msg.GetBuffer(), msg.GetSize()); // Send to UDP
+	}
+	else
+	{ //unrecognized header
+		XPC::Log::FormatLine("[EXEC] ERROR: Command %s not recognized", head);
+	}
+	current_connection = -1;
+
+	return 0;
 }
 
 void sendBUF( char buf[], int buflen)

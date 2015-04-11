@@ -101,6 +101,7 @@
     <ClInclude Include="..\..\C\src\xplaneConnect.h" />
     <ClInclude Include="..\Drawing.h" />
     <ClInclude Include="..\Log.h" />
+    <ClInclude Include="..\Message.h" />
     <ClInclude Include="..\UDPSocket.h" />
     <ClInclude Include="..\xpcPluginTools.h" />
   </ItemGroup>
@@ -108,6 +109,7 @@
     <ClCompile Include="..\..\C\src\xplaneConnect.c" />
     <ClCompile Include="..\Drawing.cpp" />
     <ClCompile Include="..\Log.cpp" />
+    <ClCompile Include="..\Message.cpp" />
     <ClCompile Include="..\UDPSocket.cpp" />
     <ClCompile Include="..\XPCPlugin.cpp" />
     <ClCompile Include="..\xpcPluginTools.cpp" />

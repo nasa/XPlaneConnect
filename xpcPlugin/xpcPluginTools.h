@@ -19,17 +19,6 @@
     extern XPLMDataRef multiplayer[20][17];
     extern XPLMDataRef AIswitch;
     
-    struct XPCMessage
-    {
-        short					connectionID;
-        char					head[5];
-        char					msg[5000];
-        int                     msglen;
-        struct sockaddr         recvaddr;
-    };
-    
-    void readMessage(XPC::UDPSocket* socket, struct XPCMessage * pMessage);
-    
     void buildXPLMDataRefs(void);
         
     int almostequal(float arg1, float arg2, float tol);
@@ -39,8 +28,6 @@
     int test(int buffer);
     
     unsigned short getIP(struct sockaddr recvaddr, char *IP);
-    
-    int printBufferToLog(struct XPCMessage & msg);
         
     int fmini(int a, int b);
     
