@@ -41,13 +41,16 @@ namespace XPC
 			strftime(timeStr, 16, "%Y-%m-%d", timeinfo);
 
 			fprintf(fd, "X-Plane Connect [Version %s]\n", version.c_str());
+			fprintf(fd, "Compiled %s %s\n", __DATE__, __TIME__);
 			fprintf(fd, "Copyright (c) 2013-2015 United States Government as represented by the\n");
 			fprintf(fd, "Administrator of the National Aeronautics and Space Administration.\n");
 			fprintf(fd, "All Rights Reserved.\n\n");
+
 			fprintf(fd, "This file contains debugging information about the X-Plane Connect plugin.\n");
 			fprintf(fd, "If you have technical issues with the plugin, please report them by opening\n");
 			fprintf(fd, "an issue on GitHub (https://github.com/nasa/XPlaneConnect/issues) or by\n");
 			fprintf(fd, "emailing Christopher Teubert (christopher.a.teubert@nasa.gov).\n\n");
+
 			fprintf(fd, "Log file generated on %s.\n", timeStr);
 			fclose(fd);
 		}
