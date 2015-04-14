@@ -8,7 +8,7 @@ namespace XPC
 	UDPSocket::UDPSocket(std::uint16_t recvPort)
 	{
 #if LOG_VERBOSITY > 1
-		Log::FormatLine("[UDPSocket] Opening socket (port:%d)",	recvPort);
+		Log::FormatLine("[SOCK] Opening socket (port:%d)",	recvPort);
 #endif
 		// Setup Port
 		struct sockaddr_in localAddr;
@@ -19,53 +19,53 @@ namespace XPC
 		//Create and bind the socket
 #ifdef _WIN32
 		WSADATA wsa;
-        int startResult = WSAStartup(MAKEWORD(2, 2), &wsa);
-        if (startResult != 0)
+		int startResult = WSAStartup(MAKEWORD(2, 2), &wsa);
+		if (startResult != 0)
 		{
 #if LOG_VERBOSITY > 0
-            Log::FormatLine("[UDPSocket] ERROR: WSAStartup failed with error code %i.", startResult);
+			Log::FormatLine("[SOCK] ERROR: WSAStartup failed with error code %i.", startResult);
 #endif
 			return;
 		}
-        if ((this->sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
-        {
+		if ((this->sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
+		{
 #if LOG_VERBOSITY > 0
-            int err = WSAGetLastError();
-            Log::FormatLine("[UDPSocket] ERROR: Failed to open socket. (Error code %i)", err);
+			int err = WSAGetLastError();
+			Log::FormatLine("[SOCK] ERROR: Failed to open socket. (Error code %i)", err);
 #endif
-            return;
-        }
+			return;
+		}
 #elif (__APPLE__ || __linux)
-        if ((this->sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
-        {
-            Log::WriteLine("[UDPSocket] ERROR: Failed to open socket");
-            return;
-        }
-        int optval = 1;
-        setsockopt(theSocket.sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-        setsockopt(theSocket.sock, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
+		if ((this->sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+		{
+			Log::WriteLine("[SOCK] ERROR: Failed to open socket");
+			return;
+		}
+		int optval = 1;
+		setsockopt(theSocket.sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+		setsockopt(theSocket.sock, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
 #endif
-        if (bind(this->sock, (struct sockaddr*)&localAddr, sizeof(localAddr)) != 0)
-        {
+		if (bind(this->sock, (struct sockaddr*)&localAddr, sizeof(localAddr)) != 0)
+		{
 #if LOG_VERBOSITY > 0
-            int err = WSAGetLastError();
-            Log::FormatLine("[UDPSocket] ERROR: Failed to bind socket. (Error code %i)", err);
+			int err = WSAGetLastError();
+			Log::FormatLine("[SOCK] ERROR: Failed to bind socket. (Error code %i)", err);
 #endif
-            return;
-        }
+			return;
+		}
 
-        //Set Timout
-        int usTimeOut = 500;
+		//Set Timout
+		int usTimeOut = 500;
 
 #ifdef _WIN32
-        DWORD msTimeOutWin = 1; // Minimum socket timeout in Windows is 1ms
-        if(setsockopt(this->sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&msTimeOutWin, sizeof(msTimeOutWin)) != 0)
-        {
+		DWORD msTimeOutWin = 1; // Minimum socket timeout in Windows is 1ms
+		if(setsockopt(this->sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&msTimeOutWin, sizeof(msTimeOutWin)) != 0)
+		{
 #if LOG_VERBOSITY > 1
-            int err = WSAGetLastError();
-            Log::FormatLine("[UDPSocket] ERROR: Failed to set timeout. (Error code %i)", err);
+			int err = WSAGetLastError();
+			Log::FormatLine("[SOCK] ERROR: Failed to set timeout. (Error code %i)", err);
 #endif
-        }
+		}
 #else
 		struct timeval tv;
 		tv.tv_sec = 0;  /* Sec Timeout */
@@ -77,7 +77,7 @@ namespace XPC
 	UDPSocket::~UDPSocket()
 	{
 #if LOG_VERBOSITY > 1
-		Log::FormatLine("[UDPSocket] Closing socket (%d)", this->sock);
+		Log::FormatLine("[SOCK] Closing socket (%d)", this->sock);
 #endif
 #ifdef _WIN32
 		closesocket(this->sock);
@@ -86,7 +86,7 @@ namespace XPC
 #endif
 	}
 
-	int UDPSocket::Read(std::uint8_t* dst, int maxLen, struct sockaddr* recvAddr)
+	int UDPSocket::Read(std::uint8_t* dst, int maxLen, sockaddr* recvAddr)
 	{
 		socklen_t recvaddrlen = sizeof(*recvAddr);
 		int status = 0;
@@ -98,8 +98,7 @@ namespace XPC
 		// Definitions
 		FD_SET stReadFDS;
 		FD_SET stExceptFDS;
-		struct timeval tv;
-		struct sockaddr_in sourceAddr;
+		timeval tv;
 
 		// Setup for Select
 		FD_ZERO(&stReadFDS);
@@ -112,20 +111,19 @@ namespace XPC
 		// Select Command
 		int result = select(-1, &stReadFDS, (FD_SET *)0, &stExceptFDS, &tv);
 #if LOG_VERBOSITY > 1
-        if (result == SOCKET_ERROR)
-        {
-            int err = WSAGetLastError();
-            Log::FormatLine("[UDPSocket] ERROR: Select failed. (Error code %i)", err);
-        }
+		if (result == SOCKET_ERROR)
+		{
+			int err = WSAGetLastError();
+			Log::FormatLine("[SOCK] ERROR: Select failed. (Error code %i)", err);
+		}
 #endif
-        if (result <= 0) // No Data or error
+		if (result <= 0) // No Data or error
 		{
 			return -1;
 		}
 
 		// If no error: Read Data
-		recvaddrlen = sizeof(sourceAddr);
-        status = recvfrom(sock, (char*)dst, maxLen, 0, (SOCKADDR *)&sourceAddr, &recvaddrlen);
+		status = recvfrom(sock, (char*)dst, maxLen, 0, recvAddr, &recvaddrlen);
 #else
 		// For apple or linux-just read - will timeout in 0.5 ms
 		status = (int)recvfrom(recfd.sock, dataRef, 5000, 0, recvaddr, &recvaddrlen);
@@ -133,8 +131,12 @@ namespace XPC
 		return status;
 	}
 
+	// TODO: Add IPV6 support
 	void UDPSocket::SendTo(std::uint8_t* buffer, std::size_t len, std::string remoteHost, std::uint16_t remotePort)
 	{
+#if LOG_VERBOSITY > 4
+		Log::FormatLine("[SOCK] Sending message to %s:%u (length=%u)", remoteHost.c_str(), remotePort, len);
+#endif
 		if (remoteHost == "localhost")
 		{
 			remoteHost = "127.0.0.1";
@@ -161,7 +163,7 @@ namespace XPC
 		if (sendto(sock, (char*)buffer, len, 0, (const struct sockaddr *) &remoteAddr, sizeof(remoteAddr)) < 0)
 		{
 #if LOG_VERBOSITY > 0
-            Log::FormatLine("[UDPSocket] Send failed. (remote: %s:%d)", remoteAddr, remotePort);
+			Log::FormatLine("[SOCK] Send failed. (remote: %s:%d)", remoteAddr, remotePort);
 #endif
 		}
 	}

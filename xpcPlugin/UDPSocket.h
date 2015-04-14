@@ -35,34 +35,34 @@ namespace XPC
 		/// specified receive port.
 		///
 		/// \param recvPort The port on which this instance will receive data.
-        UDPSocket(std::uint16_t recvPort);
+		UDPSocket(std::uint16_t recvPort);
 
 		/// Closes the underlying socket for this instance.
-        ~UDPSocket();
+		~UDPSocket();
 
 		/// Reads the specified number of bytes into the data buffer and stores
 		/// the remote endpoint.
 		///
-		/// \param buffer     The array to copy the data into.
-		/// \param size       The number of bytes to read.
+		/// \param buffer	 The array to copy the data into.
+		/// \param size	   The number of bytes to read.
 		/// \param remoteAddr When at least one byte is read, contains the address
-		///                   of the remote host.
-		/// \returns          The number of bytes read, or a negative number if
-		///                   an error occurs.
-		int Read(std::uint8_t* buffer, int size, struct sockaddr* remoteAddr);
+		///				   of the remote host.
+		/// \returns		  The number of bytes read, or a negative number if
+		///				   an error occurs.
+		int Read(std::uint8_t* buffer, int size, sockaddr* remoteAddr);
 
 		/// Sends data to the specified remote endpoint.
 		///
-		/// \param data       The data to be sent.
-		/// \param len        The number of bytes to send.
+		/// \param data	   The data to be sent.
+		/// \param len		The number of bytes to send.
 		/// \param remoteHost The hostname of the destination client.
 		/// \param remotePort The port of the destination client.
 		void SendTo(std::uint8_t* buffer, std::size_t len, std::string remoteHost, std::uint16_t remotePort);
 
 		/// Sends data to the specified remote endpoint.
 		///
-		/// \param data       The data to be sent.
-		/// \param len        The number of bytes to send.
+		/// \param data	   The data to be sent.
+		/// \param len		The number of bytes to send.
 		/// \param remoteHost The hostname of the destination client.
 		/// \param remotePort The port of the destination client.
 		void UDPSocket::SendTo(std::uint8_t* buffer, std::size_t len, std::uint32_t remoteIP, std::uint16_t remotePort);
