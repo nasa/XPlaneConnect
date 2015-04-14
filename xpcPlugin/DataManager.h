@@ -170,7 +170,7 @@ namespace XPC
 		///          doubles where high precision is required, using this method may result
 		///          in a loss of precision. In that case, consider using one of the
 		///          strongly typed methods instead.
-		static std::size_t Get(std::string dref, float values[], std::size_t size);
+		static int Get(std::string dref, float values[], int size);
 
 		/// Gets the value of a double dataref.
 		///
@@ -248,7 +248,7 @@ namespace XPC
 		///          method, most drefs are not valid for multiplayer aircraft. All drefs
 		///          that are not prefixed with 'MP' are valid for the player aircraft.
 		///          'MP' drefs should be called with aircraft 0.
-		static std::size_t GetFloatArray(DREF dref, float values[], std::size_t size, std::uint8_t aircraft = 0);
+		static int GetFloatArray(DREF dref, float values[], int size, std::uint8_t aircraft = 0);
 
 
 		/// Gets the value of an int array dataref.
@@ -270,7 +270,7 @@ namespace XPC
 		///          method, most drefs are not valid for multiplayer aircraft. All drefs
 		///          that are not prefixed with 'MP' are valid for the player aircraft.
 		///          'MP' drefs should be called with aircraft 0.
-		static std::size_t GetIntArray(DREF dref, int values[], std::size_t size, std::uint8_t aircraft = 0);
+		static int GetIntArray(DREF dref, int values[], int size, std::uint8_t aircraft = 0);
 
 		/// Sets the value of a dataref
 		///
@@ -290,7 +290,7 @@ namespace XPC
 		///          doubles where high precision is required, using this method may result
 		///          in a loss of precision. In that case, consider using one of the
 		///          strongly typed methods instead.
-		static void Set(std::string dref, float values[], std::size_t size);
+		static void Set(std::string dref, float values[], int size);
 
 		/// Sets the value of a double dataref.
 		///
@@ -359,7 +359,7 @@ namespace XPC
 		///          method, most drefs are not valid for multiplayer aircraft. All drefs
 		///          that are not prefixed with 'MP' are valid for the player aircraft.
 		///          'MP' drefs should be called with aircraft 0.
-		static void Set(DREF dref, float values[], std::size_t size, std::uint8_t aircraft = 0);
+		static void Set(DREF dref, float values[], int size, std::uint8_t aircraft = 0);
 
 		/// Sets the value of an integer array dataref.
 		///
@@ -377,7 +377,7 @@ namespace XPC
 		///          method, most drefs are not valid for multiplayer aircraft. All drefs
 		///          that are not prefixed with 'MP' are valid for the player aircraft.
 		///          'MP' drefs should be called with aircraft 0.
-		static void Set(DREF dref, int values[], std::size_t size, std::uint8_t aircraft = 0);
+		static void Set(DREF dref, int values[], int size, std::uint8_t aircraft = 0);
 
 		/// Sets the landing gear for the specified airplane.
 		///

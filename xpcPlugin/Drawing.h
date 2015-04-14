@@ -3,8 +3,9 @@
 #ifndef XPC_DRAWING_H
 #define XPC_DRAWING_H
 
-#include <stdlib.h>
 #include "xplaneConnect.h"
+
+#include <cstdlib>
 
 namespace XPC
 {

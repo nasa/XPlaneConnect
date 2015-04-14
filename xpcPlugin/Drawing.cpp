@@ -15,12 +15,13 @@
 //    without specific prior written permission from the authors or
 //    Laminar Research, respectively.
 #include "Drawing.h"
+
 #include "XPLMDisplay.h"
 #include "XPLMGraphics.h"
 #include "XPLMDataAccess.h"
-#include <math.h>
-#include <string.h>
-#include <stdio.h>
+
+#include <cmath>
+#include <string>
 //OpenGL includes
 #if IBM
 #include <windows.h>
@@ -65,13 +66,23 @@ namespace XPC
 	//Internal Functions
 	static int cmp(const void * a, const void * b)
 	{
-		return (*(size_t*)a - *(size_t*)b);
+		std::size_t sa = *(size_t*)a;
+		std::size_t sb = *(size_t*)b;
+		if (sa > sb)
+		{
+			return 1;
+		}
+		if (sb > sa)
+		{
+			return -1;
+		}
+		return 0;
 	}
 
 	static void gl_drawCube(float x, float y, float z, float d)
 	{
 		//tan(0.25) degrees. Should scale all markers to appear about the same size
-		const float TAN = 0.00436335082070156648652885284203;
+		const float TAN = 0.00436335F;
 		float h = d * TAN;
 
 		glBegin(GL_QUAD_STRIP);

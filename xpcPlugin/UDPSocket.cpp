@@ -141,7 +141,8 @@ namespace XPC
 		{
 			remoteHost = "127.0.0.1";
 		}
-		std::uint32_t ip = inet_addr(remoteHost.c_str());
+		std::uint32_t ip;
+		inet_pton(AF_INET, remoteHost.c_str(), &ip);
 		SendTo(buffer, len, ip, remotePort);
 	}
 
@@ -160,7 +161,7 @@ namespace XPC
 		setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &on, sizeof(on));
 
 		buffer[4] = (std::uint8_t)len;
-		if (sendto(sock, (char*)buffer, len, 0, (const struct sockaddr *) &remoteAddr, sizeof(remoteAddr)) < 0)
+		if (sendto(sock, (char*)buffer, (int)len, 0, (const struct sockaddr *) &remoteAddr, sizeof(remoteAddr)) < 0)
 		{
 #if LOG_VERBOSITY > 0
 			Log::FormatLine("[SOCK] Send failed. (remote: %s:%d)", remoteAddr, remotePort);

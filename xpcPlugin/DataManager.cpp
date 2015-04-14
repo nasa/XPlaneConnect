@@ -176,7 +176,7 @@ namespace XPC
 		}
 	}
 
-	std::size_t DataManager::Get(std::string dref, float values[], std::size_t size)
+	int DataManager::Get(std::string dref, float values[], int size)
 	{
 		XPLMDataRef& xdref = sdrefs[dref];
 		if (xdref == nullptr)
@@ -200,7 +200,7 @@ namespace XPC
 		{
 		case 1: // Integer
 		{
-			values[0] = XPLMGetDatai(xdref);
+			values[0] = (float)XPLMGetDatai(xdref);
 #if LOG_VERBOSITY > 4
 			Log::FormatLine("		value was %i", (int)values[0]);
 #endif
@@ -208,7 +208,7 @@ namespace XPC
 		}
 		case 4: // Double
 		{
-			values[0] = XPLMGetDatad(xdref);
+			values[0] = (float)XPLMGetDatad(xdref);
 #if LOG_VERBOSITY > 4
 			Log::FormatLine("		value was %f", values[0]);
 #endif
@@ -233,7 +233,7 @@ namespace XPC
 			XPLMGetDatavi(xdref, iValues, 0, drefSize);
 			for (int i = 0; i < drefSize; ++i)
 			{
-				values[i] = iValues[i];
+				values[i] = (float)iValues[i];
 			}
 #if LOG_VERBOSITY > 4
 			Log::FormatLine("		value count was %i", drefSize);
@@ -281,7 +281,7 @@ namespace XPC
 		return value;
 	}
 
-	std::size_t DataManager::GetFloatArray(DREF dref, float values[], std::size_t size, std::uint8_t aircraft)
+	int DataManager::GetFloatArray(DREF dref, float values[], int size, std::uint8_t aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 		int resultSize = XPLMGetDatavf(xdref, values, 0, size);
@@ -291,7 +291,7 @@ namespace XPC
 		return resultSize;
 	}
 
-	std::size_t DataManager::GetIntArray(DREF dref, int values[], std::size_t size, std::uint8_t aircraft)
+	int DataManager::GetIntArray(DREF dref, int values[], int size, std::uint8_t aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 		int resultSize = XPLMGetDatavi(xdref, values, 0, size);
@@ -328,29 +328,29 @@ namespace XPC
 		XPLMSetDatai(xdref, value);
 	}
 
-	void DataManager::Set(DREF dref, float values[], std::size_t size, std::uint8_t aircraft)
+	void DataManager::Set(DREF dref, float values[], int size, std::uint8_t aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 #if LOG_VERBOSITY > 4
 		Log::FormatLine("[DMAN] Set DREF %i (x:%X) (%i values) for a/c %i", dref, xdref, size, aircraft);
 #endif
-		std::size_t drefSize = XPLMGetDatavf(xdref, NULL, 0, 0);
+		int drefSize = XPLMGetDatavf(xdref, NULL, 0, 0);
 		drefSize = min(drefSize, size);
 		XPLMSetDatavf(xdref, values, 0, drefSize);
 	}
 	
-	void DataManager::Set(DREF dref, int values[], std::size_t size, std::uint8_t aircraft)
+	void DataManager::Set(DREF dref, int values[], int size, std::uint8_t aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 #if LOG_VERBOSITY > 4
 		Log::FormatLine("[DMAN] Setting DREF %i (x:%X) (%i values) for a/c %i", dref, xdref, size, aircraft);
 #endif
-		std::size_t drefSize = XPLMGetDatavi(xdref, NULL, 0, 0);
+		int drefSize = XPLMGetDatavi(xdref, NULL, 0, 0);
 		drefSize = min(drefSize, size);
 		XPLMSetDatavi(xdref, values, 0, drefSize);
 	}
 
-	void DataManager::Set(std::string dref, float values[], std::size_t size)
+	void DataManager::Set(std::string dref, float values[], int size)
 	{
 		XPLMDataRef& xdref = sdrefs[dref];
 		if (xdref == nullptr)

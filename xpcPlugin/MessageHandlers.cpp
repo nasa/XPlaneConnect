@@ -205,7 +205,7 @@ namespace XPC
 		float thr = *((float*)(buffer + 17));
 		std::int8_t gear = buffer[21];
 		float flaps = *((float*)(buffer + 22));
-		float aircraft = 0;
+		std::uint8_t aircraft = 0;
 		if (size == 27)
 		{
 			aircraft = buffer[26];
@@ -241,7 +241,27 @@ namespace XPC
 		// Parse data
 		const std::uint8_t* buffer = msg.GetBuffer();
 		std::size_t size = msg.GetSize();
-		std::uint8_t numCols = (size - 5) / 36;
+		std::size_t numCols = (size - 5) / 36;
+		if (numCols > 0)
+		{
+#if LOG_VERBOSITY > 3
+			Log::FormatLine("[DATA] Message Received (Conn %i)", connection.id);
+#endif
+		}
+		if (numCols > 32) // Error. Will overflow values
+		{
+#if LOG_VERBOSITY > 2
+			Log::FormatLine("[DATA] ERROR numCols to large.");
+#endif
+			return;
+		}
+		else
+		{
+#if LOG_VERBOSITY > 2
+			Log::FormatLine("[DATA] WARNING: Empty data packet received (Conn %i)", connection.id);
+#endif
+			return;
+		}
 		float values[32][9];
 		for (int i = 0; i < numCols; ++i)
 		{
@@ -250,19 +270,6 @@ namespace XPC
 		}
 
 		// Update log
-#if LOG_VERBOSITY > 1
-		if (numCols > 0)
-		{
-			// UPDATE LOG
-			Log::FormatLine("[DATA] Message Received (Conn %i)", connection.id);
-		}
-		else
-		{
-			// UPDATE LOG
-			Log::FormatLine("[DATA] WARNING: Empty data packet received (Conn %i)", connection.id);
-			return;
-		}
-#endif
 
 		float savedAlpha = -998;
 		float savedHPath = -998;
@@ -449,7 +456,7 @@ namespace XPC
 		for (int i = 0; i < drefCount; ++i)
 		{
 			float values[255];
-			std::size_t count = DataManager::Get(connection.getdRequest[i], values, 255);
+			int count = DataManager::Get(connection.getdRequest[i], values, 255);
 			response[cur++] = count;
 			memcpy(response + cur, values, count * sizeof(float));
 			cur += count * sizeof(float);
