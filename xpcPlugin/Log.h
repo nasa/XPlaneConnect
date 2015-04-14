@@ -4,7 +4,18 @@
 #define XPC_LOG_H
 #include <string>
 
-#define LOG_VERBOSITY 999
+// LOG_VERBOSITY determines the level of logging throughout the plugin.
+//   0: Minimum logging. Only plugin manager events will be logged.
+//   1: Critical errors. When an error that prevents correct operation of the
+//      plugin, attempt to write useful information to the log. Note that since
+//      XPC runs inside the X-Plane executable, we try very hard no to crash.
+//      As a result, these log messages may be the only indication of failure.
+//   2: All errors. Any time something unexpected happens, log it.
+//   3: Significant actions. Any time something happens outside of normal
+//      command processing, log it.
+//   4: Everything. Log nearly every single action the plugin takes. This may
+//      have a detrimental impact on X-Plane performance.
+#define LOG_VERBOSITY 2
 
 namespace XPC
 {

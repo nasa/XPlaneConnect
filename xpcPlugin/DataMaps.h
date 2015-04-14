@@ -6,6 +6,7 @@
 
 namespace XPC
 {
+	/// Maps X-Plane dataref lines to XPC DREF values.
 	extern DREF XPData[134][8];
 }
 
