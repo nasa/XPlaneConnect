@@ -21,7 +21,7 @@ namespace XPC
 	public:
 		/// Initializes the logging component by deleting old log files,
 		/// writing header information to the log file.
-		static void Initialize();
+		static void Initialize(std::string header);
 
 		/// Writes the C string pointed to by format, followed by a line
 		/// terminator to the XPC log file. If format contains format
