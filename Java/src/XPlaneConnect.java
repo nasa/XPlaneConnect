@@ -693,5 +693,6 @@ public class XPlaneConnect implements AutoCloseable
         inSocket.close();
         inSocket = new DatagramSocket(recvPort);
         inSocket.setSoTimeout(soTimeout);
+        readUDP(); // Try to read response
     }
 }
