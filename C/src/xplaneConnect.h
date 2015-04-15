@@ -88,15 +88,15 @@ typedef struct
 	size_t numPoints;
 } xpcWypt;
         
-// Basic Functions
+// Low Level UDP Functions
 XPCSocket openUDP(unsigned short port, const char *xpIP, unsigned short xpPort);
 void closeUDP(XPCSocket sock);
 int sendUDP(XPCSocket sock, char buffer[], int len);
 int readUDP(XPCSocket sock, char buffer[], int len, struct sockaddr* recvaddr);
-    
+
 // Configuration
-short setCONN(XPCSocket recfd, unsigned short recPort);
-short pauseSim(XPCSocket recfd, short);
+int setCONN(XPCSocket sock);
+int pauseSim(XPCSocket sock, char pause);
         
 // UDP DATA
 short parseDATA(const char my_message[], short messageLength, float dataRef[][9]);

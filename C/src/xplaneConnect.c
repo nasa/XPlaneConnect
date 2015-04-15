@@ -219,6 +219,52 @@ int readUDP(XPCSocket sock, char buffer[], int len, struct sockaddr* recvaddr)
 /****                    End Low Level UDP functions                      ****/
 /*****************************************************************************/
 
+/*****************************************************************************/
+/****                      Configuration functions                        ****/
+/*****************************************************************************/
+int setCONN(XPCSocket sock)
+{
+	// Set up command
+	char buffer[32] = "CONN";
+	memcpy(&buffer[5], &sock.port, 2);
+	// Send command
+	if (sendUDP(sock, buffer, 7) != 0)
+	{
+		printError("setCONN", "Failed to send command");
+		return -1;
+	}
+	// Read response
+	if (readUDP(sock, buffer, 32, NULL) <= 0)
+	{
+		printError("setCONN", "Failed to read response");
+		return -2;
+	}
+	if (strncmp(buffer, "CONF", 4) == 0)
+	{
+		// Response received succesfully.
+		return 0;
+	}
+	// Response incorrect
+	return -3;
+}
+
+int pauseSim(XPCSocket sock, char pause)
+{
+	// Setup command
+	char buffer[6] = "SIMU";
+	buffer[5] = pause == 0 ? 0 : 1;
+	// Send command
+	if (sendUDP(sock, buffer, 6) != 0)
+	{
+		printError("pauseSim", "Failed to send command");
+		return -1;
+	}
+	return 0;
+}
+/*****************************************************************************/
+/****                    End Configuration functions                      ****/
+/*****************************************************************************/
+
 short sendDATA(XPCSocket recfd, float dataRef[][9], unsigned short rows)
 {
 	int i;
@@ -301,40 +347,6 @@ short requestDREF(XPCSocket sendfd, XPCSocket recfd, char DREFArray[][100], shor
 	}
 	
 	return -1;
-}
-
-short pauseSim(XPCSocket recfd, short pause)
-{
-	char message[7];
-	
-	//Preconditions
-	if (pause != 0 && pause != 1)
-	{
-		return errorReport("pauseSim", "Please set pause to 0 or 1");
-	}
-	
-	strncpy(message,"SIMU",4);
-	message[5] = (char) pause;
-	message[6] = 0;
-	
-	sendUDP(recfd, message,6);
-	
-	return 0;
-}
-
-short setCONN(XPCSocket recfd,  unsigned short recPort)
-{
-	char message[10] = {0};
-	int length;
-	strncpy(message,"CONN",4);
-	
-	memcpy(&message[5],&recPort,sizeof(recPort));
-	
-	length = 5 + sizeof(recPort);
-	
-	sendUDP(recfd,message, length);
-	
-	return 0;
 }
 
 short sendPOSI(XPCSocket recfd, short ACNum, short numArgs, float valueArray[])
