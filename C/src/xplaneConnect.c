@@ -265,28 +265,79 @@ int pauseSim(XPCSocket sock, char pause)
 /****                    End Configuration functions                      ****/
 /*****************************************************************************/
 
-short sendDATA(XPCSocket recfd, float dataRef[][9], unsigned short rows)
+/*****************************************************************************/
+/****                    X-Plane UDP Data functions                       ****/
+/*****************************************************************************/
+int sendDATA(XPCSocket sock, float dataRef[][9], int rows)
 {
-	int i;
-	unsigned short length = rows*9*sizeof(float) + 5;
-	char message[5000];
-	unsigned short step = 9*sizeof(float);
-	
-	strncpy(message,"DATA",4);
-	
-	for (i=0;i<rows;i++)
+	// Preconditions
+	// There are only 134 DATA rows in X-Plane. Realistically, clients probably
+	// shouldn't be trying to set nearly this much data at once anyway.
+	if (rows > 134)
 	{
-		message[5+i*step] = (char) dataRef[i][0];
-		message[6+i*step] = (char) 0;
-		message[7+i*step] = (char) 0;
-		message[8+i*step] = (char) 0;
-		memcpy(&message[9+i*step], &dataRef[i][1], 8*sizeof(float));
+		printError("sendDATA", "Too many rows.");
+		return -1;
 	}
-	
-	sendUDP(recfd, message, length);
-	
+
+	// Setup command
+	// 5 byte header + 134 rows * 9 values * 4 bytes per value => 4829 byte max length.
+	char buffer[4829] = "DATA"; 
+	int len = 5 + rows * 9 * sizeof(float);
+	unsigned short step = 9 * sizeof(float);	
+	for (int i=0;i<rows;i++)
+	{
+		buffer[5 + i * step] = (char)dataRef[i][0];
+		memcpy(&buffer[9 + i*step], &dataRef[i][1], 8 * sizeof(float));
+	}
+	// Send command
+	if (sendUDP(sock, buffer, len ) != 0)
+	{
+		printError("sendDATA", "Failed to send command");
+		return -2;
+	}
 	return 0;
 }
+
+int readDATA(XPCSocket sock, float dataRef[][9], int rows)
+{
+	// Preconditions
+	// There are only 134 DATA rows in X-Plane. Realistically, clients probably
+	// shouldn't be trying to read nearly this much data at once anyway.
+	if (rows > 134)
+	{
+		printError("sendDATA", "Too many rows.");
+		// Read as much as we can anyway
+		rows = 134;
+	}
+
+	// Read data
+	char buffer[4829] = { 0 };
+	int result = readUDP(sock, buffer, 5120, NULL);
+	if (result <= 0)
+	{
+		printError("readDATA", "Failed to read from socket.");
+		return -1;
+	}
+	// Validate data
+	int readRows = (result - 5) / 36;
+	if (readRows > rows)
+	{
+		printError("readDATA", "Read more rows than will fit in dataRef.");
+		// Copy as much data as we can anyway
+		rows = readRows;
+	}
+
+	// Parse data
+	for (int i = 0; i < rows; ++i)
+	{
+		dataRef[i][0] = buffer[5 + i * 36];
+		memcpy(&dataRef[i][1], &buffer[9 + i * 36], 8 * sizeof(float));
+	}
+	return rows;
+}
+/*****************************************************************************/
+/****                  End X-Plane UDP Data functions                     ****/
+/*****************************************************************************/
 
 short sendDREF(XPCSocket recfd, const char *dataRef, unsigned short length_of_DREF, float *values, unsigned short number_of_values) {
 	char message[5000];
@@ -478,17 +529,7 @@ short sendWYPT(XPCSocket sendfd, WYPT_OP op, float points[], int numPoints)
 //READ
 //----------------------------------------
 
-short readDATA(XPCSocket recfd, float dataRef[][9])
-{
-	char buf[5000];
-	int buflen = readUDP(recfd,buf, NULL);
-	
-	if (buf[0]!= '\0')
-	{
-		return parseDATA(buf, buflen, dataRef);
-	}
-	return -1;
-}
+
 
 short readRequest(XPCSocket recfd, float *dataRef[], short arraySizes[], struct sockaddr *recvaddr)
 {
@@ -544,27 +585,6 @@ xpcCtrl readCTRL(XPCSocket recfd)
 
 //PARSE
 //---------------------
-short parseDATA(const char my_message[], short messageLength, float dataRef[][9])
-{
-	int i, j;
-	unsigned short totalColumns = ((messageLength-5)/36);
-	float tmp;
-	float data[20][9];
-	
-	// Input Validation
-	
-	for (i=0;i<totalColumns;i++)
-	{
-		data[i][0] = my_message[5+36*i];
-		for (j=1;j<9;j++)
-		{
-			memcpy(&tmp,&my_message[5]+4*j+36*i,4);
-			data[i][j] = tmp;
-		}
-	}
-	memcpy(dataRef,data,sizeof(data));
-	return totalColumns;
-}
 
 short parseDREF(const char my_message[], char *dataRef, unsigned short *length_of_DREF, float *values, unsigned short *number_of_values)
 {

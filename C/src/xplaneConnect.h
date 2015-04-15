@@ -98,10 +98,9 @@ int readUDP(XPCSocket sock, char buffer[], int len, struct sockaddr* recvaddr);
 int setCONN(XPCSocket sock);
 int pauseSim(XPCSocket sock, char pause);
         
-// UDP DATA
-short parseDATA(const char my_message[], short messageLength, float dataRef[][9]);
-short readDATA(XPCSocket recfd, float dataRef[][9]);
-short sendDATA(XPCSocket recfd, float dataRef[][9], unsigned short rows);
+// X-Plane UDP DATA
+int readDATA(XPCSocket sock, float dataRef[][9], int rows);
+int sendDATA(XPCSocket sock, float dataRef[][9], int rows);
         
 // Position
 short parsePOSI(const char my_message[], float resultArray[], int arraySize,  float *gear);
