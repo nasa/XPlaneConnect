@@ -51,8 +51,9 @@
 #ifdef _WIN32 /* WIN32 SYSTEM */
 #include <WS2tcpip.h>
 
+// From http://www.c-plusplus.de/forum/109539-full
 void usleep(__int64 usec)
-{ // From http://www.c-plusplus.de/forum/109539-full
+{
 	HANDLE timer;
 	LARGE_INTEGER ft;
 		
@@ -65,148 +66,158 @@ void usleep(__int64 usec)
 }
 #endif
 
-short errorReport(char *functionName, char *errorMessage);
+void printError(char *functionName, char *errorMessage);
 short sendRequest(XPCSocket recfd, char DREFArray[][100], short DREFSizes[], short listLength);
 
-short errorReport(char *functionName, char *errorMessage)
+void printError(char *functionName, char *errorMessage)
 {
-	printf("ERROR: %s-%s\n", functionName, errorMessage);
-	return -1;
+	printf("[%s] ERROR: %s\n", functionName, errorMessage);
 }
 
-XPCSocket openUDP(unsigned short port_number, const char *xpIP, unsigned short xpPort)
+/*****************************************************************************/
+/****                       Low Level UDP functions                       ****/
+/*****************************************************************************/
+XPCSocket openUDP(unsigned short port, const char *xpIP, unsigned short xpPort)
 {
-	XPCSocket theSocket;
-	struct sockaddr_in server;
-
-#if (__APPLE__ || __linux)
-	struct timeval tv;
-	int optval = 1;
-#endif
+	XPCSocket sock;
 	
 	// Setup Port
-		server.sin_family = AF_INET;
-		server.sin_addr.s_addr = INADDR_ANY;
-		server.sin_port = htons(port_number);
+	struct sockaddr_in recvaddr;
+	recvaddr.sin_family = AF_INET;
+	recvaddr.sin_addr.s_addr = INADDR_ANY;
+	recvaddr.sin_port = htons(port);
 	
 	// Set X-Plane Port and IP
-		if (strcasecmp(xpIP,"localhost") == 0) // IP
-		{
-			strncpy(theSocket.xpIP,"127.0.0.1",9); // Default
-		}
-		else
-		{
-			memcpy(theSocket.xpIP,xpIP,(size_t) fminl(strlen(xpIP),16));
-		}
-	
-		if (xpPort <= 0) // Default Port
-		{
-			theSocket.xpPort = 49009; // Default
-		}
-		else
-		{
-			theSocket.xpPort = xpPort;
-		}
+	if (strcmp(xpIP, "localhost") == 0)
+	{
+		xpIP = "127.0.0.1";
+	}
+	strncpy(sock.xpIP, xpIP, 16);
+	sock.xpPort = xpPort == 0 ? 49009 : xpPort;
 	
 #ifdef _WIN32
 	WSADATA wsa;
-	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0)
+	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
-		perror("ERROR: openUDP- ");
-		return theSocket;
-		//ERROR IN Socket Message
-	}
-	
-	if ((theSocket.sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
-	{
-		perror("ERROR: openUDP- ");
-		return theSocket;
-		//ERROR IN Socket Message
-	}
-	
-	if (bind(theSocket.sock, (struct sockaddr *)&server, sizeof(server)) == SOCKET_ERROR)
-	{
-		perror("ERROR: openUDP- ");
-		return theSocket;
-		//ERROR IN Socket Message
-	}
-#elif (__APPLE__ || __linux)
-	// Create a SOCKET
-	if ((theSocket.sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
-	{
-		perror((char*) "ERROR: openUDP- ");
-		return theSocket;
-	}
-	
-	// Options
-		setsockopt(theSocket.sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-		setsockopt(theSocket.sock, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
-	
-	//Bind
-	if ( bind(theSocket.sock, (struct sockaddr *) &server, sizeof(server)) == -1)
-	{
-		perror( (char*) "ERROR: openUDP- ");
-		return theSocket;
+		printError("OpenUDP", "WSAStartup failed");
+		exit(EXIT_FAILURE);
 	}
 #endif
 	
-	//Set Timout
-	int usTimeOut = 500;
+	if ((sock.sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+	{
+		printError("OpenUDP", "Socket creation failed");
+		exit(EXIT_FAILURE);
+	}
+	if (bind(sock.sock, (struct sockaddr*)&recvaddr, sizeof(recvaddr)) == -1)
+	{
+		printError("OpenUDP", "Socket bind failed");
+		exit(EXIT_FAILURE);
+	}
 
 #ifdef _WIN32
-	DWORD msTimeOutWin = 1; // Minimum socket timeout in Windows is 1ms
-	setsockopt(theSocket.sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&msTimeOutWin, sizeof(msTimeOutWin));
+	DWORD timeout = 1; // Minimum socket timeout in Windows is 1ms
 #else
-	tv.tv_sec = 0;  /* Sec Timeout */
-	tv.tv_usec = usTimeOut;  // Microsec Timeout
-	setsockopt(theSocket.sock, SOL_SOCKET, SO_RCVTIMEO, (char *) &tv, sizeof(struct timeval));
+	struct timeval timeout;
+	tv.tv_sec = 0;
+	tv.tv_usec = 500;
 #endif
-	
-	return theSocket;
+	if (setsockopt(sock.sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0)
+	{
+		printError("OpenUDP", "Failed to set timeout");
+	}	
+	return sock;
 }
 
 void closeUDP(XPCSocket socketNumber)
 {
 #ifdef _WIN32
-	closesocket(socketNumber.sock);
-#elif (__APPLE__ || __linux)
-	close(socketNumber.sock);
-#endif
-}
-
-short sendUDP(XPCSocket recfd,  char my_message[], short messageLength)
-{
-	struct sockaddr_in servaddr;
-	
-	my_message[4] = (char) messageLength;
-	
-	// Preconditions
-	if (messageLength <= 0)// Positive Message Length
-	{
-		return errorReport("sendUDP", "message length must be positive >0");
-	}
-	
-	// Code
-	servaddr.sin_family = AF_INET;
-	servaddr.sin_port = htons(recfd.xpPort);
-	servaddr.sin_addr.s_addr = inet_addr(recfd.xpIP);
-
-#ifdef _WIN32
-	const char on = 1;
+	int result = closesocket(socketNumber.sock);
 #else
-	int on=1;
+	int result = close(socketNumber.sock);
 #endif
-
-	setsockopt(recfd.sock, SOL_SOCKET, SO_BROADCAST, &on, sizeof(on));
-	
-	if (sendto(recfd.sock, my_message, (int) messageLength, 0, (const struct sockaddr *) &servaddr, sizeof(servaddr))<0)
+	if (result < 0)
 	{
-		perror("ERROR: sendUDP-");
+		printError("closeUDP", "Failed to close socket");
 		exit(EXIT_FAILURE);
 	}
-	
-	return 0;
 }
+
+int sendUDP(XPCSocket sock, char buffer[], int len)
+{
+	// Preconditions
+	if (len <= 0)
+	{
+		printError("sendUDP", "Message length must be positive.");
+		return -1;
+	}
+	
+	// Set up destination address
+	struct sockaddr_in dst;
+	dst.sin_family = AF_INET;
+	dst.sin_port = htons(sock.xpPort);
+	inet_pton(AF_INET, sock.xpIP, &dst.sin_addr.s_addr);
+
+	int result = sendto(sock.sock, buffer, len, 0, (const struct sockaddr*)&dst, sizeof(dst));
+	if (result < 0)
+	{
+		printError("sendUDP", "Send operation failed.");
+		return -2;
+	}
+	if (result < len)
+	{
+		printError("sendUDP", "Unexpected number of bytes sent.");
+	}
+	return result;
+}
+
+int readUDP(XPCSocket sock, char buffer[], int len, struct sockaddr* recvaddr)
+{
+	socklen_t recvaddrlen = sizeof(*recvaddr);
+#ifdef _WIN32
+	// Windows readUDP needs the select command- minimum timeout is 1ms.
+	// Without this playback becomes choppy
+
+	// Definitions
+	FD_SET stReadFDS;
+	FD_SET stExceptFDS;
+
+	// Setup for Select
+	FD_ZERO(&stReadFDS);
+	FD_SET(sock.sock, &stReadFDS);
+	FD_ZERO(&stExceptFDS);
+	FD_SET(sock.sock, &stExceptFDS);
+
+	struct timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = 250;
+
+	// Select Command
+	int status = select(-1, &stReadFDS, (FD_SET*)0, &stExceptFDS, &tv);
+	if (status < 0)
+	{
+		printError("readUDP", "Select command error");
+		return -1;
+	}
+	if (status == 0)
+	{
+		// No data
+		return 0;
+	}
+	status = recvfrom(sock.sock, buffer, len, 0, (struct sockaddr*)&recvaddr, &recvaddrlen);
+#else
+	// For apple or linux-just read - will timeout in 0.5 ms
+	status = (int)recvfrom(sock.sock, dataRef, len, 0, recvaddr, &recvaddrlen);
+#endif
+	if (status < 0)
+	{
+		printError("readUDP", "Error reading socket");
+	}
+	return status;
+}
+/*****************************************************************************/
+/****                    End Low Level UDP functions                      ****/
+/*****************************************************************************/
 
 short sendDATA(XPCSocket recfd, float dataRef[][9], unsigned short rows)
 {
@@ -454,51 +465,6 @@ short sendWYPT(XPCSocket sendfd, WYPT_OP op, float points[], int numPoints)
 
 //READ
 //----------------------------------------
-short readUDP(XPCSocket recfd, char *dataRef, struct sockaddr *recvaddr)
-{
-	socklen_t recvaddrlen = sizeof(*recvaddr);
-	int status = 0;
-
-#ifdef _WIN32
-	// Windows readUDP needs the select command- minimum timeout is 1ms.
-	// Without this playback becomes choppy
-	
-	// Definitions
-		FD_SET stReadFDS;
-		FD_SET stExceptFDS;
-		struct timeval tv;
-		struct sockaddr_in testaddr;
-		int error = 0;
-	
-	// Setup for Select
-		FD_ZERO(&stReadFDS);
-		FD_SET(recfd.sock, &stReadFDS);
-		FD_ZERO(&stExceptFDS);
-		FD_SET(recfd.sock, &stExceptFDS);
-		tv.tv_sec = 0;  /* Sec Timeout */
-		tv.tv_usec = 250;  // Microsec Timeout
-	
-	// Select Command
-		int tmp = select(-1, &stReadFDS, (FD_SET *)0, &stExceptFDS, &tv);
-		if (tmp <= 0) // No Data or error
-		{
-			return -1;
-		}
-	
-	// If no error: Read Data
-		recvaddrlen = sizeof(testaddr);
-		status = (int) recvfrom(recfd.sock,dataRef,5000,0,(SOCKADDR *) &testaddr,&recvaddrlen);
-		if (status == SOCKET_ERROR)
-		{
-			error = WSAGetLastError();
-		}
-#else
-	// For apple or linux-just read - will timeout in 0.5 ms
-	status = (int) recvfrom(recfd.sock,dataRef,5000,0,recvaddr,&recvaddrlen);
-#endif
-
-	return status;
-}
 
 short readDATA(XPCSocket recfd, float dataRef[][9])
 {
