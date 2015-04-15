@@ -46,5 +46,6 @@ function status = setConn( recvPort, IP, port )
         
         global udpReadPort;
         udpReadPort = recvPort;
+        readUDP(); % Read and discard CONF message
 
 end
