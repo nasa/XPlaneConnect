@@ -66,12 +66,19 @@ void usleep(__int64 usec)
 }
 #endif
 
-void printError(char *functionName, char *errorMessage);
+void printError(char *functionName, char *format, ...);
 short sendRequest(XPCSocket recfd, char DREFArray[][100], short DREFSizes[], short listLength);
 
-void printError(char *functionName, char *errorMessage)
+void printError(char *functionName, char *format)
 {
-	printf("[%s] ERROR: %s\n", functionName, errorMessage);
+	va_list args;
+	va_start(args, format);
+
+	printf("[%s] ERROR: ", functionName);
+	vprintf(format, args);
+	printf("\n");
+
+	va_end(args);
 }
 
 /*****************************************************************************/
@@ -339,66 +346,152 @@ int readDATA(XPCSocket sock, float dataRef[][9], int rows)
 /****                  End X-Plane UDP Data functions                     ****/
 /*****************************************************************************/
 
-short sendDREF(XPCSocket recfd, const char *dataRef, unsigned short length_of_DREF, float *values, unsigned short number_of_values) {
-	char message[5000];
-	int length = 7+length_of_DREF+number_of_values*sizeof(float);
-	
-	//HEADER
-	strncpy(message,"DREF",4);
-	
-	//DREF
-	message[5] = (char) length_of_DREF;
-	memcpy(&message[6],dataRef,length_of_DREF);
-	
-	//VALUES
-	message[length_of_DREF+6] = (char) number_of_values;
-	memcpy(&message[length_of_DREF+7],&values[0],sizeof(float)*number_of_values);
-	
-	sendUDP(recfd, message, length);
-	return 0;
-}
-
-short sendRequest(XPCSocket recfd, char DREFArray[][100], short DREFSizes[], short listLength)
+/*****************************************************************************/
+/****                          DREF functions                             ****/
+/*****************************************************************************/
+int setDREF(XPCSocket sock, const char* dref, float values[], int size)
 {
-	int i;
-	char message[5000]={0};
-	int length = 6;
-	
-	//HEADER
-	strncpy(message,"GETD",4);
-	
-	message[5] = (char) listLength; //Number of Values
-	
-	//The rest
-	for (i=0; i < listLength; i++)
+	// Setup command
+	// 5 byte header + max 255 char dref name + max 255 values * 4 bytes per value = 1279
+	unsigned char buffer[1279] = "DREF";
+	int drefLen = strnlen(dref, 256);
+	if (drefLen > 255)
 	{
-		message[length] = (char) DREFSizes[i];
-		memcpy(&message[length+1],DREFArray[i],message[length]);
-		length += message[length] + 1;
+		printError("setDREF", "dref length is too long. Must be less than 256 characters.");
+		return -1;
 	}
+	if (size > 255)
+	{
+		printError("setDREF", "size is too big. Must be less than 256.");
+		return -2;
+	}
+	int len = 7 + drefLen + size * sizeof(float);
 	
-	sendUDP(recfd, message, length);
-	
+	// Copy dref to buffer
+	buffer[5] = (unsigned char)drefLen;
+	memcpy(buffer + 6, dref, drefLen);
+
+	// Copy values to buffer
+	buffer[6 + drefLen] = (unsigned char)size;
+	memcpy(buffer + 7 + drefLen, values, size * sizeof(float));
+
+	// Send command
+	if (sendUDP(sock, buffer, len) != 0)
+	{
+		printError("setDREF", "Failed to send command");
+		return -2;
+	}
 	return 0;
 }
 
-short requestDREF(XPCSocket sendfd, XPCSocket recfd, char DREFArray[][100], short DREFSizes[], short listLength,  float *resultArray[], short arraySizes[])
+int sendDREFRequest(XPCSocket sock, const char* drefs[], unsigned char count)
 {
-	int i;
-	
-	sendRequest(sendfd, DREFArray, DREFSizes, listLength);
-	
-	for (i=0; i<80; i++)
+	// Setup command
+	// 6 byte header + potentially 255 drefs, each 256 chars long.
+	// Easiest to just round to an even 2^16.
+	unsigned char buffer[65536] = "GETD";
+	buffer[5] = count;
+	int len = 6;
+	for (int i = 0; i < count; ++i)
 	{
-		int size = readDREF(recfd, resultArray, arraySizes);
-		if (size != -1) // Received input
+		size_t drefLen = strnlen(drefs[i], 256);
+		if (drefLen > 255)
 		{
-			return size;
+			printError("getDREFs", "dref %d is too long.", i);
+			return -1;
+		}
+		buffer[len++] = (unsigned char)drefLen;
+		strncpy(buffer + len, drefs[i], drefLen);
+		len += drefLen;
+	}
+	// Send Command
+	if (sendUDP(sock, buffer, len) != 0)
+	{
+		printError("getDREFs", "Failed to send command");
+		return -2;
+	}
+	return 0;
+}
+
+int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int sizes[])
+{
+	unsigned char buffer[65536];
+	// Read data. Try 40 times to read, then give up.
+	// TODO: Why not just set the timeout to 40ms?
+	int result;
+	for (int i = 0; i < 40; ++i)
+	{
+		result = readUDP(sock, buffer, 65536, NULL);
+		if (result > 0)
+		{
+			break;
+		}
+		if (result < 0)
+		{
+			printError("getDREFs", "Read operation failed.");
+			return -1;
 		}
 	}
-	
-	return -1;
+
+	if (result < 6)
+	{
+		printError("getDREFs", "Response was too short. Expected at least 6 bytes, but only got %d.", result);
+		return -2;
+	}
+	if (buffer[5] != count)
+	{
+		printError("getDREFs", "Unexpected response size. Expected %d rows, got %d instead.", count, buffer[5]);
+		return -3;
+	}
+
+	int cur = 6;
+	for (int i = 0; i < count; ++i)
+	{
+		int l = buffer[cur++];
+		if (l > sizes[i])
+		{
+			printError("getDREFs", "values is too small. Row had %d values, only room for %d.", l, sizes[i]);
+			// Copy as many values as we can anyway
+			memcpy(values[i], buffer + cur, sizes[i] * sizeof(float));
+		}
+		else
+		{
+			memcpy(values[i], buffer + cur, l * sizeof(float));
+			sizes[i] = l;
+		}
+		cur += l * sizeof(float);
+	}
+	return 0;
 }
+
+int getDREF(XPCSocket sock, const char* dref, float values[], int* size)
+{
+	return getDREFs(sock, &dref, &values, 1, size);
+}
+
+int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char count, int sizes[])
+{
+	// Send Command
+	int result = sendDREFRequest(sock, drefs, count);
+	if (result < 0)
+	{
+		// A error ocurred while sending.
+		// sendDREFRequest will print an error message, so just return.
+		return -1;
+	}
+
+	// Read Response
+	if (getDREFResponse(sock, values, count, sizes) < 0)
+	{
+		// A error ocurred while reading the response.
+		// getDREFResponse will print an error message, so just return.
+		return -2;
+	}
+	return 0;
+}
+/*****************************************************************************/
+/****                        End DREF functions                           ****/
+/*****************************************************************************/
 
 short sendPOSI(XPCSocket recfd, short ACNum, short numArgs, float valueArray[])
 {
@@ -542,18 +635,6 @@ short readRequest(XPCSocket recfd, float *dataRef[], short arraySizes[], struct 
 	return -1;
 }
 
-short readDREF(XPCSocket recfd, float *resultArray[], short arraySizes[])
-{
-	char buf[5000] = {0};
-	readUDP(recfd,buf, NULL);
-	
-	if (buf[0]!= '\0')
-	{
-		return parseRequest(buf, resultArray, arraySizes);
-	}
-	return -1;
-}
-
 short readPOSI(XPCSocket recfd, float resultArray[], int arraySize,  float *gear)
 {
 	char buf[5000] = {0};
@@ -585,53 +666,6 @@ xpcCtrl readCTRL(XPCSocket recfd)
 
 //PARSE
 //---------------------
-
-short parseDREF(const char my_message[], char *dataRef, unsigned short *length_of_DREF, float *values, unsigned short *number_of_values)
-{
-	*length_of_DREF = (unsigned short) my_message[5];
-	memcpy(dataRef,&(my_message[6]),*length_of_DREF);
-	*number_of_values = (unsigned short) my_message[6+*length_of_DREF];
-	memcpy(values,&my_message[*length_of_DREF+7],*number_of_values*sizeof(float));
-	return 0;
-}
-
-int parseGETD(const char my_message[], char *DREFArray[], int DREFSizes[])
-{
-	int i;
-	int listLength = my_message[5];
-	int counter = 6;
-		
-	for (i=0; i<listLength;i++)
-	{
-		DREFSizes[i] = my_message[counter];
-		memcpy(DREFArray[i],&my_message[counter+1],DREFSizes[i]);
-		counter += DREFSizes[i]+1;
-	}
-	
-	return listLength;
-}
-
-short parseRequest(const char my_message[], float *resultArray[], short arraySizes[])
-{
-	int i;
-	short count = my_message[5];
-	short place = 6;
-	
-	for (i=0; i<count; i++)
-	{
-		arraySizes[i] = my_message[place];
-		//if (resultArray[i] != NULL)
-		//{
-		//	free(resultArray[i]);
-		//}
-		resultArray[i] = malloc(arraySizes[i]*sizeof(float));
-		
-		memcpy(resultArray[i],&my_message[place + 1],arraySizes[i]*sizeof(float));
-		place += 1 + arraySizes[i]*sizeof(float);
-	}
-	
-	return count;
-}
 
 short parsePOSI(const char my_message[], float resultArray[], int arraySize, float *gear)
 {

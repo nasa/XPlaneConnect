@@ -101,6 +101,11 @@ int pauseSim(XPCSocket sock, char pause);
 // X-Plane UDP DATA
 int readDATA(XPCSocket sock, float dataRef[][9], int rows);
 int sendDATA(XPCSocket sock, float dataRef[][9], int rows);
+
+// DREF Manipulation
+int setDREF(XPCSocket sock, const char* dref, float values[], int size);
+int getDREF(XPCSocket sock, const char* dref, float values[], int* size);
+int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char count, int sizes[]);
         
 // Position
 short parsePOSI(const char my_message[], float resultArray[], int arraySize,  float *gear);
@@ -112,15 +117,6 @@ xpcCtrl parseCTRL(const char data[]);
 xpcCtrl readCTRL(XPCSocket recfd);
 short sendCTRL(XPCSocket recfd, short numArgs, float valueArray[]);
 short sendpCTRL(XPCSocket recfd, short numArgs, float valueArray[], char acNum);
-    
-// DREF Manipulation
-short readDREF(XPCSocket recfd, float *resultArray[], short arraySizes[]);
-short parseDREF(const char my_message[], char *dataRef, unsigned short *length_of_DREF, float *values, unsigned short *number_of_values);
-short sendDREF(XPCSocket recfd, const char *dataRef, unsigned short length_of_DREF, float *values, unsigned short number_of_values);
-short requestDREF(XPCSocket sendfd, XPCSocket recfd, char DREFArray[][100], short DREFSizes[], short listLength,  float *resultArray[], short arraySizes[]);
-int parseGETD(const char my_message[], char *DREFArray[], int DREFSizes[]);
-short parseRequest(const char my_message[], float *resultArray[], short arraySizes[]);
-short readRequest(XPCSocket recfd, float *dataRef[], short arraySizes[], struct sockaddr *recvaddr);
 
 // Waypoints
 xpcWypt parseWYPT(const char data[]);
