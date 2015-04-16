@@ -16,12 +16,10 @@
 int testFailed = 0;
 int testPassed = 0;
 
-void runTest(short (*f)())
+void runTest(int (*test)(), char* name)
 {
-    short result;
-    
-    printf("Test %i: ",testPassed+testFailed+1);
-    result = (*f)(); // Run Test
+    int result = test(); // Run Test
+	printf("Test %i: %s - ", testPassed + testFailed + 1, name);
     if (result == 0)
     {
         printf("PASSED\n");
@@ -34,63 +32,54 @@ void runTest(short (*f)())
     }
 }
 
-short openTest() // openUDP Test
+int openTest() // openUDP Test
 {
-    printf("openUDP - ");
-    struct xpcSocket sendPort = openUDP( 49062, "127.0.0.1", 49009 );
+    XPCSocket sock = openUDP( 49062, "127.0.0.1", 49009 );
+	closeUDP(sock);
     return 0;
 }
 
-short closeTest() // closeUDP test
+int closeTest() // closeUDP test
 {
-    printf("closeUDP - ");
-    struct xpcSocket sendPort = openUDP( 49063, "127.0.0.1", 49009 );
+    XPCSocket sendPort = openUDP( 49063, "127.0.0.1", 49009 );
     closeUDP(sendPort);
     sendPort = openUDP(49063, "127.0.0.1", 49009);
     closeUDP(sendPort);
     return 0;
 }
 
-short sendReadTest() // send/read Test
+int sendReadTest() // send/read Test
 {
-    printf("send/readUDP - ");
-    
     // Initialization
-    int i; // Iterator
     char test[] = {0, 1, 2, 3, 5};
     char buf[5] = {0};
-    struct xpcSocket sendPort, recvPort;
-    
-    // Setup
-    sendPort = openUDP( 49064, "127.0.0.1", 49063 );
-    recvPort = openUDP( 49063, "127.0.0.1", 49009 );
+	XPCSocket outSock = openUDP(49064, "127.0.0.1", 49063);
+	XPCSocket inSock = openUDP(49063, "127.0.0.1", 49009);
     
     // Execution
-    sendUDP( sendPort, test, sizeof(test) );
-    readUDP( recvPort, buf, NULL ); // Test
+	sendUDP(outSock, test, sizeof(test));
+	readUDP(inSock, buf, sizeof(buf), NULL);
     
     // Close
-    closeUDP(sendPort);
-    closeUDP(recvPort);
+	closeUDP(outSock);
+	closeUDP(inSock);
     
     // Tests
-    for (i=0; i<4; i++)
-    {
-        if (test[i] != buf[i]) // Not received correctly
-        {
-            return -1;
-        }
-    }
+	for (int i = 0; i < sizeof(buf); i++)
+	{
+		if (test[i] != buf[i]) // Not received correctly
+		{
+			return -1;
+		}
+	}
     
     return 0;
 }
 
-short sendTEXTTest()
+int sendTEXTTest()
 {
-	printf("sendTEXT - ");
-
 	// Setup
-	struct xpcSocket sendPort = openUDP(49064, "127.0.0.1", 49009);
+	XPCSocket sendPort = openUDP(49064, "127.0.0.1", 49009);
 	int x = 100;
 	int y = 700;
 	char* msg = "XPlaneConnect test message. Now with 100% fewer new lines!";
@@ -104,262 +93,177 @@ short sendTEXTTest()
 	return 0;
 }
 
-short requestDREFTest() // Request DREF Test (Required for next tests)
+int requestDREFTest() // Request DREF Test (Required for next tests)
 {
-    printf("requestDREF - ");
-    
     // Initialization
-    int i; // Iterator
-    char DREFArray[100][100];
-    float *recDATA[100];
-    short DREFSizes[100];
-    struct xpcSocket sendPort, recvPort;
-    short result = 0;
+	char* drefs[100] =
+	{
+		"sim/cockpit/switches/gear_handle_status",
+		"sim/cockpit2/switches/panel_brightness_ratio"
+	};
+	float* data[100];
+	int sizes[100];
+	XPCSocket sock = openUDP(49064, "127.0.0.1", 49009);
     
     // Setup
-    for (i = 0; i < 100; i++) {
-        recDATA[i]   = (float *) malloc(40*sizeof(float));
-        memset(DREFArray[i],0,100);
-    }
-    sendPort = openUDP( 49064, "127.0.0.1", 49009 );
-    recvPort = openUDP( 49008, "127.0.0.1", 49009 );
-    strcpy(DREFArray[0],"sim/cockpit/switches/gear_handle_status");
-    strcpy(DREFArray[1],"sim/cockpit2/switches/panel_brightness_ratio");
-    for (i=0;i<2;i++) {
-        DREFSizes[i] = (int) strlen(DREFArray[i]);
-    }
+	for (int i = 0; i < 100; ++i)
+	{
+		data[i] = (float*)malloc(40 * sizeof(float));
+		sizes[i] = 40;
+	}
     
     // Execution
-    result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 2, recDATA, DREFSizes);
+    int result = getDREFs(sock, drefs, data, 2, sizes);
     
     // Close
-    closeUDP(sendPort);
-    closeUDP(recvPort);
+	closeUDP(sock);
     
     // Tests
     if ( result < 0)// Request 2 values
     {
         return -1;
     }
-    if (DREFSizes[0] != 1 || DREFSizes[1] != 4)
+	if (sizes[0] != 1 || sizes[1] != 4)
     {
         return -2;
     }
     return 0;
 }
 
-short sendDREFTest() // sendDREF test
+int sendDREFTest() // sendDREF test
 {
-    printf("sendDREF - ");
-    
     // Initialization
-    int i; // Iterator
-    char DREFArray[100][100];
-    float *recDATA[100];
-    short DREFSizes[100];
-    float value = 0.0;
-    struct xpcSocket sendPort, recvPort;
-    short result = 0;
-    
-    // Setup
-    for (i = 0; i < 100; i++) {
-        recDATA[i]   = (float *) malloc(40*sizeof(float));
-        memset(DREFArray[i],0,100);
-    }
-    sendPort = openUDP( 49066, "127.0.0.1", 49009 );
-    recvPort = openUDP( 49008, "127.0.0.1", 49009 );
-    strcpy(DREFArray[0],"sim/cockpit/switches/gear_handle_status");
-    for (i=0;i<1;i++) {
-        DREFSizes[i] = (int) strlen(DREFArray[i]);
-    }
-    
+	char* drefs[100] =
+	{
+		"sim/cockpit/switches/gear_handle_status"
+	};
+	float* data[100];
+	int sizes[100];
+	XPCSocket sock = openUDP(49066, "127.0.0.1", 49009);
+	float value = 1.0F;
+	
+	// Setup
+	for (int i = 0; i < 100; ++i)
+	{
+		data[i] = (float*)malloc(40 * sizeof(float));
+		sizes[i] = 40;
+	}
+
     // Execution
-    sendDREF(sendPort, DREFArray[0], DREFSizes[0], &value, 1);
-    result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 1, recDATA, DREFSizes);
+	setDREF(sock, drefs[0], &value, 1);
+	int result = getDREFs(sock, drefs, data, 1, sizes);
     
     // Close
-    closeUDP(sendPort);
-    closeUDP(recvPort);
+	closeUDP(sock);
     
     // Tests
     if (result < 0)// Request 1 value
     {
         return -1;
     }
-    if (DREFSizes[0] != 1)
+	if (sizes[0] != 1)
     {
         return -2;
     }
-    if (*recDATA[0] != value)
+	if (data[0][0] != value)
     {
         return -3;
-    }
+	}
     return 0;
 }
 
-short sendDATATest() // sendDATA test
+int sendDATATest() // sendDATA test
 {
-    printf("sendData - ");
-    
     // Initialize
     int i,j; // Iterator
-    char DREFArray[100][100];
-    float data[4][9] = {0};
-    float *recDATA[100];
-    short DREFSizes[100];
-    struct xpcSocket sendPort, recvPort;
-    short result = 0;
-    
-    // Setup
-    for (i = 0; i < 100; i++) {
-        recDATA[i]   = (float *) malloc(40*sizeof(float));
-        memset(DREFArray[i],0,100);
-    }
-    sendPort = openUDP( 49066, "127.0.0.1", 49009 );
-    recvPort = openUDP( 49008, "127.0.0.1", 49009 );
-    strcpy(DREFArray[0],"sim/aircraft/parts/acf_gear_deploy");
-    for (i=0;i<1;i++) {
-        DREFSizes[i] = (int) strlen(DREFArray[i]);
-    }
-    for (i=0;i<4;i++) { // Set array to -999
-        for (j=0;j<9;j++) data[i][j] = -999;
-    }
+	char* drefs[100] = 
+	{
+		"sim/aircraft/parts/acf_gear_deploy"
+	};
+	float* data[100];
+	int sizes[100];
+	float DATA[4][9];
+	XPCSocket sock = openUDP(49066, "127.0.0.1", 49009);
+
+	// Setup
+	for (int i = 0; i < 100; ++i)
+	{
+		data[i] = (float*)malloc(40 * sizeof(float));
+		sizes[i] = 40;
+	}
+	for (i = 0; i < 4; i++)
+	{
+		for (j = 0; j < 9; j++)
+		{
+			data[i][j] = -998;
+		}
+	}
     data[0][0] = 14; // Gear
     data[0][1] = 1;
     data[0][2] = 0;
     
     // Execution
-    sendDATA(sendPort, data, 1); // Gear
-    result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 1, recDATA, DREFSizes); // Test
+	sendDATA(sock, DATA, 1);
+    int result = getDREFs(sock, drefs, data, 1, sizes);
     
     // Close
-    closeUDP(sendPort);
-    closeUDP(recvPort);
+    closeUDP(sock);
     
     // Tests
     if ( result < 0 )// Request 1 value
     {
         return -1;
     }
-    if (DREFSizes[0] != 10)
+    if (sizes[0] != 10)
     {
         return -2;
     }
-    if (*recDATA[0] != data[0][1])
+	if (*data[0] != data[0][1])
     {
         return -3;
     }
     return 0;
 }
 
-short sendCTRLTest() // sendCTRL test
+int psendCTRLTest() // sendCTRL test
 {
-	printf("sendCTRL - ");
-
 	// Initialize
-	int i; // Iterator
-	char DREFArray[100][100];
-	float CTRL[6] = { 0.0 };
-	float *recDATA[100];
-	short DREFSizes[100];
-	struct xpcSocket sendPort, recvPort;
-	short result;
+	char* drefs[100] =
+	{
+		"sim/cockpit2/controls/yoke_pitch_ratio",
+		"sim/cockpit2/controls/yoke_roll_ratio",
+		"sim/cockpit2/controls/yoke_heading_ratio",
+		"sim/flightmodel/engine/ENGN_thro",
+		"sim/cockpit/switches/gear_handle_status",
+		"sim/flightmodel/controls/flaprqst"
+	};
+	float* data[100];
+	int sizes[100];
+	float CTRL[6] = { 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.5F };
+	XPCSocket sock = openUDP(49066, "127.0.0.1", 49009);
 
 	// Setup
-	for (i = 0; i < 100; i++) {
-		recDATA[i] = (float *)malloc(40 * sizeof(float));
-		memset(DREFArray[i], 0, 100);
+	for (int i = 0; i < 100; i++)
+	{
+		data[i] = (float*)malloc(40 * sizeof(float));
+		sizes[i] = 40;
 	}
-	sendPort = openUDP(49066, "127.0.0.1", 49009);
-	recvPort = openUDP(49008, "127.0.0.1", 49009);
-	strcpy(DREFArray[0], "sim/cockpit2/controls/yoke_pitch_ratio");
-	strcpy(DREFArray[1], "sim/cockpit2/controls/yoke_roll_ratio");
-	strcpy(DREFArray[2], "sim/cockpit2/controls/yoke_heading_ratio");
-	strcpy(DREFArray[3], "sim/flightmodel/engine/ENGN_thro");
-	strcpy(DREFArray[4], "sim/cockpit/switches/gear_handle_status");
-	strcpy(DREFArray[5], "sim/flightmodel/controls/flaprqst");
-	for (i = 0; i < 100; i++) {
-		DREFSizes[i] = (int)strlen(DREFArray[i]);
-	}
-	CTRL[3] = 0.8; // Throttle
-	CTRL[4] = 1; // Gear
-	CTRL[5] = 0.5; // Flaps
 
 	// Execute
-	sendCTRL(sendPort, 6, CTRL);
-	result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 6, recDATA, DREFSizes); // Test
+	psendCTRL(sock, CTRL, 6);
+	int result = getDREFs(sock, drefs, data, 6, sizes);
 
-	// Close
-	closeUDP(sendPort);
-	closeUDP(recvPort);
+	// Close socket
+	closeUDP(sock);
 
 	// Tests
 	if (result < 0)// Request 1 value
 	{
 		return -6;
 	}
-	for (i = 0; i<6; i++)
+	for (int i = 0; i < 6; i++)
 	{
-		if (fabs(recDATA[i][0] - CTRL[i])>1e-4)
-		{
-            return -i - 1;
-		}
-	}
-
-	return 0;
-}
-
-short sendpCTRLTest()
-{
-	printf("sendNonPlayerCTRL - ");
-
-	// Initialize
-	int i; // Iterator
-	char DREFArray[100][100];
-	float CTRL[6] = { 0.0 };
-	float *recDATA[100];
-	short DREFSizes[100];
-	struct xpcSocket sendPort, recvPort;
-	short result;
-
-	// Setup
-	for (i = 0; i < 100; i++)
-	{
-		recDATA[i] = (float *)malloc(40 * sizeof(float));
-		memset(DREFArray[i], 0, 100);
-	}
-	sendPort = openUDP(49066, "127.0.0.1", 49009);
-	recvPort = openUDP(49008, "127.0.0.1", 49009);
-	strcpy(DREFArray[0], "sim/multiplayer/position/plane1_yolk_pitch");
-	strcpy(DREFArray[1], "sim/multiplayer/position/plane1_yolk_roll");
-	strcpy(DREFArray[2], "sim/multiplayer/position/plane1_yolk_yaw");
-	strcpy(DREFArray[3], "sim/multiplayer/position/plane1_throttle");
-	strcpy(DREFArray[4], "sim/multiplayer/position/plane1_gear_deploy");
-	strcpy(DREFArray[5], "sim/multiplayer/position/plane1_flap_ratio");
-	for (i = 0; i < 100; i++)
-	{
-		DREFSizes[i] = (int)strlen(DREFArray[i]);
-	}
-	CTRL[3] = 0.8; // Throttle
-	CTRL[4] = 1; // Gear
-	CTRL[5] = 0.5; // Flaps
-
-	// Execute
-	sendpCTRL(sendPort, 6, CTRL, 1);
-	result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 9, recDATA, DREFSizes); // Test
-
-	// Close
-	closeUDP(sendPort);
-	closeUDP(recvPort);
-
-	// Tests
-	if (result < 0)// Request 1 value
-	{
-		return -6;
-	}
-	for (i = 0; i<6; i++)
-	{
-		if (fabs(recDATA[i][0] - CTRL[i])>1e-4)
+		if (fabs(data[i][0] - CTRL[i]) > 1e-4)
 		{
 			return -i - 1;
 		}
@@ -368,51 +272,85 @@ short sendpCTRLTest()
 	return 0;
 }
 
-short sendPOSITest() // sendPOSI test
+int sendCTRLTest()
 {
-    printf("sendPOSI - ");
-    
+	// Initialize
+	char* drefs[100] =
+	{
+		"sim/multiplayer/position/plane1_yolk_pitch",
+		"sim/multiplayer/position/plane1_yolk_roll",
+		"sim/multiplayer/position/plane1_yolk_yaw",
+		"sim/multiplayer/position/plane1_throttle",
+		"sim/multiplayer/position/plane1_gear_deploy",
+		"sim/multiplayer/position/plane1_flap_ratio",
+	};
+	float* data[100];
+	int sizes[100];
+	float CTRL[6] = { 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.5F };
+	XPCSocket sock = openUDP(49066, "127.0.0.1", 49009);
+
+	// Setup
+	for (int i = 0; i < 100; i++)
+	{
+		data[i] = (float*)malloc(40 * sizeof(float));
+		sizes[i] = 40;
+	}
+
+	// Execute
+	sendCTRL(sock, CTRL, 6, 1);
+	int result = getDREFs(sock, drefs, data, 6, sizes);
+
+	// Close socket
+	closeUDP(sock);
+
+	// Tests
+	if (result < 0)// Request 1 value
+	{
+		return -6;
+	}
+	for (int i = 0; i < 6; i++)
+	{
+		if (fabs(data[i][0] - CTRL[i]) > 1e-4)
+		{
+			return -i - 1;
+		}
+	}
+
+	return 0;
+}
+
+int sendPOSITest() // sendPOSI test
+{
     // Initialization
     int i; // Iterator
-    char DREFArray[100][100];
-    float POSI[8] = {0.0};
-    float *recDATA[100];
-    short DREFSizes[100];
-    struct xpcSocket sendPort, recvPort;
-    short result;
+	char* drefs[100] =
+	{
+		"sim/flightmodel/position/latitude",
+		"sim/flightmodel/position/longitude",
+		"sim/flightmodel/position/y_agl",
+		"sim/flightmodel/position/phi",
+		"sim/flightmodel/position/theta",
+		"sim/flightmodel/position/psi",
+		"sim/cockpit/switches/gear_handle_status"
+	};
+	float* data[100];
+	int sizes[100];
+	float POSI[8] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
+	XPCSocket sock = openUDP(49063, "127.0.0.1", 49009);
     
     // Setup
-    for (i = 0; i < 100; i++) {
-        recDATA[i]   = (float *) malloc(40*sizeof(float));
-        memset(DREFArray[i],0,100);
+    for (i = 0; i < 100; i++)
+	{
+		data[i] = (float*)malloc(40 * sizeof(float));
+		sizes[i] = 40;
     }
-    sendPort = openUDP( 49063, "127.0.0.1", 49009 );
-    recvPort = openUDP( 49008, "127.0.0.1", 49009 );
-    strcpy(DREFArray[0],"sim/flightmodel/position/latitude");
-    strcpy(DREFArray[1],"sim/flightmodel/position/longitude");
-    strcpy(DREFArray[2],"sim/flightmodel/position/y_agl");
-    strcpy(DREFArray[3],"sim/flightmodel/position/phi");
-    strcpy(DREFArray[4],"sim/flightmodel/position/theta");
-    strcpy(DREFArray[5],"sim/flightmodel/position/psi");
-    strcpy(DREFArray[6],"sim/cockpit/switches/gear_handle_status");
-    for (i=0;i<7;i++) {
-        DREFSizes[i] = (int) strlen(DREFArray[i]);
-    }
-    POSI[0] = 37.524; // Lat
-    POSI[1] = -122.06899; // Lon
-    POSI[2] = 2500; // Alt
-    POSI[3] = 0; // Pitch
-    POSI[4] = 0; // Roll
-    POSI[5] = 0; // Heading
-    POSI[6] = 1; // Gear
     
     // Execution
-    sendPOSI( sendPort, 0, 7, POSI );
-    result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 7, recDATA, DREFSizes); // Test
+	sendPOSI(sock, POSI, 7, 0);
+    int result = getDREFs(sock, drefs, data, 7, sizes);
     
     // Close
-    closeUDP(sendPort);
-    closeUDP(recvPort);
+	closeUDP(sock);
     
     // Tests
     if ( result < 0 )// Request 1 value
@@ -421,114 +359,104 @@ short sendPOSITest() // sendPOSI test
     }
     for (i=0;i<7-1;i++)
     {
-        if (i==2)
-        {
-            continue;
-        }
-        if (fabs(recDATA[i][0]-POSI[i])>1e-4)
-        {
-            return -i;
-        }
+		if (i == 2)
+		{
+			continue;
+		}
+		if (fabs(data[i][0] - POSI[i]) > 1e-4)
+		{
+			return -i;
+		}
     }
 
     
     return 0;
 }
 
-short sendWYPTTest()
+int sendWYPTTest()
 {
-	printf("sendWYPT - ");
-
 	// Setup
-	struct xpcSocket sendPort = openUDP(49064, "127.0.0.1", 49009);
+	XPCSocket sock = openUDP(49064, "127.0.0.1", 49009);
 	float points[] =
 	{
-		37.5245, -122.06899, 2500,
-		37.455397, -122.050037, 2500,
-		37.469567, -122.051411, 2500,
-		37.479376, -122.060509, 2300,
-		37.482237, -122.076130, 2100,
-		37.474881, -122.087288, 1900,
-		37.467660, -122.079391, 1700,
-		37.466298, -122.090549, 1500,
-		37.362562, -122.039223, 1000,
-		37.361448, -122.034416, 1000,
-		37.361994, -122.026348, 1000,
-		37.365541, -122.022572, 1000,
-		37.373727, -122.024803, 1000,
-		37.403869, -122.041283, 50,
-		37.418544, -122.049222, 6
+		37.5245F, -122.06899F, 2500,
+		37.455397F, -122.050037F, 2500,
+		37.469567F, -122.051411F, 2500,
+		37.479376F, -122.060509F, 2300,
+		37.482237F, -122.076130F, 2100,
+		37.474881F, -122.087288F, 1900,
+		37.467660F, -122.079391F, 1700,
+		37.466298F, -122.090549F, 1500,
+		37.362562F, -122.039223F, 1000,
+		37.361448F, -122.034416F, 1000,
+		37.361994F, -122.026348F, 1000,
+		37.365541F, -122.022572F, 1000,
+		37.373727F, -122.024803F, 1000,
+		37.403869F, -122.041283F, 50,
+		37.418544F, -122.049222F, 6
 	};
 
 	// Test
-	sendWYPT(sendPort, xpc_WYPT_ADD, points, 15);
+	sendWYPT(sock, XPC_WYPT_ADD, points, 15);
+	// NOTE: Visually ensure waypoints are added in the sim
 
 	// Cleanup
-	closeUDP(sendPort);
+	closeUDP(sock);
 	return 0;
 }
 
-short pauseTest() // pauseSim test
+int pauseTest() // pauseSim test
 {
-    printf("pauseSim - ");
-    
     // Initialize
     int i; // Iterator
-    char DREFArray[100][100];
-    float *recDATA[100];
-    short DREFSizes[100],RECSizes[100];
-    struct xpcSocket sendPort, recvPort;
-    short result;
+	char* drefs[100] =
+	{
+		"sim/operation/override/override_planepath"
+	};
+    float* data[100];
+	int sizes[100];
+	XPCSocket sock = openUDP(49064, "127.0.0.1", 49009);
     
     // Setup
-    for (i = 0; i < 100; i++) {
-        recDATA[i]   = (float *) malloc(40*sizeof(float));
-        memset(DREFArray[i],0,100);
-    }
-    
-    // Setup
-    sendPort = openUDP( 49064, "127.0.0.1", 49009 );
-    recvPort = openUDP( 49008, "127.0.0.1", 49009 );
-    strcpy(DREFArray[0],"sim/operation/override/override_planepath");
-    for (i=0;i<1;i++) {
-        DREFSizes[i] = (int) strlen(DREFArray[i]);
+    for (i = 0; i < 100; i++)
+	{
+		data[i] = (float*)malloc(40 * sizeof(float));
+		sizes[i] = 40;
     }
     
     // Execute
-    pauseSim(sendPort, 1);
-    result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 1, recDATA, RECSizes); // Test
+    pauseSim(sock, 1);
+	int result = getDREF(sock, drefs[0], data[0], sizes);
     
     // Close
-    closeUDP(sendPort);
-    closeUDP(recvPort);
+    closeUDP(sock);
     
     // Test
-    if (result < 0)     {
+    if (result < 0)
+	{
         return -1;
     }
-    if (recDATA[0][0] != 1)
+	if (data[0][0] != 1)
     {
         return -2;
     }
     
     // Reopen
-    sendPort = openUDP( 49064, "127.0.0.1", 49009 );
-    recvPort = openUDP( 49008, "127.0.0.1", 49009 );
+	sock = openUDP(49064, "127.0.0.1", 49009);
     
     // Execute 2
-    pauseSim(sendPort, 0);
-    result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 1, recDATA, RECSizes); // Test
+	pauseSim(sock, 0);
+	result = getDREF(sock, drefs[0], data[0], sizes);
     
     // Close 2
-    closeUDP(sendPort);
-    closeUDP(recvPort);
+    closeUDP(sock);
     
     // Test 2
     if (result < 0)
     {
         return -3;
     }
-    if (recDATA[0][0] != 0)
+    if (data[0][0] != 0)
     {
         return -4;
     }
@@ -536,48 +464,46 @@ short pauseTest() // pauseSim test
     return 0;
 }
 
-short connTest() // setConn test
+int connTest() // setConn test
 {
-    printf("setConn - ");
-    
     // Initialize
-    int i; // Iterator
-    char DREFArray[100][100];
-    float *recDATA[100];
-    short DREFSizes[100];
-    struct xpcSocket sendPort, recvPort;
-    short result = 0;
+	char* drefs[100] =
+	{
+		"sim/cockpit/switches/gear_handle_status"
+	};
+    float* data[100];
+	int sizes[100];
+	XPCSocket sock = openUDP(49067, "127.0.0.1", 49009);
 #if (__APPLE__ || __linux)
     usleep(0);
 #endif
     
     // Setup
-    sendPort = openUDP( 49067, "127.0.0.1", 49009 );
-    recvPort = openUDP( 49055, "127.0.0.1", 49009 );
-    strcpy(DREFArray[0],"sim/cockpit/switches/gear_handle_status");
-    for (i=0;i<1;i++) {
-        DREFSizes[i] = (int) strlen(DREFArray[i]);
-    }
+	for (int i = 0; i < 100; ++i)
+	{
+		data[i] = (float*)malloc(40 * sizeof(float));
+		sizes[i] -= 40;
+	}
     
     // Execution
-    setCONN(sendPort, 49055);
-    result = requestDREF(sendPort, recvPort, DREFArray, DREFSizes, 1, recDATA, DREFSizes); // Test
+	sock.port = 49055;
+    setCONN(sock);
+	int result = getDREF(sock, drefs[0], data[0], sizes);
     
     // Close
-    closeUDP(sendPort);
-    closeUDP(recvPort);
+    closeUDP(sock);
     
     // Test
     if ( result < 0 )// No data received
     {
         return -1;
-    }
-    
+    }    
     
     // Set up for next test
-    sendPort = openUDP( 49067, "127.0.0.1", 49009 );
-    setCONN(sendPort, 49008);
-    closeUDP(sendPort);
+    sock = openUDP( 49055, "127.0.0.1", 49009 );
+	sock.port = 49008;
+    setCONN(sock);
+	closeUDP(sock);
     return 0;
 }
 
@@ -593,19 +519,19 @@ int main(int argc, const char * argv[])
     printf("(Linux) \n");
 #endif
     
-	runTest(openTest);
-	runTest(closeTest);
-	runTest(sendReadTest);
-	runTest(sendTEXTTest);
-	runTest(requestDREFTest);
-	runTest(sendDREFTest);
-	runTest(sendDATATest);
-	runTest(sendCTRLTest);
-	runTest(sendpCTRLTest);
-	runTest(sendPOSITest);
-	runTest(sendWYPTTest);
-	runTest(pauseTest);
-	runTest(connTest);
+	runTest(openTest, "open");
+	runTest(closeTest, "close");
+	runTest(sendReadTest, "send/read");
+	runTest(sendTEXTTest, "TEXT");
+	runTest(requestDREFTest, "GETD");
+	runTest(sendDREFTest, "DREF");
+	runTest(sendDATATest, "DATA");
+	runTest(sendCTRLTest, "CTRL");
+	runTest(psendCTRLTest, "CTRL (player)");
+	runTest(sendPOSITest, "POSI");
+	runTest(sendWYPTTest, "WYPT");
+	runTest(pauseTest, "SIMU");
+	runTest(connTest, "CONN");
     
     printf( "----------------\nTest Summary\n\tFailed: %i\n\tPassed: %i\n", testFailed, testPassed );
     
