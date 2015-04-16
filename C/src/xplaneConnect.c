@@ -48,28 +48,10 @@
 #include <sys/types.h>
 #include <time.h>
 
-#ifdef _WIN32 /* WIN32 SYSTEM */
-#include <WS2tcpip.h>
 
-// From http://www.c-plusplus.de/forum/109539-full
-void usleep(__int64 usec)
-{
-	HANDLE timer;
-	LARGE_INTEGER ft;
-		
-	ft.QuadPart = -(10*usec); // Convert to 100 nanosecond interval, negative value indicates relative time
-		
-	timer = CreateWaitableTimer(NULL, TRUE, NULL);
-	SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
-	WaitForSingleObject(timer, INFINITE);
-	CloseHandle(timer);
-}
-#endif
 
-void printError(char *functionName, char *format, ...);
-short sendRequest(XPCSocket recfd, char DREFArray[][100], short DREFSizes[], short listLength);
 
-void printError(char *functionName, char *format)
+void printError(char *functionName, char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -84,7 +66,12 @@ void printError(char *functionName, char *format)
 /*****************************************************************************/
 /****                       Low Level UDP functions                       ****/
 /*****************************************************************************/
-XPCSocket openUDP(unsigned short port, const char *xpIP, unsigned short xpPort)
+XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort)
+{
+	openUDP(xpIP, xpPort, 0);
+}
+
+XPCSocket openUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
 {
 	XPCSocket sock;
 	
@@ -136,12 +123,12 @@ XPCSocket openUDP(unsigned short port, const char *xpIP, unsigned short xpPort)
 	return sock;
 }
 
-void closeUDP(XPCSocket socketNumber)
+void closeUDP(XPCSocket sock)
 {
 #ifdef _WIN32
-	int result = closesocket(socketNumber.sock);
+	int result = closesocket(sock.sock);
 #else
-	int result = close(socketNumber.sock);
+	int result = close(sock.sock);
 #endif
 	if (result < 0)
 	{
@@ -178,9 +165,8 @@ int sendUDP(XPCSocket sock, char buffer[], int len)
 	return result;
 }
 
-int readUDP(XPCSocket sock, char buffer[], int len, struct sockaddr* recvaddr)
+int readUDP(XPCSocket sock, char buffer[], int len)
 {
-	socklen_t recvaddrlen = sizeof(*recvaddr);
 #ifdef _WIN32
 	// Windows readUDP needs the select command- minimum timeout is 1ms.
 	// Without this playback becomes choppy
@@ -211,10 +197,10 @@ int readUDP(XPCSocket sock, char buffer[], int len, struct sockaddr* recvaddr)
 		// No data
 		return 0;
 	}
-	status = recvfrom(sock.sock, buffer, len, 0, (struct sockaddr*)&recvaddr, &recvaddrlen);
+	status = recv(sock.sock, buffer, len, 0);
 #else
 	// For apple or linux-just read - will timeout in 0.5 ms
-	status = (int)recvfrom(sock.sock, dataRef, len, 0, recvaddr, &recvaddrlen);
+	status = (int)recv(sock.sock, dataRef, len, 0);
 #endif
 	if (status < 0)
 	{
@@ -229,19 +215,34 @@ int readUDP(XPCSocket sock, char buffer[], int len, struct sockaddr* recvaddr)
 /*****************************************************************************/
 /****                      Configuration functions                        ****/
 /*****************************************************************************/
-int setCONN(XPCSocket sock)
+int setCONN(XPCSocket* sock, unsigned short port)
 {
 	// Set up command
 	char buffer[32] = "CONN";
-	memcpy(&buffer[5], &sock.port, 2);
+	memcpy(&buffer[5], &port, 2);
+
 	// Send command
-	if (sendUDP(sock, buffer, 7) != 0)
+	if (sendUDP(*sock, buffer, 7) < 0)
 	{
 		printError("setCONN", "Failed to send command");
 		return -1;
 	}
+
+	// Switch socket
+	closeUDP(*sock);
+	*sock = openUDP(sock->xpIP, sock->xpPort, port);
+
 	// Read response
-	if (readUDP(sock, buffer, 32, NULL) <= 0)
+	int result;
+	for (int i = 0; i < 64; ++i)
+	{
+		result = readUDP(*sock, buffer, 32);
+		if (result != 0)
+		{
+			break;
+		}
+	}
+	if (result <= 0)
 	{
 		printError("setCONN", "Failed to read response");
 		return -2;
@@ -261,7 +262,7 @@ int pauseSim(XPCSocket sock, char pause)
 	char buffer[6] = "SIMU";
 	buffer[5] = pause == 0 ? 0 : 1;
 	// Send command
-	if (sendUDP(sock, buffer, 6) != 0)
+	if (sendUDP(sock, buffer, 6) < 0)
 	{
 		printError("pauseSim", "Failed to send command");
 		return -1;
@@ -297,7 +298,7 @@ int sendDATA(XPCSocket sock, float dataRef[][9], int rows)
 		memcpy(&buffer[9 + i*step], &dataRef[i][1], 8 * sizeof(float));
 	}
 	// Send command
-	if (sendUDP(sock, buffer, len ) != 0)
+	if (sendUDP(sock, buffer, len ) < 0)
 	{
 		printError("sendDATA", "Failed to send command");
 		return -2;
@@ -319,7 +320,7 @@ int readDATA(XPCSocket sock, float dataRef[][9], int rows)
 
 	// Read data
 	char buffer[4829] = { 0 };
-	int result = readUDP(sock, buffer, 5120, NULL);
+	int result = readUDP(sock, buffer, 5120);
 	if (result <= 0)
 	{
 		printError("readDATA", "Failed to read from socket.");
@@ -376,7 +377,7 @@ int setDREF(XPCSocket sock, const char* dref, float values[], int size)
 	memcpy(buffer + 7 + drefLen, values, size * sizeof(float));
 
 	// Send command
-	if (sendUDP(sock, buffer, len) != 0)
+	if (sendUDP(sock, buffer, len) < 0)
 	{
 		printError("setDREF", "Failed to send command");
 		return -2;
@@ -405,7 +406,7 @@ int sendDREFRequest(XPCSocket sock, const char* drefs[], unsigned char count)
 		len += drefLen;
 	}
 	// Send Command
-	if (sendUDP(sock, buffer, len) != 0)
+	if (sendUDP(sock, buffer, len) < 0)
 	{
 		printError("getDREFs", "Failed to send command");
 		return -2;
@@ -419,16 +420,20 @@ int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int si
 	// Read data. Try 40 times to read, then give up.
 	// TODO: Why not just set the timeout to 40ms?
 	int result;
-	for (int i = 0; i < 40; ++i)
+	for (int i = 0; i < 512; ++i)
 	{
-		result = readUDP(sock, buffer, 65536, NULL);
+		result = readUDP(sock, buffer, 65536);
 		if (result > 0)
 		{
 			break;
 		}
 		if (result < 0)
 		{
+#ifdef _WIN32
+			printError("getDREFs", "Read operation failed. (%d)", WSAGetLastError());
+#else
 			printError("getDREFs", "Read operation failed.");
+#endif
 			return -1;
 		}
 	}
@@ -531,7 +536,7 @@ int sendPOSI(XPCSocket sock, float values[], int size, char ac)
 	}
 
 	// Send Command
-	if (sendUDP(sock, buffer, 40) != 0)
+	if (sendUDP(sock, buffer, 40) < 0)
 	{
 		printError("sendPOSI", "Failed to send command");
 		return -2;
@@ -586,16 +591,15 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 			cur += sizeof(float);
 		}
 	}
-	buffer[27] = ac;
+	buffer[26] = ac;
 
 	// Send Command
-	if (sendUDP(sock, buffer, 40) != 0)
+	if (sendUDP(sock, buffer, 27) < 0)
 	{
 		printError("sendCTRL", "Failed to send command");
 		return -2;
 	}
 	return 0;
-
 }
 /*****************************************************************************/
 /****                        End CTRL functions                           ****/
@@ -630,7 +634,7 @@ int sendTEXT(XPCSocket sock, char* msg, int x, int y)
 	strncpy(buffer + 14, msg, msgLen);
 	
 	// Send Command
-	if (sendUDP(sock, buffer, 40) != 0)
+	if (sendUDP(sock, buffer, 40) < 0)
 	{
 		printError("sendTEXT", "Failed to send command");
 		return -2;
@@ -661,7 +665,7 @@ int sendWYPT(XPCSocket sock, WYPT_OP op, float points[], int count)
 	memcpy(buffer + 7, points, ptLen);
 
 	// Send Command
-	if (sendUDP(sock, buffer, 40) != 0)
+	if (sendUDP(sock, buffer, 40) < 0)
 	{
 		printError("sendWYPT", "Failed to send command");
 		return -2;

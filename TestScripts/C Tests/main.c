@@ -34,16 +34,16 @@ void runTest(int (*test)(), char* name)
 
 int openTest() // openUDP Test
 {
-    XPCSocket sock = openUDP( 49062, "127.0.0.1", 49009 );
+    XPCSocket sock = openUDP("127.0.0.1", 49009, 49062);
 	closeUDP(sock);
     return 0;
 }
 
 int closeTest() // closeUDP test
 {
-    XPCSocket sendPort = openUDP( 49063, "127.0.0.1", 49009 );
+    XPCSocket sendPort = openUDP("127.0.0.1", 49009, 49063);
     closeUDP(sendPort);
-    sendPort = openUDP(49063, "127.0.0.1", 49009);
+    sendPort = openUDP("127.0.0.1", 49009, 49063);
     closeUDP(sendPort);
     return 0;
 }
@@ -53,8 +53,8 @@ int sendReadTest() // send/read Test
     // Initialization
     char test[] = {0, 1, 2, 3, 5};
     char buf[5] = {0};
-	XPCSocket outSock = openUDP(49064, "127.0.0.1", 49063);
-	XPCSocket inSock = openUDP(49063, "127.0.0.1", 49009);
+	XPCSocket outSock = openUDP("127.0.0.1", 49063, 49064);
+	XPCSocket inSock = openUDP("127.0.0.1", 49009, 49063);
     
     // Execution
 	sendUDP(outSock, test, sizeof(test));
@@ -79,7 +79,7 @@ int sendReadTest() // send/read Test
 int sendTEXTTest()
 {
 	// Setup
-	XPCSocket sendPort = openUDP(49064, "127.0.0.1", 49009);
+	XPCSocket sendPort = openUDP("127.0.0.1", 49009, 49064);
 	int x = 100;
 	int y = 700;
 	char* msg = "XPlaneConnect test message. Now with 100% fewer new lines!";
@@ -103,7 +103,7 @@ int requestDREFTest() // Request DREF Test (Required for next tests)
 	};
 	float* data[100];
 	int sizes[100];
-	XPCSocket sock = openUDP(49064, "127.0.0.1", 49009);
+	XPCSocket sock = openUDP("127.0.0.1", 49009, 49064);
     
     // Setup
 	for (int i = 0; i < 100; ++i)
@@ -139,7 +139,7 @@ int sendDREFTest() // sendDREF test
 	};
 	float* data[100];
 	int sizes[100];
-	XPCSocket sock = openUDP(49066, "127.0.0.1", 49009);
+	XPCSocket sock = openUDP("127.0.0.1", 49009, 49066);
 	float value = 1.0F;
 	
 	// Setup
@@ -183,7 +183,7 @@ int sendDATATest() // sendDATA test
 	float* data[100];
 	int sizes[100];
 	float DATA[4][9];
-	XPCSocket sock = openUDP(49066, "127.0.0.1", 49009);
+	XPCSocket sock = openUDP("127.0.0.1", 49009, 49066);
 
 	// Setup
 	for (int i = 0; i < 100; ++i)
@@ -240,7 +240,7 @@ int psendCTRLTest() // sendCTRL test
 	float* data[100];
 	int sizes[100];
 	float CTRL[6] = { 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.5F };
-	XPCSocket sock = openUDP(49066, "127.0.0.1", 49009);
+	XPCSocket sock = openUDP("127.0.0.1", 49009, 49066);
 
 	// Setup
 	for (int i = 0; i < 100; i++)
@@ -287,7 +287,7 @@ int sendCTRLTest()
 	float* data[100];
 	int sizes[100];
 	float CTRL[6] = { 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.5F };
-	XPCSocket sock = openUDP(49066, "127.0.0.1", 49009);
+	XPCSocket sock = openUDP("127.0.0.1", 49009, 49066);
 
 	// Setup
 	for (int i = 0; i < 100; i++)
@@ -336,7 +336,7 @@ int sendPOSITest() // sendPOSI test
 	float* data[100];
 	int sizes[100];
 	float POSI[8] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
-	XPCSocket sock = openUDP(49063, "127.0.0.1", 49009);
+	XPCSocket sock = openUDP("127.0.0.1", 49009, 49063);
     
     // Setup
     for (i = 0; i < 100; i++)
@@ -376,7 +376,7 @@ int sendPOSITest() // sendPOSI test
 int sendWYPTTest()
 {
 	// Setup
-	XPCSocket sock = openUDP(49064, "127.0.0.1", 49009);
+	XPCSocket sock = openUDP("127.0.0.1", 49009, 49064);
 	float points[] =
 	{
 		37.5245F, -122.06899F, 2500,
@@ -415,7 +415,7 @@ int pauseTest() // pauseSim test
 	};
     float* data[100];
 	int sizes[100];
-	XPCSocket sock = openUDP(49064, "127.0.0.1", 49009);
+	XPCSocket sock = openUDP("127.0.0.1", 49009, 49064);
     
     // Setup
     for (i = 0; i < 100; i++)
@@ -442,7 +442,7 @@ int pauseTest() // pauseSim test
     }
     
     // Reopen
-	sock = openUDP(49064, "127.0.0.1", 49009);
+	sock = openUDP("127.0.0.1", 49009, 49064);
     
     // Execute 2
 	pauseSim(sock, 0);
@@ -473,7 +473,7 @@ int connTest() // setConn test
 	};
     float* data[100];
 	int sizes[100];
-	XPCSocket sock = openUDP(49067, "127.0.0.1", 49009);
+	XPCSocket sock = openUDP("127.0.0.1", 49009, 49067);
 #if (__APPLE__ || __linux)
     usleep(0);
 #endif
@@ -482,12 +482,11 @@ int connTest() // setConn test
 	for (int i = 0; i < 100; ++i)
 	{
 		data[i] = (float*)malloc(40 * sizeof(float));
-		sizes[i] -= 40;
+		sizes[i] = 40;
 	}
     
     // Execution
-	sock.port = 49055;
-    setCONN(sock);
+    setCONN(&sock, 49055);
 	int result = getDREF(sock, drefs[0], data[0], sizes);
     
     // Close
@@ -497,13 +496,7 @@ int connTest() // setConn test
     if ( result < 0 )// No data received
     {
         return -1;
-    }    
-    
-    // Set up for next test
-    sock = openUDP( 49055, "127.0.0.1", 49009 );
-	sock.port = 49008;
-    setCONN(sock);
-	closeUDP(sock);
+    }
     return 0;
 }
 

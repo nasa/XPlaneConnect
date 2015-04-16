@@ -39,21 +39,21 @@ extern "C" {
 #include <arpa/inet.h>
 #include <unistd.h>
 #endif
-        
+
 typedef struct
 {
 	char open;
 	unsigned short port;
-		
+
 	// X-Plane IP and Port
 	char xpIP[16];
 	unsigned short xpPort;
-		
-	#ifdef _WIN32
+
+#ifdef _WIN32
 	SOCKET sock;
-	#else
+#else
 	int sock;
-	#endif
+#endif
 } XPCSocket;
 
 typedef enum
@@ -64,13 +64,14 @@ typedef enum
 } WYPT_OP;
         
 // Low Level UDP Functions
-XPCSocket openUDP(unsigned short port, const char *xpIP, unsigned short xpPort);
+XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort);
+XPCSocket openUDP(const char *xpIP, unsigned short xpPort, unsigned short port);
 void closeUDP(XPCSocket sock);
 int sendUDP(XPCSocket sock, char buffer[], int len);
-int readUDP(XPCSocket sock, char buffer[], int len, struct sockaddr* recvaddr);
+int readUDP(XPCSocket sock, char buffer[], int len);
 
 // Configuration
-int setCONN(XPCSocket sock);
+int setCONN(XPCSocket* sock, unsigned short port);
 int pauseSim(XPCSocket sock, char pause);
         
 // X-Plane UDP DATA
