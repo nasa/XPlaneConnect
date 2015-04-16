@@ -493,42 +493,54 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
 /****                        End DREF functions                           ****/
 /*****************************************************************************/
 
-short sendPOSI(XPCSocket recfd, short ACNum, short numArgs, float valueArray[])
+/*****************************************************************************/
+/****                          POSI functions                             ****/
+/*****************************************************************************/
+int psendPOSI(XPCSocket sock, float values[], int size)
 {
-	char message[40] = {0};
-	int i;
-	short position = 6;
-	
-	// Input Verification
-	if (numArgs < 1)
+	return sendPOSI(sock, values, size, 0);
+}
+
+int sendPOSI(XPCSocket sock, float values[], int size, char ac)
+{
+	// Validate input
+	if (ac < 0 || ac > 20)
 	{
-		return errorReport("POSI", "Must have atleast one argument");
+		printError("sendPOSI", "aircraft should be a value between 0 and 20.");
+		return -1;
 	}
-	
-	// Header
-	strncpy(message,"POSI",4);
-	
-	// Aircraft
-	message[5] = (char) ACNum;
-	
-	// States
-	
-	for (i=0; i<7; i++)
+	if (size < 1 || size > 7)
 	{
-		float val = -998.5;
-		
-		if ( i < numArgs )
+		printError("sendPOSI", "size should be a value between 1 and 7.");
+		return -2;
+	}
+
+	// Setup command
+	// 5 byte header + up to 7 values * 5 bytes each
+	unsigned char buffer[40] = "POSI";
+	buffer[5] = ac;
+	for (int i = 0; i < 7; i++)
+	{
+		float val = -998;
+
+		if (i < size)
 		{
-			val = valueArray[i];
+			val = values[i];
 		}
-		
-		memcpy(&message[position],&val,sizeof(float));
-		position += sizeof(float);
+		*((float*)(buffer + 6 + i * 4)) = val;
 	}
-	
-	sendUDP(recfd, message, position);
+
+	// Send Command
+	if (sendUDP(sock, buffer, 40) != 0)
+	{
+		printError("sendPOSI", "Failed to send command");
+		return -2;
+	}
 	return 0;
 }
+/*****************************************************************************/
+/****                        End POSI functions                           ****/
+/*****************************************************************************/
 
 short sendCTRL(XPCSocket recfd, short numArgs, float valueArray[])
 {
@@ -635,18 +647,6 @@ short readRequest(XPCSocket recfd, float *dataRef[], short arraySizes[], struct 
 	return -1;
 }
 
-short readPOSI(XPCSocket recfd, float resultArray[], int arraySize,  float *gear)
-{
-	char buf[5000] = {0};
-	readUDP(recfd,buf, NULL);
-	
-	if (buf[0]!= '\0') // Buffer is not empty
-	{
-		return parsePOSI(buf, resultArray, arraySize, gear);
-	}
-	return -1;
-}
-
 xpcCtrl readCTRL(XPCSocket recfd)
 {
 	xpcCtrl result;
@@ -666,23 +666,6 @@ xpcCtrl readCTRL(XPCSocket recfd)
 
 //PARSE
 //---------------------
-
-short parsePOSI(const char my_message[], float resultArray[], int arraySize, float *gear)
-{
-	int i;
-	
-	// Input Validation
-		if (arraySize < 1)  return -1;
-	
-	memcpy(gear,&my_message[30],4);
-	
-	for (i=0; (i<arraySize && i < 6); i++)
-	{
-		memcpy(&resultArray[i],&my_message[i*4+6],4);
-	}
-	
-	return my_message[5]; // Aircraft
-}
 
 xpcCtrl parseCTRL(const char data[])
 {

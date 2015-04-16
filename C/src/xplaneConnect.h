@@ -108,10 +108,9 @@ int getDREF(XPCSocket sock, const char* dref, float values[], int* size);
 int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char count, int sizes[]);
         
 // Position
-short parsePOSI(const char my_message[], float resultArray[], int arraySize,  float *gear);
-short readPOSI(XPCSocket recfd, float resultArray[], int arraySize, float *gear);
-short sendPOSI(XPCSocket recfd, short ACNum, short numArgs, float valueArray[]);
-        
+int psendPOSI(XPCSocket sock, float values[], int size);
+int sendPOSI(XPCSocket sock, float values[], int size, char ac);
+
 // Controls
 xpcCtrl parseCTRL(const char data[]);
 xpcCtrl readCTRL(XPCSocket recfd);
