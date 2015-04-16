@@ -58,7 +58,6 @@
 #include "DataManager.h"
 #include "Drawing.h"
 #include "Log.h"
-#include "Message.h"
 #include "MessageHandlers.h"
 #include "UDPSocket.h"
 

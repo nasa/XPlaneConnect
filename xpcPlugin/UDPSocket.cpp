@@ -42,14 +42,16 @@ namespace XPC
 			return;
 		}
 		int optval = 1;
-		setsockopt(theSocket.sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-		setsockopt(theSocket.sock, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
+		setsockopt(this->sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+		setsockopt(this->sock, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
 #endif
 		if (bind(this->sock, (struct sockaddr*)&localAddr, sizeof(localAddr)) != 0)
 		{
+#ifdef _WIN32
 #if LOG_VERBOSITY > 0
 			int err = WSAGetLastError();
 			Log::FormatLine("[SOCK] ERROR: Failed to bind socket. (Error code %i)", err);
+#endif
 #endif
 			return;
 		}
@@ -126,7 +128,7 @@ namespace XPC
 		status = recvfrom(sock, (char*)dst, maxLen, 0, recvAddr, &recvaddrlen);
 #else
 		// For apple or linux-just read - will timeout in 0.5 ms
-		status = (int)recvfrom(recfd.sock, dataRef, 5000, 0, recvaddr, &recvaddrlen);
+		status = (int)recvfrom(sock, dst, 5000, 0, recvAddr, &recvaddrlen);
 #endif
 		return status;
 	}

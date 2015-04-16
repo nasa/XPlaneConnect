@@ -123,7 +123,7 @@ namespace XPC
 				// If this is a new connection, that means we just added an elment
 				// to connections. As long as we never remove elements, the size of
 				// connections will serve as a unique id.
-				connections.size(),
+				static_cast<unsigned char>(connections.size()),
 				ip,
 				49008, // By default, send information to the client on this port.
 				port,

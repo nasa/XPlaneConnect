@@ -699,7 +699,6 @@ xpcCtrl parseCTRL(const char data[])
 xpcWypt parseWYPT(const char data[])
 {
 	xpcWypt result;
-	unsigned char len = data[4];
 	//Preconditions
 	//Validate message prefix to ensure we are looking at the right kind of packet.
 	if (strncmp(data, "WYPT", 4) != 0)

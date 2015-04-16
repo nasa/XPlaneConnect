@@ -64,7 +64,7 @@ namespace XPC
 		/// \param len		The number of bytes to send.
 		/// \param remoteHost The hostname of the destination client.
 		/// \param remotePort The port of the destination client.
-		void UDPSocket::SendTo(unsigned char* buffer, std::size_t len, unsigned long remoteIP, unsigned short remotePort);
+		void SendTo(unsigned char* buffer, std::size_t len, unsigned long remoteIP, unsigned short remotePort);
 
 	private:
 #ifdef _WIN32

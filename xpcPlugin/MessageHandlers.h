@@ -3,7 +3,6 @@
 #ifndef XPC_MESSAGEHANDLERS_H
 #define XPC_MESSAGEHANDLERS_H
 #include "Message.h"
-#include "UDPSocket.h"
 
 #include <string>
 #include <unordered_map>

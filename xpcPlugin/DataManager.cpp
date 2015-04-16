@@ -23,6 +23,7 @@
 #include <cmath>
 #include <unordered_map>
 
+using namespace std;
 namespace XPC
 {
 	static std::unordered_map<DREF, XPLMDataRef> drefs;
@@ -542,8 +543,8 @@ namespace XPC
 			Log::WriteLine("[FLAP] ERROR: Value must be a number (NaN received)");
 			return;
 		}
-		value = max(value, 0);
-		value = min(value, 1);
+		value = fmaxl(value, 0);
+		value = fminl(value, 1);
 
 		Set(DREF::FlapSetting, value);
 		Set(DREF::FlapActual, value);
