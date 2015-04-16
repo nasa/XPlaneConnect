@@ -542,53 +542,64 @@ int sendPOSI(XPCSocket sock, float values[], int size, char ac)
 /****                        End POSI functions                           ****/
 /*****************************************************************************/
 
-short sendCTRL(XPCSocket recfd, short numArgs, float valueArray[])
+/*****************************************************************************/
+/****                          CTRL functions                             ****/
+/*****************************************************************************/
+int psendCTRL(XPCSocket sock, float values[], int size)
 {
-	return sendpCTRL(recfd, numArgs, valueArray, 0);
+	return sendCTRL(sock, values, size, 0);
 }
 
-short sendpCTRL(XPCSocket recfd, short numArgs, float valueArray[], char acNum)
+int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 {
-	char message[27] = { 0 };
-	int i;
-	short position = 5;
-	
-	// Input Verification
-	if (numArgs < 1)
+	// Validate input
+	if (ac < 0 || ac > 20)
 	{
-		return errorReport("CTRL", "Must have atleast one argument");
+		printError("sendCTRL", "aircraft should be a value between 0 and 20.");
+		return -1;
 	}
-	
-	// Header
-	strncpy(message,"CTRL",4);
-	
-	// States
-	for (i=0;i<6;i++)
+	if (size < 1 || size > 7)
 	{
-		float val = -998.5;
-		
-		if (i<numArgs)
-		{
-			val = valueArray[i];
-		}
-		
-		if (i==4) // Integer-gear
-		{
-			message[position] = (short int) val;
-			position += 1;
-		}
-		else // float
-		{
-			// Float Values
-			memcpy(&message[position],&val,sizeof(float));
-			position += sizeof(float);
-		}		
+		printError("sendCTRL", "size should be a value between 1 and 6.");
+		return -2;
 	}
-	message[position] = acNum;
-	
-	sendUDP(recfd, message, 27);
+
+	// Setup Command
+	// 5 byte header + 5 float values * 4 + 2 byte values
+	unsigned char buffer[27] = "CTRL";
+	int cur = 5;
+	for (int i = 0; i < 6; i++)
+	{
+		float val = -998;
+
+		if (i < size)
+		{
+			val = values[i];
+		}
+		if (i == 4)
+		{
+			buffer[cur++] = val == -998 ? -1 : (unsigned char)val;
+		}
+		else
+		{
+			*((float*)(buffer + cur)) = val;
+			cur += sizeof(float);
+		}
+	}
+	buffer[27] = ac;
+
+	// Send Command
+	if (sendUDP(sock, buffer, 40) != 0)
+	{
+		printError("sendCTRL", "Failed to send command");
+		return -2;
+	}
 	return 0;
+
 }
+/*****************************************************************************/
+/****                        End CTRL functions                           ****/
+/*****************************************************************************/
 
 short sendTEXT(XPCSocket sendfd, char* msg, int x, int y)
 {
@@ -647,61 +658,9 @@ short readRequest(XPCSocket recfd, float *dataRef[], short arraySizes[], struct 
 	return -1;
 }
 
-xpcCtrl readCTRL(XPCSocket recfd)
-{
-	xpcCtrl result;
-	char buf[5000] = { 0 };
-	readUDP(recfd, buf, NULL);
-
-	if (buf[0] != '\0') // Buffer is not empty
-	{
-		result = parseCTRL(buf);
-	}
-	else
-	{
-		result.aircraft = -1;
-	}
-	return result;
-}
-
 //PARSE
 //---------------------
 
-xpcCtrl parseCTRL(const char data[])
-{
-	xpcCtrl result;
-	unsigned char len = data[4];
-	//Preconditions
-	//Validate message prefix to ensure we are looking at the right kind of packet.
-	if (strncmp(data, "CTRL", 4) != 0)
-	{
-		result.aircraft = -1;
-	}
-	//Legacy packets that don't specify an aircraft number should be 22 bytes long.
-	//Packets specifying an A/C num should be 24 bytes.
-	else if (len != 26 && len != 27)
-	{
-		result.aircraft = -1;
-	}
-	//Everything checks out, so we can skip over the header and copy the raw data
-	//into the struct.
-	else
-	{
-		//NOTE: It's tempting to just do a single memcpy here, but we can't do that because the
-		//	  compiler is allowed to add padding to the struct type.
-		result.pitch = *((float*)(data + 5));
-		result.roll = *((float*)(data + 9));
-		result.yaw = *((float*)(data + 13));
-		result.throttle = *((float*)(data + 17));
-		result.gear = data[21];
-		result.flaps = *((float*)(data + 22));
-		if (len == 27)
-		{
-			result.aircraft = data[26];
-		}
-	}
-	return result;
-}
 
 xpcWypt parseWYPT(const char data[])
 {

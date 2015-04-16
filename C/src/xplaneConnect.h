@@ -58,17 +58,6 @@ typedef struct
 
 typedef struct
 {
-	float pitch;
-	float roll;
-	float yaw;
-	float throttle;
-	char gear;
-	float flaps;
-	char aircraft;
-} xpcCtrl;
-
-typedef struct
-{
 	double latitude;
 	double longitude;
 	double altitude;
@@ -112,10 +101,8 @@ int psendPOSI(XPCSocket sock, float values[], int size);
 int sendPOSI(XPCSocket sock, float values[], int size, char ac);
 
 // Controls
-xpcCtrl parseCTRL(const char data[]);
-xpcCtrl readCTRL(XPCSocket recfd);
-short sendCTRL(XPCSocket recfd, short numArgs, float valueArray[]);
-short sendpCTRL(XPCSocket recfd, short numArgs, float valueArray[], char acNum);
+int psendCTRL(XPCSocket sock, float values[], int size);
+int sendCTRL(XPCSocket sock, float values[], int size, char ac);
 
 // Waypoints
 xpcWypt parseWYPT(const char data[]);
