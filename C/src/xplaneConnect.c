@@ -601,100 +601,73 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 /****                        End CTRL functions                           ****/
 /*****************************************************************************/
 
-short sendTEXT(XPCSocket sendfd, char* msg, int x, int y)
+/*****************************************************************************/
+/****                        Drawing functions                            ****/
+/*****************************************************************************/
+int sendTEXT(XPCSocket sock, char* msg, int x, int y)
 {
-	char buf[269] = { 0 };
+	// Input Validation
+	if (x < -1)
+	{
+		printError("sendTEXT", "x should be positive (or -1 for default).");
+		// Technically, this should work, and may print something to the screen.
+	}
+	if (y < -1)
+	{
+		printError("sendTEXT", "y should be positive (or -1 for default).");
+		// Negative y will never result in text being displayed.
+		return -1;
+	}
+
+	// Setup command
+	// 5 byte header + 8 byte position + up to 256 byte message
+	char buffer[269] = "TEXT";
 	size_t msgLen = strnlen(msg, 255);
 	size_t len = 14 + msgLen;
-	strcpy(buf, "TEXT");
-	memcpy(buf + 5, &x, sizeof(int));
-	memcpy(buf + 9, &y, sizeof(int));
-	buf[13] = msgLen;
-	strncpy(buf + 14, msg, msgLen);
-
-	sendUDP(sendfd, buf, len);
+	memcpy(buffer + 5, &x, sizeof(int));
+	memcpy(buffer + 9, &y, sizeof(int));
+	buffer[13] = msgLen;
+	strncpy(buffer + 14, msg, msgLen);
+	
+	// Send Command
+	if (sendUDP(sock, buffer, 40) != 0)
+	{
+		printError("sendTEXT", "Failed to send command");
+		return -2;
+	}
 	return 0;
 }
 
-short sendWYPT(XPCSocket sendfd, WYPT_OP op, float points[], int numPoints)
+int sendWYPT(XPCSocket sock, WYPT_OP op, float points[], int count)
 {
-	char buf[255] = "WYPT";
-	//Preconditions
-	//Validate operation
-	if (op < xpc_WYPT_ADD || op > xpc_WYPT_CLR)
+	// Input Validation
+	if (op < XPC_WYPT_ADD || op > XPC_WYPT_CLR)
 	{
+		printError("sendWYPT", "Unrecognized operation.");
 		return -1;
 	}
-	//Validate number of points
-	else if (numPoints > 19)
+	if (count > 255)
 	{
+		printError("sendWYPT", "Too many points. Must be less than 256.");
 		return -2;
 	}
-	//Everything checks out; send the message
-	else
+
+	// Setup Command
+	// 7 byte header + 12 bytes * count
+	char buffer[3067] = "WYPT";
+	buffer[5] = (unsigned char)op;
+	buffer[6] = (unsigned char)count;
+	size_t ptLen = sizeof(float) * 3 * count;
+	memcpy(buffer + 7, points, ptLen);
+
+	// Send Command
+	if (sendUDP(sock, buffer, 40) != 0)
 	{
-		buf[5] = op;
-		buf[6] = numPoints;
-		size_t len = sizeof(float) * 3 * numPoints;
-		memcpy(buf + 7, points, len);
-		sendUDP(sendfd, buf, len + 7);
-		return 0;
+		printError("sendWYPT", "Failed to send command");
+		return -2;
 	}
+	return 0;
 }
-
-//READ
-//----------------------------------------
-
-
-
-short readRequest(XPCSocket recfd, float *dataRef[], short arraySizes[], struct sockaddr *recvaddr)
-{
-	char buf[5000];
-	readUDP(recfd,buf, recvaddr);
-	if (buf[0]!= '\0')
-	{
-		return parseRequest(buf, dataRef, arraySizes);
-	}
-	return -1;
-}
-
-//PARSE
-//---------------------
-
-
-xpcWypt parseWYPT(const char data[])
-{
-	xpcWypt result;
-	unsigned char len = data[4];
-	//Preconditions
-	//Validate message prefix to ensure we are looking at the right kind of packet.
-	if (strncmp(data, "WYPT", 4) != 0)
-	{
-		result.op = -1;
-	}
-	//Validate operation
-	else if (data[5] < xpc_WYPT_ADD || data[5] > xpc_WYPT_CLR)
-	{
-		result.op = -1;
-	}
-	//Validate number of points
-	else if (data[6] > 19)
-	{
-		result.op = -2;
-	}
-	//Everything checks out; copy the points into result
-	else
-	{
-		result.op = data[5];
-		result.numPoints = data[6];
-		char* ptr = data + 7;
-		for (size_t i = 0; i < result.numPoints; ++i)
-		{
-			result.points[i].latitude = *((float*)ptr);
-			result.points[i].longitude = *((float*)(ptr + 4));
-			result.points[i].altitude = *((float*)(ptr + 8));
-			ptr += 12;
-		}
-	}
-	return result;
-}
+/*****************************************************************************/
+/****                      End Drawing functions                          ****/
+/*****************************************************************************/

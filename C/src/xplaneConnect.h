@@ -56,26 +56,12 @@ typedef struct
 	#endif
 } XPCSocket;
 
-typedef struct
-{
-	double latitude;
-	double longitude;
-	double altitude;
-} Waypoint;
-
 typedef enum
 {
-	xpc_WYPT_ADD = 1,
-	xpc_WYPT_DEL = 2,
-	xpc_WYPT_CLR = 3
+	XPC_WYPT_ADD = 1,
+	XPC_WYPT_DEL = 2,
+	XPC_WYPT_CLR = 3
 } WYPT_OP;
-
-typedef struct
-{
-	WYPT_OP op;
-	Waypoint points[20];
-	size_t numPoints;
-} xpcWypt;
         
 // Low Level UDP Functions
 XPCSocket openUDP(unsigned short port, const char *xpIP, unsigned short xpPort);
@@ -104,16 +90,11 @@ int sendPOSI(XPCSocket sock, float values[], int size, char ac);
 int psendCTRL(XPCSocket sock, float values[], int size);
 int sendCTRL(XPCSocket sock, float values[], int size, char ac);
 
-// Waypoints
-xpcWypt parseWYPT(const char data[]);
-short sendWYPT(XPCSocket sendfd, WYPT_OP op, float points[], int numPoints);
+// Drawing
+int sendTEXT(XPCSocket sock, char* msg, int x, int y);
+int sendWYPT(XPCSocket sock, WYPT_OP op, float points[], int count);
 
-// Screen Text
-short sendTEXT(XPCSocket sendfd, char* msg, int x, int y);
-
-        
-        
 #ifdef __cplusplus
     }
 #endif
-#endif //ifdef _h
+#endif
