@@ -27,13 +27,13 @@ namespace XPC
 		static Message ReadFrom(UDPSocket& sock);
 
 		/// Gets the message header in binary form.
-		std::uint32_t GetMagicNumber();
+		unsigned long GetMagicNumber();
 
 		/// Gets the message header.
 		std::string GetHead();
 
 		/// Gets the buffer underlying the message.
-		const std::uint8_t* GetBuffer();
+		const unsigned char* GetBuffer();
 
 		/// Gets the size of the message in bytes.
 		std::size_t GetSize();
@@ -48,7 +48,7 @@ namespace XPC
 		Message();
 
 		static const std::size_t bufferSize = 4096;
-		std::uint8_t buffer[bufferSize];
+		unsigned char buffer[bufferSize];
 		std::size_t size;
 		struct sockaddr source;
 	};

@@ -78,7 +78,7 @@ namespace XPC
 		return std::string(ip);
 	}
 
-	static std::uint16_t getPort(sockaddr* sa)
+	static unsigned short getPort(sockaddr* sa)
 	{
 		switch (sa->sa_family)
 		{
@@ -110,7 +110,7 @@ namespace XPC
 		// Set current connection
 		sockaddr sourceaddr = msg.GetSource();
 		std::string ip = getIP(&sourceaddr);
-		std::uint16_t port = getPort(&sourceaddr);
+		unsigned short port = getPort(&sourceaddr);
 		connectionKey = ip + ":" + std::to_string(port);
 #if LOG_VERBOSITY > 4
 		Log::FormatLine("[MSGH] Handling message from %s", connectionKey.c_str());
@@ -159,14 +159,14 @@ namespace XPC
 
 	void MessageHandlers::HandleConn(Message& msg)
 	{
-		const std::uint8_t* buffer = msg.GetBuffer();
+		const unsigned char* buffer = msg.GetBuffer();
 
 		// Store new port
-		connection.dstPort = *((std::uint16_t*)(buffer + 5));
+		connection.dstPort = *((unsigned short*)(buffer + 5));
 		connections[connectionKey] = connection;
 
 		// Create response
-		std::uint8_t response[6] = "CONF";
+		unsigned char response[6] = "CONF";
 		response[5] = connection.id;
 
 		// Update log
@@ -186,7 +186,7 @@ namespace XPC
 		Log::FormatLine("[CTRL] Message Received (Conn %i)", connection.id);
 #endif
 
-		const std::uint8_t* buffer = msg.GetBuffer();
+		const unsigned char* buffer = msg.GetBuffer();
 		std::size_t size = msg.GetSize();
 		//Legacy packets that don't specify an aircraft number should be 26 bytes long.
 		//Packets specifying an A/C num should be 27 bytes.
@@ -203,9 +203,9 @@ namespace XPC
 		float roll = *((float*)(buffer + 9));
 		float yaw = *((float*)(buffer + 13));
 		float thr = *((float*)(buffer + 17));
-		std::int8_t gear = buffer[21];
+		char gear = buffer[21];
 		float flaps = *((float*)(buffer + 22));
-		std::uint8_t aircraft = 0;
+		unsigned char aircraft = 0;
 		if (size == 27)
 		{
 			aircraft = buffer[26];
@@ -239,7 +239,7 @@ namespace XPC
 	void MessageHandlers::HandleData(Message& msg)
 	{
 		// Parse data
-		const std::uint8_t* buffer = msg.GetBuffer();
+		const unsigned char* buffer = msg.GetBuffer();
 		std::size_t size = msg.GetSize();
 		std::size_t numCols = (size - 5) / 36;
 		if (numCols > 0)
@@ -275,7 +275,7 @@ namespace XPC
 		float savedHPath = -998;
 		for (int i = 0; i < numCols; ++i)
 		{
-			std::uint8_t dataRef = (std::uint8_t)values[i][0];
+			unsigned char dataRef = (unsigned char)values[i][0];
 			if (dataRef > 134)
 			{
 				Log::FormatLine("[DATA] ERROR: DataRef # must be between 0 - 134 (Received: %hi)", (int)dataRef);
@@ -400,11 +400,11 @@ namespace XPC
 
 	void MessageHandlers::HandleDref(Message& msg)
 	{
-		const std::uint8_t* buffer = msg.GetBuffer();
-		std::uint8_t len = buffer[5];
+		const unsigned char* buffer = msg.GetBuffer();
+		unsigned char len = buffer[5];
 		std::string dref = std::string((char*)buffer + 6, len);
 
-		std::uint8_t valueCount = buffer[6 + len];
+		unsigned char valueCount = buffer[6 + len];
 		float values[40];
 		memcpy(values, buffer + len + 7, valueCount * sizeof(float));
 
@@ -417,8 +417,8 @@ namespace XPC
 
 	void MessageHandlers::HandleGetD(Message& msg)
 	{
-		const std::uint8_t* buffer = msg.GetBuffer();
-		std::uint8_t drefCount = buffer[5];
+		const unsigned char* buffer = msg.GetBuffer();
+		unsigned char drefCount = buffer[5];
 		if (drefCount == 0) // Use last request
 		{
 #if LOG_VERBOSITY > 0
@@ -442,7 +442,7 @@ namespace XPC
 			std::size_t ptr = 6;
 			for (int i = 0; i < drefCount; ++i)
 			{
-				std::uint8_t len = buffer[ptr];
+				unsigned char len = buffer[ptr];
 				connection.getdRequest[i] = std::string((char*)buffer + 1 + ptr, len);
 				ptr += 1 + len;
 			}
@@ -450,7 +450,7 @@ namespace XPC
 			connections[connectionKey] = connection;
 		}
 
-		std::uint8_t response[4096] = "RESP";
+		unsigned char response[4096] = "RESP";
 		response[5] = drefCount;
 		std::size_t cur = 6;
 		for (int i = 0; i < drefCount; ++i)
@@ -472,7 +472,7 @@ namespace XPC
 		Log::FormatLine("[POSI] Message Received (Conn %i)", connection.id);
 #endif
 
-		const std::uint8_t* buffer = msg.GetBuffer();
+		const unsigned char* buffer = msg.GetBuffer();
 		const std::size_t size = msg.GetSize();
 		if (size < 34)
 		{
@@ -482,7 +482,7 @@ namespace XPC
 			return;
 		}
 
-		std::int8_t aircraft = buffer[5];
+		char aircraft = buffer[5];
 		float gear = *((float*)(buffer + 30));
 		float pos[3];
 		float orient[3];
@@ -516,7 +516,7 @@ namespace XPC
 		Log::FormatLine("[SIMU] Message Received (Conn %i)", connection.id);
 #endif
 
-		const std::uint8_t* buffer = msg.GetBuffer();
+		const unsigned char* buffer = msg.GetBuffer();
 
 		// Set DREF
 		int value = buffer[5];
@@ -542,7 +542,7 @@ namespace XPC
 #endif
 
 		std::size_t len = msg.GetSize();
-		const std::uint8_t*  buffer = msg.GetBuffer();
+		const unsigned char*  buffer = msg.GetBuffer();
 
 		char text[256] = { 0 };
 		if (len < 14)
@@ -580,11 +580,11 @@ namespace XPC
 #endif
 
 		// Parse data
-		const std::uint8_t* buffer = msg.GetBuffer();
-		std::uint8_t op = buffer[5];
-		std::uint8_t count = buffer[6];
+		const unsigned char* buffer = msg.GetBuffer();
+		unsigned char op = buffer[5];
+		unsigned char count = buffer[6];
 		Waypoint points[255];
-		const std::uint8_t* ptr = buffer + 7;
+		const unsigned char* ptr = buffer + 7;
 		for (size_t i = 0; i < count; ++i)
 		{
 			points[i].latitude = *((float*)ptr);
@@ -621,7 +621,7 @@ namespace XPC
 #if LOG_VERBOSITY > 1
 		Log::WriteLine("[MSGH] Sending raw data to X-Plane");
 #endif
-		sock->SendTo((std::uint8_t*)msg.GetBuffer(), msg.GetSize(), "127.0.0.1", 49000);
+		sock->SendTo((unsigned char*)msg.GetBuffer(), msg.GetSize(), "127.0.0.1", 49000);
 	}
 
 	void MessageHandlers::HandleUnknown(Message& msg)

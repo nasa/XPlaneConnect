@@ -251,7 +251,7 @@ namespace XPC
 		}
 	}
 
-	double DataManager::GetDouble(DREF dref, std::uint8_t aircraft)
+	double DataManager::GetDouble(DREF dref, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 		double value = XPLMGetDatad(xdref);
@@ -261,7 +261,7 @@ namespace XPC
 		return value;
 	}
 
-	float DataManager::GetFloat(DREF dref, std::uint8_t aircraft)
+	float DataManager::GetFloat(DREF dref, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 		float value = XPLMGetDataf(xdref);
@@ -271,7 +271,7 @@ namespace XPC
 		return value;
 	}
 
-	int DataManager::GetInt(DREF dref, std::uint8_t aircraft)
+	int DataManager::GetInt(DREF dref, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 		int value = XPLMGetDatai(xdref);
@@ -281,7 +281,7 @@ namespace XPC
 		return value;
 	}
 
-	int DataManager::GetFloatArray(DREF dref, float values[], int size, std::uint8_t aircraft)
+	int DataManager::GetFloatArray(DREF dref, float values[], int size, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 		int resultSize = XPLMGetDatavf(xdref, values, 0, size);
@@ -291,7 +291,7 @@ namespace XPC
 		return resultSize;
 	}
 
-	int DataManager::GetIntArray(DREF dref, int values[], int size, std::uint8_t aircraft)
+	int DataManager::GetIntArray(DREF dref, int values[], int size, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 		int resultSize = XPLMGetDatavi(xdref, values, 0, size);
@@ -301,7 +301,7 @@ namespace XPC
 		return resultSize;
 	}
 
-	void DataManager::Set(DREF dref, double value, std::uint8_t aircraft)
+	void DataManager::Set(DREF dref, double value, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 #if LOG_VERBOSITY > 4
@@ -310,7 +310,7 @@ namespace XPC
 		XPLMSetDatad(xdref, value);
 	}
 
-	void DataManager::Set(DREF dref, float value, std::uint8_t aircraft)
+	void DataManager::Set(DREF dref, float value, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 #if LOG_VERBOSITY > 4
@@ -319,7 +319,7 @@ namespace XPC
 		XPLMSetDataf(xdref, value);
 	}
 
-	void DataManager::Set(DREF dref, int value, std::uint8_t aircraft)
+	void DataManager::Set(DREF dref, int value, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 #if LOG_VERBOSITY > 4
@@ -328,7 +328,7 @@ namespace XPC
 		XPLMSetDatai(xdref, value);
 	}
 
-	void DataManager::Set(DREF dref, float values[], int size, std::uint8_t aircraft)
+	void DataManager::Set(DREF dref, float values[], int size, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 #if LOG_VERBOSITY > 4
@@ -339,7 +339,7 @@ namespace XPC
 		XPLMSetDatavf(xdref, values, 0, drefSize);
 	}
 	
-	void DataManager::Set(DREF dref, int values[], int size, std::uint8_t aircraft)
+	void DataManager::Set(DREF dref, int values[], int size, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 #if LOG_VERBOSITY > 4
@@ -417,7 +417,7 @@ namespace XPC
 		}
 	}
 
-	void DataManager::SetGear(float gear, bool immediate, std::uint8_t aircraft)
+	void DataManager::SetGear(float gear, bool immediate, char aircraft)
 	{
 #if LOG_VERBOSITY > 3
 		Log::FormatLine("[DMAN] Setting gear (value:%f, immediate:%i) for aircraft %i", gear, immediate, aircraft);
@@ -453,7 +453,7 @@ namespace XPC
 		}
 	}
 
-	void DataManager::SetPosition(float pos[3], std::uint8_t aircraft)
+	void DataManager::SetPosition(float pos[3], char aircraft)
 	{
 #if LOG_VERBOSITY > 3
 		Log::FormatLine("[DMAN] Setting position (%f, %f, %f) for aircraft %i", pos[0], pos[1], pos[2], aircraft);
@@ -488,7 +488,7 @@ namespace XPC
 		}
 	}
 
-	void DataManager::SetOrientation(float orient[3], std::uint8_t aircraft)
+	void DataManager::SetOrientation(float orient[3], char aircraft)
 	{
 #if LOG_VERBOSITY > 3
 		Log::FormatLine("[DMAN] Setting orientation (%f, %f, %f) for aircraft %i",

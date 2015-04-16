@@ -5,7 +5,7 @@
 
 namespace XPC
 {
-	UDPSocket::UDPSocket(std::uint16_t recvPort)
+	UDPSocket::UDPSocket(unsigned short recvPort)
 	{
 #if LOG_VERBOSITY > 1
 		Log::FormatLine("[SOCK] Opening socket (port:%d)",	recvPort);
@@ -86,7 +86,7 @@ namespace XPC
 #endif
 	}
 
-	int UDPSocket::Read(std::uint8_t* dst, int maxLen, sockaddr* recvAddr)
+	int UDPSocket::Read(unsigned char* dst, int maxLen, sockaddr* recvAddr)
 	{
 		socklen_t recvaddrlen = sizeof(*recvAddr);
 		int status = 0;
@@ -132,7 +132,7 @@ namespace XPC
 	}
 
 	// TODO: Add IPV6 support
-	void UDPSocket::SendTo(std::uint8_t* buffer, std::size_t len, std::string remoteHost, std::uint16_t remotePort)
+	void UDPSocket::SendTo(unsigned char* buffer, std::size_t len, std::string remoteHost, unsigned short remotePort)
 	{
 #if LOG_VERBOSITY > 4
 		Log::FormatLine("[SOCK] Sending message to %s:%u (length=%u)", remoteHost.c_str(), remotePort, len);
@@ -141,12 +141,12 @@ namespace XPC
 		{
 			remoteHost = "127.0.0.1";
 		}
-		std::uint32_t ip;
+		unsigned long ip;
 		inet_pton(AF_INET, remoteHost.c_str(), &ip);
 		SendTo(buffer, len, ip, remotePort);
 	}
 
-	void UDPSocket::SendTo(std::uint8_t* buffer, std::size_t len, std::uint32_t remoteIP, std::uint16_t remotePort)
+	void UDPSocket::SendTo(unsigned char* buffer, std::size_t len, unsigned long remoteIP, unsigned short remotePort)
 	{
 		struct sockaddr_in remoteAddr;
 		remoteAddr.sin_family = AF_INET;
@@ -160,7 +160,7 @@ namespace XPC
 #endif
 		setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &on, sizeof(on));
 
-		buffer[4] = (std::uint8_t)len;
+		buffer[4] = (unsigned char)len;
 		if (sendto(sock, (char*)buffer, (int)len, 0, (const struct sockaddr *) &remoteAddr, sizeof(remoteAddr)) < 0)
 		{
 #if LOG_VERBOSITY > 0

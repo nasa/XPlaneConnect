@@ -20,13 +20,13 @@ namespace XPC
 		return m;
 	}
 	
-	std::uint32_t Message::GetMagicNumber()
+	unsigned long Message::GetMagicNumber()
 	{
 		if (size < 4)
 		{
 			return 0;
 		}
-		return *((std::uint32_t*)buffer);
+		return *((unsigned long*)buffer);
 	}
 
 	std::string Message::GetHead()
@@ -38,7 +38,7 @@ namespace XPC
 		return std::string((char*)buffer, 4);
 	}
 
-	const std::uint8_t* Message::GetBuffer()
+	const unsigned char* Message::GetBuffer()
 	{
 		if (size == 0)
 		{

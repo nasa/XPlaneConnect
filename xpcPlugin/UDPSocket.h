@@ -3,7 +3,6 @@
 #ifndef XPC_SOCKET_H
 #define XPC_SOCKET_H
 
-#include <cstdint>
 #include <cstdlib>
 #include <string>
 #ifdef _WIN32
@@ -35,7 +34,7 @@ namespace XPC
 		/// specified receive port.
 		///
 		/// \param recvPort The port on which this instance will receive data.
-		UDPSocket(std::uint16_t recvPort);
+		UDPSocket(unsigned short recvPort);
 
 		/// Closes the underlying socket for this instance.
 		~UDPSocket();
@@ -49,7 +48,7 @@ namespace XPC
 		///				   of the remote host.
 		/// \returns		  The number of bytes read, or a negative number if
 		///				   an error occurs.
-		int Read(std::uint8_t* buffer, int size, sockaddr* remoteAddr);
+		int Read(unsigned char* buffer, int size, sockaddr* remoteAddr);
 
 		/// Sends data to the specified remote endpoint.
 		///
@@ -57,7 +56,7 @@ namespace XPC
 		/// \param len		The number of bytes to send.
 		/// \param remoteHost The hostname of the destination client.
 		/// \param remotePort The port of the destination client.
-		void SendTo(std::uint8_t* buffer, std::size_t len, std::string remoteHost, std::uint16_t remotePort);
+		void SendTo(unsigned char* buffer, std::size_t len, std::string remoteHost, unsigned short remotePort);
 
 		/// Sends data to the specified remote endpoint.
 		///
@@ -65,7 +64,7 @@ namespace XPC
 		/// \param len		The number of bytes to send.
 		/// \param remoteHost The hostname of the destination client.
 		/// \param remotePort The port of the destination client.
-		void UDPSocket::SendTo(std::uint8_t* buffer, std::size_t len, std::uint32_t remoteIP, std::uint16_t remotePort);
+		void UDPSocket::SendTo(unsigned char* buffer, std::size_t len, unsigned long remoteIP, unsigned short remotePort);
 
 	private:
 #ifdef _WIN32
