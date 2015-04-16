@@ -8,7 +8,7 @@
 namespace XPC
 {
 	/// Represents named datarefs used by X-Plane Connect
-	enum class DREF
+	enum class DREF : unsigned long
 	{
 		None = 0,
 

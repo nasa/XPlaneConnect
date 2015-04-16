@@ -23,16 +23,29 @@
 #include <cmath>
 #include <unordered_map>
 
-using namespace std;
+namespace std
+{
+	template <>
+	struct hash<XPC::DREF>
+	{
+		size_t operator()(const XPC::DREF & x) const
+		{
+			return static_cast<unsigned long>(x);
+		}
+	};
+}
+
 namespace XPC
 {
-	static std::unordered_map<DREF, XPLMDataRef> drefs;
-	static std::unordered_map<DREF, XPLMDataRef> mdrefs[20];
-	static std::unordered_map<std::string, XPLMDataRef> sdrefs;
+	using namespace std;
+
+	static unordered_map<DREF, XPLMDataRef> drefs;
+	static unordered_map<DREF, XPLMDataRef> mdrefs[20];
+	static unordered_map<string, XPLMDataRef> sdrefs;
 
 	void DataManager::Initialize()
 	{
-		drefs = std::unordered_map<DREF, XPLMDataRef>(
+		drefs = unordered_map<DREF, XPLMDataRef>(
 		{
 			{ DREF::None, XPLMFindDataRef("sim/test/test_float") },
 
@@ -177,7 +190,7 @@ namespace XPC
 		}
 	}
 
-	int DataManager::Get(std::string dref, float values[], int size)
+	int DataManager::Get(string dref, float values[], int size)
 	{
 		XPLMDataRef& xdref = sdrefs[dref];
 		if (xdref == nullptr)
@@ -351,7 +364,7 @@ namespace XPC
 		XPLMSetDatavi(xdref, values, 0, drefSize);
 	}
 
-	void DataManager::Set(std::string dref, float values[], int size)
+	void DataManager::Set(string dref, float values[], int size)
 	{
 		XPLMDataRef& xdref = sdrefs[dref];
 		if (xdref == nullptr)
@@ -369,7 +382,7 @@ namespace XPC
 #endif
 			return;
 		}
-		if (std::isnan(values[0]))
+		if (isnan(values[0]))
 		{
 #if LOG_VERBOSITY > 0
 			Log::WriteLine("[DMAN] ERROR: Value must be a number (NaN received)");
@@ -429,7 +442,7 @@ namespace XPC
 		{
 			return;
 		}
-		if (std::isnan(gear) || gear < 0 || gear > 1)
+		if (isnan(gear) || gear < 0 || gear > 1)
 		{
 			Log::WriteLine("[GEAR] ERROR: Value must be 0 or 1");
 			return;
@@ -459,7 +472,7 @@ namespace XPC
 #if LOG_VERBOSITY > 3
 		Log::FormatLine("[DMAN] Setting position (%f, %f, %f) for aircraft %i", pos[0], pos[1], pos[2], aircraft);
 #endif
-		if (std::isnan(pos[0] + pos[1] + pos[2]))
+		if (isnan(pos[0] + pos[1] + pos[2]))
 		{
 #if LOG_VERBOSITY > 0
 			Log::WriteLine("[DMAN] ERROR: Position must be a number (NaN received)");
@@ -495,7 +508,7 @@ namespace XPC
 		Log::FormatLine("[DMAN] Setting orientation (%f, %f, %f) for aircraft %i",
 			orient[0], orient[1], orient[2], aircraft);
 #endif
-		if (std::isnan(orient[0] + orient[1] + orient[2]))
+		if (isnan(orient[0] + orient[1] + orient[2]))
 		{
 #if LOG_VERBOSITY > 0
 			Log::WriteLine("[DMAN] ERROR: Orientation must be a number (NaN received)");
@@ -538,7 +551,7 @@ namespace XPC
 
 	void DataManager::SetFlaps(float value)
 	{
-		if (std::isnan(value))
+		if (isnan(value))
 		{
 			Log::WriteLine("[FLAP] ERROR: Value must be a number (NaN received)");
 			return;
