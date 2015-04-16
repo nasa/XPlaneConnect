@@ -53,9 +53,7 @@ namespace XPC
 		typedef struct
 		{
 			std::uint8_t id;
-			std::string ip;
-			std::uint16_t dstPort;
-			std::uint16_t srcPort;
+			sockaddr addr;
 			std::uint8_t getdCount;
 			std::string getdRequest[255];
 		} ConnectionInfo;

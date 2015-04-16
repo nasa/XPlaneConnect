@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\C\src\xplaneConnect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -41,9 +38,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\C\src\xplaneConnect.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\XPCPlugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

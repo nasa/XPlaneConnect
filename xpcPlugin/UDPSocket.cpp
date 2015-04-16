@@ -131,41 +131,49 @@ namespace XPC
 		return status;
 	}
 
-	// TODO: Add IPV6 support
-	void UDPSocket::SendTo(std::uint8_t* buffer, std::size_t len, std::string remoteHost, std::uint16_t remotePort)
+	void UDPSocket::SendTo(std::uint8_t* buffer, std::size_t len, sockaddr* remote)
 	{
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[SOCK] Sending message to %s:%u (length=%u)", remoteHost.c_str(), remotePort, len);
-#endif
-		if (remoteHost == "localhost")
-		{
-			remoteHost = "127.0.0.1";
-		}
-		std::uint32_t ip;
-		inet_pton(AF_INET, remoteHost.c_str(), &ip);
-		SendTo(buffer, len, ip, remotePort);
-	}
-
-	void UDPSocket::SendTo(std::uint8_t* buffer, std::size_t len, std::uint32_t remoteIP, std::uint16_t remotePort)
-	{
-		struct sockaddr_in remoteAddr;
-		remoteAddr.sin_family = AF_INET;
-		remoteAddr.sin_port = htons(remotePort);
-		remoteAddr.sin_addr.s_addr = remoteIP;
-
-#ifdef _WIN32
-		const char on = 1;
-#else
-		int on = 1;
-#endif
-		setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &on, sizeof(on));
-
 		buffer[4] = (std::uint8_t)len;
-		if (sendto(sock, (char*)buffer, (int)len, 0, (const struct sockaddr *) &remoteAddr, sizeof(remoteAddr)) < 0)
+		if (sendto(sock, (char*)buffer, (int)len, 0, remote, sizeof(*remote)) < 0)
 		{
 #if LOG_VERBOSITY > 0
-			Log::FormatLine("[SOCK] Send failed. (remote: %s:%d)", remoteAddr, remotePort);
+			Log::FormatLine("[SOCK] Send failed. (remote: %s)", GetHost(remote).c_str());
 #endif
 		}
+		else
+		{
+#if LOG_VERBOSITY > 3
+			Log::FormatLine("[SOCK] Datagram sent. (remote: %s)", GetHost(remote).c_str());
+#endif
+		}
+	}
+	
+	std::string UDPSocket::GetHost(sockaddr* sa)
+	{
+		char ip[INET6_ADDRSTRLEN + 6] = { 0 };
+		switch (sa->sa_family)
+		{
+		case AF_INET:
+		{
+			sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(sa);
+			inet_ntop(AF_INET, &sin->sin_addr, ip, INET6_ADDRSTRLEN);
+			int len = strnlen(ip, INET6_ADDRSTRLEN);
+			ip[len++] = ':';
+			sprintf(ip + len, "%d", ntohs((*sin).sin_port));
+			break;
+		}
+		case AF_INET6:
+		{
+			sockaddr_in6* sin = reinterpret_cast<sockaddr_in6*>(sa);
+			inet_ntop(AF_INET6, &sin->sin6_addr, ip, INET6_ADDRSTRLEN);
+			int len = strnlen(ip, INET6_ADDRSTRLEN);
+			ip[len++] = ':';
+			sprintf(ip + len, "%d", ntohs((*sin).sin6_port));
+			break;
+		}
+		default:
+			return "UNKNOWN";
+		}
+		return std::string(ip);
 	}
 }

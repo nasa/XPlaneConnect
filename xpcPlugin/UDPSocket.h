@@ -53,20 +53,16 @@ namespace XPC
 
 		/// Sends data to the specified remote endpoint.
 		///
-		/// \param data	   The data to be sent.
-		/// \param len		The number of bytes to send.
-		/// \param remoteHost The hostname of the destination client.
-		/// \param remotePort The port of the destination client.
-		void SendTo(std::uint8_t* buffer, std::size_t len, std::string remoteHost, std::uint16_t remotePort);
+		/// \param data   The data to be sent.
+		/// \param len    The number of bytes to send.
+		/// \param remote The destination socket.
+		void SendTo(std::uint8_t* buffer, std::size_t len, sockaddr* remote);
 
-		/// Sends data to the specified remote endpoint.
+		/// Gets a string containing the IP address and port contained in the given sockaddr.
 		///
-		/// \param data	   The data to be sent.
-		/// \param len		The number of bytes to send.
-		/// \param remoteHost The hostname of the destination client.
-		/// \param remotePort The port of the destination client.
-		void UDPSocket::SendTo(std::uint8_t* buffer, std::size_t len, std::uint32_t remoteIP, std::uint16_t remotePort);
-
+		/// \param addr The socket address to parse.
+		/// \returns    A string representation of the socket address.
+		static std::string GetHost(sockaddr* addr);
 	private:
 #ifdef _WIN32
 		SOCKET sock;

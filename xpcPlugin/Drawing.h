@@ -3,12 +3,17 @@
 #ifndef XPC_DRAWING_H
 #define XPC_DRAWING_H
 
-#include "xplaneConnect.h"
-
 #include <cstdlib>
 
 namespace XPC
 {
+	typedef struct
+	{
+		double latitude;
+		double longitude;
+		double altitude;
+	} Waypoint;
+
 	/// Handles tasks that involve drawing to the screen in X-Plane.
 	///
 	/// \author Jason Watkins

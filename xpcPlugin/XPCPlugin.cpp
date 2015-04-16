@@ -71,11 +71,9 @@
 #endif
 
 #define RECVPORT 49009 // Port that the plugin receives commands on
-#define SENDPORT 49097 // Port that the plugin sends on
 #define OPS_PER_CYCLE 20 // Max Number of operations per cycle
 
-XPC::UDPSocket* recvSocket = nullptr;
-XPC::UDPSocket* sendSocket = nullptr;
+XPC::UDPSocket* sock = nullptr;
 
 double start,lap;
 static double timeConvert = 0.0;
@@ -126,10 +124,8 @@ PLUGIN_API void	XPluginStop(void)
 PLUGIN_API void XPluginDisable(void)
 {
 	// Close sockets
-	delete recvSocket;
-	delete sendSocket;
-	recvSocket = nullptr;
-	sendSocket = nullptr;
+	delete sock;
+	sock = nullptr;
 
 	// Stop rendering messages to screen.
 	XPC::Drawing::ClearMessage();
@@ -143,9 +139,8 @@ PLUGIN_API void XPluginDisable(void)
 PLUGIN_API int XPluginEnable(void)
 {
 	// Open sockets
-	recvSocket = new XPC::UDPSocket(RECVPORT);
-	sendSocket = new XPC::UDPSocket(SENDPORT);
-    XPC::MessageHandlers::SetSocket(sendSocket);
+	sock = new XPC::UDPSocket(RECVPORT);
+	XPC::MessageHandlers::SetSocket(sock);
 
 	XPC::Log::WriteLine("[EXEC] Plugin Enabled, sockets opened");
 	if (benchmarkingSwitch > 0)
@@ -189,7 +184,7 @@ float XPCFlightLoopCallback(float inElapsedSinceLastCall,
 #endif
 		}
 
-		XPC::Message msg = XPC::Message::ReadFrom(*recvSocket);
+		XPC::Message msg = XPC::Message::ReadFrom(*sock);
 		if (msg.GetHead() == "")
 		{
 			break;
@@ -209,8 +204,8 @@ float XPCFlightLoopCallback(float inElapsedSinceLastCall,
 	if (cyclesToClear != -1 && counter%cyclesToClear == 0)
 	{
 		XPC::Log::WriteLine("[EXEC] Cleared UDP Buffer");
-		delete recvSocket;
-		recvSocket = new XPC::UDPSocket(RECVPORT);
+		delete sock;
+		sock = new XPC::UDPSocket(RECVPORT);
 	}
 	return -1;
 }
