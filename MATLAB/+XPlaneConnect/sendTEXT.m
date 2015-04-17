@@ -1,4 +1,4 @@
-function [ status ] = sendTEXT( msg, varargin )
+function sendTEXT( msg, x, y, socket )
 % sendTEXT Sends a string to be displayed in X-Plane.
 %
 % Inputs
@@ -13,35 +13,34 @@ function [ status ] = sendTEXT( msg, varargin )
 % 
 % Use
 % 1. import XPlaneConnect.*;
-% 2. #Set a message to be displayed near the top middle of the screen.
+% 2. % Set a message to be displayed near the top middle of the screen.
 % 3. status = sendTEXT('Some text', 512, 600);
 % 
 % Contributors
-%   Jason Watkins
-%       jason.w.watkins@nasa.gov
-%
-% To Do
-%
-% BEGIN CODE
+%   Jason Watkins (jason.w.watkins@nasa.gov)
 
 import XPlaneConnect.*
-%% Handle Input
-p = inputParser;
-addRequired(p,'msg');
-addOptional(p,'x',-1,@isnumeric);
-addOptional(p,'y',-1,@isnumeric);
-addOptional(p,'IP','127.0.0.1',@ischar);
-addOptional(p,'port',49009,@isnumeric);
-parse(p,msg,varargin{:});
 
-%% Body
-    header = ['TEXT'-0,0];
-    dataStream = [header,...
-        typecast(uint32(p.Results.x), 'uint8'),...
-        typecast(uint32(p.Results.y), 'uint8'),...
-        uint8(length(msg)), msg-0];
-    
-    % Send TEXT
-    status = sendUDP(dataStream, p.Results.IP, p.Results.port);
+%% Get client
+global clients;
+if ~exist('socket', 'var')
+    assert(istrue(length(clients) < 2), '[sendCTRL] ERROR: Multiple clients open. You must specify which client to use.');
+    if isempty(clients)
+       openUDP(); 
+    end
+    socket = clients(1);
 end
 
+%% Validate input
+if ~exist('x', 'var')
+    x = -1;
+end
+if ~exist('y', 'var')
+    y = -1;
+end
+x = int32(x);
+y = int32(y);
+
+%% Send command
+socket.sendTEXT(msg, x, y);
+end
