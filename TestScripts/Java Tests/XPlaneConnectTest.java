@@ -31,7 +31,7 @@ public class XPlaneConnectTest
         {
             fail();
         }
-        try(XPlaneConnect xpc = new XPlaneConnect(49007, "127.0.0.1", 49009))
+        try(XPlaneConnect xpc = new XPlaneConnect("127.0.0.1", 49009, 49007))
         {
             assertNotNull(xpc);
         }
@@ -39,7 +39,7 @@ public class XPlaneConnectTest
         {
             fail();
         }
-        try(XPlaneConnect xpc = new XPlaneConnect(49007, "127.0.0.1", 49009, 200))
+        try(XPlaneConnect xpc = new XPlaneConnect("127.0.0.1", 49009, 49007, 200))
         {
             assertNotNull(xpc);
         }
@@ -50,9 +50,9 @@ public class XPlaneConnectTest
     }
 
     @Test
-    public void testGetRecvPort() throws SocketException
+    public void testGetRecvPort() throws Exception
     {
-        try(XPlaneConnect xpc = new XPlaneConnect())
+        try(XPlaneConnect xpc = new XPlaneConnect("127.0.0.1", 49009, 49008))
         {
             assertEquals(49008, xpc.getRecvPort());
         }
@@ -87,11 +87,11 @@ public class XPlaneConnectTest
     }
 
     @Test
-    public void constructorTest_SocketAlreadyBound() throws SocketException
+    public void constructorTest_SocketAlreadyBound() throws Exception
     {
-        try(XPlaneConnect xpc = new XPlaneConnect())
+        try(XPlaneConnect xpc = new XPlaneConnect("127.0.0.1", 49009, 49008))
         {
-            try(XPlaneConnect xpc2 = new XPlaneConnect())
+            try(XPlaneConnect xpc2 = new XPlaneConnect("127.0.0.1", 49009, 49008))
             {
                 fail();
             }
@@ -106,7 +106,7 @@ public class XPlaneConnectTest
     @Test(expected = UnknownHostException.class)
     public void constructorTest_InvalidHost() throws UnknownHostException
     {
-        try(XPlaneConnect xpc = new XPlaneConnect(49007, "notarealhost", 49009))
+        try(XPlaneConnect xpc = new XPlaneConnect("notarealhost", 49009, 49007))
         {
 
         }
@@ -575,15 +575,9 @@ public class XPlaneConnectTest
         String dref = "sim/cockpit/switches/gear_handle_status";
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            int p = xpc.getRecvPort();
             xpc.setCONN(49055);
             assertEquals(49055, xpc.getRecvPort());
             float[] result = xpc.requestDREF(dref);
-            assertEquals(1, result.length);
-
-            xpc.setCONN(p);
-            assertEquals(p, xpc.getRecvPort());
-            result = xpc.requestDREF(dref);
             assertEquals(1, result.length);
         }
     }

@@ -44,8 +44,7 @@ import java.util.Arrays;
 public class XPlaneConnect implements AutoCloseable
 {
     private static int clientNum;
-    private DatagramSocket outSocket;
-    private DatagramSocket inSocket;
+    private DatagramSocket socket;
     private InetAddress xplaneAddr;
     private int xplanePort;
 
@@ -54,7 +53,7 @@ public class XPlaneConnect implements AutoCloseable
      *
      * @return The incoming port number.
      */
-    public int getRecvPort() { return inSocket.getLocalPort(); }
+    public int getRecvPort() { return socket.getLocalPort(); }
 
     /**
      * Gets the port on which the client sends data to X-Plane.
@@ -116,46 +115,44 @@ public class XPlaneConnect implements AutoCloseable
      */
     public XPlaneConnect(int timeout) throws SocketException
     {
-        this.inSocket = new DatagramSocket(49008);
-        this.outSocket = new DatagramSocket(50000 + ++clientNum);
+        this.socket = new DatagramSocket(0);
         this.xplaneAddr = InetAddress.getLoopbackAddress();
         this.xplanePort = 49009;
-        this.inSocket.setSoTimeout(timeout);
+        this.socket.setSoTimeout(timeout);
     }
 
     /**
      * Initializes a new instance of the {@code XPlaneConnect} class using the specified ports and X-Plane host.
      *
-     * @param port       The port on which the X-Plane Connect plugin is sending data.
-     * @param xplaneHost The network host on which X-Plane is running.
-     * @param xplanePort The port on which the X-Plane Connect plugin is listening.
+     * @param port   The port on which the X-Plane Connect plugin is sending data.
+     * @param xpHost The network host on which X-Plane is running.
+     * @param xpPort The port on which the X-Plane Connect plugin is listening.
      * @throws java.net.SocketException      If this instance is unable to bind to the specified port.
      * @throws java.net.UnknownHostException If the specified hostname can not be resolved.
      */
-    public XPlaneConnect(int port, String xplaneHost, int xplanePort)
+    public XPlaneConnect(String xpHost, int xpPort, int port)
             throws java.net.SocketException, java.net.UnknownHostException
     {
-        this(port, xplaneHost, xplanePort, 100);
+        this(xpHost, xpPort, port, 100);
     }
 
     /**
      * Initializes a new instance of the {@code XPlaneConnect} class using the specified ports, hostname, and timeout.
      *
      * @param port       The port on which the X-Plane Connect plugin is sending data.
-     * @param xplaneHost The network host on which X-Plane is running.
-     * @param xplanePort The port on which the X-Plane Connect plugin is listening.
+     * @param xpHost The network host on which X-Plane is running.
+     * @param xpPort The port on which the X-Plane Connect plugin is listening.
      * @param timeout    The time, in milliseconds, after which read attempts will timeout.
      * @throws java.net.SocketException      If this instance is unable to bind to the specified port.
      * @throws java.net.UnknownHostException If the specified hostname can not be resolved.
      */
-    public XPlaneConnect(int port, String xplaneHost, int xplanePort, int timeout)
+    public XPlaneConnect(String xpHost, int xpPort, int port, int timeout)
             throws java.net.SocketException, java.net.UnknownHostException
     {
-        this.inSocket = new DatagramSocket(port);
-        this.outSocket = new DatagramSocket(50000 + ++clientNum);
-        this.xplaneAddr = InetAddress.getByName(xplaneHost);
-        this.xplanePort = xplanePort;
-        this.inSocket.setSoTimeout(timeout);
+        this.socket = new DatagramSocket(port);
+        this.xplaneAddr = InetAddress.getByName(xpHost);
+        this.xplanePort = xpPort;
+        this.socket.setSoTimeout(timeout);
     }
 
     /**
@@ -163,15 +160,10 @@ public class XPlaneConnect implements AutoCloseable
      */
     public void close()
     {
-        if(inSocket != null)
+        if(socket != null)
         {
-            inSocket.close();
-            inSocket = null;
-        }
-        if(outSocket != null)
-        {
-            outSocket.close();
-            outSocket = null;
+            socket.close();
+            socket = null;
         }
     }
 
@@ -181,13 +173,13 @@ public class XPlaneConnect implements AutoCloseable
      * @return The data send from X-Plane.
      * @throws IOException If the read operation fails
      */
-    private byte[] readUDP() throws IOException //TODO: Store data in a class level buffer to account for partial messages
+    private byte[] readUDP() throws IOException
     {
         byte[] buffer = new byte[2048];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         try
         {
-            inSocket.receive(packet);
+            socket.receive(packet);
             return Arrays.copyOf(buffer, buffer[4]);
         }
         catch (SocketTimeoutException ex)
@@ -212,7 +204,7 @@ public class XPlaneConnect implements AutoCloseable
         buffer[4] = (byte)buffer.length;
 
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, xplaneAddr, xplanePort);
-        outSocket.send(packet);
+        socket.send(packet);
     }
 
     /**
@@ -672,12 +664,12 @@ public class XPlaneConnect implements AutoCloseable
     /**
      * Sets the port on which the client will receive data from X-Plane.
      *
-     * @param recvPort The new incoming port number.
+     * @param port The new incoming port number.
      * @throws IOException If the command cannnot be sent.
      */
-    public void setCONN(int recvPort) throws IOException
+    public void setCONN(int port) throws IOException
     {
-        if(recvPort < 0 || recvPort >= 0xFFFF)
+        if(port < 0 || port >= 0xFFFF)
         {
             throw new IllegalArgumentException("Invalid port (must be non-negative and less than 65536).");
         }
@@ -685,14 +677,14 @@ public class XPlaneConnect implements AutoCloseable
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         os.write("CONN".getBytes(StandardCharsets.UTF_8));
         os.write(0xFF); //Placeholder for message length
-        os.write((byte) recvPort);
-        os.write((byte) (recvPort >> 8));
+        os.write((byte) port);
+        os.write((byte) (port >> 8));
         sendUDP(os.toByteArray());
 
-        int soTimeout = inSocket.getSoTimeout();
-        inSocket.close();
-        inSocket = new DatagramSocket(recvPort);
-        inSocket.setSoTimeout(soTimeout);
+        int soTimeout = socket.getSoTimeout();
+        socket.close();
+        socket = new DatagramSocket(port);
+        socket.setSoTimeout(soTimeout);
         readUDP(); // Try to read response
     }
 }
