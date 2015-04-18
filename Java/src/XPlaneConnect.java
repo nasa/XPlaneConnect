@@ -124,9 +124,9 @@ public class XPlaneConnect implements AutoCloseable
     /**
      * Initializes a new instance of the {@code XPlaneConnect} class using the specified ports and X-Plane host.
      *
-     * @param port   The port on which the X-Plane Connect plugin is sending data.
      * @param xpHost The network host on which X-Plane is running.
      * @param xpPort The port on which the X-Plane Connect plugin is listening.
+     * @param port   The local port to use when sending and receiving data from XPC.
      * @throws java.net.SocketException      If this instance is unable to bind to the specified port.
      * @throws java.net.UnknownHostException If the specified hostname can not be resolved.
      */
@@ -139,9 +139,9 @@ public class XPlaneConnect implements AutoCloseable
     /**
      * Initializes a new instance of the {@code XPlaneConnect} class using the specified ports, hostname, and timeout.
      *
-     * @param port       The port on which the X-Plane Connect plugin is sending data.
      * @param xpHost The network host on which X-Plane is running.
      * @param xpPort The port on which the X-Plane Connect plugin is listening.
+     * @param port   The port on which the X-Plane Connect plugin is sending data.
      * @param timeout    The time, in milliseconds, after which read attempts will timeout.
      * @throws java.net.SocketException      If this instance is unable to bind to the specified port.
      * @throws java.net.UnknownHostException If the specified hostname can not be resolved.
@@ -156,7 +156,7 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
-     * Closes the underlying inSocket.
+     * Closes the underlying socket.
      */
     public void close()
     {
@@ -189,20 +189,13 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
-     * Send the given data to the X-Plane plugin. This method automatically sets the length byte before sending,
-     * overwriting any value previously stored in @{code buffer[4]}.
+     * Send the given data to the X-Plane plugin.
      *
      * @param buffer The data to send.
      * @throws IOException If the send operation fails.
      */
     private void sendUDP(byte[] buffer) throws IOException
     {
-        if(buffer.length < 5 || buffer.length > 255)
-        {
-            throw new IllegalArgumentException("buffer must be between 5 and 255 bytes long.");
-        }
-        buffer[4] = (byte)buffer.length;
-
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, xplaneAddr, xplanePort);
         socket.send(packet);
     }
@@ -228,9 +221,9 @@ public class XPlaneConnect implements AutoCloseable
      * @return     A byte array representing data dependent on the dref requested.
      * @throws IOException If either the request or the response fails.
      */
-    public float[] requestDREF(String dref) throws IOException
+    public float[] getDREF(String dref) throws IOException
     {
-        return requestDREFs(new String[]{dref})[0];
+        return getDREFs(new String[] {dref})[0];
     }
 
     /**
@@ -240,7 +233,7 @@ public class XPlaneConnect implements AutoCloseable
      * @return      A multidimensional array representing the data for each requested dref.
      * @throws IOException If either the request or the response fails.
      */
-    public float[][] requestDREFs(String[] drefs) throws IOException
+    public float[][] getDREFs(String[] drefs) throws IOException
     {
         //Preconditions
         if(drefs == null || drefs.length == 0)
@@ -313,19 +306,19 @@ public class XPlaneConnect implements AutoCloseable
         throw new IOException("No response received.");
     }
 
-    public void sendDREF(String dref, float value) throws IOException
+    public void setDREF(String dref, float value) throws IOException
     {
-        sendDREF(dref, new float[] {value});
+        setDREF(dref, new float[] {value});
     }
 
     /**
      * Sends a command to X-Plane that sets the given DREF.
      *
-     * @param dref  The name of the DREF to set.
+     * @param dref  The name of the X-Plane dataref to set.
      * @param value An array of floating point values whose structure depends on the dref specified.
      * @throws IOException If the command cannot be sent.
      */
-    public void sendDREF(String dref, float[] value) throws IOException
+    public void setDREF(String dref, float[] value) throws IOException
     {
         //Preconditions
         if(dref == null)
@@ -551,6 +544,36 @@ public class XPlaneConnect implements AutoCloseable
         sendUDP(os.toByteArray());
     }
 
+    /**
+     * Reads X-Plane data
+     *
+     * @return The data read.
+     * @throws IOException If the read operation fails.
+     */
+    public float[][] readData() throws IOException
+    {
+        byte[] buffer = readUDP();
+        ByteBuffer bb = ByteBuffer.wrap(buffer);
+        int cur = 5;
+        int len = bb.get(cur++);
+        float[][] result = new float[bb.get(len)][9];
+        for(int i = 0; i < len; ++i)
+        {
+            for(int j = 0; j < 9; ++j)
+            {
+                result[i][j] = bb.getFloat(cur);
+                cur += 4;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Sends data to X-Plane
+     *
+     * @param data The data to send.
+     * @throws IOException If the command cannot be sent.
+     */
     public void sendDATA(float[][] data) throws IOException
     {
         //Preconditions
@@ -635,6 +658,15 @@ public class XPlaneConnect implements AutoCloseable
         sendUDP(os.toByteArray());
     }
 
+    /**
+     * Adds, removes, or clears a set of waypoints. If the command is clear, the points are ignored
+     * and all points are removed.
+     *
+     * @param op     The operation to perform.
+     * @param points An array of values representing points. Each triplet in the array will be
+     *               interpreted as a (Lat, Lon, Alt) point.
+     * @throws IOException  If the command cannot be sent.
+     */
     public void sendWYPT(WaypointOp op,  float[] points) throws IOException
     {
         //Preconditions
