@@ -610,6 +610,36 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
+     * Selects what data X-Plane will export over UDP.
+     *
+     * @param rows The row numbers to select.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void selectDATA(int[] rows) throws IOException
+    {
+        //Preconditions
+        if(rows == null || rows.length == 0)
+        {
+            throw new IllegalArgumentException("rows must be a non-null, non-empty array.");
+        }
+
+        //Convert data to bytes
+        ByteBuffer bb = ByteBuffer.allocate(4 * rows.length);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        for(int i = 0; i < rows.length; ++i)
+        {
+            bb.putInt(i * 4, rows[i]);
+        }
+
+        //Build and send message
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write("DSEL".getBytes(StandardCharsets.UTF_8));
+        os.write(0xFF); //Placeholder for message length
+        os.write(bb.array());
+        sendUDP(os.toByteArray());
+    }
+
+    /**
      * Sets a message to be displayed on the screen in X-Plane at the default screen location.
      *
      * @param msg The message to display. Should not contain any newline characters.

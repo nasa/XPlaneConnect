@@ -46,3 +46,12 @@ end
 
 %% Get data
 result.raw = socket.readDATA();
+
+%% Format data
+rows = (length(result.raw) - 5) / 9;
+result.h = zeroes(rows);
+for i=1:rows
+    j = 6 + (i - 1) * 9;
+    result.h(i) = result.rows(j);
+    result.d = [result.d; result.rows((j+1):(j+9))];
+end
