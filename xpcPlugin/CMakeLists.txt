@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project(XPlaneConnect)
 
@@ -8,12 +8,28 @@ include_directories(../C/src)
 
 add_definitions(-DXPLM200 -DLIN=1)
 
-SET(XPLM_LINKER_FLAGS "-shared -rdynamic -nodefaultlibs -undefined_warning")
-SET(CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} ${XPLM_LINKER_FLAGS}")
+add_library(xpc64 SHARED XPCPlugin.cpp
+	DataManager.cpp
+	DataMaps.cpp
+	Drawing.cpp
+	Log.cpp
+	Message.cpp
+	MessageHandlers.cpp
+	UDPSocket.cpp)
+set_target_properties(xpc64 PROPERTIES PREFIX "" SUFFIX "xpl")
+set_target_properties(xpc64 PROPERTIES COMPILE_FLAGS "-std=gnu++11" LINK_FLAGS "-shared -rdynamic -nodefaultlibs -undefined_warning")
 
-add_library(lin SHARED XPCPlugin.cpp
-	xpcPluginTools.cpp
-	xpcDrawing.cpp
-	../C/src/xplaneConnect.c)
-
-install(TARGETS lin DESTINATION XPlaneConnect/64 RENAME lin.xpl)
+add_library(xpc32 SHARED XPCPlugin.cpp
+	DataManager.cpp
+	DataMaps.cpp
+	Drawing.cpp
+	Log.cpp
+	Message.cpp
+	MessageHandlers.cpp
+	UDPSocket.cpp)
+set_target_properties(xpc32 PROPERTIES PREFIX "" SUFFIX "xpl")
+set_target_properties(xpc32 PROPERTIES COMPILE_FLAGS "-std=gnu++11 -m32" LINK_FLAGS "-shared -rdynamic -nodefaultlibs -undefined_warning -m32")
+	
+# Switch install targets when uncommenting the 32 bit line above.
+install(TARGETS xpc64 DESTINATION XPlaneConnect/64 RENAME lin.xpl)
+install(TARGETS xpc32 DESTINATION XPlaneConnect/ RENAME lin.xpl)
