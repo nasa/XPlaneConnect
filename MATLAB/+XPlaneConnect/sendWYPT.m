@@ -25,19 +25,31 @@ import XPlaneConnect.*
 %% Get client
 global clients;
 if ~exist('socket', 'var')
-    assert(istrue(length(clients) < 2), '[sendCTRL] ERROR: Multiple clients open. You must specify which client to use.');
+    assert(isequal(length(clients) < 2, 1), '[sendWYPT] ERROR: Multiple clients open. You must specify which client to use.');
     if isempty(clients)
-       openUDP(); 
+    	socket = openUDP(); 
+    else
+    	socket = clients(1);
     end
-    socket = clients(1);
 end
+
+%% Get WaypointOp class
+[folder, ~, ~] = fileparts(which('XPlaneConnect.openUDP'));
+javaaddpath([folder, '\XPlaneConnect.jar']);
+import gov.nasa.xpc.*;
 
 %% Validate input
 len = uint32(length(points));
 assert(op > 0 && op < 4);
+wyptOp = WaypointOp.Add;
+if isequal(op, 2)
+    wyptOp = WaypointOp.Del;
+elseif isequal(op, 3)
+    wyptOp = WaypointOp.Clr;
+end
 assert(mod(len, 3) == 0);
 
 %% Send command
-socket.sendCTRL(ctrl, ac);
+socket.sendWYPT(wyptOp, points);
 
 end

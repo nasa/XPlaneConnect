@@ -19,11 +19,12 @@ import XPlaneConnect.*
 %% Get client
 global clients;
 if ~exist('socket', 'var')
-    assert(istrue(length(clients) < 2), '[sendDATA] ERROR: Multiple clients open. You must specify which client to use.');
+    assert(istrue(length(clients) < 2), '[selectDATA] ERROR: Multiple clients open. You must specify which client to use.');
     if isempty(clients)
-       openUDP(); 
+    	socket = openUDP(); 
+    else
+    	socket = clients(1);
     end
-    socket = clients(1);
 end
 
 %% Validate input

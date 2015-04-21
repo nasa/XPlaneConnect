@@ -24,14 +24,15 @@ import XPlaneConnect.*
 %% Get client
 global clients;
 if ~exist('socket', 'var')
-    assert(istrue(length(clients) < 2), '[getDREFs] ERROR: Multiple clients open. You must specify which client to use.');
+    assert(isequal(length(clients) < 2, 1), '[getDREFs] ERROR: Multiple clients open. You must specify which client to use.');
     if isempty(clients)
-       openUDP(); 
+    	socket = openUDP(); 
+    else
+    	socket = clients(1);
     end
-    socket = clients(1);
 end
 
 %% Send command
-result = socket.getDREF(drefs);
+result = socket.getDREFs(drefs);
 
 end

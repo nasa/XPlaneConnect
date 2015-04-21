@@ -348,14 +348,17 @@ public class XPlaneConnectTest
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSendDREF_MessageTooLong() throws IOException
     {
+        // NOTE: This test originally ensured that the client restricted messages to 255 bytes in length.
+        //       This restriction is no longer necessary, however removing it uncovered a bug that caused
+        //       the plugin to do a bad memcpy and crash. This test is left here to ensure that X-Plane
+        //       does not crash when given erroneously large value arrays.
         String dref = "sim/cockpit/switches/gear_handle_status";
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.setDREF(dref, new float[200]);
-            fail();
         }
     }
 

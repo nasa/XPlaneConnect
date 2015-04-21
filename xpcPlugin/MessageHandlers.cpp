@@ -382,8 +382,7 @@ namespace XPC
 		std::string dref = std::string((char*)buffer + 6, len);
 
 		std::uint8_t valueCount = buffer[6 + len];
-		float values[40];
-		memcpy(values, buffer + len + 7, valueCount * sizeof(float));
+		float* values = (float*)(buffer + 7 + len);
 
 #if LOG_VERBOSITY > 1
 		Log::FormatLine("[DREF] Request to set DREF value received (Conn %i): %s", connection.id, dref.c_str());

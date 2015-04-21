@@ -29,7 +29,8 @@ addOptional(p,'port',0,@isnumeric);
 parse(p,varargin{:});
 
 %% Create client
-javaaddpath('XPlaneConnect.jar');
+[folder, ~, ~] = fileparts(which('XPlaneConnect.openUDP'));
+javaaddpath([folder, '\XPlaneConnect.jar']);
 import gov.nasa.xpc.*;
 socket = XPlaneConnect(p.Results.xpHost, p.Results.xpPort, p.Results.port);
 

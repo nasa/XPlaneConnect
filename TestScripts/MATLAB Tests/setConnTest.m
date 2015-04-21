@@ -8,7 +8,7 @@ import XPlaneConnect.*
 DREFS = {'sim/cockpit/switches/gear_handle_status'};
 
 setConn(49055);
-result = requestDREF(DREFS);
+result = getDREFs(DREFS);
 
 assert(isequal(length(result),1),'setConnTest: requestDREF unsucessful-wrong number of elements returned');
 
