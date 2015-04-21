@@ -42,7 +42,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\XPlaneConnect\</OutDir>
     <TargetExt>.xpl</TargetExt>
-    <IncludePath>..\xpcPlugin\SDK\CHeaders\XPLM;..\SDK\CHeaders\XPLM;..\..\C\src;$(IncludePath)</IncludePath>
+    <IncludePath>..\SDK\CHeaders\XPLM;$(IncludePath)</IncludePath>
     <LibraryPath>..\xpcPlugin\SDK\Libraries\Win;$(LibraryPath)</LibraryPath>
     <TargetName>win</TargetName>
   </PropertyGroup>
@@ -99,7 +99,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\C\src\xplaneConnect.h" />
     <ClInclude Include="..\DataManager.h" />
     <ClInclude Include="..\DataMaps.h" />
     <ClInclude Include="..\Drawing.h" />
@@ -109,7 +108,6 @@
     <ClInclude Include="..\UDPSocket.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\C\src\xplaneConnect.c" />
     <ClCompile Include="..\DataManager.cpp" />
     <ClCompile Include="..\DataMaps.cpp" />
     <ClCompile Include="..\Drawing.cpp" />

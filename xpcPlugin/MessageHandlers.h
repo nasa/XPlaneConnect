@@ -52,9 +52,7 @@ namespace XPC
 		typedef struct
 		{
 			unsigned char id;
-			std::string ip;
-			unsigned short dstPort;
-			unsigned short srcPort;
+			sockaddr addr;
 			unsigned char getdCount;
 			std::string getdRequest[255];
 		} ConnectionInfo;

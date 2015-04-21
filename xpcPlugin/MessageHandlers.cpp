@@ -55,48 +55,6 @@ namespace XPC
 		MessageHandlers::sock = socket;
 	}
 
-	static std::string getIP(sockaddr* sa)
-	{
-		char ip[INET6_ADDRSTRLEN + 6] = { 0 };
-		switch (sa->sa_family)
-		{
-		case AF_INET:
-		{
-			sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(sa);
-			inet_ntop(AF_INET, &sin->sin_addr, ip, INET6_ADDRSTRLEN);
-			break;
-		}
-		case AF_INET6:
-		{
-			sockaddr_in6* sin = reinterpret_cast<sockaddr_in6*>(sa);
-			inet_ntop(AF_INET6, &sin->sin6_addr, ip, INET6_ADDRSTRLEN);
-			break;
-		}
-		default:
-			return "UNKNOWN";
-		}
-		return std::string(ip);
-	}
-
-	static unsigned short getPort(sockaddr* sa)
-	{
-		switch (sa->sa_family)
-		{
-		case AF_INET:
-		{
-			sockaddr_in *sin = reinterpret_cast<sockaddr_in*>(sa);
-			return ntohs((*sin).sin_port);
-		}
-		case AF_INET6:
-		{
-			sockaddr_in6 *sin = reinterpret_cast<sockaddr_in6*>(sa);
-			return ntohs((*sin).sin6_port);
-		}
-		default:
-			return ~0;
-		}
-	}
-
 	void MessageHandlers::HandleMessage(Message& msg)
 	{
 		// Make sure we really have a message to handle.
@@ -109,9 +67,7 @@ namespace XPC
 
 		// Set current connection
 		sockaddr sourceaddr = msg.GetSource();
-		std::string ip = getIP(&sourceaddr);
-		unsigned short port = getPort(&sourceaddr);
-		connectionKey = ip + ":" + std::to_string(port);
+		connectionKey = UDPSocket::GetHost(&sourceaddr);
 #if LOG_VERBOSITY > 4
 		Log::FormatLine("[MSGH] Handling message from %s", connectionKey.c_str());
 #endif
@@ -124,22 +80,20 @@ namespace XPC
 				// to connections. As long as we never remove elements, the size of
 				// connections will serve as a unique id.
 				static_cast<unsigned char>(connections.size()),
-				ip,
-				49008, // By default, send information to the client on this port.
-				port,
+				sourceaddr,
 				0
 			};
 			connections[connectionKey] = connection;
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("[MSGH] New connection. ID=%u, Remote=%s:%u", connection.id, ip.c_str(), port);
+#if LOG_VERBOSITY > 2
+			Log::FormatLine("[MSGH] New connection. ID=%u, Remote=%s", connection.id, connectionKey.c_str());
 #endif
 		}
 		else
 		{
 			connection = (*conn).second;
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("[MSGH] Existing connection. ID=%u, Remote=%s:%u",
-				connection.id, connection.ip.c_str(), connection.srcPort);
+#if LOG_VERBOSITY > 3
+			Log::FormatLine("[MSGH] Existing connection. ID=%u, Remote=%s",
+				connection.id, connectionKey.c_str());
 #endif
 		}
 		
@@ -162,7 +116,30 @@ namespace XPC
 		const unsigned char* buffer = msg.GetBuffer();
 
 		// Store new port
-		connection.dstPort = *((unsigned short*)(buffer + 5));
+		std::uint16_t port = *((std::uint16_t*)(buffer + 5));
+		sockaddr* sa = &connection.addr;
+		switch (sa->sa_family)
+		{
+		case AF_INET:
+		{
+			sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(sa);
+			(*sin).sin_port = htons(port);
+			break;
+		}
+		case AF_INET6:
+		{
+			sockaddr_in6* sin = reinterpret_cast<sockaddr_in6*>(sa);
+			(*sin).sin6_port = htons(port);
+			break;
+		}
+		default:
+#if LOG_VERBOSITY > 0
+			Log::WriteLine("[CONN] ERROR: Unknown address type.");
+			return;
+#endif
+		}
+		connections.erase(connectionKey);
+		connectionKey = UDPSocket::GetHost(&connection.addr);
 		connections[connectionKey] = connection;
 
 		// Create response
@@ -170,19 +147,19 @@ namespace XPC
 		response[5] = connection.id;
 
 		// Update log
-#if LOG_VERBOSITY > 0
+#if LOG_VERBOSITY > 1
 		Log::FormatLine("[CONN] ID: %u New destination port: %u",
-			connection.id, connection.dstPort);
+			connection.id, port);
 #endif
 
 		// Send response
-		sock->SendTo(response, 6, connection.ip, connection.dstPort);
+		sock->SendTo(response, 6, &connection.addr);
 	}
 
 	void MessageHandlers::HandleCtrl(Message& msg)
 	{
 		// Update Log
-#if LOG_VERBOSITY > 0
+#if LOG_VERBOSITY > 2
 		Log::FormatLine("[CTRL] Message Received (Conn %i)", connection.id);
 #endif
 
@@ -192,7 +169,7 @@ namespace XPC
 		//Packets specifying an A/C num should be 27 bytes.
 		if (size != 26 && size != 27)
 		{
-#if LOG_VERBOSITY > 1
+#if LOG_VERBOSITY > 0
 			Log::FormatLine("[CTRL] ERROR: Unexpected message length (%i)", size);
 #endif
 			return;
@@ -244,20 +221,20 @@ namespace XPC
 		std::size_t numCols = (size - 5) / 36;
 		if (numCols > 0)
 		{
-#if LOG_VERBOSITY > 3
+#if LOG_VERBOSITY > 2
 			Log::FormatLine("[DATA] Message Received (Conn %i)", connection.id);
 #endif
 		}
 		if (numCols > 32) // Error. Will overflow values
 		{
-#if LOG_VERBOSITY > 2
+#if LOG_VERBOSITY > 0
 			Log::FormatLine("[DATA] ERROR numCols to large.");
 #endif
 			return;
 		}
 		else
 		{
-#if LOG_VERBOSITY > 2
+#if LOG_VERBOSITY > 1
 			Log::FormatLine("[DATA] WARNING: Empty data packet received (Conn %i)", connection.id);
 #endif
 			return;
@@ -405,8 +382,7 @@ namespace XPC
 		std::string dref = std::string((char*)buffer + 6, len);
 
 		unsigned char valueCount = buffer[6 + len];
-		float values[40];
-		memcpy(values, buffer + len + 7, valueCount * sizeof(float));
+		float* values = (float*)(buffer + 7 + len);
 
 #if LOG_VERBOSITY > 1
 		Log::FormatLine("[DREF] Request to set DREF value received (Conn %i): %s", connection.id, dref.c_str());
@@ -462,7 +438,7 @@ namespace XPC
 			cur += count * sizeof(float);
 		}
 
-		sock->SendTo(response, cur, connection.ip, connection.dstPort);
+		sock->SendTo(response, cur, &connection.addr);
 	}
 
 	void MessageHandlers::HandlePosi(Message& msg)
@@ -599,13 +575,13 @@ namespace XPC
 #endif
 		switch (op)
 		{
-		case xpc_WYPT_ADD:
+		case 1:
 			Drawing::AddWaypoints(points, count);
 			break;
-		case xpc_WYPT_DEL:
+		case 2:
 			Drawing::RemoveWaypoints(points, count);
 			break;
-		case xpc_WYPT_CLR:
+		case 3:
 			Drawing::ClearWaypoints();
 			break;
 		default:
@@ -621,7 +597,11 @@ namespace XPC
 #if LOG_VERBOSITY > 1
 		Log::WriteLine("[MSGH] Sending raw data to X-Plane");
 #endif
-		sock->SendTo((unsigned char*)msg.GetBuffer(), msg.GetSize(), "127.0.0.1", 49000);
+		sockaddr_in loopback;
+		loopback.sin_family = AF_INET;
+		loopback.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+		loopback.sin_port = htons(49000);
+		sock->SendTo((std::uint8_t*)msg.GetBuffer(), msg.GetSize(), (sockaddr*)&loopback);
 	}
 
 	void MessageHandlers::HandleUnknown(Message& msg)

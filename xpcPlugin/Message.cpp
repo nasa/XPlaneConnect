@@ -2,7 +2,6 @@
 //National Aeronautics and Space Administration. All Rights Reserved.
 #include "Message.h"
 #include "Log.h"
-#include "xplaneConnect.h"
 
 #include <iomanip>
 #include <sstream>
@@ -71,6 +70,7 @@ namespace XPC
 		}
 		Log::WriteLine(ss.str());
 
+		ss << std::dec;
 		ss.str("");
 		ss << "[" << GetHead() << "-DEBUG] (" << GetSize() << ")";
 		switch (GetMagicNumber()) // Binary version of head
@@ -84,25 +84,41 @@ namespace XPC
         }
         case 0x4C525443: // CTRL
         {
-            xpcCtrl ctrl = parseCTRL((char*)buffer);
-            ss << " (" << ctrl.pitch << " " << ctrl.roll << " " << ctrl.yaw << ") ";
-            ss << ctrl.throttle << " " << ctrl.gear << " " << ctrl.flaps;
+			// Parse message data
+			float pitch = *((float*)(buffer + 5));
+			float roll = *((float*)(buffer + 9));
+			float yaw = *((float*)(buffer + 13));
+			float thr = *((float*)(buffer + 17));
+			char gear = buffer[21];
+			float flaps = *((float*)(buffer + 22));
+			std::uint8_t aircraft = 0;
+			if (size == 27)
+			{
+				aircraft = buffer[26];
+			}
+            ss << " Attitude:(" << pitch << " " << roll << " " << yaw << ")";
+            ss << " Thr:" << thr << " Gear:" << (int)gear << " Flaps:" << flaps;
             Log::WriteLine(ss.str());
             break;
         }
         case 0x41544144: // DATA
-        {
-            float dataRef[30][9];
-            short numCols = parseDATA((char*)buffer, size, dataRef);
+		{
+			std::size_t numCols = (size - 5) / 36;
+			float values[32][9];
+			for (int i = 0; i < numCols; ++i)
+			{
+				values[i][0] = buffer[5 + 36 * i];
+				memcpy(values[i] + 1, buffer + 9 + 36 * i, 9 * sizeof(float));
+			}
             ss << " (" << numCols << " lines)";
             Log::WriteLine(ss.str());
             for (int i = 0; i < numCols; ++i)
             {
                 ss.str("");
-                ss << "\t#" << dataRef[i][0];
+				ss << "\t#" << values[i][0];
                 for (int j = 1; j < 9; ++j)
                 {
-                    ss << " " << dataRef[i][j];
+					ss << " " << values[i][j];
                 }
                 Log::WriteLine(ss.str());
             }
@@ -136,14 +152,16 @@ namespace XPC
             break;
         }
         case 0x49534F50: // POSI
-        {
-            float position[6] = { 0.0 };
-            short aircraft = 0;
-            float gear = -1.0;
-            aircraft = parsePOSI((char*)buffer, position, 6, &gear);
-            ss << ' ' << aircraft;
-            ss << " (" << position[0] << ' ' << position[1] << ' ' << position[2] << ") (";
-            ss << position[3] << ' ' << position[4] << ' ' << position[5] << ") ";
+		{
+			char aircraft = buffer[5];
+			float gear = *((float*)(buffer + 30));
+			float pos[3];
+			float orient[3];
+			memcpy(pos, buffer + 6, 12);
+			memcpy(orient, buffer + 18, 12);
+            ss << " AC:" << (int)aircraft;
+			ss << " Pos:(" << pos[0] << ' ' << pos[1] << ' ' << pos[2] << ") Orient:(";
+			ss << orient[3] << ' ' << orient[4] << ' ' << orient[5] << ") Gear:";
             ss << gear;
             Log::WriteLine(ss.str());
             break;

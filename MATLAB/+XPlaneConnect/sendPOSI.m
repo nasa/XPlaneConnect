@@ -1,5 +1,5 @@
-function [ status ] = sendPOSI( posi, varargin )
-% sendPOSI Send X-Plane Aircraft Position over UDP
+function sendPOSI( posi, ac, socket )
+% sendPOSI Sets the position of the specified aircraft.
 % 
 % Inputs
 %     posi: Position array where the elements are as follows:
@@ -10,52 +10,43 @@ function [ status ] = sendPOSI( posi, varargin )
 %           5. Pitch (deg)
 %           6. True Heading (deg)
 %           7. Gear (0=up, 1=down)
-%     acft (optional): Aircraft # (default is 0; 0 = own aircraft)
-%     IP Address (optional): IP Address of the machine that will receive the data as a character array. Default is '127.0.0.1' (local machine)
-%     port (optional): Port on the receiving machine where the data will be sent. Default is 49009 (XPlaneConnect). In general use 49009 to send to the plugin and 49005 to send to the x-plane udp
-%       
-% Outputs
-%     status: If there was an error. Status<0 means there was an error.
+%     acft (optional): The aircraft to set. 0 for the player aircraft.
+%     socket (optional): The client to use when sending the command.
 % 
 % Use
-% 1. import XPlaneConnect.*;
-% 2. #Send the data array to port 49009 on the computer at IP address 172.0.100.54.
-% 3. status = sendPOSI([37.5242422, -122.06899, 2500, 0, 0, 0, 1], 1, '172.0.100.54');
+%   1. import XPlaneConnect.*;
+%   2. sendPOSI([37.5242422, -122.06899, 2500, 0, 0, 0, 1], 1);
 % 
-% Note: send the value -998 to not overwrite that parameter. That is, if -998 is sent, the parameter will stay at the current X-Plane value
+% Note: send the value -998 to not overwrite that parameter. That is, if
+% -998 is sent, the parameter will stay at the current X-Plane value.
 % 
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)
 %       christopher.a.teubert@nasa.gov
-%
-% To Do
-%
-% BEGIN CODE
+%   [JW] Jason Watkins
+%       jason.w.watkins@nasa.gov
 
 import XPlaneConnect.*
 
-%% Handle Input
-p = inputParser;
-addRequired(p,'posi');
-addOptional(p,'acft',0,@isnumeric);
-addOptional(p,'IP','127.0.0.1',@ischar);
-addOptional(p,'port',49009,@isnumeric);
-parse(p,posi,varargin{:});
-
-%% BODY
-    header = ['POSI'-0,0];
-    dataStream = [header, p.Results.acft];
-    
-    % Deal with position update
-    position = [37.4185718,-121.935565,500,0,0,0, 0];
-    
-    for i=1:min(length(position),length(p.Results.posi))
-        position(i) = p.Results.posi(i);
+%% Get client
+global clients;
+if ~exist('socket', 'var')
+    assert(isequal(length(clients) < 2, 1), '[sendPOSI] ERROR: Multiple clients open. You must specify which client to use.');
+    if isempty(clients)
+    	socket = openUDP(); 
+    else
+    	socket = clients(1);
     end
-    dataStream = [dataStream, typecast(single(position),'uint8')];
-    
-    % Send POSI
-    status = sendUDP(dataStream, p.Results.IP, p.Results.port);
-    
 end
 
+%% Validate input
+posi = single(posi);
+if ~exist('ac', 'var')
+    ac = 0;
+end
+ac = logical(ac);
+
+%% Send command
+socket.sendPOSI(posi, ac);
+
+end
