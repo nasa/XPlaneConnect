@@ -35,7 +35,7 @@ end
 
 %% Get WaypointOp class
 [folder, ~, ~] = fileparts(which('XPlaneConnect.openUDP'));
-javaaddpath([folder, '\XPlaneConnect.jar']);
+javaaddpath([folder, filesep, 'XPlaneConnect.jar']);
 import gov.nasa.xpc.*;
 
 %% Validate input
