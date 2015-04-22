@@ -40,9 +40,8 @@ extern "C" {
 #include <unistd.h>
 #endif
 
-typedef struct
+typedef struct xpcSocket
 {
-	char open;
 	unsigned short port;
 
 	// X-Plane IP and Port
