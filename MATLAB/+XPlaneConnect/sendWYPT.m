@@ -33,19 +33,14 @@ if ~exist('socket', 'var')
     end
 end
 
-%% Get WaypointOp class
-[folder, ~, ~] = fileparts(which('XPlaneConnect.openUDP'));
-javaaddpath([folder, filesep, 'XPlaneConnect.jar']);
-import gov.nasa.xpc.*;
-
 %% Validate input
 len = uint32(length(points));
 assert(op > 0 && op < 4);
-wyptOp = WaypointOp.Add;
+wyptOp = gov.nasa.xpc.WaypointOp.Add;
 if isequal(op, 2)
-    wyptOp = WaypointOp.Del;
+    wyptOp = gov.nasa.xpc.WaypointOp.Del;
 elseif isequal(op, 3)
-    wyptOp = WaypointOp.Clr;
+    wyptOp = gov.nasa.xpc.WaypointOp.Clr;
 end
 assert(mod(len, 3) == 0);
 
