@@ -1,4 +1,4 @@
-function result = requestDREFs( drefs, socket )
+function result = getDREFs( drefs, socket )
 %requestDREF request the value of a specific DataRef from X-Plane over UDP
 %
 %Inputs
