@@ -22,15 +22,12 @@
 
 #include <cmath>
 #include <string>
+#include <cstring>
 //OpenGL includes
 #if IBM
 #include <windows.h>
 #endif
-#if __GNUC__
-#include <OpenGL/gl.h>
-#else
 #include <GL/gl.h>
-#endif
 
 namespace XPC
 {
