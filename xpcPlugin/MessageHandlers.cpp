@@ -6,6 +6,9 @@
 #include "Drawing.h"
 #include "Log.h"
 
+#include <cmath>
+#include <cstring>
+
 namespace XPC
 {
 	std::unordered_map<std::string, MessageHandlers::ConnectionInfo> MessageHandlers::connections;

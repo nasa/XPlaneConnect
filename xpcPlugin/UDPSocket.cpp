@@ -3,6 +3,8 @@
 #include "Log.h"
 #include "UDPSocket.h"
 
+#include <cstring>
+
 namespace XPC
 {
 	UDPSocket::UDPSocket(unsigned short recvPort)
