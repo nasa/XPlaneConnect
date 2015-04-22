@@ -350,7 +350,7 @@ int readDATA(XPCSocket sock, float dataRef[][9], int rows)
 /*****************************************************************************/
 /****                          DREF functions                             ****/
 /*****************************************************************************/
-int setDREF(XPCSocket sock, const char* dref, float values[], int size)
+int setDREF(XPCSocket sock, const char* dref, float value[], int size)
 {
 	// Setup command
 	// 5 byte header + max 255 char dref name + max 255 values * 4 bytes per value = 1279
@@ -374,13 +374,13 @@ int setDREF(XPCSocket sock, const char* dref, float values[], int size)
 
 	// Copy values to buffer
 	buffer[6 + drefLen] = (unsigned char)size;
-	memcpy(buffer + 7 + drefLen, values, size * sizeof(float));
+	memcpy(buffer + 7 + drefLen, value, size * sizeof(float));
 
 	// Send command
 	if (sendUDP(sock, buffer, len) < 0)
 	{
 		printError("setDREF", "Failed to send command");
-		return -2;
+		return -3;
 	}
 	return 0;
 }
