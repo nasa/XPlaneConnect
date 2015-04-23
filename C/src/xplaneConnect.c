@@ -68,7 +68,7 @@ void printError(char *functionName, char *format, ...)
 /*****************************************************************************/
 XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort)
 {
-	openUDP(xpIP, xpPort, 0);
+	return openUDP(xpIP, xpPort, 0);
 }
 
 XPCSocket openUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
