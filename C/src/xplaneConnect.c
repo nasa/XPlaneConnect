@@ -137,6 +137,12 @@ void closeUDP(XPCSocket sock)
 	}
 }
 
+/// Sends the given data to the X-Plane plugin.
+///
+/// \param sock   The socket to use to send the data.
+/// \param buffer A pointer to the data to send.
+/// \param len    The number of bytes to send.
+/// \returns      If an error occurs, a negative number. Otehrwise, the number of bytes sent.
 int sendUDP(XPCSocket sock, char buffer[], int len)
 {
 	// Preconditions
@@ -165,6 +171,12 @@ int sendUDP(XPCSocket sock, char buffer[], int len)
 	return result;
 }
 
+/// Reads a datagram from the specified socket.
+///
+/// \param sock   The socket to read from.
+/// \param buffer A pointer to the location to store the data.
+/// \param len    The number of bytes to read.
+/// \returns      If an error occurs, a negative number. Otehrwise, the number of bytes read.
 int readUDP(XPCSocket sock, char buffer[], int len)
 {
 #ifdef _WIN32
