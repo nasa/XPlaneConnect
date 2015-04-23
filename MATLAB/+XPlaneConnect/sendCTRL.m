@@ -1,8 +1,8 @@
-function sendCTRL( ctrl, ac, socket )
+function sendCTRL( values, ac, socket )
 % sendCTRL Sends command to X-Plane setting control surfaces on the specified aircraft.
 % 
 % Inputs
-%     ctrl: control array where the elements are as follows:
+%     values: control array where the elements are as follows:
 %           1. Latitudinal Stick [-1,1]
 %           2. Longitudinal Stick [-1,1]
 %           3. Pedal [-1, 1]
@@ -41,13 +41,13 @@ if ~exist('socket', 'var')
 end
 
 %% Validate input
-ctrl = single(ctrl);
+values = single(values);
 if ~exist('ac', 'var')
     ac = 0;
 end
 ac = logical(ac);
 
 %% Send command
-socket.sendCTRL(ctrl, ac);
+socket.sendCTRL(values, ac);
 
 end

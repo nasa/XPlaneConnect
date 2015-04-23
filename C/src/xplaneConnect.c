@@ -276,7 +276,7 @@ int pauseSim(XPCSocket sock, char pause)
 /*****************************************************************************/
 /****                    X-Plane UDP Data functions                       ****/
 /*****************************************************************************/
-int sendDATA(XPCSocket sock, float dataRef[][9], int rows)
+int sendDATA(XPCSocket sock, float data[][9], int rows)
 {
 	// Preconditions
 	// There are only 134 DATA rows in X-Plane. Realistically, clients probably
@@ -294,8 +294,8 @@ int sendDATA(XPCSocket sock, float dataRef[][9], int rows)
 	unsigned short step = 9 * sizeof(float);	
 	for (int i=0;i<rows;i++)
 	{
-		buffer[5 + i * step] = (char)dataRef[i][0];
-		memcpy(&buffer[9 + i*step], &dataRef[i][1], 8 * sizeof(float));
+		buffer[5 + i * step] = (char)data[i][0];
+		memcpy(&buffer[9 + i*step], &data[i][1], 8 * sizeof(float));
 	}
 	// Send command
 	if (sendUDP(sock, buffer, len ) < 0)
@@ -306,7 +306,7 @@ int sendDATA(XPCSocket sock, float dataRef[][9], int rows)
 	return 0;
 }
 
-int readDATA(XPCSocket sock, float dataRef[][9], int rows)
+int readDATA(XPCSocket sock, float data[][9], int rows)
 {
 	// Preconditions
 	// There are only 134 DATA rows in X-Plane. Realistically, clients probably
@@ -338,8 +338,8 @@ int readDATA(XPCSocket sock, float dataRef[][9], int rows)
 	// Parse data
 	for (int i = 0; i < rows; ++i)
 	{
-		dataRef[i][0] = buffer[5 + i * 36];
-		memcpy(&dataRef[i][1], &buffer[9 + i * 36], 8 * sizeof(float));
+		data[i][0] = buffer[5 + i * 36];
+		memcpy(&data[i][1], &buffer[9 + i * 36], 8 * sizeof(float));
 	}
 	return rows;
 }
@@ -539,7 +539,7 @@ int sendPOSI(XPCSocket sock, float values[], int size, char ac)
 	if (sendUDP(sock, buffer, 40) < 0)
 	{
 		printError("sendPOSI", "Failed to send command");
-		return -2;
+		return -3;
 	}
 	return 0;
 }
@@ -597,7 +597,7 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 	if (sendUDP(sock, buffer, 27) < 0)
 	{
 		printError("sendCTRL", "Failed to send command");
-		return -2;
+		return -3;
 	}
 	return 0;
 }
@@ -610,6 +610,7 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 /*****************************************************************************/
 int sendTEXT(XPCSocket sock, char* msg, int x, int y)
 {
+	size_t msgLen = strnlen(msg, 255);
 	// Input Validation
 	if (x < -1)
 	{
@@ -622,11 +623,15 @@ int sendTEXT(XPCSocket sock, char* msg, int x, int y)
 		// Negative y will never result in text being displayed.
 		return -1;
 	}
+	if (msgLen > 255)
+	{
+		printError("sendTEXT", "msg must be less than 255 bytes.");
+		return -2;
+	}
 
 	// Setup command
 	// 5 byte header + 8 byte position + up to 256 byte message
 	char buffer[269] = "TEXT";
-	size_t msgLen = strnlen(msg, 255);
 	size_t len = 14 + msgLen;
 	memcpy(buffer + 5, &x, sizeof(int));
 	memcpy(buffer + 9, &y, sizeof(int));
@@ -637,7 +642,7 @@ int sendTEXT(XPCSocket sock, char* msg, int x, int y)
 	if (sendUDP(sock, buffer, 40) < 0)
 	{
 		printError("sendTEXT", "Failed to send command");
-		return -2;
+		return -3;
 	}
 	return 0;
 }

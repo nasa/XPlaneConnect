@@ -122,19 +122,19 @@ int pauseSim(XPCSocket sock, char pause);
 ///
 /// \details This command is compatible with the X-Plane data API.
 /// \param sock    The socket to use to send the command.
-/// \param dataRef A 2D array of data rows to read into.
+/// \param data A 2D array of data rows to read into.
 /// \param rows    The number of rows in dataRef.
 /// \returns       0 if successful, otherwise a negative value.
-int readDATA(XPCSocket sock, float dataRef[][9], int rows);
+int readDATA(XPCSocket sock, float data[][9], int rows);
 
 /// Sends X-Plane data on the specified socket.
 ///
 /// \details This command is compatible with the X-Plane data API.
 /// \param sock    The socket to use to send the command.
-/// \param dataRef A 2D array of data rows to send.
+/// \param data A 2D array of data rows to send.
 /// \param rows    The number of rows in dataRef.
 /// \returns       0 if successful, otherwise a negative value.
-int sendDATA(XPCSocket sock, float dataRef[][9], int rows);
+int sendDATA(XPCSocket sock, float data[][9], int rows);
 
 // DREF Manipulation
 

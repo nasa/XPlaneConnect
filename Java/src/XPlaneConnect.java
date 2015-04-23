@@ -360,33 +360,33 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
-     * Sends command to X-Plane setting control surfaces on the player aircraft.
+     * Sends command to X-Plane setting control surfaces on the player ac.
      *
-     * @param ctrl <p>An array containing zero to six values representing control surface data as follows:</p>
-     *             <ol>
-     *                 <li>Latitudinal Stick [-1,1]</li>
-     *                 <li>Longitudinal Stick [-1,1]</li>
-     *                 <li>Rudder Pedals [-1, 1]</li>
-     *                 <li>Throttle [-1, 1]</li>
-     *                 <li>Gear (0=up, 1=down)</li>
-     *                 <li>Flaps [0, 1]</li>
-     *             </ol>
-     *             <p>
-     *                 If @{code ctrl} is less than 6 elements long, The missing elements will not be changed. To
-     *                 change values in the middle of the array without affecting the preceding values, set the
-     *                 preceding values to -998.
-     *             </p>
+     * @param values <p>An array containing zero to six values representing control surface data as follows:</p>
+     *               <ol>
+     *                   <li>Latitudinal Stick [-1,1]</li>
+     *                   <li>Longitudinal Stick [-1,1]</li>
+     *                   <li>Rudder Pedals [-1, 1]</li>
+     *                   <li>Throttle [-1, 1]</li>
+     *                   <li>Gear (0=up, 1=down)</li>
+     *                   <li>Flaps [0, 1]</li>
+     *               </ol>
+     *               <p>
+     *                   If @{code ctrl} is less than 6 elements long, The missing elements will not be changed. To
+     *                   change values in the middle of the array without affecting the preceding values, set the
+     *                   preceding values to -998.
+     *               </p>
      * @throws IOException If the command cannot be sent.
      */
-    public void sendCTRL(float[] ctrl) throws IOException
+    public void sendCTRL(float[] values) throws IOException
     {
-        sendCTRL(ctrl, 0);
+        sendCTRL(values, 0);
     }
 
     /**
-     * Sends command to X-Plane setting control surfaces on the specified aircraft.
+     * Sends command to X-Plane setting control surfaces on the specified ac.
      *
-     * @param ctrl     <p>An array containing zero to six values representing control surface data as follows:</p>
+     * @param values   <p>An array containing zero to six values representing control surface data as follows:</p>
      *                 <ol>
      *                     <li>Latitudinal Stick [-1,1]</li>
      *                     <li>Longitudinal Stick [-1,1]</li>
@@ -400,23 +400,23 @@ public class XPlaneConnect implements AutoCloseable
      *                     change values in the middle of the array without affecting the preceding values, set the
      *                     preceding values to -998.
      *                 </p>
-     * @param aircraft The aircraft to set. 0 for the player's aircraft.
+     * @param ac The ac to set. 0 for the player's ac.
      * @throws IOException If the command cannot be sent.
      */
-    public void sendCTRL(float[] ctrl, int aircraft) throws IOException
+    public void sendCTRL(float[] values, int ac) throws IOException
     {
         //Preconditions
-        if(ctrl == null)
+        if(values == null)
         {
             throw new IllegalArgumentException("ctrl must no be null.");
         }
-        if(ctrl.length > 6)
+        if(values.length > 6)
         {
             throw new IllegalArgumentException("ctrl must have 6 or fewer elements.");
         }
-        if(aircraft < 0 || aircraft > 9)
+        if(ac < 0 || ac > 9)
         {
-            throw new IllegalArgumentException("aircraft must be non-negative and less than 9.");
+            throw new IllegalArgumentException("ac must be non-negative and less than 9.");
         }
 
         //Pad command values and convert to bytes
@@ -424,16 +424,16 @@ public class XPlaneConnect implements AutoCloseable
         int cur = 0;
         ByteBuffer bb = ByteBuffer.allocate(22);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        for(i = 0; i < ctrl.length; ++i)
+        for(i = 0; i < values.length; ++i)
         {
             if(i == 4)
             {
-                bb.put(cur, (byte) ctrl[i]);
+                bb.put(cur, (byte) values[i]);
                 cur += 1;
             }
             else
             {
-                bb.putFloat(cur, ctrl[i]);
+                bb.putFloat(cur, values[i]);
                 cur += 4;
             }
         }
@@ -450,7 +450,7 @@ public class XPlaneConnect implements AutoCloseable
                 cur += 4;
             }
         }
-        bb.put(cur, (byte) aircraft);
+        bb.put(cur, (byte) ac);
 
         //Build and send message
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -461,11 +461,11 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
-     * Sets the position of the player aircraft.
+     * Sets the position of the player ac.
      *
-     * @param posi     <p>An array containing position elements as follows:</p>
+     * @param values   <p>An array containing position elements as follows:</p>
      *                 <ol>
-     *                     <li>Latitiude (deg)</li>
+     *                     <li>Latitude (deg)</li>
      *                     <li>Longitude (deg)</li>
      *                     <li>Altitude (m above MSL)</li>
      *                     <li>Roll (deg)</li>
@@ -480,17 +480,17 @@ public class XPlaneConnect implements AutoCloseable
      *                 </p>
      * @throws IOException If the command can not be sent.
      */
-    public void sendPOSI(float[] posi) throws IOException
+    public void sendPOSI(float[] values) throws IOException
     {
-        sendPOSI(posi, 0);
+        sendPOSI(values, 0);
     }
 
     /**
-     * Sets the position of the specified aircraft.
+     * Sets the position of the specified ac.
      *
-     * @param posi     <p>An array containing position elements as follows:</p>
+     * @param values   <p>An array containing position elements as follows:</p>
      *                 <ol>
-     *                     <li>Latitiude (deg)</li>
+     *                     <li>Latitude (deg)</li>
      *                     <li>Longitude (deg)</li>
      *                     <li>Altitude (m above MSL)</li>
      *                     <li>Roll (deg)</li>
@@ -503,32 +503,32 @@ public class XPlaneConnect implements AutoCloseable
      *                     change values in the middle of the array without affecting the preceding values, set the
      *                     preceding values to -998.
      *                 </p>
-     * @param aircraft The aircraft to set. 0 for the player aircraft.
+     * @param ac The ac to set. 0 for the player ac.
      * @throws IOException If the command can not be sent.
      */
-    public void sendPOSI(float[] posi, int aircraft) throws IOException
+    public void sendPOSI(float[] values, int ac) throws IOException
     {
         //Preconditions
-        if(posi == null)
+        if(values == null)
         {
             throw new IllegalArgumentException("posi must no be null.");
         }
-        if(posi.length > 7)
+        if(values.length > 7)
         {
             throw new IllegalArgumentException("posi must have 7 or fewer elements.");
         }
-        if(aircraft < 0 || aircraft > 255)
+        if(ac < 0 || ac > 255)
         {
-            throw new IllegalArgumentException("aircraft must be between 0 and 255.");
+            throw new IllegalArgumentException("ac must be between 0 and 255.");
         }
 
         //Pad command values and convert to bytes
         int i;
         ByteBuffer bb = ByteBuffer.allocate(28);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        for(i = 0; i < posi.length; ++i)
+        for(i = 0; i < values.length; ++i)
         {
-            bb.putFloat(i * 4, posi[i]);
+            bb.putFloat(i * 4, values[i]);
         }
         for(; i < 7; ++i)
         {
@@ -539,7 +539,7 @@ public class XPlaneConnect implements AutoCloseable
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         os.write("POSI".getBytes(StandardCharsets.UTF_8));
         os.write(0xFF); //Placeholder for message length
-        os.write(aircraft);
+        os.write(ac);
         os.write(bb.array());
         sendUDP(os.toByteArray());
     }
@@ -703,6 +703,10 @@ public class XPlaneConnect implements AutoCloseable
         if(points.length % 3 != 0)
         {
             throw new IllegalArgumentException("points.length should be divisible by 3.");
+        }
+        if(points.length / 3 > 255)
+        {
+            throw new IllegalArgumentException("Too many points. Must be less than 256.");
         }
 
         //Convert points to bytes
