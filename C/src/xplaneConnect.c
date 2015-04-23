@@ -113,8 +113,8 @@ XPCSocket openUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
 	DWORD timeout = 1; // Minimum socket timeout in Windows is 1ms
 #else
 	struct timeval timeout;
-	tv.tv_sec = 0;
-	tv.tv_usec = 500;
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 500;
 #endif
 	if (setsockopt(sock.sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0)
 	{
@@ -200,7 +200,7 @@ int readUDP(XPCSocket sock, char buffer[], int len)
 	status = recv(sock.sock, buffer, len, 0);
 #else
 	// For apple or linux-just read - will timeout in 0.5 ms
-	status = (int)recv(sock.sock, dataRef, len, 0);
+	int status = (int)recv(sock.sock, buffer, len, 0);
 #endif
 	if (status < 0)
 	{

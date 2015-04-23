@@ -27,7 +27,11 @@
 #if IBM
 #include <windows.h>
 #endif
-#include <GL/gl.h>
+#ifdef __APPLE__
+#  include <OpenGL/gl.h>
+#else
+#  include <GL/gl.h>
+#endif/*__APPLE__*/
 
 namespace XPC
 {
