@@ -64,7 +64,7 @@ namespace XPC
 		std::string head = msg.GetHead();
 		if (head == "")
 		{
-			return;
+			return; // No Message to handle
 		}
 		msg.PrintToLog();
 
@@ -101,7 +101,7 @@ namespace XPC
 		}
 		
 		// Check if there is a handler for this message type. If so, execute
-		// that handler. Othewwise, execute the unknown message handler.
+		// that handler. Otherwise, execute the unknown message handler.
 		auto iter = handlers.find(head);
 		if (iter != handlers.end())
 		{
