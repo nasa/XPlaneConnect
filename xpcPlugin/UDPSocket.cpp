@@ -135,9 +135,8 @@ namespace XPC
 		return status;
 	}
 
-	void UDPSocket::SendTo(std::uint8_t* buffer, std::size_t len, sockaddr* remote)
+	void UDPSocket::SendTo(const unsigned char* buffer, std::size_t len, sockaddr* remote)
 	{
-		buffer[4] = (std::uint8_t)len;
 		if (sendto(sock, (char*)buffer, (int)len, 0, remote, sizeof(*remote)) < 0)
 		{
 #if LOG_VERBOSITY > 0

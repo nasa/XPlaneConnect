@@ -55,7 +55,7 @@ namespace XPC
 		/// \param data   The data to be sent.
 		/// \param len    The number of bytes to send.
 		/// \param remote The destination socket.
-		void SendTo(std::uint8_t* buffer, std::size_t len, sockaddr* remote);
+		void SendTo(const unsigned char* buffer, std::size_t len, sockaddr* remote);
 
 		/// Gets a string containing the IP address and port contained in the given sockaddr.
 		///

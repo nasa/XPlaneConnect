@@ -119,7 +119,7 @@ namespace XPC
 		const unsigned char* buffer = msg.GetBuffer();
 
 		// Store new port
-		std::uint16_t port = *((std::uint16_t*)(buffer + 5));
+		unsigned short port = *((unsigned short*)(buffer + 5));
 		sockaddr* sa = &connection.addr;
 		switch (sa->sa_family)
 		{
@@ -604,7 +604,7 @@ namespace XPC
 		loopback.sin_family = AF_INET;
 		loopback.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 		loopback.sin_port = htons(49000);
-		sock->SendTo((std::uint8_t*)msg.GetBuffer(), msg.GetSize(), (sockaddr*)&loopback);
+		sock->SendTo(msg.GetBuffer(), msg.GetSize(), (sockaddr*)&loopback);
 	}
 
 	void MessageHandlers::HandleUnknown(Message& msg)
