@@ -651,7 +651,7 @@ int sendTEXT(XPCSocket sock, char* msg, int x, int y)
 	strncpy(buffer + 14, msg, msgLen);
 	
 	// Send Command
-	if (sendUDP(sock, buffer, 40) < 0)
+	if (sendUDP(sock, buffer, len) < 0)
 	{
 		printError("sendTEXT", "Failed to send command");
 		return -3;
