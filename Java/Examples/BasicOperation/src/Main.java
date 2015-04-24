@@ -71,7 +71,7 @@ public class Main
             try { Thread.sleep(10000); } catch (InterruptedException ex) {}
 
             System.out.println("Stowing landing gear");
-            xpc.sendDREF("sim/cockpit/switches/gear_handle_status", 1);
+            xpc.setDREF("sim/cockpit/switches/gear_handle_status", 1);
 
             //Let sim run for 10 seconds
             try { Thread.sleep(10000); } catch (InterruptedException ex) {}
@@ -82,7 +82,7 @@ public class Main
                 "sim/cockpit/switches/gear_handle_status",
                 "sim/operation/override/override_planepath"
             };
-            float[][] results = xpc.requestDREFs(drefs);
+            float[][] results = xpc.getDREFs(drefs);
 
             if(results[0][0] == 1)
             {

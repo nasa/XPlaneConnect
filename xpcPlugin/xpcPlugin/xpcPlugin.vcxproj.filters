@@ -15,27 +15,51 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\C\src\xplaneConnect.h">
+    <ClInclude Include="..\Log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\xpcPluginTools.h">
+    <ClInclude Include="..\Drawing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\xpcDrawing.h">
+    <ClInclude Include="..\UDPSocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Message.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DataMaps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MessageHandlers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\C\src\xplaneConnect.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\XPCPlugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\xpcPluginTools.cpp">
+    <ClCompile Include="..\Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\xpcDrawing.cpp">
+    <ClCompile Include="..\Drawing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UDPSocket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Message.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MessageHandlers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DataMaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

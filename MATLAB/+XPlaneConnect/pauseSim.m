@@ -1,13 +1,9 @@
-function status = pauseSim( pause, varargin )
-%pauseSim pause Simulation
+function pauseSim( pause, socket )
+%pauseSim Pauses or unpauses X-Plane.
 %
 %Inputs
-%     Pause: binary value 0=run, 1=pause
-%     IP Address (optional): IP Address of the machine that will receive the data as a character array. Default is '127.0.0.1' (local machine)
-%     port (optional): Port on the receiving machine where the data will be sent. Default is 49009 (XPlaneConnect). In general use 49009 to send to the plugin
-%
-%Outputs
-%	status: If there was an error. Status<0 means there was an error.
+%     pause: binary value 0=run, 1=pause
+%     socket (optional): The client to use when sending the command.
 %
 %Use
 %	1. import XPlaneConnect.*;
@@ -16,29 +12,26 @@ function status = pauseSim( pause, varargin )
 % Contributors
 %   [CT] Christopher Teubert (SGT, Inc.)
 %       christopher.a.teubert@nasa.gov
-%
-% To Do
-% 1. Verify Input
-%
-%BEGIN CODE
+%   [JW] Jason Watkins
+%       jason.w.watkins@nasa.gov
 
 import XPlaneConnect.*
 
-%% Handle Input
-    % Optional parameters
-    p = inputParser;
-    addRequired(p,'pause',@isnumeric);
-    addOptional(p,'IP','127.0.0.1',@ischar);
-    addOptional(p,'port',49009,@isnumeric);
-    parse(p,pause,varargin{:});
+%% Get client
+global clients;
+if ~exist('socket', 'var')
+    assert(isequal(length(clients) < 2, 1), '[pauseSim] ERROR: Multiple clients open. You must specify which client to use.');
+    if isempty(clients)
+    	socket = openUDP(); 
+    else
+    	socket = clients(1);
+    end
+end
 
-    % Check format of input-TODO
+%% Validate input
+pause = logical(pause);
 
-%% BODY
-    message = zeros(1,6);
-    
-    message(1:4) = 'SIMU'-0;
-    message(6) = uint8(p.Results.pause);
+%% Send command
+socket.pauseSim(pause);
 
-    status = sendUDP(message, p.Results.IP, p.Results.port);
 end

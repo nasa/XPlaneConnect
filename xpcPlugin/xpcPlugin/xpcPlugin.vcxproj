@@ -42,7 +42,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\XPlaneConnect\</OutDir>
     <TargetExt>.xpl</TargetExt>
-    <IncludePath>..\xpcPlugin\SDK\CHeaders\XPLM;..\SDK\CHeaders\XPLM;..\..\C\src;$(IncludePath)</IncludePath>
+    <IncludePath>..\SDK\CHeaders\XPLM;$(IncludePath)</IncludePath>
     <LibraryPath>..\xpcPlugin\SDK\Libraries\Win;$(LibraryPath)</LibraryPath>
     <TargetName>win</TargetName>
   </PropertyGroup>
@@ -59,14 +59,15 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>IBM=1;XPLM200;_DEBUG;_WINDOWS;_USRDLL;XPCPLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>IBM=1;XPLM200;_DEBUG;_WINDOWS;_USRDLL;XPCPLUGIN_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers />
       <FunctionLevelLinking>false</FunctionLevelLinking>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
       <MinimalRebuild>false</MinimalRebuild>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -79,7 +80,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>IBM=1;XPLM200;_DEBUG;_WINDOWS;_USRDLL;XPCPLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>IBM=1;XPLM200;_DEBUG;_WINDOWS;_USRDLL;XPCPLUGIN_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>
       </SDLCheck>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
@@ -89,7 +90,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <MinimalRebuild>false</MinimalRebuild>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -98,15 +99,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\C\src\xplaneConnect.h" />
-    <ClInclude Include="..\xpcDrawing.h" />
-    <ClInclude Include="..\xpcPluginTools.h" />
+    <ClInclude Include="..\DataManager.h" />
+    <ClInclude Include="..\DataMaps.h" />
+    <ClInclude Include="..\Drawing.h" />
+    <ClInclude Include="..\Log.h" />
+    <ClInclude Include="..\Message.h" />
+    <ClInclude Include="..\MessageHandlers.h" />
+    <ClInclude Include="..\UDPSocket.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\C\src\xplaneConnect.c" />
-    <ClCompile Include="..\xpcDrawing.cpp" />
+    <ClCompile Include="..\DataManager.cpp" />
+    <ClCompile Include="..\DataMaps.cpp" />
+    <ClCompile Include="..\Drawing.cpp" />
+    <ClCompile Include="..\Log.cpp" />
+    <ClCompile Include="..\Message.cpp" />
+    <ClCompile Include="..\MessageHandlers.cpp" />
+    <ClCompile Include="..\UDPSocket.cpp" />
     <ClCompile Include="..\XPCPlugin.cpp" />
-    <ClCompile Include="..\xpcPluginTools.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\SDK\Libraries\Win\XPLM.lib" />
