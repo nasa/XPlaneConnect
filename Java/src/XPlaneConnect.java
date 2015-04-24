@@ -731,7 +731,7 @@ public class XPlaneConnect implements AutoCloseable
      * Sets the port on which the client will receive data from X-Plane.
      *
      * @param port The new incoming port number.
-     * @throws IOException If the command cannnot be sent.
+     * @throws IOException If the command cannot be sent.
      */
     public void setCONN(int port) throws IOException
     {
