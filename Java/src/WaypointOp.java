@@ -38,7 +38,7 @@ public enum WaypointOp
     Clr(3);
 
     private final int value;
-    private WaypointOp(int value)
+    WaypointOp(int value)
     {
         this.value = value;
     }
