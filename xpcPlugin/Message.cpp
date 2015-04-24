@@ -58,7 +58,7 @@ namespace XPC
 
 	void Message::PrintToLog()
 	{
-#if LOG_VERBOSITY > 2
+#if LOG_VERBOSITY > 4
 		std::stringstream ss;
 		ss << "[DEBUG]";
 
@@ -91,7 +91,7 @@ namespace XPC
 			float thr = *((float*)(buffer + 17));
 			char gear = buffer[21];
 			float flaps = *((float*)(buffer + 22));
-			std::uint8_t aircraft = 0;
+			unsigned char aircraft = 0;
 			if (size == 27)
 			{
 				aircraft = buffer[26];

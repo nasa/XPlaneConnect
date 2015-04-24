@@ -463,7 +463,7 @@ namespace XPC
 		}
 		else // Multiplayer aircraft
 		{
-			XPLMSetDatavf(mdrefs[aircraft][DREF::GearDeploy], gearArray, 0, 10);
+			Set(DREF::GearDeploy, gearArray, 10, aircraft);
 		}
 	}
 
@@ -496,9 +496,9 @@ namespace XPC
 		}
 		else // Multiplayer
 		{
-			XPLMSetDatad(mdrefs[aircraft][DREF::LocalX], local[0]);
-			XPLMSetDatad(mdrefs[aircraft][DREF::LocalY], local[1]);
-			XPLMSetDatad(mdrefs[aircraft][DREF::LocalZ], local[2]);
+			Set(DREF::LocalX, local[0], aircraft);
+			Set(DREF::LocalY, local[1], aircraft);
+			Set(DREF::LocalZ, local[2], aircraft);
 		}
 	}
 
@@ -543,9 +543,9 @@ namespace XPC
 		}
 		else // Multiplayer
 		{
-			XPLMSetDataf(mdrefs[aircraft][DREF::Pitch], orient[0]);
-			XPLMSetDataf(mdrefs[aircraft][DREF::Roll], orient[1]);
-			XPLMSetDataf(mdrefs[aircraft][DREF::HeadingTrue], orient[2]);
+			Set(DREF::Pitch, orient[0], aircraft);
+			Set(DREF::Roll, orient[1], aircraft);
+			Set(DREF::HeadingTrue, orient[2], aircraft);
 		}
 	}
 

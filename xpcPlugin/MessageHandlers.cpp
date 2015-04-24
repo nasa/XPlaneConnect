@@ -200,8 +200,8 @@ namespace XPC
 		DataManager::Set(DREF::YokePitch, pitch, aircraft);
 		DataManager::Set(DREF::YokeRoll, roll, aircraft);
 		DataManager::Set(DREF::YokeHeading, yaw, aircraft); 
-		DataManager::Set(XPC::DREF::ThrottleSet, thrArray, 8, aircraft);
-		DataManager::Set(XPC::DREF::ThrottleActual, thrArray, 8, aircraft);
+		DataManager::Set(DREF::ThrottleSet, thrArray, 8, aircraft);
+		DataManager::Set(DREF::ThrottleActual, thrArray, 8, aircraft);
 		if (aircraft == 0)
 		{
 			DataManager::Set("sim/flightmodel/engine/ENGN_thro_override", thrArray, 1);
@@ -224,13 +224,13 @@ namespace XPC
 		std::size_t numCols = (size - 5) / 36;
 		if (numCols > 0)
 		{
-#if LOG_VERBOSITY > 2
+#if LOG_VERBOSITY > 1
 			Log::FormatLine("[DATA] Message Received (Conn %i)", connection.id);
 #endif
 		}
 		else
 		{
-#if LOG_VERBOSITY > 1
+#if LOG_VERBOSITY > 0
 			Log::FormatLine("[DATA] WARNING: Empty data packet received (Conn %i)", connection.id);
 #endif
 			return;
@@ -239,7 +239,7 @@ namespace XPC
 		if (numCols > 134) // Error. Will overflow values
 		{
 #if LOG_VERBOSITY > 0
-			Log::FormatLine("[DATA] ERROR numCols to large.");
+			Log::FormatLine("[DATA] ERROR: numCols to large.");
 #endif
 			return;
 		}
@@ -259,7 +259,10 @@ namespace XPC
 			unsigned char dataRef = (unsigned char)values[i][0];
 			if (dataRef > 134)
 			{
+#if LOG_VERBOSITY > 0
 				Log::FormatLine("[DATA] ERROR: DataRef # must be between 0 - 134 (Received: %hi)", (int)dataRef);
+#endif
+				continue;
 			}
 
 			switch (dataRef)
@@ -276,7 +279,7 @@ namespace XPC
 #endif
 					break;
 				}
-				const float deg2rad = (float) 0.0174532925;
+				const float deg2rad = 0.0174532925F;
 				int ind[3] = { 1, 3, 4 };
 				for (int j = 0; j < 3; ++j)
 				{
@@ -355,7 +358,7 @@ namespace XPC
 				for (int j = 0; j < 8; ++j)
 				{
 #if LOG_VERBOSITY > 1
-					Log::FormatLine("Setting Dataref %i.%i to %f", dataRef, j, line[j]);
+					Log::FormatLine("[DATA] Setting Dataref %i.%i to %f", dataRef, j, line[j]);
 #endif
 
 					if (dataRef == 14 && j == 0)
@@ -364,14 +367,15 @@ namespace XPC
 						continue;
 					}
 
-					XPC::DREF dref = XPC::XPData[dataRef][j];
-					if (dref == XPC::DREF::None)
+					DREF dref = XPData[dataRef][j];
+					if (dref == DREF::None)
 					{
+						// TODO: Send single line instead!
 						HandleXPlaneData(msg);
 					}
 					else
 					{
-						XPC::DataManager::Set(dref, line, 8);
+						DataManager::Set(dref, line, 8);
 					}
 				}
 			}
@@ -612,7 +616,7 @@ namespace XPC
 	{
 		// UPDATE LOG
 #if LOG_VERBOSITY > 0
-		XPC::Log::FormatLine("[EXEC] ERROR: Unknown packet type %s", msg.GetHead().c_str());
+		Log::FormatLine("[EXEC] ERROR: Unknown packet type %s", msg.GetHead().c_str());
 #endif
 	}
 }
