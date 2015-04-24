@@ -228,13 +228,6 @@ namespace XPC
 			Log::FormatLine("[DATA] Message Received (Conn %i)", connection.id);
 #endif
 		}
-		if (numCols > 32) // Error. Will overflow values
-		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[DATA] ERROR numCols to large.");
-#endif
-			return;
-		}
 		else
 		{
 #if LOG_VERBOSITY > 1
@@ -242,7 +235,15 @@ namespace XPC
 #endif
 			return;
 		}
-		float values[32][9];
+
+		if (numCols > 134) // Error. Will overflow values
+		{
+#if LOG_VERBOSITY > 0
+			Log::FormatLine("[DATA] ERROR numCols to large.");
+#endif
+			return;
+		}
+		float values[134][9];
 		for (int i = 0; i < numCols; ++i)
 		{
 			values[i][0] = buffer[5 + 36 * i];
