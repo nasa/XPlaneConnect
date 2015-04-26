@@ -218,7 +218,7 @@ namespace XPC
 		//Enable drawing if necessary
 		if (!msgEnabled)
 		{
-			XPLMRegisterDrawCallback(MessageDrawCallback, xplm_Phase_LastCockpit, 0, NULL);
+            XPLMRegisterDrawCallback(MessageDrawCallback, xplm_Phase_Window, 0, NULL);
 			msgEnabled = true;
 		}
 	}
