@@ -432,23 +432,24 @@ int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int si
 	// Read data. Try 40 times to read, then give up.
 	// TODO: Why not just set the timeout to 40ms?
 	int result;
-	for (int i = 0; i < 512; ++i)
+	for (int i = 0; i < 40; ++i)
 	{
 		result = readUDP(sock, buffer, 65536);
 		if (result > 0)
 		{
 			break;
 		}
-		if (result < 0)
-		{
-#ifdef _WIN32
-			printError("getDREFs", "Read operation failed. (%d)", WSAGetLastError());
-#else
-			printError("getDREFs", "Read operation failed.");
-#endif
-			return -1;
-		}
 	}
+    
+    if (result < 0)
+    {
+#ifdef _WIN32
+        printError("getDREFs", "Read operation failed. (%d)", WSAGetLastError());
+#else
+        printError("getDREFs", "Read operation failed.");
+#endif
+        return -1;
+    }
 
 	if (result < 6)
 	{
