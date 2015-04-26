@@ -25,6 +25,7 @@
 
 namespace std
 {
+    // Note: This is required for unordered_map
 	template <>
 	struct hash<XPC::DREF>
 	{
