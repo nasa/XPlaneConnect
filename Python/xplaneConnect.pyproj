@@ -5,13 +5,13 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3c7a940d-17c8-4e91-882f-9bc8b1d2f54b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src/xplaneConnect.py</StartupFile>
+    <StartupFile>src/XPlaneConnect.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>xplaneConnect</Name>
-    <RootNamespace>xplaneConnect</RootNamespace>
+    <Name>XPlaneConnect</Name>
+    <RootNamespace>XPlaneConnect</RootNamespace>
     <InterpreterId>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</InterpreterId>
     <InterpreterVersion>2.7</InterpreterVersion>
   </PropertyGroup>
@@ -24,7 +24,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="src/xplaneConnect.py" />
+    <Compile Include="src/XPlaneConnect.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />

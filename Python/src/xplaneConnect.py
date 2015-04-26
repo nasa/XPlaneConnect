@@ -5,259 +5,301 @@ class XPlaneConnect:
     '''XPlaneConnect (XPC) facilitates communication to and from the XPCPlugin.'''
 
     # Basic Functions
-    def __init__(self, port, xp_ip = 'localhost', xp_port = 49009):
-        '''Creates a new XPlaneConnect interface, and binds a UDP socket based on the specified parameters.'''
+    def __init__(self, xpHost = 'localhost', xpPort = 49009, port = 0, timeout = 100):
+        '''Sets up a new connection to an X-Plane Connect plugin running in X-Plane.
+        
+            Args:
+              xpHost: The hostname of the machine running X-Plane.
+              xpPort: The port on which the XPC plugin is listening. Usually 49007.
+              port: The port which will be used to send and receive data.
+              timeout: The period (in milliseconds) after which read attempts will fail.
+        '''
 
-        # Setup server port
-        self.server = ("0.0.0.0", port)
+        # Validate parameters
+        xpIP = None
+        try:
+            xpIP = socket.gethostbyname(xpHost)
+        except:
+            raise ValueError("Unable to resolve xpHost.")
+
+        if xpPort < 0 or xpPort > 65535:
+            raise ValueError("The specified X-Plane port is not a valid port number.")
+        if port < 0 or port > 65535:
+            raise ValueError("The specified port is not a valid port number.")
+        if timeout < 0:
+            raise ValueError("timeout must be non-negative.")
 
         # Setup XPlane IP and port
-        if xp_ip == 'localhost' or xp_ip is None:
-            self.xp_ip = '127.0.0.1'
-        else:
-            self.xp_ip = xp_ip
+        self.xpDst = (socket.inet_pton(socket.AF_INET, xpIP), xpPort)
 
-        self.xp_port = xp_port
-
-        # Create and bind socket
-        # TODO: Raise a friendly error if socket creation/binding fails
+        # Create and bind socket        
+        clientAddr = (socket.INADDR_ANY, port)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        self.socket.bind(self.server)
-        
-        # Set timeout
-        timeout_us = 500
-        self.socket.settimeout(timeout_us / 1000000)
+        self.socket.bind(clientAddr)
+        self.socket.settimeout(timeout / 1000)
 
     def __del__(self):
         self.close()
 
     def close(self):
-        '''Closes the underlying UDP socket'''
+        '''Closes the specified connection and releases resources associated with it.'''
         if self.socket is not None:
             self.socket.close()
             self.socket = None
 
-    def send_udp(self, msg):
+    def sendUDP(self, buffer):
         '''Sends a message over the underlying UDP socket.'''
-        msg_len = len(msg)
-        msg = list(msg)
-        msg[4] = chr(msg_len)
-        msg = "".join(msg)
-
         # Preconditions
-        if(msg_len <= 0): # Require message length greater than 0.
-            raise RuntimeError("send_udp: message length must be psoitive >0")
+        if(len(buffer) == 0):
+            raise ValueError("sendUDP: buffer is empty.")
 
-        on = 1
-        # Code
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, on)
+        self.socket.sendto(buffer, 0, self.xpDst)
 
-        self.socket.sendto(msg, 0, (self.xp_ip, self.xp_port))
-
-    def read_udp(self, recv_addr = None):
-        if recv_addr is None:
-            recv_addr = (self.xp_ip, self.xp_port)
-
-        return self.socket.recv(5000) # TODO: Validate that this matches the behavior of the C version
+    def readUDP(self):
+        '''Reads a message from the underlying UDP socket.'''
+        return self.socket.recv(16384)
 
     # Configuration
-    def set_conn(self, rec_port):
-        msg = struct.pack("!4sH", ("CONN", rec_port))
-        self.send_udp(msg)
+    def setCONN(self, port):
+        '''Sets the port on which the client sends and receives data.
+        
+            Args:
+              port: The new port to use.
+        '''
+        #Validate parameters        
+        if port < 0 or port > 65535:
+            raise ValueError("The specified port is not a valid port number.")
 
-    def pause_sim(self, pause):
-        '''Pauses or unpauses the X-Plane simulation'''
+        buffer = struct.pack("<4sxH", ("CONN", port))
+        self.sendUDP(buffer)
+
+    def pauseSim(self, pause):
+        '''Pauses or un-pauses the physics simulation engine in X-Plane.
+        
+            Args:
+              pause: True to pause the simulation; False to resume.
+        '''
         pause_val = 0
         if pause:
             pause_val = 1
 
-        msg = struct.pack("4sBB", ("SIMU", pause_val, 0))
-        self.send_udp(msg)
+        buffer = struct.pack("<4sxB", ("SIMU", pause_val))
+        self.sendUDP(buffer)
 
-    # UDP Data
-    def parse_data(self, msg):
-        total_cols = ((len(data) - 5) / 36)
-        data = []
-
-        # Input Validation
-        for i in range(total_cols):
-            data.append([])
-            data[i].append(struct.unpack_from("f", msg, 5 + 36*i))
-            for j in range(1, 9):
-                data[i].append(struct.unpack_from("f", msg, 5 + 4*j + 36*i))
+    # X-Plane UDP Data
+    def readDATA(self):
+        '''Reads X-Plane data.
         
-        return data  
-
-    def read_data(self):
-        buf = self.read_udp()
-        if buf[0] != 0:
-            return self.parse_data(buf)
-        else:
+            Returns: A 2 dimensional array containing 0 or more rows of data. Each array
+              in the result will have 9 elements, the first of which is the row number which
+              that array represents data for, and the rest of which are the data elements in
+              that row.
+        '''
+        buffer = self.readUDP();
+        if len(buffer) < 6:
             return None
+        rows = (len(buffer) - 5) / 36
+        data = []
+        for i in range(rows):
+            data.append(struct.unpack_from("9f", buffer, 5 + 36*i))
+        return data
 
-    def send_data(self, dataRef):
-        '''Sends X-Plane data over the underlying UDP socket.'''
-        msg = struct.pack("4s", "DATA")
-        for row in dataRef:
-            struct.pack_into("!I", msg, len(msg), row[0])
-            for i in range(8):
-                struct.pack_into("!f", msg, len(msg), row[1][i])
-        self.send_udp(msg)
+    def sendDATA(self, data):
+        '''Sends X-Plane data over the underlying UDP socket.
+        
+            Args:
+              data: An array of values representing data rows to be set. Each array in `data`
+                should have 9 elements, the first of which is a row number in the range (0-134),
+                and the rest of which are the values to set for that data row.
+        '''
+        if len(data) > 134:
+            raise ValueError("Too many rows in data.")
+
+        buffer = struct.pack("4sx", "DATA")
+        for row in data:
+            if len(row) != 9:
+                raise ValueError("Row does not contain exactly 9 values. <" + str(row) + ">")
+            struct.pack_into("<I8f", buffer, len(buffer), row)
+        self.sendUDP(buffer)
 
     # Position
-    def parse_pos(self, msg, array_size):
-        if array_size < 1:
-            return None
+    def sendPOSI(self, values, ac = 0):
+        '''Sets position information on the specified aircraft.
 
-        gear = struct.unpack_from("f", msg, 30)
-        result = []
-        for i in range(min(array_size, 6)):
-            result.append(struct.unpack_from("f", msg, i*4 + 6))
-
-        return result, gear
-
-    def read_pos(self, resultArray, gear):
-        buf = self.read_udp()
-        if buf[0] != 0:
-            return self.parse_pos(buf)
-        else:
-            return None
-
-    def send_pos(self, ac_num, values):
+            Args:
+              values: The position values to set. `values` is a array containing up to
+                7 elements. If less than 7 elements are specified or any elment is set to `-998`,
+                those values will not be changed. The elements in `values` corespond to the
+                following:
+                  * Latitude (deg)
+                  * Longitude (deg)
+                  * Altitude (m above MSL)
+                  * Roll (deg)
+                  * Pitch (deg)
+                  * True Heading (deg)
+                  * Gear (0=up, 1=down)
+              ac: The aircraft to set the control surfaces of. 0 is the main/player aircraft.
+        '''
         # Preconditions
-        if len(values) < 1:
-            raise RuntimeError("send_pos: Must have at least one argument")
+        if len(values) < 1 or len(values) > 7:
+            raise ValueError("Must have between 0 and 7 items in values.")
+        if ac < 0 or ac > 20:
+            raise ValueError("Aircraft number must be between 0 and 20.")
 
-        # Header and Aircraft num
-        msg = struct.pack("!4sB", ("POSI", ac_num))
-        # States
+        # Pack message
+        buffer = struct.pack("<4sxB", ("POSI", ac))
         for i in range(7):
-            val = -998.5 # TODO: Why?
+            val = -998
             if i < len(values):
                 val = values[i]
-            struct.pack_into("!f", msg, len(msg), val)
+            struct.pack_into("<f", buffer, len(buffer), val)
 
         # Send
-        self.send_udp(msg)
+        self.sendUDP(buffer)
 
     # Controls
-    def parse_ctrl(self, msg):
-        result = []
-        for i in range(4):
-            result.append(struct.unpack_from("f", msg, i*4 + i))
-        gear = struct.unpack_from("B", msg, 21)
-        flaps = struct.unpack_from("f", msg, 22)
-        return flaps, gear, result
+    def sendCTRL(self, values, ac = 0):
+        '''Sets control surface information on the specified aircraft.
 
-    def read_ctrol(self, resultArray, gear):
-        buf = self.read_udp()
-        if buf[0] != 0:
-            return self.parse_ctrl(buf)
-        else:
-            return float("NaN")
-
-    def send_ctrol(self, values):
+            Args:
+              values: The control surface values to set. `values` is a array containing up to
+                6 elements. If less than 6 elements are specified or any elment is set to `-998`,
+                those values will not be changed. The elements in `values` corespond to the
+                following:
+                  * Latitudinal Stick [-1,1]
+                  * Longitudinal Stick [-1,1]
+                  * Rudder Pedals [-1, 1]
+                  * Throttle [-1, 1]
+                  * Gear (0=up, 1=down)
+                  * Flaps [0, 1]
+              ac: The aircraft to set the control surfaces of. 0 is the main/player aircraft.
+        '''
         # Preconditions
-        if len(values) < 1:
-            raise RuntimeError("send_ctrl: Must have at least one argument")
+        if len(values) < 1 or len(values) > 6:
+            raise ValueError("Must have between 0 and 6 items in values.")
+        if ac < 0 or ac > 20:
+            raise ValueError("Aircraft number must be between 0 and 20.")
 
-        # Header
-        msg = struct.pack("!4s", "CTRL")
-
-        # States
+        # Pack message
+        buffer = struct.pack("<4sx", "CTRL")
         for i in range(6):
-            val = -998.5 # TODO: Why?
+            val = -998
             if i < len(values):
                 val = values[i]
-            struct.pack_into("!f", msg, len(msg), val)
+            struct.pack_into("<f", buffer, len(buffer), val)
+        struct.pack_into("B", buffer, len(buffer), ac)
 
         # Send
-        self.send_udp(msg)
+        self.sendUDP(buffer)
         
     # DREF Manipulation
-    def read_dref(self):
-        buf = self.read_udp()
-        if buf[0] != 0:
-            return self.parse_dref(buf)
+    def sendDREF(self, dref, values):
+        '''Sets the specified dataref to the specified value.
+
+            Args:
+              dref: The name of the dataref to set.
+              values: Either a scalar value or a sequence of values.
+        '''
+        # Preconditions
+        if len(dref) == 0 or len(dref) > 255:
+            raise ValueError("dref must be a non-empty string less than 256 characters.")
+        if values == None:
+            raise ValueError("values must be a scalar or sequence of floats.")
+        
+        # Pack message
+        fmt = ""
+        buffer = None
+        if hasattr(values, "__len__"):
+            if len(values) > 255:
+                raise ValueError("values must have less than 256 items.")
+            fmt = "<4sxB" + len(dref) + "sB" + len(values) + "f"
+            buffer = struct.pack(fmt, ("DREF", len(dref), dref, len(values), values))
         else:
-            return None
+            fmt = "<4sxB" + len(dref) + "sBf"
+            buffer = struct.pack(fmt, ("DREF", len(dref), dref, 1, values))
 
-    def parse_dref(self, msg):
-        len_dref = struct.unpack_from("B", msg, 5)
-        dref = struct.unpack_from(str(len_dref) + "B", msg, 6)
-        len_val = struct.unpack_from("B", msg, 6 + len_dref)
-        values = struct.unpack_from(str(len_val) + "f", msg, 7 + len_dref)
-        return dref, values
+        # Send
+        self.sendUDP(buffer)
 
-    def send_dref(self, data_ref, values):
-        '''Sends X-Plane dref over the underlying UDP socket.'''
-        msg_len = 7 + len(data_ref) + len(values) * 4
-        
-        # Header
-        msg = struct.pack("4s", "DREF")
+    def getDREF(self, dref):
+        '''Gets the value of an X-Plane dataref.
+            
+            Args:
+              dref: The name of the dataref to get.
 
-        # DRef
-        struct.pack_into("B", msg, len(msg), len(data_ref))
-        struct.pack_into(str(len(data_ref)) + "B", msg, len(msg), data_ref) # TODO: Verify byte order (should be network order?)
+            Returns: A sequence of data representing the values of the requested dataref.
+        '''
+        return getDREFS([dref])[0]
 
-        # Values
-        struct.pack_into("B", msg, len(msg), len(values))
-        struct.pack_into(str(len(values)) + "f", msg, len(msg), values) # TODO: Verify byte order (should be network order?)
+    def getDREFs(self, drefs):
+        '''Gets the value of one or more X-Plane datarefs.
 
-        self.send_udp(msg)
+            Args:
+              drefs: The names of the datarefs to get.
 
-    def request_dref(self, dref_array):
-        '''Requests drefs and reads the response.'''
-        self.send_request(dref_array)
-        for i in range(80):
-            result = self.read_dref()
-            if siresultze is not None:
-                return result
+            Returns: A multidimensional sequence of data representing the values of the requested
+             datarefs.
+        '''
+        # Send request
+        buffer = struct.pack("<4sxB" ("GETD", len(drefs)))
+        for dref in drefs:
+            struct.pack_into("<B" + len(dref) + "s", buffer, len(buffer), dref)
+        self.sendUDP(buffer)
 
-        return None
-
-    def parse_getd(self, msg, dref_array, dref_sizes):
-        len_list = struct.unpack_from("B", msg, 5)
-        counter = 6
-        drefs = []
-        
-        for i in range(len_list):
-            dref_size = struct.unpack_from("B", msg, counter)
-            drefs.append(struct.unpack_from(str(dref_size) + "B", msg, counter + 1))
-            counter += dref_size + 1
-
-        return drefs
-
-    def send_request(self, dref_array):
-        '''Sends a request over the underlying UDP socket.'''
-        # Header
-        msg = struct.pack("4s", "GETD");
-
-        # Number of values;
-        struct.pack_into("B", msg, len(msg), len(dref_array))
-
-        # The Rest
-        for dref in dref_array:            
-            struct.pack_into("B", msg, len(msg), len(dref_array))
-            struct.pack_into("100B", msg, len(msg), dref_array)
-
-        self.send_udp(msg)
-
-    def parse_request(self, msg):
-        count = msg[5]
-        cursor = 6
+        # Read and parse response
+        buffer = self.readUDP()
+        resultCount = struct.unpack_from("B", buffer, 5)
+        offset = 6
         result = []
-        for i in range(count):
-            arr_size = msg[cursor]
-            data = struct.unpack_from(str(arr_size) + "f", msg, cursor)
-            result.append(data)
-            cursor += arr_size
-
+        for i in range(resultCount):
+            rowLen = struct.unpack_from("B", buffer, offset)
+            offset += 1
+            row = struct.unpack_from("<" + rowLen + "f", buffer, offset)
+            result.append(row)
+            offset += rowLen * 4
         return result
 
-    def read_request(self, recv_addr):
-        buf = self.read_udp()
-        if buf[0] != 0:
-            return self.parse_request(buf)
-        else:
-            return None
+    # Drawing
+    def sendTEXT(self, msg, x = -1, y = -1):
+        '''Sets a message that X-Plane will display on the screen.
+
+            Args:
+              msg: The string to display on the screen
+              x: The distance in pixels from the left edge of the screen to display the
+                 message. A value of -1 indicates that the default horizontal position should
+                 be used.
+              y: The distance in pixels from the bottom edge of the screen to display the
+                 message. A value of -1 indicates that the default vertical position should be
+                 used.
+        '''
+        if y < -1:
+            raise ValueError("y must be greater than or equal to -1.")
+
+        if msg == None:
+            msg = ""
+
+        msgLen = len(msg)
+        buffer = struct.pack("<4sxiiB" + msgLen + "s", ("TEXT", x, y, msgLen, msg))
+        self.sendUDP(buffer)
+
+    def sendWYPT(self, op, points):
+        '''Adds, removes, or clears waypoints. Waypoints are three dimensional points on or
+           above the Earth's surface that are represented visually in the simulator. Each
+           point consists of a latitude and longitude expressed in fractional degrees and
+           an altitude expressed as meters above sea level.
+
+            Args:
+              op: The operation to perform. Pass `1` to add waypoints,
+                `2` to remove waypoints, and `3` to clear all waypoints.
+              points: A sequence of floating point values representing latitude, longitude, and
+                altitude triples. The length of this array should always be divisible by 3.
+        '''
+        if op < 1 or op > 3:
+            raise ValueError("Invalid operation specified.")
+        if len(points) % 3 != 0:
+            raise ValueError("Invalid points. Points should be divisible by 3.")
+        if len(points) / 3 > 255:
+            raise ValueError("Too many points. You can only send 255 points at a time.")
+
+        buffer = struct.pack("<4sxBB" + len(points) + "f", ("WYPT", op, len(points), points))
+        self.sendUDP(buffer)
