@@ -150,7 +150,7 @@ int sendDREFTest() // sendDREF test
 	}
 
     // Execution
-	setDREF(sock, drefs[0], &value, 1);
+	sendDREF(sock, drefs[0], &value, 1);
 	int result = getDREFs(sock, drefs, data, 1, sizes);
     
     // Close

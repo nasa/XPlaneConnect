@@ -308,7 +308,7 @@ public class XPlaneConnectTest
             float gearHandle = xpc.getDREF(dref)[0];
 
             float value = gearHandle > 0.5 ? 0 : 1;
-            xpc.setDREF(dref, value);
+            xpc.sendDREF(dref, value);
 
             float result = xpc.getDREF(dref)[0];
             assertEquals(value, result, 1e-4);
@@ -320,7 +320,7 @@ public class XPlaneConnectTest
     {
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            xpc.setDREF(null, 0);
+            xpc.sendDREF(null, 0);
             fail();
         }
     }
@@ -332,7 +332,7 @@ public class XPlaneConnectTest
 
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            xpc.setDREF(dref, null);
+            xpc.sendDREF(dref, null);
             fail();
         }
     }
@@ -343,7 +343,7 @@ public class XPlaneConnectTest
         String dref = "sim/cockpit/switches/gear_handle_status";
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            xpc.setDREF(dref, new float[0]);
+            xpc.sendDREF(dref, new float[0]);
             fail();
         }
     }
@@ -358,7 +358,7 @@ public class XPlaneConnectTest
         String dref = "sim/cockpit/switches/gear_handle_status";
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            xpc.setDREF(dref, new float[200]);
+            xpc.sendDREF(dref, new float[200]);
         }
     }
 
@@ -368,7 +368,7 @@ public class XPlaneConnectTest
         String dref = "sim/cockpit/switches/i/am/a/very/long/fake/dref/that/is/over/255/characters/./which/means/that/my/length/cant/be/encoded/in/the/single/byte/allocated/by/the/message/format/,/so/i/should/cause/an/exception/instead/./i/am/still/not/long/enough/./almost/there";
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            xpc.setDREF(dref, 0);
+            xpc.sendDREF(dref, 0);
             fail();
         }
     }
@@ -379,7 +379,7 @@ public class XPlaneConnectTest
         String dref = "";
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            xpc.setDREF(dref, 0);
+            xpc.sendDREF(dref, 0);
             fail();
         }
     }
