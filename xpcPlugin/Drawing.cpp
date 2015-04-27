@@ -162,7 +162,7 @@ namespace XPC
 		glBegin(GL_LINE_STRIP);
 		for (size_t i = 0; i < numWaypoints; ++i)
 		{
-			l = &localPoints[i];
+            LocalPoint* l = &localPoints[i];
 			glVertex3f((float)l->x, (float)l->y, (float)l->z);
 		}
 		glEnd();
@@ -171,7 +171,7 @@ namespace XPC
 		glColor3f(1.0F, 1.0F, 1.0F);
 		for (size_t i = 0; i < numWaypoints; ++i)
 		{
-			l = &localPoints[i];
+			LocalPoint* l = &localPoints[i];
 			float xoff = (float)l->x - px;
 			float yoff = (float)l->y - py;
 			float zoff = (float)l->z - pz;
