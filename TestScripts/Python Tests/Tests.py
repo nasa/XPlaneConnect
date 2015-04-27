@@ -8,14 +8,14 @@ class XPCTests(unittest.TestCase):
     """Tests the functionality of the XPlaneConnect class."""
 
     def test_init(self):
-        xpc = xplaneConnect.XPlaneConnect(49062, "127.0.0.1", 49009)
+        xpc = xplaneConnect.XPlaneConnect()
         self.assertTrue(True)
 
     def test_close(self):
-        xpc = xplaneConnect.XPlaneConnect(49063, "127.0.0.1", 49009)
+        xpc = xplaneConnect.XPlaneConnect("127.0.0.1", 49009, 49063)
         xpc.close()
         self.assertIsNone(xpc.socket)
-        xpc = xplaneConnect.XPlaneConnect(49063, "127.0.0.1", 49009)
+        xpc = xplaneConnect.XPlaneConnect("127.0.0.1", 49009, 49063)
         self.assertTrue(True)
 
     def test_send_read(self):
@@ -23,12 +23,12 @@ class XPCTests(unittest.TestCase):
         test = "\x00\x01\x02\x03\x05"
 
         # Setup
-        sender = xplaneConnect.XPlaneConnect(49064, "127.0.0.1", 49063)
-        receiver = xplaneConnect.XPlaneConnect(49063, "127.0.0.1", 49009)
+        sender = xplaneConnect.XPlaneConnect("127.0.0.1", 49063, 49064)
+        receiver = xplaneConnect.XPlaneConnect("127.0.0.1", 49009, 49063)
 
         # Execution
-        sender.send_udp(test)
-        buf = receiver.read_udp()
+        sender.sendUDP(test)
+        buf = receiver.readUDP()
 
         # Cleanup
         sender.close()
@@ -39,20 +39,15 @@ class XPCTests(unittest.TestCase):
             self.assertEqual(a, b)
 
     def test_request_dref(self):
-        # Init
-        dref_array = []
-
         # Setup
-        sender = xplaneConnect.XPlaneConnect(49064, "127.0.0.1", 49009)
-        dref_array.append("sim/cockpit/switches/gear_handle_status")
-        dref_array.append("cockpit2/switches/panel_brightness_ratio")
+        xpc = xplaneConnect.XPlaneConnect()
+        drefs = ["sim/cockpit/switches/gear_handle_status", "cockpit2/switches/panel_brightness_ratio"]
 
         # Execution
-        result = sender.request_dref(dref_array)
+        result = xpc.getDREFs(drefs)
 
         # Cleanup
-        sender.close()
-        receiver.close()
+        xpc.close()
 
         # Tests
         self.assertEqual(2, len(result))
@@ -60,21 +55,16 @@ class XPCTests(unittest.TestCase):
         self.assertEqual(4, len(result[1]))
 
     def test_send_dref(self):
-        # Init
-        dref_array = []
-
         # Setup
-        sender = xplaneConnect.XPlaneConnect(49066, "127.0.0.1", 49009)
-        receiver = xplaneConnect.XPlaneConnect(49008, "127.0.0.1", 49009)
-        dref_array.append("sim/cockpit/switches/gear_handle_status")
+        xpc = xplaneConnect.XPlaneConnect()
+        dref = "sim/cockpit/switches/gear_handle_status"
 
         # Execution
-        sender.send_dref(dref_array[0])
-        result = receiver.request_dref(dref_array)
+        sender.sendDREF(dref_array)
+        result = receiver.getDREF(dref_array)
 
         # Cleanup
-        sender.close()
-        receiver.close()
+        xpc.close();
 
         # Tests
         self.assertEqual(1, len(result))
