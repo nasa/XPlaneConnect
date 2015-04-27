@@ -1,4 +1,4 @@
-function setDREF( dref, value, socket )
+function sendDREF( dref, value, socket )
 % sendDREF Sends a command to X-Plane that sets the given DREF.
 %
 % Inputs

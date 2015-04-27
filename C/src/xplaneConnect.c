@@ -362,7 +362,7 @@ int readDATA(XPCSocket sock, float data[][9], int rows)
 /*****************************************************************************/
 /****                          DREF functions                             ****/
 /*****************************************************************************/
-int setDREF(XPCSocket sock, const char* dref, float value[], int size)
+int sendDREF(XPCSocket sock, const char* dref, float value[], int size)
 {
 	// Setup command
 	// 5 byte header + max 255 char dref name + max 255 values * 4 bytes per value = 1279

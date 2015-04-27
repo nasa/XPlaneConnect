@@ -71,7 +71,7 @@ public class Main
             try { Thread.sleep(10000); } catch (InterruptedException ex) {}
 
             System.out.println("Stowing landing gear");
-            xpc.setDREF("sim/cockpit/switches/gear_handle_status", 1);
+            xpc.sendDREF("sim/cockpit/switches/gear_handle_status", 1);
 
             //Let sim run for 10 seconds
             try { Thread.sleep(10000); } catch (InterruptedException ex) {}
