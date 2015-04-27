@@ -82,7 +82,7 @@ public class Main
                 "sim/cockpit/switches/gear_handle_status",
                 "sim/operation/override/override_planepath"
             };
-            float[][] results = xpc.requestDREFs(drefs);
+            float[][] results = xpc.getDREFs(drefs);
 
             if(results[0][0] == 1)
             {

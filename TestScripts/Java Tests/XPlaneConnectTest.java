@@ -31,7 +31,7 @@ public class XPlaneConnectTest
         {
             fail();
         }
-        try(XPlaneConnect xpc = new XPlaneConnect(49007, "127.0.0.1", 49009))
+        try(XPlaneConnect xpc = new XPlaneConnect("127.0.0.1", 49009, 49007))
         {
             assertNotNull(xpc);
         }
@@ -39,7 +39,7 @@ public class XPlaneConnectTest
         {
             fail();
         }
-        try(XPlaneConnect xpc = new XPlaneConnect(49007, "127.0.0.1", 49009, 200))
+        try(XPlaneConnect xpc = new XPlaneConnect("127.0.0.1", 49009, 49007, 200))
         {
             assertNotNull(xpc);
         }
@@ -50,9 +50,9 @@ public class XPlaneConnectTest
     }
 
     @Test
-    public void testGetRecvPort() throws SocketException
+    public void testGetRecvPort() throws Exception
     {
-        try(XPlaneConnect xpc = new XPlaneConnect())
+        try(XPlaneConnect xpc = new XPlaneConnect("127.0.0.1", 49009, 49008))
         {
             assertEquals(49008, xpc.getRecvPort());
         }
@@ -87,11 +87,11 @@ public class XPlaneConnectTest
     }
 
     @Test
-    public void constructorTest_SocketAlreadyBound() throws SocketException
+    public void constructorTest_SocketAlreadyBound() throws Exception
     {
-        try(XPlaneConnect xpc = new XPlaneConnect())
+        try(XPlaneConnect xpc = new XPlaneConnect("127.0.0.1", 49009, 49008))
         {
-            try(XPlaneConnect xpc2 = new XPlaneConnect())
+            try(XPlaneConnect xpc2 = new XPlaneConnect("127.0.0.1", 49009, 49008))
             {
                 fail();
             }
@@ -106,7 +106,7 @@ public class XPlaneConnectTest
     @Test(expected = UnknownHostException.class)
     public void constructorTest_InvalidHost() throws UnknownHostException
     {
-        try(XPlaneConnect xpc = new XPlaneConnect(49007, "notarealhost", 49009))
+        try(XPlaneConnect xpc = new XPlaneConnect("notarealhost", 49009, 49007))
         {
 
         }
@@ -123,7 +123,7 @@ public class XPlaneConnectTest
         String dref = "sim/cockpit/switches/gear_handle_status";
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            float[] result = xpc.requestDREF(dref);
+            float[] result = xpc.getDREF(dref);
             assertEquals(1, result.length);
         }
     }
@@ -138,7 +138,7 @@ public class XPlaneConnectTest
         };
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            float[][] result = xpc.requestDREFs(drefs);
+            float[][] result = xpc.getDREFs(drefs);
             assertEquals(2, result.length);
             assertEquals(1, result[0].length);
             assertEquals(4, result[1].length);
@@ -150,7 +150,7 @@ public class XPlaneConnectTest
     {
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            xpc.requestDREFs(null);
+            xpc.getDREFs(null);
             fail();
         }
     }
@@ -161,7 +161,7 @@ public class XPlaneConnectTest
         String[] drefs = new String[0];
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            xpc.requestDREFs(drefs);
+            xpc.getDREFs(drefs);
             fail();
         }
     }
@@ -172,7 +172,7 @@ public class XPlaneConnectTest
         String[] drefs = new String[300];
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            xpc.requestDREFs(drefs);
+            xpc.getDREFs(drefs);
             fail();
         }
     }
@@ -184,7 +184,7 @@ public class XPlaneConnectTest
         String[] drefs = new String[]{longDREF};
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            xpc.requestDREFs(drefs);
+            xpc.getDREFs(drefs);
             fail();
         }
     }
@@ -195,7 +195,7 @@ public class XPlaneConnectTest
         String dref = "";
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            xpc.requestDREF(dref);
+            xpc.getDREF(dref);
             fail();
         }
     }
@@ -207,12 +207,12 @@ public class XPlaneConnectTest
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.pauseSim(true);
-            float[] result = xpc.requestDREF(dref);
+            float[] result = xpc.getDREF(dref);
             //assertEquals(1, result.length); //TODO: Why is this result 20 elements long in Java? (It's only one in MATLAB)
             assertEquals(1, result[0], 1e-4);
 
             xpc.pauseSim(false);
-            result = xpc.requestDREF(dref);
+            result = xpc.getDREF(dref);
             //assertEquals(1, result.length);
             assertEquals(0, result[0], 1e-4);
         }
@@ -305,12 +305,12 @@ public class XPlaneConnectTest
         String dref = "sim/cockpit/switches/gear_handle_status";
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            float gearHandle = xpc.requestDREF(dref)[0];
+            float gearHandle = xpc.getDREF(dref)[0];
 
             float value = gearHandle > 0.5 ? 0 : 1;
             xpc.sendDREF(dref, value);
 
-            float result = xpc.requestDREF(dref)[0];
+            float result = xpc.getDREF(dref)[0];
             assertEquals(value, result, 1e-4);
         }
     }
@@ -348,14 +348,17 @@ public class XPlaneConnectTest
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSendDREF_MessageTooLong() throws IOException
     {
+        // NOTE: This test originally ensured that the client restricted messages to 255 bytes in length.
+        //       This restriction is no longer necessary, however removing it uncovered a bug that caused
+        //       the plugin to do a bad memcpy and crash. This test is left here to ensure that X-Plane
+        //       does not crash when given erroneously large value arrays.
         String dref = "sim/cockpit/switches/gear_handle_status";
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendDREF(dref, new float[200]);
-            fail();
         }
     }
 
@@ -396,7 +399,7 @@ public class XPlaneConnectTest
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendCTRL(ctrl);
-            float[][] result = xpc.requestDREFs(drefs);
+            float[][] result = xpc.getDREFs(drefs);
             if(result.length < ctrl.length)
             {
                 fail();
@@ -425,8 +428,8 @@ public class XPlaneConnectTest
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendCTRL(ctrl, 1);
-            float[][] result1 = xpc.requestDREFs(drefs1);
-            float[][] result2 = xpc.requestDREFs(drefs2);
+            float[][] result1 = xpc.getDREFs(drefs1);
+            float[][] result2 = xpc.getDREFs(drefs2);
             if(result1.length != 4 || result2.length != 2)
             {
                 fail();
@@ -480,7 +483,7 @@ public class XPlaneConnectTest
             xpc.sendPOSI(posi);
             //TODO: It seems that these calls are a bit too fast. The dref request often gets stale data, causing the test to fail incorrectly.
             try {Thread.sleep(100);}catch(InterruptedException ex){}
-            float[][] result = xpc.requestDREFs(drefs);
+            float[][] result = xpc.getDREFs(drefs);
             xpc.pauseSim(false);
             if(result.length < posi.length)
             {
@@ -543,7 +546,7 @@ public class XPlaneConnectTest
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendDATA(data);
-            float[] result = xpc.requestDREF(dref);
+            float[] result = xpc.getDREF(dref);
             assertEquals(data[0][1], result[0], 1e-4);
         }
     }
@@ -575,15 +578,9 @@ public class XPlaneConnectTest
         String dref = "sim/cockpit/switches/gear_handle_status";
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            int p = xpc.getRecvPort();
             xpc.setCONN(49055);
             assertEquals(49055, xpc.getRecvPort());
-            float[] result = xpc.requestDREF(dref);
-            assertEquals(1, result.length);
-
-            xpc.setCONN(p);
-            assertEquals(p, xpc.getRecvPort());
-            result = xpc.requestDREF(dref);
+            float[] result = xpc.getDREF(dref);
             assertEquals(1, result.length);
         }
     }
