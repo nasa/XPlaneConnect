@@ -439,7 +439,7 @@ namespace XPC
 #endif
 		float gearArray[10];
 
-		if ((gear < -8.5f && gear > 9.5f) || (gear < -997.9f && gear > -999.1f))
+		if ((gear < -8.5f && gear > -9.5f) || (gear < -997.9f && gear > -999.1f))
 		{
 			return;
 		}
