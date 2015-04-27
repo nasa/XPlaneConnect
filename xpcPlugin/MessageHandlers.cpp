@@ -257,7 +257,7 @@ namespace XPC
 		for (int i = 0; i < numCols; ++i)
 		{
 			unsigned char dataRef = (unsigned char)values[i][0];
-			if (dataRef > 134)
+			if (dataRef >= 134)
 			{
 #if LOG_VERBOSITY > 0
 				Log::FormatLine("[DATA] ERROR: DataRef # must be between 0 - 134 (Received: %hi)", (int)dataRef);
