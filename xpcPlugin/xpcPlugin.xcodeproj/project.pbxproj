@@ -76,35 +76,43 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		AC4E46B809C2E0B3006B7E1B /* C Source */ = {
+		AC4E46B809C2E0B3006B7E1B /* src */ = {
 			isa = PBXGroup;
 			children = (
 				BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */,
 				BEDC620218EDF1A7005DB364 /* xplaneConnect.c */,
-				BEDC620318EDF1A7005DB364 /* xplaneConnect.h */,
 				BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */,
-				BEABAD2C1AE041A3007BA7DA /* DataManager.h */,
 				BEABAD2D1AE041A3007BA7DA /* DataMaps.cpp */,
-				BEABAD2E1AE041A3007BA7DA /* DataMaps.h */,
 				BEABAD2F1AE041A3007BA7DA /* Drawing.cpp */,
-				BEABAD301AE041A3007BA7DA /* Drawing.h */,
 				BEABAD311AE041A3007BA7DA /* Log.cpp */,
-				BEABAD321AE041A3007BA7DA /* Log.h */,
 				BEABAD331AE041A3007BA7DA /* Message.cpp */,
-				BEABAD341AE041A3007BA7DA /* Message.h */,
 				BEABAD351AE041A3007BA7DA /* MessageHandlers.cpp */,
-				BEABAD361AE041A3007BA7DA /* MessageHandlers.h */,
 				BEABAD3D1AE0498D007BA7DA /* UDPSocket.cpp */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+		BE953E0B1AEB183400CE4A8C /* inc */ = {
+			isa = PBXGroup;
+			children = (
+				BEDC620318EDF1A7005DB364 /* xplaneConnect.h */,
+				BEABAD2C1AE041A3007BA7DA /* DataManager.h */,
+				BEABAD2E1AE041A3007BA7DA /* DataMaps.h */,
+				BEABAD301AE041A3007BA7DA /* Drawing.h */,
+				BEABAD321AE041A3007BA7DA /* Log.h */,
+				BEABAD341AE041A3007BA7DA /* Message.h */,
+				BEABAD361AE041A3007BA7DA /* MessageHandlers.h */,
 				BEABAD3E1AE0498D007BA7DA /* UDPSocket.h */,
 			);
-			name = "C Source";
+			name = inc;
 			sourceTree = "<group>";
 		};
 		D607B15F09A5563000699BC3 = {
 			isa = PBXGroup;
 			children = (
 				D6A7BDAD16A1DEA700D1426A /* Frameworks */,
-				AC4E46B809C2E0B3006B7E1B /* C Source */,
+				AC4E46B809C2E0B3006B7E1B /* src */,
+				BE953E0B1AEB183400CE4A8C /* inc */,
 				D607B19A09A556E400699BC3 /* Products */,
 			);
 			sourceTree = "<group>";

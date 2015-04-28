@@ -78,13 +78,13 @@ namespace XPC
 	void Log::FormatLine(const char* format, ...)
 	{
 		va_list args;
-		va_start(args, format);
 
 		FILE* fd = fopen("XPCLog.txt", "a");
 		if (!fd)
 		{
 			return;
 		}
+		va_start(args, format);
 
 		WriteTime(fd);
 		vfprintf(fd, format, args);

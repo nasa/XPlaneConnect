@@ -150,7 +150,7 @@ int sendDREFTest() // sendDREF test
 	}
 
     // Execution
-	setDREF(sock, drefs[0], &value, 1);
+	sendDREF(sock, drefs[0], &value, 1);
 	int result = getDREFs(sock, drefs, data, 1, sizes);
     
     // Close
@@ -180,9 +180,9 @@ int sendDATATest() // sendDATA test
 	{
 		"sim/aircraft/parts/acf_gear_deploy"
 	};
-	float* data[100];
+	float* data[100]; // array for result of getDREFs
 	int sizes[100];
-	float DATA[4][9];
+	float DATA[4][9]; // Array for sendDATA
 	XPCSocket sock = openUDP("127.0.0.1", 49009, 49066);
 
 	// Setup
@@ -198,9 +198,9 @@ int sendDATATest() // sendDATA test
 			data[i][j] = -998;
 		}
 	}
-    data[0][0] = 14; // Gear
-    data[0][1] = 1;
-    data[0][2] = 0;
+    DATA[0][0] = 14; // Gear
+    DATA[0][1] = 1;
+    DATA[0][2] = 0;
     
     // Execution
 	sendDATA(sock, DATA, 1);

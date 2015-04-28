@@ -133,7 +133,7 @@ int sendDATA(XPCSocket sock, float data[][9], int rows);
 /// \param values An array of values representing the data to set.
 /// \param size   The number of elements in values.
 /// \returns      0 if successful, otherwise a negative value.
-int setDREF(XPCSocket sock, const char* dref, float value[], int size);
+int sendDREF(XPCSocket sock, const char* dref, float value[], int size);
 
 /// Gets the value of the specified dataref.
 ///

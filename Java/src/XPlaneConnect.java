@@ -306,9 +306,9 @@ public class XPlaneConnect implements AutoCloseable
         throw new IOException("No response received.");
     }
 
-    public void setDREF(String dref, float value) throws IOException
+    public void sendDREF(String dref, float value) throws IOException
     {
-        setDREF(dref, new float[] {value});
+        sendDREF(dref, new float[] {value});
     }
 
     /**
@@ -318,7 +318,7 @@ public class XPlaneConnect implements AutoCloseable
      * @param value An array of floating point values whose structure depends on the dref specified.
      * @throws IOException If the command cannot be sent.
      */
-    public void setDREF(String dref, float[] value) throws IOException
+    public void sendDREF(String dref, float[] value) throws IOException
     {
         //Preconditions
         if(dref == null)
@@ -731,7 +731,7 @@ public class XPlaneConnect implements AutoCloseable
      * Sets the port on which the client will receive data from X-Plane.
      *
      * @param port The new incoming port number.
-     * @throws IOException If the command cannnot be sent.
+     * @throws IOException If the command cannot be sent.
      */
     public void setCONN(int port) throws IOException
     {

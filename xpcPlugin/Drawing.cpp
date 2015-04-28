@@ -136,13 +136,11 @@ namespace XPC
 		float py = XPLMGetDataf(planeYref);
 		float pz = XPLMGetDataf(planeZref);
 
-		Waypoint* g;
-		LocalPoint* l;
 		//Convert to local
 		for (size_t i = 0; i < numWaypoints; ++i)
 		{
-			g = &waypoints[i];
-			l = &localPoints[i];
+			Waypoint* g = &waypoints[i];
+			LocalPoint* l = &localPoints[i];
 			XPLMWorldToLocal(g->latitude, g->longitude, g->altitude,
 				&l->x, &l->y, &l->z);
 		}
@@ -153,7 +151,7 @@ namespace XPC
 		glBegin(GL_LINES);
 		for (size_t i = 0; i < numWaypoints; ++i)
 		{
-			l = &localPoints[i];
+			LocalPoint* l = &localPoints[i];
 			glVertex3f((float)l->x, (float)l->y, (float)l->z);
 			glVertex3f((float)l->x, -1000.0F, (float)l->z);
 		}
@@ -164,7 +162,7 @@ namespace XPC
 		glBegin(GL_LINE_STRIP);
 		for (size_t i = 0; i < numWaypoints; ++i)
 		{
-			l = &localPoints[i];
+            LocalPoint* l = &localPoints[i];
 			glVertex3f((float)l->x, (float)l->y, (float)l->z);
 		}
 		glEnd();
@@ -173,7 +171,7 @@ namespace XPC
 		glColor3f(1.0F, 1.0F, 1.0F);
 		for (size_t i = 0; i < numWaypoints; ++i)
 		{
-			l = &localPoints[i];
+			LocalPoint* l = &localPoints[i];
 			float xoff = (float)l->x - px;
 			float yoff = (float)l->y - py;
 			float zoff = (float)l->z - pz;
@@ -218,7 +216,7 @@ namespace XPC
 		//Enable drawing if necessary
 		if (!msgEnabled)
 		{
-			XPLMRegisterDrawCallback(MessageDrawCallback, xplm_Phase_LastCockpit, 0, NULL);
+            XPLMRegisterDrawCallback(MessageDrawCallback, xplm_Phase_Window, 0, NULL);
 			msgEnabled = true;
 		}
 	}

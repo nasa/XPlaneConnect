@@ -93,7 +93,7 @@ int main()
 
 	const char* dref = "sim/cockpit/switches/gear_handle_status"; // Gear handle data reference
 	float gear = 0; // Stow gear
-	setDREF(sock, dref, &gear, 1); // Set gear to stow
+	sendDREF(sock, dref, &gear, 1); // Set gear to stow
 
 	// Simulate for 10 seconds
 	sleep(10);
