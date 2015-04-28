@@ -30,13 +30,14 @@ class XPlaneConnect:
             raise ValueError("timeout must be non-negative.")
 
         # Setup XPlane IP and port
-        self.xpDst = (socket.inet_pton(socket.AF_INET, xpIP), xpPort)
+        self.xpDst = (xpIP, xpPort)
 
         # Create and bind socket        
-        clientAddr = (socket.INADDR_ANY, port)
+        clientAddr = ("0.0.0.0", port)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         self.socket.bind(clientAddr)
-        self.socket.settimeout(timeout / 1000)
+        timeout /= 1000.0
+        self.socket.settimeout(timeout)
 
     def __del__(self):
         self.close()
@@ -212,11 +213,11 @@ class XPlaneConnect:
         if hasattr(values, "__len__"):
             if len(values) > 255:
                 raise ValueError("values must have less than 256 items.")
-            fmt = "<4sxB" + len(dref) + "sB" + len(values) + "f"
-            buffer = struct.pack(fmt, ("DREF", len(dref), dref, len(values), values))
+            fmt = "<4sxB{0:d}sB{1:d}f".format(len(dref), len(values))
+            buffer = struct.pack(fmt, "DREF", len(dref), dref, len(values), values)
         else:
-            fmt = "<4sxB" + len(dref) + "sBf"
-            buffer = struct.pack(fmt, ("DREF", len(dref), dref, 1, values))
+            fmt = "<4sxB{0:d}sBf".format(len(dref))
+            buffer = struct.pack(fmt, "DREF", len(dref), dref, 1, values)
 
         # Send
         self.sendUDP(buffer)
@@ -229,7 +230,7 @@ class XPlaneConnect:
 
             Returns: A sequence of data representing the values of the requested dataref.
         '''
-        return getDREFS([dref])[0]
+        return self.getDREFs([dref])[0]
 
     def getDREFs(self, drefs):
         '''Gets the value of one or more X-Plane datarefs.
@@ -241,20 +242,22 @@ class XPlaneConnect:
              datarefs.
         '''
         # Send request
-        buffer = struct.pack("<4sxB" ("GETD", len(drefs)))
+        buffer = struct.pack("<4sxB", "GETD", len(drefs))
         for dref in drefs:
-            struct.pack_into("<B" + len(dref) + "s", buffer, len(buffer), dref)
+            fmt = "<B{0:d}s".format(len(dref))
+            buffer += struct.pack(fmt, len(dref), dref)
         self.sendUDP(buffer)
 
         # Read and parse response
         buffer = self.readUDP()
-        resultCount = struct.unpack_from("B", buffer, 5)
+        resultCount = struct.unpack_from("B", buffer, 5)[0]
         offset = 6
         result = []
         for i in range(resultCount):
-            rowLen = struct.unpack_from("B", buffer, offset)
+            rowLen = struct.unpack_from("B", buffer, offset)[0]
             offset += 1
-            row = struct.unpack_from("<" + rowLen + "f", buffer, offset)
+            fmt = "<{0:d}f".format(rowLen)
+            row = struct.unpack_from(fmt, buffer, offset)
             result.append(row)
             offset += rowLen * 4
         return result
