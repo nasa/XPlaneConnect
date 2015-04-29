@@ -576,7 +576,11 @@ int psendPOSITest() // sendPOSI test
 
 	// Execution 2
 	pauseSim(sock, 1);
-	float loc[3];
+	float *loc[3];
+    for(int i = 0; i < 3; ++i)
+    {
+        loc[i] = (float*)malloc(sizeof(float));
+    }
 	getDREFs(sock, drefs, &loc, 3, sizes);
 	sendPOSI(sock, POSI, 7, 0);
 	result = getDREFs(sock, drefs, data, 7, sizes);
