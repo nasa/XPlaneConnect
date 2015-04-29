@@ -13,6 +13,8 @@
 #include <math.h>
 #include "xplaneConnect.h"
 
+#define IP "143.232.65.39"
+
 int testFailed = 0;
 int testPassed = 0;
 
@@ -35,16 +37,16 @@ void runTest(int (*test)(), char* name)
 int openTest() // openUDP Test
 {
     XPCSocket sock = openUDP("localhost");
-	int result = strncmp(sock.xpIP, "127.0.0.1", 16);
+	int result = strncmp(sock.xpIP, IP, 16);
 	closeUDP(sock);
     return result;
 }
 
 int closeTest() // closeUDP test
 {
-    XPCSocket sendPort = aopenUDP("127.0.0.1", 49009, 49063);
+    XPCSocket sendPort = aopenUDP(IP, 49009, 49063);
     closeUDP(sendPort);
-    sendPort = aopenUDP("127.0.0.1", 49009, 49063);
+    sendPort = aopenUDP(IP, 49009, 49063);
     closeUDP(sendPort);
     return 0;
 }
@@ -52,7 +54,7 @@ int closeTest() // closeUDP test
 int sendTEXTTest()
 {
 	// Setup
-	XPCSocket sendPort = openUDP("127.0.0.1");
+	XPCSocket sendPort = openUDP(IP);
 	int x = 100;
 	int y = 700;
 	char* msg = "This is an X-Plane Connect test message.\nThis should be a new line.\r\nThat will be parsed as two line breaks.";
@@ -88,7 +90,7 @@ int getDREFTest() // Request DREF Test (Required for next tests)
 	};
 	float* data[GETD_COUNT];
 	int sizes[GETD_COUNT];
-	XPCSocket sock = openUDP("127.0.0.1");
+	XPCSocket sock = openUDP(IP);
     
     // Setup
 	for (int i = 0; i < GETD_COUNT; ++i)
@@ -276,7 +278,7 @@ int sendDATATest() // sendDATA test
 	float* data[100]; // array for result of getDREFs
 	int sizes[100];
 	float DATA[4][9]; // Array for sendDATA
-	XPCSocket sock = openUDP("127.0.0.1");
+	XPCSocket sock = openUDP(IP);
 
 	// Setup
 	for (int i = 0; i < 100; ++i)
@@ -333,7 +335,7 @@ int psendCTRLTest() // sendCTRL test
 	float* data[100];
 	int sizes[100];
 	float CTRL[6] = { 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.5F };
-	XPCSocket sock = openUDP("127.0.0.1");
+	XPCSocket sock = openUDP(IP);
 
 	// Setup
 	for (int i = 0; i < 100; i++)
@@ -431,7 +433,7 @@ int sendCTRLTest()
 	float* data[100];
 	int sizes[100];
 	float CTRL[6] = { 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.5F };
-	XPCSocket sock = openUDP("127.0.0.1");
+	XPCSocket sock = openUDP(IP);
 
 	// Setup
 	for (int i = 0; i < 100; i++)
@@ -531,7 +533,7 @@ int psendPOSITest() // sendPOSI test
 	float* data[100];
 	int sizes[100];
 	float POSI[7] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
-	XPCSocket sock = openUDP("127.0.0.1");
+	XPCSocket sock = openUDP(IP);
 
 	// Setup
 	for (i = 0; i < 100; i++)
@@ -669,7 +671,7 @@ int psendPOSITest() // sendPOSI test
 //	float* data[100];
 //	int sizes[100];
 //	float POSI[7] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
-//	XPCSocket sock = openUDP("127.0.0.1");
+//	XPCSocket sock = openUDP(IP);
 //
 //	// Setup
 //	for (i = 0; i < 100; i++)
@@ -792,7 +794,7 @@ int psendPOSITest() // sendPOSI test
 int sendWYPTTest()
 {
 	// Setup
-	XPCSocket sock = openUDP("127.0.0.1");
+	XPCSocket sock = openUDP(IP);
 	float points[] =
 	{
 		37.5245F, -122.06899F, 2500,
@@ -834,7 +836,7 @@ int pauseTest() // pauseSim test
 	};
     float* data[100];
 	int sizes[100];
-	XPCSocket sock = openUDP("127.0.0.1");
+	XPCSocket sock = openUDP(IP);
     
     // Setup
     for (int i = 0; i < 100; i++)
@@ -889,7 +891,7 @@ int connTest() // setConn test
 	};
     float* data[100];
 	int sizes[100];
-	XPCSocket sock = openUDP("127.0.0.1");
+	XPCSocket sock = openUDP(IP);
 #if (__APPLE__ || __linux)
     usleep(0);
 #endif

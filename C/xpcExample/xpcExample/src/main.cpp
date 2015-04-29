@@ -22,8 +22,7 @@ int main()
 
 	// Open Socket
 	const char* IP = "127.0.0.1";      //IP Address of computer running X-Plane
-	const unsigned short PORT = 49009; //xpcPlugin Receiving port (usually 49009)
-	XPCSocket sock = aopenUDP(IP, PORT);
+	XPCSocket sock = openUDP(IP);
 
 	// Set Location/Orientation (sendPOSI)
 	// Set Up Position Array
@@ -37,7 +36,7 @@ int main()
 	POSI[6] = 1;          // Gear
 
 	// Set position of the player aircraft
-	psendPOSI(sock, POSI, 7);
+	sendPOSI(sock, POSI, 7, 0);
 
 	POSI[0] = 37.52465;   // Move a second aircraft a bit North of us
 	POSI[4] = 20;         // Give that aircraft a bit or right roll
@@ -75,7 +74,7 @@ int main()
 	// Set throttle on the player aircraft using sendCTRL
 	float CTRL[5] = { 0.0 };
 	CTRL[3] = 0.8; // Throttle
-	psendCTRL(sock, CTRL, 5);
+	sendCTRL(sock, CTRL, 5, 0);
 
 	// pauseSim
 	pauseSim(sock, 1); // Sending 1 to pause	

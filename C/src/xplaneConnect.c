@@ -242,7 +242,7 @@ int setCONN(XPCSocket* sock, unsigned short port)
 
 	// Switch socket
 	closeUDP(*sock);
-	*sock = openUDP(sock->xpIP, sock->xpPort, port);
+	*sock = aopenUDP(sock->xpIP, sock->xpPort, port);
 
 	// Read response
 	int result;
