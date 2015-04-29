@@ -524,7 +524,7 @@ int psendPOSITest() // sendPOSI test
 	{
 		"sim/flightmodel/position/latitude",
 		"sim/flightmodel/position/longitude",
-		"sim/flightmodel/position/y_agl",
+		"sim/flightmodel/position/elevation",
 		"sim/flightmodel/position/phi",
 		"sim/flightmodel/position/theta",
 		"sim/flightmodel/position/psi",
