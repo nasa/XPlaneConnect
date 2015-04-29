@@ -158,7 +158,6 @@ int sendDREFTest() // sendDREF test
 	};
 	float* data[DREF_COUNT];
 	int sizes[DREF_COUNT];
-	XPCSocket sock = openUDP("localhost");
 	float* values[DREF_COUNT];
 	XPCSocket sock = openUDP("localhost");
 	
