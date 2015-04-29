@@ -56,7 +56,7 @@ namespace XPC
 			DREF::HeadingMag, DREF::MagneticVariation
 		},
 		{ // Row 20: Global Position
-			DREF::Latitude, DREF::Longitude, DREF::AGL
+			DREF::Latitude, DREF::Longitude, DREF::Elevation, DREF::AGL
 		},
 		{ // Row 21: Local Position, Velocity
 			DREF::LocalX, DREF::LocalY, DREF::LocalZ, DREF::LocalVX, DREF::LocalVY, DREF::LocalVZ

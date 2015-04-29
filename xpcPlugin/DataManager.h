@@ -88,6 +88,7 @@ namespace XPC
 		// Global Position
 		Latitude = 2000,
 		Longitude,
+        Elevation,
 		AGL,
 
 		// Local Postion & Velocity

@@ -114,6 +114,7 @@ namespace XPC
 			{ DREF::Latitude, XPLMFindDataRef("sim/flightmodel/position/latitude") },
 			{ DREF::Longitude, XPLMFindDataRef("sim/flightmodel/position/longitude") },
 			{ DREF::AGL, XPLMFindDataRef("sim/flightmodel/position/y_agl") },
+            { DREF::Elevation, XPLMFindDataRef("sim/flightmodel/position/elevation") },
 
 			{ DREF::LocalX, XPLMFindDataRef("sim/flightmodel/position/local_x") },
 			{ DREF::LocalY, XPLMFindDataRef("sim/flightmodel/position/local_y") },
@@ -617,9 +618,10 @@ namespace XPC
 			Set(DREF::LocalY, local[1]);
 			Set(DREF::LocalZ, local[2]);
 			// If the sim is unpaused, this will override the above settings.
+            // TODO: Are these setable when paused? Are these necessary?
 			Set(DREF::Latitude, (double)pos[0]);
 			Set(DREF::Longitude, (double)pos[1]);
-			Set(DREF::AGL, (double)pos[2]);
+			Set(DREF::Elevation, (double)pos[2]);
 		}
 		else // Multiplayer
 		{
