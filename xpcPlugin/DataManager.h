@@ -137,10 +137,10 @@ namespace XPC
 	/// Marshals data between the plugin and X-Plane.
 	///
 	/// \author Jason Watkins
-	/// \version 1.0
-	/// \since 1.0
+	/// \version 1.0.1
+	/// \since 1.0.0
 	/// \date Intial Version: 2015-04-13
-	/// \date Last Updated: 2015-04-13
+	/// \date Last Updated: 2015-04-29
 	class DataManager
 	{
 	public:

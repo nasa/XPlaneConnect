@@ -198,72 +198,127 @@ namespace XPC
 		{
 			xdref = XPLMFindDataRef(dref.c_str());
 		}
-		if (!xdref)
+		if (!xdref) // DREF does not exist
 		{
-			// DREF does not exist
 #if LOG_VERBOSITY > 0
-			Log::WriteLine("[DMAN] ERROR: invalid DREF");
+			Log::FormatLine("[DMAN] ERROR: invalid DREF %s", dref.c_str());
 #endif
 			return 0;
 		}
 
 		XPLMDataTypeID dataType = XPLMGetDataRefTypes(xdref);
 #if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Get DREF %s (x:%X) type %i", dref.c_str(), xdref, dataType);
+		Log::FormatLine("[DMAN] Get DREF %s (x:%X) Type: %i", dref.c_str(), xdref, dataType);
 #endif
-		switch (dataType)
+		// XPLMDataTypeID is a bit flag, so it may contain more than one of the
+		// following types. We prefer types as close to float as possible.
+		if ((dataType & 2) == 2) // Float
 		{
-		case 1: // Integer
-		{
-			values[0] = (float)XPLMGetDatai(xdref);
+			values[0] = XPLMGetDataf(xdref);
 #if LOG_VERBOSITY > 4
-			Log::FormatLine("		value was %i", (int)values[0]);
+			Log::FormatLine("[DMAN] -- value was %f", values[0]);
 #endif
 			return 1;
 		}
-		case 4: // Double
-		{
-			values[0] = (float)XPLMGetDatad(xdref);
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("		value was %f", values[0]);
-#endif
-			return 1;
-		}
-		case 8: // Float Array
+		if ((dataType & 8) == 8) // Float array
 		{
 			int drefSize = XPLMGetDatavf(xdref, NULL, 0, 0);
-			drefSize = min(drefSize, size);
+			if (drefSize > size)
+			{
+#if LOG_VERBOSITY > 1
+				Log::WriteLine("[DMAN] WARN: dref size is larger than available space");
+				Log::FormatLine("             Actual dref size: %i, Available size: %i", drefSize, size);
+#endif
+				drefSize = size;
+			}
 			XPLMGetDatavf(xdref, values, 0, drefSize);
 #if LOG_VERBOSITY > 4
-			Log::FormatLine("		value count was %i", drefSize);
+			Log::FormatLine("[DMAN] -- value count was %i", drefSize);
 #endif
 			return drefSize;
 		}
-		case 16: // Integer Array
+		if ((dataType & 4) == 4) // Double
 		{
-			int iValues[64];
+			values[0] = (float)XPLMGetDatad(xdref);
+#if LOG_VERBOSITY > 4
+			Log::FormatLine("[DMAN] -- value was %f", values[0]);
+#endif
+			return 1;
+		}
+		if ((dataType & 1) == 1) // Integer
+		{
+			values[0] = (float)XPLMGetDatai(xdref);
+#if LOG_VERBOSITY > 4
+			Log::FormatLine("[DMAN] -- value was %i", (int)values[0]);
+#endif
+			return 1;
+		}
+		if ((dataType & 16) == 16) // Integer array
+		{
+			int iValues[200];
 			int drefSize = XPLMGetDatavi(xdref, NULL, 0, 0);
-			drefSize = min(drefSize, size);
-			drefSize = min(drefSize, 64);
+			if (drefSize > size)
+			{
+#if LOG_VERBOSITY > 1
+				Log::WriteLine("[DMAN] WARN: dref size is larger than available space");
+				Log::FormatLine("             Actual dref size: %i, Available size: %i", drefSize, size);
+#endif
+				drefSize = size;
+			}
+			if (drefSize > 200)
+			{
+#if LOG_VERBOSITY > 1
+				Log::WriteLine("[DMAN] WARN: dref size is larger than temp buffer");
+				Log::FormatLine("             Actual dref size: %i, Temp buffer size: 200", drefSize);
+#endif
+				drefSize = 200;
+			}
 			XPLMGetDatavi(xdref, iValues, 0, drefSize);
 			for (int i = 0; i < drefSize; ++i)
 			{
 				values[i] = (float)iValues[i];
 			}
 #if LOG_VERBOSITY > 4
-			Log::FormatLine("		value count was %i", drefSize);
+			Log::FormatLine("[DMAN] -- value count was %i", drefSize);
 #endif
 			return drefSize;
 		}
-		default: // Assume float
+		if ((dataType & 32) == 32) // Byte array
 		{
-			values[0] = XPLMGetDataf(xdref);
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("		value was %f", values[0]);
+			char bValues[1024];
+			int drefSize = XPLMGetDatab(xdref, NULL, 0, 0);
+			if (drefSize > size)
+			{
+#if LOG_VERBOSITY > 1
+				Log::WriteLine("[DMAN] WARN: dref size is larger than available space");
+				Log::FormatLine("             Actual dref size: %i, Available size: %i", drefSize, size);
 #endif
-			return 1;
+				drefSize = size;
+			}
+			if (drefSize > 1024)
+			{
+#if LOG_VERBOSITY > 1
+				Log::WriteLine("[DMAN] WARN: dref size is larger than temp buffer");
+				Log::FormatLine("             Actual dref size: %i, Temp buffer size: 1024", drefSize);
+#endif
+				drefSize = 1024;
+			}
+			XPLMGetDatab(xdref, bValues, 0, drefSize);
+			for (int i = 0; i < drefSize; ++i)
+			{
+				values[i] = (float)bValues[i];
+			}
+#if LOG_VERBOSITY > 4
+			Log::FormatLine("[DMAN] -- value count was %i", drefSize);
+#endif
+			return drefSize;
 		}
-		}
+
+		// No match
+#if LOG_VERBOSITY > 0
+		Log::WriteLine("[DMAN] ERROR: Unrecognized data type.");
+#endif
+		return 0;
 	}
 
 	double DataManager::GetDouble(DREF dref, char aircraft)
@@ -372,14 +427,11 @@ namespace XPC
 		{
 			xdref = XPLMFindDataRef(dref.c_str());
 		}
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Setting DREF %s (x:%X) (%i values)", dref.c_str(), xdref, size);
-#endif
 		if (!xdref)
 		{
 			// DREF does not exist
 #if LOG_VERBOSITY > 0
-			Log::WriteLine("[DMAN] ERROR: invalid DREF");
+			Log::FormatLine("[DMAN] ERROR: invalid DREF %s", dref.c_str());
 #endif
 			return;
 		}
@@ -392,44 +444,118 @@ namespace XPC
 		}
 
 		XPLMDataTypeID dataType = XPLMGetDataRefTypes(xdref);
-		switch (dataType)
+#if LOG_VERBOSITY > 4
+		Log::FormatLine("[DMAN] Setting DREF %s (x:%X) Type: %i", dref.c_str(), xdref, dataType);
+#endif
+		if ((dataType & 2) == 2) // Float
 		{
-		case 1: // Integer
-		{
-			XPLMSetDatai(xdref, (int)values[0]);
-			break;
+			XPLMSetDataf(xdref, values[0]);
+#if LOG_VERBOSITY > 4
+			Log::FormatLine("[DMAN] -- value was %f", values[0]);
+#endif
 		}
-		case 4: // Double
-		{
-			XPLMSetDatad(xdref, values[0]);
-			break;
-		}
-		case 8: // Float Array
+		else if ((dataType & 8) == 8) // Float Array
 		{
 			int drefSize = XPLMGetDatavf(xdref, NULL, 0, 0);
+#if LOG_VERBOSITY > 1
+			if (size > drefSize)
+			{
+				Log::WriteLine("[DMAN] WARN: Provided size is larger than actual dref size");
+				Log::FormatLine("             Actual dref size: %i, Provided buffer size: %i", drefSize, size);
+			}
+#endif
 			drefSize = min(drefSize, size);
 			XPLMSetDatavf(xdref, values, 0, drefSize);
-			break;
+#if LOG_VERBOSITY > 4
+				Log::FormatLine("[DMAN] -- value count was %i", drefSize);
+#endif
 		}
-		case 16: // Integer Array
+		else if ((dataType & 4) == 4) // Double
 		{
-			int iValues[64];
+			XPLMSetDatad(xdref, values[0]);
+#if LOG_VERBOSITY > 4
+			Log::FormatLine("[DMAN] -- value was %f", values[0]);
+#endif
+		}
+		else if ((dataType & 1) == 1) // Integer
+		{
+			XPLMSetDatai(xdref, (int)values[0]);
+#if LOG_VERBOSITY > 4
+			Log::FormatLine("[DMAN] -- value was %i", (int)values[0]);
+#endif
+		}
+		else if ((dataType & 16) == 16) // Integer Array
+		{
+			int iValues[200];
 			int drefSize = XPLMGetDatavi(xdref, NULL, 0, 0);
+#if LOG_VERBOSITY > 1
+			if (size > drefSize)
+			{
+				Log::WriteLine("[DMAN] WARN: Provided size is larger than actual dref size");
+				Log::FormatLine("             Actual dref size: %i, Provided buffer size: %i", drefSize, size);
+			}
+#endif
 			drefSize = min(drefSize, size);
-			drefSize = min(drefSize, 64);
+			if (drefSize > 200)
+			{
+#if LOG_VERBOSITY > 1
+				Log::WriteLine("[DMAN] WARN: drefSize larger than temp buffer size.");
+				Log::FormatLine("             Actual dref size: %i, Temp buffer size: 200", drefSize);
+#endif
+				drefSize = 200;
+			}
 			for (int i = 0; i < drefSize; ++i)
 			{
 				iValues[i] = (int)values[i];
 			}
 			XPLMSetDatavi(xdref, iValues, 0, drefSize);
-			break;
+#if LOG_VERBOSITY > 4
+			Log::FormatLine("[DMAN] -- value count was %i", drefSize);
+#endif
 		}
-		default: // Assume float
+		else if ((dataType & 32) == 32) // Byte Array
 		{
-			XPLMSetDataf(xdref, values[0]);
-			break;
+			char bValues[1024];
+			int drefSize = XPLMGetDatab(xdref, NULL, 0, 0);
+#if LOG_VERBOSITY > 1
+			if (size > drefSize)
+			{
+				Log::WriteLine("[DMAN] WARN: Provided size is larger than actual dref size");
+				Log::FormatLine("             Actual dref size: %i, Provided buffer size: %i", drefSize, size);
+			}
+#endif
+			drefSize = min(drefSize, size);
+			if (drefSize > 1024)
+			{
+#if LOG_VERBOSITY > 1
+				Log::WriteLine("[DMAN] WARN: drefSize larger than temp buffer size.");
+				Log::FormatLine("             Actual dref size: %i, Temp buffer size: 1024", drefSize);
+#endif
+				drefSize = 1024;
+			}
+			for (int i = 0; i < drefSize; ++i)
+			{
+				bValues[i] = (char)values[i];
+			}
+			XPLMSetDatab(xdref, bValues, 0, drefSize);
+#if LOG_VERBOSITY > 4
+			Log::FormatLine("[DMAN] -- value count was %i", drefSize);
+#endif
 		}
+		else
+		{
+#if LOG_VERBOSITY > 0
+			Log::WriteLine("[DMAN] ERROR: Unknown type.");
+#endif
 		}
+
+
+#if LOG_VERBOSITY > 1
+		if (!XPLMCanWriteDataRef(xdref))
+		{
+			Log::WriteLine("[DMAN] WARN: dref is not writable. The write operation probably failed.");
+		}
+#endif
 	}
 
 	void DataManager::SetGear(float gear, bool immediate, char aircraft)
