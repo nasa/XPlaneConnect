@@ -13,7 +13,7 @@
 #include <math.h>
 #include "xplaneConnect.h"
 
-#define IP "143.232.65.39"
+#define IP "127.0.0.1"
 
 int testFailed = 0;
 int testPassed = 0;
@@ -37,7 +37,7 @@ void runTest(int (*test)(), char* name)
 int openTest() // openUDP Test
 {
     XPCSocket sock = openUDP("localhost");
-	int result = strncmp(sock.xpIP, IP, 16);
+	int result = strncmp(sock.xpIP, "127.0.0.1", 16);
 	closeUDP(sock);
     return result;
 }
@@ -161,7 +161,7 @@ int sendDREFTest() // sendDREF test
 	float* data[DREF_COUNT];
 	int sizes[DREF_COUNT];
 	float* values[DREF_COUNT];
-	XPCSocket sock = openUDP("localhost");
+	XPCSocket sock = openUDP(IP);
 	
 	// Setup
 	sizes[0] = 1;
@@ -365,7 +365,7 @@ int psendCTRLTest() // sendCTRL test
 		}
 	}
 
-	sock = openUDP("localhost");
+	sock = openUDP(IP);
 	// Execute 2
 	// Set non-zero pitch, roll, & yaw. Also set throttle, gear, and flaps
 	CTRL[0] = 0.2F;
@@ -390,7 +390,7 @@ int psendCTRLTest() // sendCTRL test
 		}
 	}
 
-	sock = openUDP("localhost");
+	sock = openUDP(IP);
 	// Execute 2
 	// Set non-zero pitch, roll, & yaw. Also set throttle, gear, and flaps
 	CTRL[0] = -998.0F;
@@ -463,7 +463,7 @@ int sendCTRLTest()
 		}
 	}
 
-	sock = openUDP("localhost");
+	sock = openUDP(IP);
 	// Execute 2
 	// Set non-zero pitch, roll, & yaw. Also set throttle, gear, and flaps
 	CTRL[0] = 0.2F;
@@ -488,7 +488,7 @@ int sendCTRLTest()
 		}
 	}
 
-	sock = openUDP("localhost");
+	sock = openUDP(IP);
 	// Execute 2
 	// Set non-zero pitch, roll, & yaw. Also set throttle, gear, and flaps
 	CTRL[0] = -998.0F;
@@ -565,7 +565,7 @@ int psendPOSITest() // sendPOSI test
 	}
 
 	// Setup 2
-	sock = openUDP("localhost");
+	sock = openUDP(IP);
 	POSI[0] = -998.0F;
 	POSI[1] = -998.0F;
 	POSI[2] = -998.0F;
@@ -610,7 +610,7 @@ int psendPOSITest() // sendPOSI test
 	}
 
 	// Setup 3
-	sock = openUDP("localhost");
+	sock = openUDP(IP);
 	POSI[0] = 37.524F;
 	POSI[1] = -122.06899F;
 	POSI[2] = 20000;
