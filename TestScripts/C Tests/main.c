@@ -11,7 +11,7 @@
 #include <time.h>
 #include <string.h>
 #include <math.h>
-#include "xplaneconnect.h"
+#include "xplaneConnect.h"
 
 int testFailed = 0;
 int testPassed = 0;
