@@ -66,12 +66,12 @@ void printError(char *functionName, char *format, ...)
 /*****************************************************************************/
 /****                       Low Level UDP functions                       ****/
 /*****************************************************************************/
-XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort)
+XPCSocket openUDP(const char *xpIP)
 {
-	return openUDP(xpIP, xpPort, 0);
+	return aopenUDP(xpIP, 49009, 0);
 }
 
-XPCSocket openUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
+XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
 {
 	XPCSocket sock;
 	
@@ -432,7 +432,7 @@ int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int si
 	// Read data. Try 40 times to read, then give up.
 	// TODO: Why not just set the timeout to 40ms?
 	int result;
-	for (int i = 0; i < 40; ++i)
+	for (int i = 0; i < 512; ++i)
 	{
 		result = readUDP(sock, buffer, 65536);
 		if (result > 0)
@@ -613,6 +613,10 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 /*****************************************************************************/
 int sendTEXT(XPCSocket sock, char* msg, int x, int y)
 {
+	if (msg == NULL)
+	{
+		msg = "";
+	}
 	size_t msgLen = strnlen(msg, 255);
 	// Input Validation
 	if (x < -1)

@@ -34,7 +34,7 @@ void runTest(int (*test)(), char* name)
 
 int openTest() // openUDP Test
 {
-    XPCSocket sock = openUDP("localhost", 49009, 49062);
+    XPCSocket sock = openUDP("localhost");
 	int result = strncmp(sock.xpIP, "127.0.0.1", 16);
 	closeUDP(sock);
     return result;
@@ -42,9 +42,9 @@ int openTest() // openUDP Test
 
 int closeTest() // closeUDP test
 {
-    XPCSocket sendPort = openUDP("127.0.0.1", 49009, 49063);
+    XPCSocket sendPort = aopenUDP("127.0.0.1", 49009, 49063);
     closeUDP(sendPort);
-    sendPort = openUDP("127.0.0.1", 49009, 49063);
+    sendPort = aopenUDP("127.0.0.1", 49009, 49063);
     closeUDP(sendPort);
     return 0;
 }
@@ -52,7 +52,7 @@ int closeTest() // closeUDP test
 int sendTEXTTest()
 {
 	// Setup
-	XPCSocket sendPort = openUDP("127.0.0.1", 49009, 49064);
+	XPCSocket sendPort = openUDP("127.0.0.1");
 	int x = 100;
 	int y = 700;
 	char* msg = "This is an X-Plane Connect test message.\nThis should be a new line.\r\nThat will be parsed as two line breaks.";
@@ -88,7 +88,7 @@ int getDREFTest() // Request DREF Test (Required for next tests)
 	};
 	float* data[GETD_COUNT];
 	int sizes[GETD_COUNT];
-	XPCSocket sock = openUDP("127.0.0.1", 49009, 49064);
+	XPCSocket sock = openUDP("127.0.0.1");
     
     // Setup
 	for (int i = 0; i < GETD_COUNT; ++i)
@@ -158,7 +158,7 @@ int sendDREFTest() // sendDREF test
 	};
 	float* data[DREF_COUNT];
 	int sizes[DREF_COUNT];
-	XPCSocket sock = aopenUDP("127.0.0.1", 49009);
+	XPCSocket sock = openUDP("localhost");
 	float* values[DREF_COUNT];
 	XPCSocket sock = openUDP("localhost");
 	
@@ -263,7 +263,6 @@ int sendDREFTest() // sendDREF test
 	{
 		return -7;
 	}
-	// TODO: Verify that read-only dref was not set.
     return 0;
 }
 
@@ -278,7 +277,7 @@ int sendDATATest() // sendDATA test
 	float* data[100]; // array for result of getDREFs
 	int sizes[100];
 	float DATA[4][9]; // Array for sendDATA
-	XPCSocket sock = openUDP("127.0.0.1", 49009, 49066);
+	XPCSocket sock = openUDP("127.0.0.1");
 
 	// Setup
 	for (int i = 0; i < 100; ++i)
@@ -335,7 +334,7 @@ int psendCTRLTest() // sendCTRL test
 	float* data[100];
 	int sizes[100];
 	float CTRL[6] = { 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.5F };
-	XPCSocket sock = openUDP("127.0.0.1", 49009, 49066);
+	XPCSocket sock = openUDP("127.0.0.1");
 
 	// Setup
 	for (int i = 0; i < 100; i++)
@@ -365,7 +364,7 @@ int psendCTRLTest() // sendCTRL test
 		}
 	}
 
-	sock = aopenUDP("localhost", 49009);
+	sock = openUDP("localhost");
 	// Execute 2
 	// Set non-zero pitch, roll, & yaw. Also set throttle, gear, and flaps
 	CTRL[0] = 0.2F;
@@ -390,7 +389,7 @@ int psendCTRLTest() // sendCTRL test
 		}
 	}
 
-	sock = aopenUDP("localhost", 49009);
+	sock = openUDP("localhost");
 	// Execute 2
 	// Set non-zero pitch, roll, & yaw. Also set throttle, gear, and flaps
 	CTRL[0] = -998.0F;
@@ -433,7 +432,7 @@ int sendCTRLTest()
 	float* data[100];
 	int sizes[100];
 	float CTRL[6] = { 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.5F };
-	XPCSocket sock = openUDP("127.0.0.1", 49009, 49066);
+	XPCSocket sock = openUDP("127.0.0.1");
 
 	// Setup
 	for (int i = 0; i < 100; i++)
@@ -463,7 +462,7 @@ int sendCTRLTest()
 		}
 	}
 
-	sock = aopenUDP("localhost", 49009);
+	sock = openUDP("localhost");
 	// Execute 2
 	// Set non-zero pitch, roll, & yaw. Also set throttle, gear, and flaps
 	CTRL[0] = 0.2F;
@@ -488,7 +487,7 @@ int sendCTRLTest()
 		}
 	}
 
-	sock = aopenUDP("localhost", 49009);
+	sock = openUDP("localhost");
 	// Execute 2
 	// Set non-zero pitch, roll, & yaw. Also set throttle, gear, and flaps
 	CTRL[0] = -998.0F;
@@ -533,7 +532,7 @@ int psendPOSITest() // sendPOSI test
 	float* data[100];
 	int sizes[100];
 	float POSI[7] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
-	XPCSocket sock = openUDP("127.0.0.1", 49009, 49063);
+	XPCSocket sock = openUDP("127.0.0.1");
 
 	// Setup
 	for (i = 0; i < 100; i++)
@@ -565,7 +564,7 @@ int psendPOSITest() // sendPOSI test
 	}
 
 	// Setup 2
-	sock = aopenUDP("localhost", 49009);
+	sock = openUDP("localhost");
 	POSI[0] = -998.0F;
 	POSI[1] = -998.0F;
 	POSI[2] = -998.0F;
@@ -610,7 +609,7 @@ int psendPOSITest() // sendPOSI test
 	}
 
 	// Setup 3
-	sock = aopenUDP("localhost", 49009);
+	sock = openUDP("localhost");
 	POSI[0] = 37.524F;
 	POSI[1] = -122.06899F;
 	POSI[2] = 20000;
@@ -671,7 +670,7 @@ int psendPOSITest() // sendPOSI test
 //	float* data[100];
 //	int sizes[100];
 //	float POSI[7] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
-//	XPCSocket sock = openUDP("127.0.0.1", 49009, 49063);
+//	XPCSocket sock = openUDP("127.0.0.1");
 //
 //	// Setup
 //	for (i = 0; i < 100; i++)
@@ -703,7 +702,7 @@ int psendPOSITest() // sendPOSI test
 //	}
 //
 //	// Setup 2
-//	sock = aopenUDP("localhost", 49009);
+//	sock = openUDP("localhost");
 //	POSI[0] = -998.0F;
 //	POSI[1] = -998.0F;
 //	POSI[2] = -998.0F;
@@ -748,7 +747,7 @@ int psendPOSITest() // sendPOSI test
 //	}
 //
 //	// Setup 3
-//	sock = aopenUDP("localhost", 49009);
+//	sock = openUDP("localhost");
 //	POSI[0] = 37.524F;
 //	POSI[1] = -122.06899;
 //	POSI[2] = 20000;
@@ -794,7 +793,7 @@ int psendPOSITest() // sendPOSI test
 int sendWYPTTest()
 {
 	// Setup
-	XPCSocket sock = openUDP("127.0.0.1", 49009, 49064);
+	XPCSocket sock = openUDP("127.0.0.1");
 	float points[] =
 	{
 		37.5245F, -122.06899F, 2500,
@@ -836,7 +835,7 @@ int pauseTest() // pauseSim test
 	};
     float* data[100];
 	int sizes[100];
-	XPCSocket sock = openUDP("127.0.0.1", 49009, 49064);
+	XPCSocket sock = openUDP("127.0.0.1");
     
     // Setup
     for (int i = 0; i < 100; i++)
@@ -891,7 +890,7 @@ int connTest() // setConn test
 	};
     float* data[100];
 	int sizes[100];
-	XPCSocket sock = openUDP("127.0.0.1", 49009, 49067);
+	XPCSocket sock = openUDP("127.0.0.1");
 #if (__APPLE__ || __linux)
     usleep(0);
 #endif

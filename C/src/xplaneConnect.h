@@ -67,9 +67,8 @@ typedef enum
 /// Opens a new connection to XPC on an OS chosen port.
 ///
 /// \param xpIP   A string representing the IP address of the host running X-Plane.
-/// \param xpPort The port of the X-Plane Connect plugin is listening on. Usually 49009.
 /// \returns      An XPCSocket struct representing the newly created connection.
-XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort);
+XPCSocket openUDP(const char *xpIP);
 
 /// Opens a new connection to XPC on the specified port.
 ///
@@ -77,7 +76,7 @@ XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort);
 /// \param xpPort The port of the X-Plane Connect plugin is listening on. Usually 49009.
 /// \param port   The local port to use when sending and receiving data from XPC.
 /// \returns      An XPCSocket struct representing the newly created connection.
-XPCSocket openUDP(const char *xpIP, unsigned short xpPort, unsigned short port);
+XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort, unsigned short port);
 
 /// Closes the specified connection and releases resources associated with it.
 ///
