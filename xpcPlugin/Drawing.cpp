@@ -192,7 +192,7 @@ namespace XPC
 	{
 		//Determine size of message and clear instead if the message string
 		//is empty.
-		size_t len = strnlen(msg, MSG_MAX);
+		size_t len = strnlen(msg, MSG_MAX - 1);
 		if (len == 0)
 		{
 			ClearMessage();
@@ -200,7 +200,7 @@ namespace XPC
 		}
 
 		//Set the message, location, and mark new lines.
-		strncpy(msgVal, msg, len);
+		strncpy(msgVal, msg, len + 1);
 		newLineCount = 0;
 		for (size_t i = 0; i < len && newLineCount < MSG_LINE_MAX; ++i)
 		{
