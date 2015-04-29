@@ -940,7 +940,6 @@ int main(int argc, const char * argv[])
     
 	runTest(openTest, "open");
 	runTest(closeTest, "close");
-	//runTest(sendReadTest, "send/read");
 	runTest(pauseTest, "SIMU");
 	runTest(getDREFTest, "GETD");
 	runTest(sendDREFTest, "DREF");
