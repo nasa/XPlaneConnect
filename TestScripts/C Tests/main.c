@@ -379,7 +379,7 @@ int psendCTRLTest() // sendCTRL test
 
 	// Execute 1
 	// 0 pitch, roll, yaw
-	psendCTRL(sock, CTRL, 3);
+	sendCTRL(sock, CTRL, 3, 0);
 	int result = getDREFs(sock, drefs, data, 6, sizes);
 
 	// Close socket
@@ -404,7 +404,7 @@ int psendCTRLTest() // sendCTRL test
 	CTRL[0] = 0.2F;
 	CTRL[1] = 0.1F;
 	CTRL[2] = 0.1F;
-	psendCTRL(sock, CTRL, 6);
+	sendCTRL(sock, CTRL, 6, 0);
 	int result = getDREFs(sock, drefs, data, 6, sizes);
 
 	// Close socket
@@ -429,7 +429,7 @@ int psendCTRLTest() // sendCTRL test
 	CTRL[0] = -998.0F;
 	CTRL[1] = -998.0F;
 	CTRL[2] = -998.0F;
-	psendCTRL(sock, CTRL, 6);
+	sendCTRL(sock, CTRL, 6, 0);
 	int result = getDREFs(sock, drefs, data, 6, sizes);
 
 	// Close socket
@@ -577,7 +577,7 @@ int psendPOSITest() // sendPOSI test
 
 	// Execution 1
 	pauseSim(sock, 1);
-	psendPOSI(sock, POSI, 7);
+	sendPOSI(sock, POSI, 7, 0);
 	int result = getDREFs(sock, drefs, data, 7, sizes);
 	pauseSim(sock, 0);
 
@@ -611,7 +611,7 @@ int psendPOSITest() // sendPOSI test
 	pauseSim(sock, 1);
 	float loc[3];
 	getDREFs(sock, drefs, loc, 3, sizes);
-	psendPOSI(sock, POSI, 7);
+	sendPOSI(sock, POSI, 7, 0);
 	int result = getDREFs(sock, drefs, data, 7, sizes);
 	pauseSim(sock, 0);
 
@@ -654,7 +654,7 @@ int psendPOSITest() // sendPOSI test
 
 	// Execution 2
 	pauseSim(sock, 1);
-	psendPOSI(sock, POSI, 3);
+	sendPOSI(sock, POSI, 3, 0);
 	int result = getDREFs(sock, drefs, data, 7, sizes);
 	pauseSim(sock, 0);
 

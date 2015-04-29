@@ -514,11 +514,6 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
 /*****************************************************************************/
 /****                          POSI functions                             ****/
 /*****************************************************************************/
-int psendPOSI(XPCSocket sock, float values[], int size)
-{
-	return sendPOSI(sock, values, size, 0);
-}
-
 int sendPOSI(XPCSocket sock, float values[], int size, char ac)
 {
 	// Validate input
@@ -563,11 +558,6 @@ int sendPOSI(XPCSocket sock, float values[], int size, char ac)
 /*****************************************************************************/
 /****                          CTRL functions                             ****/
 /*****************************************************************************/
-int psendCTRL(XPCSocket sock, float values[], int size)
-{
-	return sendCTRL(sock, values, size, 0);
-}
-
 int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 {
 	// Validate input

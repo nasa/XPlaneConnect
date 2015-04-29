@@ -166,16 +166,6 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
         
 // Position
 
-/// Sets the position and orientation of the player aircraft.
-///
-/// \param sock   The socket to use to send the command.
-/// \param values An array representing position data about the aircraft. The format of values is
-///               [Lat, Lon, Alt, Pitch, Roll, Yaw, Gear]. If less than 7 values are specified,
-///               the unspecified values will be left unchanged.
-/// \param size   The number of elements in values.
-/// \returns      0 if successful, otherwise a negative value.
-int psendPOSI(XPCSocket sock, float values[], int size);
-
 /// Sets the position and orientation of the specified aircraft.
 ///
 /// \param sock   The socket to use to send the command.
@@ -188,16 +178,6 @@ int psendPOSI(XPCSocket sock, float values[], int size);
 int sendPOSI(XPCSocket sock, float values[], int size, char ac);
 
 // Controls
-
-/// Sets the control surfaces of the player aircraft.
-///
-/// \param sock   The socket to use to send the command.
-/// \param values An array representing position data about the aircraft. The format of values is
-///               [Elevator, Aileron, Rudder, Throttle, Gear, Flaps]. If less than 6 values are
-///               specified, the unspecified values will be left unchanged.
-/// \param size   The number of elements in values.
-/// \returns      0 if successful, otherwise a negative value.
-int psendCTRL(XPCSocket sock, float values[], int size);
 
 /// Sets the control surfaces of the specified aircraft.
 ///
