@@ -49,34 +49,6 @@ int closeTest() // closeUDP test
     return 0;
 }
 
-int sendReadTest() // send/read Test
-{
-    // Initialization
-    char test[] = {0, 1, 2, 3, 5};
-    char buf[5] = {0};
-	XPCSocket outSock = openUDP("127.0.0.1", 49063, 49064);
-	XPCSocket inSock = openUDP("127.0.0.1", 49009, 49063);
-    
-    // Execution
-	sendUDP(outSock, test, sizeof(test));
-	readUDP(inSock, buf, sizeof(buf), NULL);
-    
-    // Close
-	closeUDP(outSock);
-	closeUDP(inSock);
-    
-    // Tests
-	for (int i = 0; i < sizeof(buf); i++)
-	{
-		if (test[i] != buf[i]) // Not received correctly
-		{
-			return -1;
-		}
-	}
-    
-    return 0;
-}
-
 int sendTEXTTest()
 {
 	// Setup
@@ -104,8 +76,8 @@ int getDREFTest() // Request DREF Test (Required for next tests)
 {
     // Initialization
 	// Get one DREF of each type (int, float, int[], float[], double, byte[])
-	#define COUNT 6
-	char* drefs[COUNT] =
+	#define GETD_COUNT 6
+	char* drefs[GETD_COUNT] =
 	{
 		"sim/cockpit/switches/gear_handle_status", //int
 		"sim/cockpit/autopilot/altitude", //float
@@ -114,26 +86,25 @@ int getDREFTest() // Request DREF Test (Required for next tests)
 		"sim/aircraft/view/acf_tailnum", //byte[40]
 		"sim/flightmodel/position/elevation" //double
 	};
-	float* data[COUNT];
-	int sizes[COUNT];
+	float* data[GETD_COUNT];
+	int sizes[GETD_COUNT];
 	XPCSocket sock = openUDP("127.0.0.1", 49009, 49064);
     
     // Setup
-	for (int i = 0; i < COUNT; ++i)
+	for (int i = 0; i < GETD_COUNT; ++i)
 	{
-		data[i] = (float*)malloc(40 * sizeof(float));
-		sizes[i] = 40;
+		data[i] = (float*)malloc(256 * sizeof(float));
+		sizes[i] = 256;
 	}
     
     // Execution
-	int result = getDREFs(sock, drefs, data, COUNT, sizes);
+	int result = getDREFs(sock, drefs, data, GETD_COUNT, sizes);
     
     // Close
 	closeUDP(sock);
     
     // Tests
-	// Should get back the number of values we requested.
-	if (result != COUNT)
+	if (result < 0)
     {
         return -1;
     }
@@ -175,36 +146,33 @@ int sendDREFTest() // sendDREF test
     // Initialization
 	// Set one DREF of each type (int, float, int[], float[], double, byte[])
 	// Also set one read-only to make sure it fails
-	#define COUNT 7
-	char* drefs[COUNT] =
+	#define DREF_COUNT 6
+	char* drefs[DREF_COUNT] =
 	{
 		"sim/cockpit/switches/gear_handle_status", //int
 		"sim/cockpit/autopilot/altitude", //float
 		"sim/aircraft/prop/acf_prop_type", //int[8]
 		"sim/cockpit2/switches/panel_brightness_ratio", //float[4]
 		"sim/aircraft/view/acf_tailnum", //byte[40]
-		"sim/flightmodel/position/elevation" //double
-		"sim/cockpit/radios/nav type" //int[6] - Read only
+		"sim/flightmodel/position/elevation" //double - Read only
 	};
-	float* data[COUNT];
-	int sizes[COUNT];
+	float* data[DREF_COUNT];
+	int sizes[DREF_COUNT];
 	XPCSocket sock = aopenUDP("127.0.0.1", 49009);
-	float* values[COUNT];
+	float* values[DREF_COUNT];
+	XPCSocket sock = openUDP("localhost");
 	
 	// Setup
 	sizes[0] = 1;
 	values[0] = (float*)malloc(sizes[0] * sizeof(float));
-	data[0] = (float*)malloc(sizes[0] * sizeof(float));
 	values[0][0] = 1;
 
 	sizes[1] = 1;
 	values[1] = (float*)malloc(sizes[1] * sizeof(float));
-	data[1] = (float*)malloc(sizes[1] * sizeof(float));
 	values[1][0] = 4000.0F;
 
 	sizes[2] = 8;
 	values[2] = (float*)malloc(sizes[2] * sizeof(float));
-	data[2] = (float*)malloc(sizes[2] * sizeof(float));
 	for (int i = 0; i < 8; ++i)
 	{
 		values[2][i] = 0;
@@ -212,7 +180,6 @@ int sendDREFTest() // sendDREF test
 
 	sizes[3] = 4;
 	values[3] = (float*)malloc(sizes[3] * sizeof(float));
-	data[3] = (float*)malloc(sizes[3] * sizeof(float));
 	for (int i = 0; i < 4; ++i)
 	{
 		values[3][i] = 0.25F;
@@ -220,40 +187,32 @@ int sendDREFTest() // sendDREF test
 
 	sizes[4] = 40;
 	values[4] = (float*)malloc(sizes[4] * sizeof(float));
-	data[4] = (float*)malloc(sizes[4] * sizeof(float));
-	values[0] = 78; //N
-	values[1] = 55; //7
-	values[2] = 52; //4
-	values[3] = 56; //8
-	values[4] = 53; //5
-	values[5] = 89; //Y
+	memset(values[4], 0, sizes[4] * sizeof(float));
+	values[4][0] = 78.0F; //N
+	values[4][1] = 55.0F; //7
+	values[4][2] = 52.0F; //4
+	values[4][3] = 56.0F; //8
+	values[4][4] = 53.0F; //5
+	values[4][5] = 89.0F; //Y
 
 	sizes[5] = 1;
 	values[5] = (float*)malloc(sizes[5] * sizeof(float));
-	data[5] = (float*)malloc(sizes[5] * sizeof(float));
 	values[5][0] = 5000.0F;
 
-	sizes[6] = 6;
-	values[6] = (float*)malloc(sizes[6] * sizeof(float));
-	data[6] = (float*)malloc(sizes[6] * sizeof(float));
-	for (int i = 0; i < 6; ++i)
-	{
-		values[6][i] = 0;
-	}
-
     // Execution
-	for (int i = 0; i < COUNT; ++i)
+	for (int i = 0; i < DREF_COUNT; ++i)
 	{
 		sendDREF(sock, drefs[i], values[i], sizes[i]);
+		data[i] = (float*)malloc(256 * sizeof(float));
+		sizes[i] = 256;
 	}
-	int result = getDREFs(sock, drefs, data, COUNT, sizes);
+	int result = getDREFs(sock, drefs, data, DREF_COUNT, sizes);
     
     // Close
 	closeUDP(sock);
     
     // Tests
-	// Should get back as many values as we requested
-    if (result != COUNT)
+    if (result < 0)
     {
         return -1;
     }
@@ -291,10 +250,18 @@ int sendDREFTest() // sendDREF test
 			return -5;
 		}
 	}
-	// Verify aircraft elevation was set
-	if (sizes[4] != 1 || data[4][0] != 5000.0F)
+	// Verify tail number was set
+	for (int i = 0; i < 6; ++i)
 	{
-		return -6;
+		if (data[4][i] != values[4][i])
+		{
+			return -6;
+		}
+	}
+	// Verify aircraft elevation was NOT set
+	if (sizes[5] != 1 || data[5][0] == 5000.0F)
+	{
+		return -7;
 	}
 	// TODO: Verify that read-only dref was not set.
     return 0;
@@ -386,7 +353,7 @@ int psendCTRLTest() // sendCTRL test
 	closeUDP(sock);
 
 	// Tests
-	if (result != 6)
+	if (result < 0)
 	{
 		return -1;
 	}
@@ -405,13 +372,13 @@ int psendCTRLTest() // sendCTRL test
 	CTRL[1] = 0.1F;
 	CTRL[2] = 0.1F;
 	sendCTRL(sock, CTRL, 6, 0);
-	int result = getDREFs(sock, drefs, data, 6, sizes);
+	result = getDREFs(sock, drefs, data, 6, sizes);
 
 	// Close socket
 	closeUDP(sock);
 
 	// Tests
-	if (result != 6)
+	if (result < 0)
 	{
 		return -2;
 	}
@@ -430,13 +397,13 @@ int psendCTRLTest() // sendCTRL test
 	CTRL[1] = -998.0F;
 	CTRL[2] = -998.0F;
 	sendCTRL(sock, CTRL, 6, 0);
-	int result = getDREFs(sock, drefs, data, 6, sizes);
+	result = getDREFs(sock, drefs, data, 6, sizes);
 
 	// Close socket
 	closeUDP(sock);
 
 	// Tests
-	if (result != 6)
+	if (result < 0)
 	{
 		return -3;
 	}
@@ -484,7 +451,7 @@ int sendCTRLTest()
 	closeUDP(sock);
 
 	// Tests
-	if (result != 6)
+	if (result < 0)
 	{
 		return -1;
 	}
@@ -503,13 +470,13 @@ int sendCTRLTest()
 	CTRL[1] = 0.1F;
 	CTRL[2] = 0.1F;
 	sendCTRL(sock, CTRL, 6, 1);
-	int result = getDREFs(sock, drefs, data, 6, sizes);
+	result = getDREFs(sock, drefs, data, 6, sizes);
 
 	// Close socket
 	closeUDP(sock);
 
 	// Tests
-	if (result != 6)
+	if (result < 0)
 	{
 		return -2;
 	}
@@ -528,13 +495,13 @@ int sendCTRLTest()
 	CTRL[1] = -998.0F;
 	CTRL[2] = -998.0F;
 	sendCTRL(sock, CTRL, 6, 1);
-	int result = getDREFs(sock, drefs, data, 6, sizes);
+	result = getDREFs(sock, drefs, data, 6, sizes);
 
 	// Close socket
 	closeUDP(sock);
 
 	// Tests
-	if (result != 6)
+	if (result < 0)
 	{
 		return -3;
 	}
@@ -585,7 +552,7 @@ int psendPOSITest() // sendPOSI test
 	closeUDP(sock);
 
 	// Tests
-	if (result != 7)// Request 1 value
+	if (result < 0)
 	{
 		return -1;
 	}
@@ -610,16 +577,16 @@ int psendPOSITest() // sendPOSI test
 	// Execution 2
 	pauseSim(sock, 1);
 	float loc[3];
-	getDREFs(sock, drefs, loc, 3, sizes);
+	getDREFs(sock, drefs, &loc, 3, sizes);
 	sendPOSI(sock, POSI, 7, 0);
-	int result = getDREFs(sock, drefs, data, 7, sizes);
+	result = getDREFs(sock, drefs, data, 7, sizes);
 	pauseSim(sock, 0);
 
 	// Close
 	closeUDP(sock);
 
 	// Tests
-	if (result != 7)
+	if (result < 0)
 	{
 		return -2;
 	}
@@ -645,7 +612,7 @@ int psendPOSITest() // sendPOSI test
 	// Setup 3
 	sock = aopenUDP("localhost", 49009);
 	POSI[0] = 37.524F;
-	POSI[1] = -122.06899;
+	POSI[1] = -122.06899F;
 	POSI[2] = 20000;
 	POSI[3] = 15.0F;
 	POSI[4] = -25.0F;
@@ -655,14 +622,14 @@ int psendPOSITest() // sendPOSI test
 	// Execution 2
 	pauseSim(sock, 1);
 	sendPOSI(sock, POSI, 3, 0);
-	int result = getDREFs(sock, drefs, data, 7, sizes);
+	result = getDREFs(sock, drefs, data, 7, sizes);
 	pauseSim(sock, 0);
 
 	// Close
 	closeUDP(sock);
 
 	// Tests
-	if (result != 7)
+	if (result < 0)
 	{
 		return -3;
 	}
@@ -686,143 +653,143 @@ int psendPOSITest() // sendPOSI test
 	return 0;
 }
 
-int sendPOSITest() // sendPOSI test
-{
-	// Initialization
-	int i; // Iterator
-	char* drefs[100] =
-	{
-		// TODO: Can't get global position for multiplayer a/c?
-		"sim/flightmodel/position/latitude",
-		"sim/flightmodel/position/longitude",
-		"sim/flightmodel/position/y_agl",
-		"sim/multiplayer/position/plane1_phi",
-		"sim/multiplayer/position/plane1_the",
-		"sim/multiplayer/position/plane1_psi",
-		"sim/multiplayer/position/plane1_gear_deploy"
-	};
-	float* data[100];
-	int sizes[100];
-	float POSI[7] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
-	XPCSocket sock = openUDP("127.0.0.1", 49009, 49063);
-
-	// Setup
-	for (i = 0; i < 100; i++)
-	{
-		data[i] = (float*)malloc(40 * sizeof(float));
-		sizes[i] = 40;
-	}
-
-	// Execution 1
-	pauseSim(sock, 1);
-	sendPOSI(sock, POSI, 7, 0);
-	int result = getDREFs(sock, drefs, data, 7, sizes);
-	pauseSim(sock, 0);
-
-	// Close
-	closeUDP(sock);
-
-	// Tests
-	if (result != 7)// Request 1 value
-	{
-		return -1;
-	}
-	for (i = 0; i < 7; ++i)
-	{
-		if (fabs(data[i][0] - POSI[i]) > 1e-4)
-		{
-			return -i - 11;
-		}
-	}
-
-	// Setup 2
-	sock = aopenUDP("localhost", 49009);
-	POSI[0] = -998.0F;
-	POSI[1] = -998.0F;
-	POSI[2] = -998.0F;
-	POSI[3] = 5.0F;
-	POSI[4] = -5.0F;
-	POSI[5] = 10.0F;
-	POSI[6] = 0;
-
-	// Execution 2
-	pauseSim(sock, 1);
-	float loc[3];
-	getDREFs(sock, drefs, loc, 3, sizes);
-	sendPOSI(sock, POSI, 7, 0);
-	int result = getDREFs(sock, drefs, data, 7, sizes);
-	pauseSim(sock, 0);
-
-	// Close
-	closeUDP(sock);
-
-	// Tests
-	if (result != 7)
-	{
-		return -2;
-	}
-	// Compare position to make sure they weren't set
-	for (int i = 0; i < 3; ++i)
-	{
-		// Note: Because the sim was paused when both of these were read, we really do expect *exactly*
-		//       the same value even though we are comparing floats.
-		if (data[i][0] != loc[i])
-		{
-			return -i - 21;
-		}
-	}
-	// Compare everything else.
-	for (i = 3; i < 7; ++i)
-	{
-		if (fabs(data[i][0] - POSI[i]) > 1e-4)
-		{
-			return -i - 21;
-		}
-	}
-
-	// Setup 3
-	sock = aopenUDP("localhost", 49009);
-	POSI[0] = 37.524F;
-	POSI[1] = -122.06899;
-	POSI[2] = 20000;
-	POSI[3] = 15.0F;
-	POSI[4] = -25.0F;
-	POSI[5] = -10.0F;
-	POSI[6] = 1;
-
-	// Execution 2
-	pauseSim(sock, 1);
-	sendPOSI(sock, POSI, 3, 0);
-	int result = getDREFs(sock, drefs, data, 7, sizes);
-	pauseSim(sock, 0);
-
-	// Close
-	closeUDP(sock);
-
-	// Tests
-	if (result != 7)
-	{
-		return -3;
-	}
-	// Compare position to make sure it was set.
-	for (int i = 0; i < 3; ++i)
-	{
-		if (fabs(data[i][0] - POSI[i]) > 1e-4)
-		{
-			return -i - 31;
-		}
-	}
-	// Compare everything else to make sure it *wasn't*.
-	for (i = 3; i < 7; ++i)
-	{
-		if (fabs(data[i][0] - POSI[i]) < 1)
-		{
-			return -i - 31;
-		}
-	}
-
-	return 0;
-}
+//int sendPOSITest() // sendPOSI test
+//{
+//	// Initialization
+//	int i; // Iterator
+//	char* drefs[100] =
+//	{
+//		// TODO: Can't get global position for multiplayer a/c?
+//		"sim/flightmodel/position/plane1_latitude",
+//		"sim/flightmodel/position/plane1_longitude",
+//		"sim/flightmodel/position/plane1_y_agl",
+//		"sim/multiplayer/position/plane1_phi",
+//		"sim/multiplayer/position/plane1_the",
+//		"sim/multiplayer/position/plane1_psi",
+//		"sim/multiplayer/position/plane1_gear_deploy"
+//	};
+//	float* data[100];
+//	int sizes[100];
+//	float POSI[7] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
+//	XPCSocket sock = openUDP("127.0.0.1", 49009, 49063);
+//
+//	// Setup
+//	for (i = 0; i < 100; i++)
+//	{
+//		data[i] = (float*)malloc(40 * sizeof(float));
+//		sizes[i] = 40;
+//	}
+//
+//	// Execution 1
+//	pauseSim(sock, 1);
+//	sendPOSI(sock, POSI, 7, 0);
+//	int result = getDREFs(sock, drefs, data, 7, sizes);
+//	pauseSim(sock, 0);
+//
+//	// Close
+//	closeUDP(sock);
+//
+//	// Tests
+//	if (result < 0)
+//	{
+//		return -1;
+//	}
+//	for (i = 0; i < 7; ++i)
+//	{
+//		if (fabs(data[i][0] - POSI[i]) > 1e-4)
+//		{
+//			return -i - 11;
+//		}
+//	}
+//
+//	// Setup 2
+//	sock = aopenUDP("localhost", 49009);
+//	POSI[0] = -998.0F;
+//	POSI[1] = -998.0F;
+//	POSI[2] = -998.0F;
+//	POSI[3] = 5.0F;
+//	POSI[4] = -5.0F;
+//	POSI[5] = 10.0F;
+//	POSI[6] = 0;
+//
+//	// Execution 2
+//	pauseSim(sock, 1);
+//	float loc[3];
+//	getDREFs(sock, drefs, loc, 3, sizes);
+//	sendPOSI(sock, POSI, 7, 0);
+//	int result = getDREFs(sock, drefs, data, 7, sizes);
+//	pauseSim(sock, 0);
+//
+//	// Close
+//	closeUDP(sock);
+//
+//	// Tests
+//	if (result < 0)
+//	{
+//		return -2;
+//	}
+//	// Compare position to make sure they weren't set
+//	for (int i = 0; i < 3; ++i)
+//	{
+//		// Note: Because the sim was paused when both of these were read, we really do expect *exactly*
+//		//       the same value even though we are comparing floats.
+//		if (data[i][0] != loc[i])
+//		{
+//			return -i - 21;
+//		}
+//	}
+//	// Compare everything else.
+//	for (i = 3; i < 7; ++i)
+//	{
+//		if (fabs(data[i][0] - POSI[i]) > 1e-4)
+//		{
+//			return -i - 21;
+//		}
+//	}
+//
+//	// Setup 3
+//	sock = aopenUDP("localhost", 49009);
+//	POSI[0] = 37.524F;
+//	POSI[1] = -122.06899;
+//	POSI[2] = 20000;
+//	POSI[3] = 15.0F;
+//	POSI[4] = -25.0F;
+//	POSI[5] = -10.0F;
+//	POSI[6] = 1;
+//
+//	// Execution 2
+//	pauseSim(sock, 1);
+//	sendPOSI(sock, POSI, 3, 0);
+//	int result = getDREFs(sock, drefs, data, 7, sizes);
+//	pauseSim(sock, 0);
+//
+//	// Close
+//	closeUDP(sock);
+//
+//	// Tests
+//	if (result < 0)
+//	{
+//		return -3;
+//	}
+//	// Compare position to make sure it was set.
+//	for (int i = 0; i < 3; ++i)
+//	{
+//		if (fabs(data[i][0] - POSI[i]) > 1e-4)
+//		{
+//			return -i - 31;
+//		}
+//	}
+//	// Compare everything else to make sure it *wasn't*.
+//	for (i = 3; i < 7; ++i)
+//	{
+//		if (fabs(data[i][0] - POSI[i]) < 1)
+//		{
+//			return -i - 31;
+//		}
+//	}
+//
+//	return 0;
+//}
 
 int sendWYPTTest()
 {
@@ -880,7 +847,7 @@ int pauseTest() // pauseSim test
     
     // Execute
     pauseSim(sock, 1);
-	int result = getDREF(sock, drefs[0], data[0], sizes);
+	result = getDREF(sock, drefs[0], data[0], sizes);
 
     // Test
     if (result < 0)
@@ -965,14 +932,14 @@ int main(int argc, const char * argv[])
     
 	runTest(openTest, "open");
 	runTest(closeTest, "close");
-	runTest(sendReadTest, "send/read");
+	//runTest(sendReadTest, "send/read");
 	runTest(pauseTest, "SIMU");
 	runTest(getDREFTest, "GETD");
 	runTest(sendDREFTest, "DREF");
 	runTest(sendDATATest, "DATA");
 	runTest(sendCTRLTest, "CTRL");
 	runTest(psendCTRLTest, "CTRL (player)");
-	runTest(sendPOSITest, "POSI");
+	//runTest(sendPOSITest, "POSI");
 	runTest(psendPOSITest, "POSI (player)");
 	runTest(sendWYPTTest, "WYPT");
 	runTest(sendTEXTTest, "TEXT");
