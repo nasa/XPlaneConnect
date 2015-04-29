@@ -657,143 +657,147 @@ int psendPOSITest() // sendPOSI test
 	return 0;
 }
 
-//int sendPOSITest() // sendPOSI test
-//{
-//	// Initialization
-//	int i; // Iterator
-//	char* drefs[100] =
-//	{
-//		// TODO: Can't get global position for multiplayer a/c?
-//		"sim/flightmodel/position/plane1_latitude",
-//		"sim/flightmodel/position/plane1_longitude",
-//		"sim/flightmodel/position/plane1_y_agl",
-//		"sim/multiplayer/position/plane1_phi",
-//		"sim/multiplayer/position/plane1_the",
-//		"sim/multiplayer/position/plane1_psi",
-//		"sim/multiplayer/position/plane1_gear_deploy"
-//	};
-//	float* data[100];
-//	int sizes[100];
-//	float POSI[7] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
-//	XPCSocket sock = openUDP(IP);
-//
-//	// Setup
-//	for (i = 0; i < 100; i++)
-//	{
-//		data[i] = (float*)malloc(40 * sizeof(float));
-//		sizes[i] = 40;
-//	}
-//
-//	// Execution 1
-//	pauseSim(sock, 1);
-//	sendPOSI(sock, POSI, 7, 0);
-//	int result = getDREFs(sock, drefs, data, 7, sizes);
-//	pauseSim(sock, 0);
-//
-//	// Close
-//	closeUDP(sock);
-//
-//	// Tests
-//	if (result < 0)
-//	{
-//		return -1;
-//	}
-//	for (i = 0; i < 7; ++i)
-//	{
-//		if (fabs(data[i][0] - POSI[i]) > 1e-4)
-//		{
-//			return -i - 11;
-//		}
-//	}
-//
-//	// Setup 2
-//	sock = openUDP("localhost");
-//	POSI[0] = -998.0F;
-//	POSI[1] = -998.0F;
-//	POSI[2] = -998.0F;
-//	POSI[3] = 5.0F;
-//	POSI[4] = -5.0F;
-//	POSI[5] = 10.0F;
-//	POSI[6] = 0;
-//
-//	// Execution 2
-//	pauseSim(sock, 1);
-//	float loc[3];
-//	getDREFs(sock, drefs, loc, 3, sizes);
-//	sendPOSI(sock, POSI, 7, 0);
-//	int result = getDREFs(sock, drefs, data, 7, sizes);
-//	pauseSim(sock, 0);
-//
-//	// Close
-//	closeUDP(sock);
-//
-//	// Tests
-//	if (result < 0)
-//	{
-//		return -2;
-//	}
-//	// Compare position to make sure they weren't set
-//	for (int i = 0; i < 3; ++i)
-//	{
-//		// Note: Because the sim was paused when both of these were read, we really do expect *exactly*
-//		//       the same value even though we are comparing floats.
-//		if (data[i][0] != loc[i])
-//		{
-//			return -i - 21;
-//		}
-//	}
-//	// Compare everything else.
-//	for (i = 3; i < 7; ++i)
-//	{
-//		if (fabs(data[i][0] - POSI[i]) > 1e-4)
-//		{
-//			return -i - 21;
-//		}
-//	}
-//
-//	// Setup 3
-//	sock = openUDP("localhost");
-//	POSI[0] = 37.524F;
-//	POSI[1] = -122.06899;
-//	POSI[2] = 20000;
-//	POSI[3] = 15.0F;
-//	POSI[4] = -25.0F;
-//	POSI[5] = -10.0F;
-//	POSI[6] = 1;
-//
-//	// Execution 2
-//	pauseSim(sock, 1);
-//	sendPOSI(sock, POSI, 3, 0);
-//	int result = getDREFs(sock, drefs, data, 7, sizes);
-//	pauseSim(sock, 0);
-//
-//	// Close
-//	closeUDP(sock);
-//
-//	// Tests
-//	if (result < 0)
-//	{
-//		return -3;
-//	}
-//	// Compare position to make sure it was set.
-//	for (int i = 0; i < 3; ++i)
-//	{
-//		if (fabs(data[i][0] - POSI[i]) > 1e-4)
-//		{
-//			return -i - 31;
-//		}
-//	}
-//	// Compare everything else to make sure it *wasn't*.
-//	for (i = 3; i < 7; ++i)
-//	{
-//		if (fabs(data[i][0] - POSI[i]) < 1)
-//		{
-//			return -i - 31;
-//		}
-//	}
-//
-//	return 0;
-//}
+int sendPOSITest() // sendPOSI test
+{
+	// Initialization
+	int i; // Iterator
+	char* drefs[100] =
+	{
+		// TODO: Can't get global position for multiplayer a/c?
+		"sim/multiplayer/position/plane1_lat",
+		"sim/multiplayer/position/plane1_lon",
+		"sim/multiplayer/position/plane1_el",
+		"sim/multiplayer/position/plane1_phi",
+		"sim/multiplayer/position/plane1_the",
+		"sim/multiplayer/position/plane1_psi",
+		"sim/multiplayer/position/plane1_gear_deploy"
+	};
+	float* data[100];
+	int sizes[100];
+	float POSI[7] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
+	XPCSocket sock = openUDP(IP);
+
+	// Setup
+	for (i = 0; i < 100; i++)
+	{
+		data[i] = (float*)malloc(40 * sizeof(float));
+		sizes[i] = 40;
+	}
+
+	// Execution 1
+	pauseSim(sock, 1);
+	sendPOSI(sock, POSI, 7, 1);
+	int result = getDREFs(sock, drefs, data, 7, sizes);
+	pauseSim(sock, 0);
+
+	// Close
+	closeUDP(sock);
+
+	// Tests
+	if (result < 0)
+	{
+		return -1;
+	}
+	for (i = 0; i < 7; ++i)
+	{
+		if (fabs(data[i][0] - POSI[i]) > 1e-4)
+		{
+			return -i - 11;
+		}
+	}
+
+	// Setup 2
+	sock = openUDP(IP);
+	POSI[0] = -998.0F;
+	POSI[1] = -998.0F;
+	POSI[2] = -998.0F;
+	POSI[3] = 5.0F;
+	POSI[4] = -5.0F;
+	POSI[5] = 10.0F;
+	POSI[6] = 0;
+
+	// Execution 2
+	pauseSim(sock, 1);
+	float* loc[3];
+    for(int i = 0; i < 3; ++i)
+    {
+        loc[i] = (float*)malloc(sizeof(float));
+    }
+	getDREFs(sock, drefs, loc, 3, sizes);
+	sendPOSI(sock, POSI, 7, 1);
+	result = getDREFs(sock, drefs, data, 7, sizes);
+	pauseSim(sock, 0);
+
+	// Close
+	closeUDP(sock);
+
+	// Tests
+	if (result < 0)
+	{
+		return -2;
+	}
+	// Compare position to make sure they weren't set
+	for (int i = 0; i < 3; ++i)
+	{
+		// Note: Because the sim was paused when both of these were read, we really do expect *exactly*
+		//       the same value even though we are comparing floats.
+		if (data[i][0] != loc[i][0])
+		{
+			return -i - 21;
+		}
+	}
+	// Compare everything else.
+	for (i = 3; i < 7; ++i)
+	{
+		if (fabs(data[i][0] - POSI[i]) > 1e-4)
+		{
+			return -i - 21;
+		}
+	}
+
+	// Setup 3
+	sock = openUDP(IP);
+	POSI[0] = 37.524F;
+	POSI[1] = -122.06899;
+	POSI[2] = 20000;
+	POSI[3] = 15.0F;
+	POSI[4] = -25.0F;
+	POSI[5] = -10.0F;
+	POSI[6] = 1;
+
+	// Execution 2
+	pauseSim(sock, 1);
+	sendPOSI(sock, POSI, 3, 1);
+	result = getDREFs(sock, drefs, data, 7, sizes);
+	pauseSim(sock, 0);
+
+	// Close
+	closeUDP(sock);
+
+	// Tests
+	if (result < 0)
+	{
+		return -3;
+	}
+	// Compare position to make sure it was set.
+	for (int i = 0; i < 3; ++i)
+	{
+		if (fabs(data[i][0] - POSI[i]) > 1e-4)
+		{
+			return -i - 31;
+		}
+	}
+	// Compare everything else to make sure it *wasn't*.
+	for (i = 3; i < 7; ++i)
+	{
+		if (fabs(data[i][0] - POSI[i]) < 1)
+		{
+			return -i - 31;
+		}
+	}
+
+	return 0;
+}
 
 int sendWYPTTest()
 {
@@ -943,7 +947,7 @@ int main(int argc, const char * argv[])
 	runTest(sendDATATest, "DATA");
 	runTest(sendCTRLTest, "CTRL");
 	runTest(psendCTRLTest, "CTRL (player)");
-	//runTest(sendPOSITest, "POSI");
+	runTest(sendPOSITest, "POSI");
 	runTest(psendPOSITest, "POSI (player)");
 	runTest(sendWYPTTest, "WYPT");
 	runTest(sendTEXTTest, "TEXT");
