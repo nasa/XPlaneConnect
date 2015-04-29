@@ -599,7 +599,7 @@ int psendPOSITest() // sendPOSI test
 	{
 		// Note: Because the sim was paused when both of these were read, we really do expect *exactly*
 		//       the same value even though we are comparing floats.
-		if (data[i][0] != loc[i])
+		if (data[i][0] != loc[i][0])
 		{
 			return -i - 21;
 		}
