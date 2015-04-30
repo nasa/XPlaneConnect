@@ -119,6 +119,7 @@ PLUGIN_API void	XPluginStop(void)
 {
 	XPLMUnregisterFlightLoopCallback(XPCFlightLoopCallback, NULL);
 	XPC::Log::WriteLine("[EXEC] Plugin Shutdown");
+	XPC::Log::Close();
 }
 
 PLUGIN_API void XPluginDisable(void)
