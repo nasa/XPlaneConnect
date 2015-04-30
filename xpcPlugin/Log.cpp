@@ -1,58 +1,83 @@
 //Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
 #include "Log.h"
+
+#include "XPLMUtilities.h"
+
+#include <chrono>
 #include <cstdarg>
-#include <stdio.h>
-#include <time.h>
+#include <cstdio>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 
 // Implementation note: I initial wrote this class using C++ iostreams, but I couldn't find any
 // way to implement FormatLine without adding in a call to sprintf. It therefore seems more
-// efficient to me to just use C-style IO and call fprintf directly.
+// efficient to me to just use C-style IO and call std::fprintf directly.
 namespace XPC
 {
+	static std::FILE* fd;
 	static void WriteTime(FILE* fd)
 	{
-		time_t rawtime;
-		tm* timeinfo;
-		time(&rawtime);
-		timeinfo = localtime(&rawtime);
+		using namespace std::chrono;
 
-		char buffer[16] = { 0 };
-		// Format is equivalent to [%F %T], but neither of those specifiers is
-		// supported on Windows as of Visual Studio 13
-		strftime(buffer, 16, "[%H:%M:%S] ", timeinfo);
+		system_clock::time_point now = system_clock::now();
+		std::time_t now_tt = system_clock::to_time_t(now);
+		system_clock::time_point now_sec = system_clock::from_time_t(now_tt);
+		milliseconds ms = duration_cast<milliseconds>(now - now_sec);
+		std::tm * tm = std::localtime(&now_tt);
+
+		std::stringstream ss;
+		ss << std::setfill('0') << "["
+			<< std::setw(2) << tm->tm_hour << ":"
+			<< std::setw(2) << tm->tm_min << ":"
+			<< std::setw(2) << tm->tm_sec << "."
+			<< std::setw(3) << ms.count() << "]";
 		
-		fprintf(fd, buffer);
+		std::fprintf(fd, ss.str().c_str());
 	}
 
 	void Log::Initialize(std::string version)
 	{
-		FILE* fd = fopen("XPCLog.txt", "w");
+		fd = std::fopen("XPCLog.txt", "w");
 		if (fd != NULL)
 		{
-			time_t rawtime;
-			tm* timeinfo;
-			time(&rawtime);
-			timeinfo = localtime(&rawtime);
+			std::time_t rawtime;
+			std::tm* timeinfo;
+			std::time(&rawtime);
+			timeinfo = std::localtime(&rawtime);
 
 			char timeStr[16] = { 0 };
-			// Format is equivalent to %F, but neither of those specifiers is
-			// supported on Windows as of Visual Studio 13
-			strftime(timeStr, 16, "%Y-%m-%d", timeinfo);
+			std::strftime(timeStr, 16, "%Y-%m-%d", timeinfo);
 
-			fprintf(fd, "X-Plane Connect [Version %s]\n", version.c_str());
-			fprintf(fd, "Compiled %s %s\n", __DATE__, __TIME__);
-			fprintf(fd, "Copyright (c) 2013-2015 United States Government as represented by the\n");
-			fprintf(fd, "Administrator of the National Aeronautics and Space Administration.\n");
-			fprintf(fd, "All Rights Reserved.\n\n");
+			std::fprintf(fd, "X-Plane Connect [Version %s]\n", version.c_str());
+			std::fprintf(fd, "Compiled %s %s\n", __DATE__, __TIME__);
+			std::fprintf(fd, "Copyright (c) 2013-2015 United States Government as represented by the\n");
+			std::fprintf(fd, "Administrator of the National Aeronautics and Space Administration.\n");
+			std::fprintf(fd, "All Rights Reserved.\n\n");
 
-			fprintf(fd, "This file contains debugging information about the X-Plane Connect plugin.\n");
-			fprintf(fd, "If you have technical issues with the plugin, please report them by opening\n");
-			fprintf(fd, "an issue on GitHub (https://github.com/nasa/XPlaneConnect/issues) or by\n");
-			fprintf(fd, "emailing Christopher Teubert (christopher.a.teubert@nasa.gov).\n\n");
+			std::fprintf(fd, "This file contains debugging information about the X-Plane Connect plugin.\n");
+			std::fprintf(fd, "If you have technical issues with the plugin, please report them by opening\n");
+			std::fprintf(fd, "an issue on GitHub (https://github.com/nasa/XPlaneConnect/issues) or by\n");
+			std::fprintf(fd, "emailing Christopher Teubert (christopher.a.teubert@nasa.gov).\n\n");
 
-			fprintf(fd, "Log file generated on %s.\n", timeStr);
-			fclose(fd);
+			int xpVer;
+			int xplmVer;
+			XPLMHostApplicationID hostID;
+			XPLMGetVersions(&xpVer, &xplmVer, &hostID);
+			std::fprintf(fd, "X-Plane Version: %d\n", xpVer);
+			std::fprintf(fd, "Plugin Manager Version: %d\n", xplmVer);
+			std::fprintf(fd, "Host Application ID: %d\n", hostID);
+			std::fprintf(fd, "Log file generated on %s.\n", timeStr);
+			std::fflush(fd);
+		}
+	}
+
+	void Log::Close()
+	{
+		if (fd)
+		{
+			std::fclose(fd);
 		}
 	}
 
@@ -63,23 +88,20 @@ namespace XPC
 
 	void Log::WriteLine(const char* value)
 	{
-		FILE* fd = fopen("XPCLog.txt", "a");
 		if (!fd)
 		{
 			return;
 		}
 
 		WriteTime(fd);
-		fprintf(fd, "%s\n", value);
-
-		fclose(fd);
+		std::fprintf(fd, "%s\n", value);
+		std::fflush(fd);
 	}
 
 	void Log::FormatLine(const char* format, ...)
 	{
 		va_list args;
 
-		FILE* fd = fopen("XPCLog.txt", "a");
 		if (!fd)
 		{
 			return;
@@ -87,10 +109,9 @@ namespace XPC
 		va_start(args, format);
 
 		WriteTime(fd);
-		vfprintf(fd, format, args);
-		fprintf(fd, "\n");
-
-		fclose(fd);
+		std::vfprintf(fd, format, args);
+		std::fprintf(fd, "\n");
+		std::fflush(fd);
 
 		va_end(args);
 	}

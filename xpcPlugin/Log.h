@@ -34,6 +34,9 @@ namespace XPC
 		/// writing header information to the log file.
 		static void Initialize(std::string header);
 
+		/// Closes the log file.
+		static void Close();
+
 		/// Writes the C string pointed to by format, followed by a line
 		/// terminator to the XPC log file. If format contains format
 		/// specifiers, additional arguments following format will be formatted
