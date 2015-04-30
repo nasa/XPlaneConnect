@@ -503,8 +503,12 @@ namespace XPC
 		const unsigned char* buffer = msg.GetBuffer();
 
 		// Set DREF
-		int value[8] = {buffer[5]};
-		DataManager::Set(DREF::Pause, value, 8);
+		int value[20];
+		for (int i = 0; i < 20; ++i)
+		{
+			value[i] = buffer[5];
+		}
+		DataManager::Set(DREF::Pause, value, 20);
 
 #if LOG_VERBOSITY > 2
 		if (buffer[5] == 0)
