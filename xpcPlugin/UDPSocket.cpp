@@ -27,6 +27,7 @@ namespace XPC
 #if LOG_VERBOSITY > 0
 			Log::FormatLine("[SOCK] ERROR: WSAStartup failed with error code %i.", startResult);
 #endif
+			this->sock = ~0;
 			return;
 		}
 		if ((this->sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
