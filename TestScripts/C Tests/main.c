@@ -663,7 +663,6 @@ int sendPOSITest() // sendPOSI test
 	int i; // Iterator
 	char* drefs[100] =
 	{
-		// TODO: Can't get global position for multiplayer a/c?
 		"sim/multiplayer/position/plane1_lat",
 		"sim/multiplayer/position/plane1_lon",
 		"sim/multiplayer/position/plane1_el",
