@@ -525,8 +525,8 @@ int psendPOSITest() // sendPOSI test
 		"sim/flightmodel/position/latitude",
 		"sim/flightmodel/position/longitude",
 		"sim/flightmodel/position/elevation",
-		"sim/flightmodel/position/phi",
 		"sim/flightmodel/position/theta",
+		"sim/flightmodel/position/phi",
 		"sim/flightmodel/position/psi",
 		"sim/cockpit/switches/gear_handle_status"
 	};
@@ -667,8 +667,8 @@ int sendPOSITest() // sendPOSI test
 		"sim/multiplayer/position/plane1_lat",
 		"sim/multiplayer/position/plane1_lon",
 		"sim/multiplayer/position/plane1_el",
-		"sim/multiplayer/position/plane1_phi",
 		"sim/multiplayer/position/plane1_the",
+		"sim/multiplayer/position/plane1_phi",
 		"sim/multiplayer/position/plane1_psi",
 		"sim/multiplayer/position/plane1_gear_deploy"
 	};
