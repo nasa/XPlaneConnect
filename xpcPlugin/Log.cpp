@@ -1,6 +1,9 @@
 //Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
 #include "Log.h"
+
+#include "XPLMUtilities.h"
+
 #include <cstdarg>
 #include <stdio.h>
 #include <time.h>
@@ -51,6 +54,13 @@ namespace XPC
 			fprintf(fd, "an issue on GitHub (https://github.com/nasa/XPlaneConnect/issues) or by\n");
 			fprintf(fd, "emailing Christopher Teubert (christopher.a.teubert@nasa.gov).\n\n");
 
+			int xpVer;
+			int xplmVer;
+			XPLMHostApplicationID hostID;
+			XPLMGetVersions(&xpVer, &xplmVer, &hostID);
+			fprintf(fd, "X-Plane Version: %d\n", xpVer);
+			fprintf(fd, "Plugin Manager Version: %d\n", xplmVer);
+			fprintf(fd, "Host Application ID: %d\n", hostID);
 			fprintf(fd, "Log file generated on %s.\n", timeStr);
 			fclose(fd);
 		}
