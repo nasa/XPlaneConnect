@@ -623,7 +623,7 @@ int psendPOSITest() // sendPOSI test
 	POSI[5] = -10.0F;
 	POSI[6] = 1;
 
-	// Execution 2
+	// Execution 3
 	pauseSim(sock, 1);
 	sendPOSI(sock, POSI, 3, 0);
 	result = getDREFs(sock, drefs, data, 7, sizes);
