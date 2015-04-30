@@ -108,7 +108,7 @@ namespace XPC
 			for (int i = 0; i < numCols; ++i)
 			{
 				values[i][0] = buffer[5 + 36 * i];
-				memcpy(values[i] + 1, buffer + 9 + 36 * i, 9 * sizeof(float));
+				std::memcpy(values[i] + 1, buffer + 9 + 36 * i, 9 * sizeof(float));
 			}
             ss << " (" << numCols << " lines)";
             Log::WriteLine(ss.str());
@@ -157,8 +157,8 @@ namespace XPC
 			float gear = *((float*)(buffer + 30));
 			float pos[3];
 			float orient[3];
-			memcpy(pos, buffer + 6, 12);
-			memcpy(orient, buffer + 18, 12);
+			std::memcpy(pos, buffer + 6, 12);
+			std::memcpy(orient, buffer + 18, 12);
             ss << " AC:" << (int)aircraft;
 			ss << " Pos:(" << pos[0] << ' ' << pos[1] << ' ' << pos[2] << ") Orient:(";
 			ss << orient[3] << ' ' << orient[4] << ' ' << orient[5] << ") Gear:";
