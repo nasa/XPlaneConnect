@@ -20,7 +20,7 @@ add_library(xpc64 SHARED XPCPlugin.cpp
 	MessageHandlers.cpp
 	UDPSocket.cpp)
 set_target_properties(xpc64 PROPERTIES PREFIX "" SUFFIX ".xpl")
-set_target_properties(xpc64 PROPERTIES COMPILE_FLAGS "-std=gnu++11 -m64" LINK_FLAGS "-shared -rdynamic -nodefaultlibs -undefined_warning -m64")
+set_target_properties(xpc64 PROPERTIES COMPILE_FLAGS "-std=gnu++11 -m64" LINK_FLAGS "-shared -rdynamic -undefined_warning -m64")
 
 add_library(xpc32 SHARED XPCPlugin.cpp
 	DataManager.cpp
