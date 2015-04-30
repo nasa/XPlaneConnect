@@ -297,9 +297,9 @@ namespace XPC
 			{
 				float orient[3]
 				{
-					values[i][1] == -998 ? DataManager::GetFloat(DREF::Pitch) : values[i][1],
-					values[i][2] == -998 ? DataManager::GetFloat(DREF::Roll) : values[i][2],
-					values[i][3] == -998 ? DataManager::GetFloat(DREF::HeadingTrue) : values[i][3]
+					values[i][1],
+					values[i][2],
+					values[i][3]
 				};
 				DataManager::SetOrientation(orient);
 				break;
@@ -327,9 +327,9 @@ namespace XPC
 			{
 				float pos[3]
 				{
-					values[i][2] == -998 ? DataManager::GetFloat(DREF::Latitude) : values[i][2],
-					values[i][3] == -998 ? DataManager::GetFloat(DREF::Longitude) : values[i][3],
-					values[i][4] == -998 ? DataManager::GetFloat(DREF::AGL) : values[i][4]
+					values[i][2],
+					values[i][3],
+					values[i][4]
 				};
 				DataManager::SetPosition(pos);
 				break;

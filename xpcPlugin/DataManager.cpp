@@ -154,19 +154,25 @@ namespace XPC
 		char multi[256];
 		for (int i = 1; i < 20; i++)
 		{
-			sprintf(multi, "sim/multiplayer/position/plane%i_x", i); // X
+			sprintf(multi, "sim/multiplayer/position/plane%i_x", i);
 			mdrefs[i][DREF::LocalX] = XPLMFindDataRef(multi);
-			sprintf(multi, "sim/multiplayer/position/plane%i_y", i); // Y
+			sprintf(multi, "sim/multiplayer/position/plane%i_y", i);
 			mdrefs[i][DREF::LocalY] = XPLMFindDataRef(multi);
-			sprintf(multi, "sim/multiplayer/position/plane%i_z", i); // Z
+			sprintf(multi, "sim/multiplayer/position/plane%i_z", i);
 			mdrefs[i][DREF::LocalZ] = XPLMFindDataRef(multi);
-			sprintf(multi, "sim/multiplayer/position/plane%i_the", i); // Theta (Pitch)
+			sprintf(multi, "sim/multiplayer/position/plane%i_lat", i);
+			mdrefs[i][DREF::Latitude] = XPLMFindDataRef(multi);
+			sprintf(multi, "sim/multiplayer/position/plane%i_lon", i);
+			mdrefs[i][DREF::Longitude] = XPLMFindDataRef(multi);
+			sprintf(multi, "sim/multiplayer/position/plane%i_el", i);
+			mdrefs[i][DREF::Elevation] = XPLMFindDataRef(multi);
+			sprintf(multi, "sim/multiplayer/position/plane%i_the", i);
 			mdrefs[i][DREF::Pitch] = XPLMFindDataRef(multi);
-			sprintf(multi, "sim/multiplayer/position/plane%i_phi", i); // Phi (Roll)
+			sprintf(multi, "sim/multiplayer/position/plane%i_phi", i);
 			mdrefs[i][DREF::Roll] = XPLMFindDataRef(multi);
-			sprintf(multi, "sim/multiplayer/position/plane%i_psi", i); // Psi (Heading-True)
+			sprintf(multi, "sim/multiplayer/position/plane%i_psi", i);
 			mdrefs[i][DREF::HeadingTrue] = XPLMFindDataRef(multi);
-			sprintf(multi, "sim/multiplayer/position/plane%i_gear_deploy", i); // Landing Gear
+			sprintf(multi, "sim/multiplayer/position/plane%i_gear_deploy", i);
 			mdrefs[i][DREF::GearDeploy] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_flap_ratio", i);
 			mdrefs[i][DREF::FlapSetting] = XPLMFindDataRef(multi); // Can't set the actual flap setting on npc aircraft
@@ -564,18 +570,20 @@ namespace XPC
 #if LOG_VERBOSITY > 3
 		Log::FormatLine("[DMAN] Setting gear (value:%f, immediate:%i) for aircraft %i", gear, immediate, aircraft);
 #endif
-		float gearArray[10];
-
-		if ((gear < -8.5f && gear > -9.5f) || (gear < -997.9f && gear > -999.1f))
-		{
-			return;
-		}
 		if (isnan(gear) || gear < 0 || gear > 1)
 		{
+#if LOG_VERBOSITY > 0
 			Log::WriteLine("[GEAR] ERROR: Value must be 0 or 1");
+#endif
 			return;
 		}
 
+		if ((gear < -8.5 && gear > -9.5) || (gear < -997.9 && gear > -999.1))
+		{
+			return;
+		}
+
+		float gearArray[10];
 		for (int i = 0; i < 10; i++)
 		{
 			gearArray[i] = gear;
@@ -608,27 +616,31 @@ namespace XPC
 			return;
 		}
 
-		double local[3] = { 0 };
+		if (pos[0] < 997.9 && pos[0] > -999.1)
+		{
+			pos[0] = (float)GetDouble(DREF::Latitude, aircraft);
+		}
+		if (pos[1] < 997.9 && pos[1] > -999.1)
+		{
+			pos[1] = (float)GetDouble(DREF::Longitude, aircraft);
+		}
+		if (pos[2] < 997.9 && pos[2] > -999.1)
+		{
+			pos[2] = (float)GetDouble(DREF::Elevation, aircraft);
+		}
+
+		double local[3];
 		XPLMWorldToLocal(pos[0], pos[1], pos[2], &local[0], &local[1], &local[2]);
-		if (aircraft == 0) // Player aircraft
-		{
-			// If the sim is paused, setting global position won't update the
-			// local position, so set them just in case.
-			Set(DREF::LocalX, local[0]);
-			Set(DREF::LocalY, local[1]);
-			Set(DREF::LocalZ, local[2]);
-			// If the sim is unpaused, this will override the above settings.
-            // TODO: Are these setable when paused? Are these necessary?
-			Set(DREF::Latitude, (double)pos[0]);
-			Set(DREF::Longitude, (double)pos[1]);
-			Set(DREF::Elevation, (double)pos[2]);
-		}
-		else // Multiplayer
-		{
-			Set(DREF::LocalX, local[0], aircraft);
-			Set(DREF::LocalY, local[1], aircraft);
-			Set(DREF::LocalZ, local[2], aircraft);
-		}
+		// If the sim is paused, setting global position won't update the
+		// local position, so set them just in case.
+		Set(DREF::LocalX, local[0], aircraft);
+		Set(DREF::LocalY, local[1], aircraft);
+		Set(DREF::LocalZ, local[2], aircraft);
+		// If the sim is unpaused, this will override the above settings.
+		// TODO: Are these setable when paused? Are these necessary?
+		Set(DREF::Latitude, (double)pos[0], aircraft);
+		Set(DREF::Longitude, (double)pos[1], aircraft);
+		Set(DREF::Elevation, (double)pos[2], aircraft);
 	}
 
 	void DataManager::SetOrientation(float orient[3], char aircraft)
@@ -645,18 +657,32 @@ namespace XPC
 			return;
 		}
 
+		if (orient[0] < 997.9 && orient[0] > -999.1)
+		{
+			orient[0] = GetFloat(DREF::Pitch, aircraft);
+		}
+		if (orient[1] < 997.9 && orient[1] > -999.1)
+		{
+			orient[1] = GetFloat(DREF::Roll, aircraft);
+		}
+		if (orient[2] < 997.9 && orient[2] > -999.1)
+		{
+			orient[2] = GetFloat(DREF::HeadingTrue, aircraft);
+		}
+
+
+		// If the sim is paused, setting the quaternion won't update these values,
+		// so we set them here just in case. This also covers multiplayer aircraft,
+		// which we can't set the quaternion on.
+		Set(DREF::Pitch, orient[0], aircraft);
+		Set(DREF::Roll, orient[1], aircraft);
+		Set(DREF::HeadingTrue, orient[2], aircraft);
 		if (aircraft == 0) // Player aircraft
 		{
-			// If the sim is paused, setting the quaternion won't update these values,
-			// so we set them here just in case.
-			Set(DREF::Pitch, orient[0]);
-			Set(DREF::Roll, orient[1]);
-			Set(DREF::HeadingTrue, orient[2]);
-
 			// Convert to Quaternions
 			// from: http://www.xsquawkbox.net/xpsdk/mediawiki/MovingThePlane
-			//	   http://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19770024290.pdf
-			float q[4] = { 0 };
+			//	     http://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19770024290.pdf
+			float q[4];
 			float halfRad = 0.00872664625997F;
 			orient[2] = halfRad * orient[2];
 			orient[0] = halfRad * orient[0];
@@ -670,23 +696,24 @@ namespace XPC
 			// values set above.
 			Set(DREF::Quaternion, q, 4);
 		}
-		else // Multiplayer
-		{
-			Set(DREF::Pitch, orient[0], aircraft);
-			Set(DREF::Roll, orient[1], aircraft);
-			Set(DREF::HeadingTrue, orient[2], aircraft);
-		}
 	}
 
 	void DataManager::SetFlaps(float value)
 	{
 		if (isnan(value))
 		{
-			Log::WriteLine("[FLAP] ERROR: Value must be a number (NaN received)");
+#if LOG_VERBOSITY > 0
+			Log::WriteLine("[DMAN] ERROR: Flap value must be a number (NaN received)");
+#endif
 			return;
 		}
-		value = fmaxl(value, 0);
-		value = fminl(value, 1);
+		if (value < 997.9 && value > -999.1)
+		{
+			return;
+		}
+
+		value = (float)fmaxl(value, 0);
+		value = (float)fminl(value, 1);
 
 		Set(DREF::FlapSetting, value);
 		Set(DREF::FlapActual, value);
