@@ -616,15 +616,15 @@ namespace XPC
 			return;
 		}
 
-		if (pos[0] < 997.9 && pos[0] > -999.1)
+		if (pos[0] < -997.9 && pos[0] > -999.1)
 		{
 			pos[0] = (float)GetDouble(DREF::Latitude, aircraft);
 		}
-		if (pos[1] < 997.9 && pos[1] > -999.1)
+		if (pos[1] < -997.9 && pos[1] > -999.1)
 		{
 			pos[1] = (float)GetDouble(DREF::Longitude, aircraft);
 		}
-		if (pos[2] < 997.9 && pos[2] > -999.1)
+		if (pos[2] < -997.9 && pos[2] > -999.1)
 		{
 			pos[2] = (float)GetDouble(DREF::Elevation, aircraft);
 		}
@@ -657,15 +657,15 @@ namespace XPC
 			return;
 		}
 
-		if (orient[0] < 997.9 && orient[0] > -999.1)
+		if (orient[0] < -997.9 && orient[0] > -999.1)
 		{
 			orient[0] = GetFloat(DREF::Pitch, aircraft);
 		}
-		if (orient[1] < 997.9 && orient[1] > -999.1)
+		if (orient[1] < -997.9 && orient[1] > -999.1)
 		{
 			orient[1] = GetFloat(DREF::Roll, aircraft);
 		}
-		if (orient[2] < 997.9 && orient[2] > -999.1)
+		if (orient[2] < -997.9 && orient[2] > -999.1)
 		{
 			orient[2] = GetFloat(DREF::HeadingTrue, aircraft);
 		}
@@ -707,7 +707,7 @@ namespace XPC
 #endif
 			return;
 		}
-		if (value < 997.9 && value > -999.1)
+		if (value < -997.9 && value > -999.1)
 		{
 			return;
 		}
