@@ -109,12 +109,13 @@ XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
 		exit(EXIT_FAILURE);
 	}
 
+	// Set timeout to 100ms
 #ifdef _WIN32
-	DWORD timeout = 1; // Minimum socket timeout in Windows is 1ms
+	DWORD timeout = 100;
 #else
 	struct timeval timeout;
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 500;
+	timeout.tv_usec = 1000;
 #endif
 	if (setsockopt(sock.sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0)
 	{
@@ -245,15 +246,8 @@ int setCONN(XPCSocket* sock, unsigned short port)
 	*sock = aopenUDP(sock->xpIP, sock->xpPort, port);
 
 	// Read response
-	int result;
-	for (int i = 0; i < 64; ++i)
-	{
-		result = readUDP(*sock, buffer, 32);
-		if (result != 0)
-		{
-			break;
-		}
-	}
+	int result = readUDP(*sock, buffer, 32);
+
 	if (result <= 0)
 	{
 		printError("setCONN", "Failed to read response");
@@ -429,17 +423,7 @@ int sendDREFRequest(XPCSocket sock, const char* drefs[], unsigned char count)
 int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int sizes[])
 {
 	unsigned char buffer[65536];
-	// Read data. Try 40 times to read, then give up.
-	// TODO: Why not just set the timeout to 40ms?
-	int result;
-	for (int i = 0; i < 512; ++i)
-	{
-		result = readUDP(sock, buffer, 65536);
-		if (result > 0)
-		{
-			break;
-		}
-	}
+	int result = readUDP(sock, buffer, 65536);
     
     if (result < 0)
     {
