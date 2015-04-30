@@ -13,7 +13,7 @@
 //   2: All errors. Any time something unexpected happens, log it.
 //   3: Significant actions. Any time something happens outside of normal
 //      command processing, log it.
-//   4: Everything. Log nearly every single action the plugin takes. This may
+//   5: Everything. Log nearly every single action the plugin takes. This may
 //      have a detrimental impact on X-Plane performance.
 #define LOG_VERBOSITY 2
 
