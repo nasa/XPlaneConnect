@@ -215,6 +215,26 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
+     * Pauses, unpauses, or switches the pause state of X-Plane.
+     *
+     * @param pause {@code 1} to pause the simulator, {@code 0} to unpause, or {@code 2} to switch.
+     * @throws IllegalArgumentException If the values of {@code pause} is not a valid command.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void pauseSim(int pause) throws IOException
+    {
+        if(pause < 0 || pause > 2)
+        {
+            throw new IllegalArgumentException("pause must be a value in the range [0, 2].");
+        }
+
+        //            S     I     M     U     LEN   VAL
+        byte[] msg = {0x53, 0x49, 0x4D, 0x55, 0x00, 0x00};
+        msg[5] = (byte)pause;
+        sendUDP(msg);
+    }
+
+    /**
      * Requests a single dref value from X-Plane.
      *
      * @param dref The name of the dref requested.
