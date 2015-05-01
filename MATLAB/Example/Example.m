@@ -11,6 +11,10 @@ import XPlaneConnect.*
 disp('xplaneconnect Example Script-');
 disp('Setting up Simulation');
 Socket = openUDP(49005);
+
+%% Ensure connected
+getDREFs('sim/test/test_float')
+
 %% Set position of the player aircraft
 disp('Setting position');
  pauseSim(1);

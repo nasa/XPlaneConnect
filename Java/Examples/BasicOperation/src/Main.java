@@ -21,8 +21,8 @@ public class Main
         System.out.println("Setting up simulation...");
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
-            System.out.println("Setting inbound port");
-            xpc.setCONN(49055);
+            // Ensure connection established.
+            xpc.getDREF("sim/test/test_float");
 
             System.out.println("Setting player aircraft position");
             float[] posi = new float[] {37.524F, -122.06899F, 2500, 0, 0, 0, 1};
