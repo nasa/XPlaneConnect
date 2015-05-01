@@ -5,7 +5,7 @@
 #include "Message.h"
 
 #include <string>
-#include <unordered_map>
+#include <map>
 
 namespace XPC
 {
@@ -57,8 +57,8 @@ namespace XPC
 			std::string getdRequest[255];
 		} ConnectionInfo;
 
-		static std::unordered_map<std::string, ConnectionInfo> connections;
-		static std::unordered_map<std::string, MessageHandler> handlers;
+		static std::map<std::string, ConnectionInfo> connections;
+		static std::map<std::string, MessageHandler> handlers;
 		static std::string connectionKey; // The current connection ip:port string
 		static ConnectionInfo connection; // The current connection record
 		static UDPSocket* sock; // Outgoing network socket

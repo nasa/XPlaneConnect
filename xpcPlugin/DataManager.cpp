@@ -15,193 +15,290 @@
 //    without specific prior written permission from the authors or
 //    Laminar Research, respectively.
 #include "DataManager.h"
+#include "DataMaps.h"
 #include "Log.h"
 
 #include "XPLMDataAccess.h"
 #include "XPLMGraphics.h"
 
 #include <cmath>
-#include <unordered_map>
-
-namespace std
-{
-    // Note: This is required for unordered_map
-	template <>
-	struct hash<XPC::DREF>
-	{
-		size_t operator()(const XPC::DREF & x) const
-		{
-			return static_cast<unsigned long>(x);
-		}
-	};
-}
+#include <cstdio>
+#include <map>
 
 namespace XPC
 {
 	using namespace std;
 
-	static unordered_map<DREF, XPLMDataRef> drefs;
-	static unordered_map<DREF, XPLMDataRef> mdrefs[20];
-	static unordered_map<string, XPLMDataRef> sdrefs;
+	static map<DREF, XPLMDataRef> drefs;
+	static map<DREF, XPLMDataRef> mdrefs[20];
+	static map<string, XPLMDataRef> sdrefs;
 
 	void DataManager::Initialize()
 	{
-		drefs = unordered_map<DREF, XPLMDataRef>(
-		{
-			{ DREF::None, XPLMFindDataRef("sim/test/test_float") },
+		drefs.insert(make_pair(DREF_None, XPLMFindDataRef("sim/test/test_float")));
 
-			{ DREF::Pause, XPLMFindDataRef("sim/operation/override/override_planepath") },
-			{ DREF::PauseAI, XPLMFindDataRef("sim/operation/override/override_plane_ai_autopilot") },
+		drefs.insert(make_pair(DREF_Pause, XPLMFindDataRef("sim/operation/override/override_planepath")));
+		drefs.insert(make_pair(DREF_PauseAI, XPLMFindDataRef("sim/operation/override/override_plane_ai_autopilot")));
 
-			{ DREF::TotalRuntime, XPLMFindDataRef("sim/time/total_running_time_sec") },
-			{ DREF::TotalFlighttime, XPLMFindDataRef("sim/time/total_flight_time_sec") },
-			{ DREF::TimerElapsedtime, XPLMFindDataRef("sim/time/timer_elapsed_time_sec") },
+		drefs.insert(make_pair(DREF_TotalRuntime, XPLMFindDataRef("sim/time/total_running_time_sec")));
+		drefs.insert(make_pair(DREF_TotalFlighttime, XPLMFindDataRef("sim/time/total_flight_time_sec")));
+		drefs.insert(make_pair(DREF_TimerElapsedtime, XPLMFindDataRef("sim/time/timer_elapsed_time_sec")));
 
-			{ DREF::IndicatedAirspeed, XPLMFindDataRef("sim/flightmodel/position/indicated_airspeed") },
-			{ DREF::TrueAirspeed, XPLMFindDataRef("sim/flightmodel/position/true_airspeed") },
-			{ DREF::GroundSpeed, XPLMFindDataRef("sim/flightmodel/position/groundspeed") },
+		drefs.insert(make_pair(DREF_IndicatedAirspeed, XPLMFindDataRef("sim/flightmodel/position/indicated_airspeed")));
+		drefs.insert(make_pair(DREF_TrueAirspeed, XPLMFindDataRef("sim/flightmodel/position/true_airspeed")));
+		drefs.insert(make_pair(DREF_GroundSpeed, XPLMFindDataRef("sim/flightmodel/position/groundspeed")));
 
-			{ DREF::MachNumber, XPLMFindDataRef("sim/flightmodel/misc/machno") },
-			{ DREF::GForceNormal, XPLMFindDataRef("sim/flightmodel2/misc/gforce_normal") },
-			{ DREF::GForceAxial, XPLMFindDataRef("sim/flightmodel2/misc/gforce_axial") },
-			{ DREF::GForceSide, XPLMFindDataRef("sim/flightmodel2/misc/gforce_side") },
+		drefs.insert(make_pair(DREF_MachNumber, XPLMFindDataRef("sim/flightmodel/misc/machno")));
+		drefs.insert(make_pair(DREF_GForceNormal, XPLMFindDataRef("sim/flightmodel2/misc/gforce_normal")));
+		drefs.insert(make_pair(DREF_GForceAxial, XPLMFindDataRef("sim/flightmodel2/misc/gforce_axial")));
+		drefs.insert(make_pair(DREF_GForceSide, XPLMFindDataRef("sim/flightmodel2/misc/gforce_side")));
 
-			{ DREF::BarometerSealevelInHg, XPLMFindDataRef("sim/weather/barometer_sealevel_inhg") },
-			{ DREF::TemperaturSealevelC, XPLMFindDataRef("sim/weather/temperature_sealevel_c") },
-			{ DREF::WindSpeedKts, XPLMFindDataRef("sim/cockpit2/gauges/indicators/wind_speed_kts") },
+		drefs.insert(make_pair(DREF_BarometerSealevelInHg, XPLMFindDataRef("sim/weather/barometer_sealevel_inhg")));
+		drefs.insert(make_pair(DREF_TemperaturSealevelC, XPLMFindDataRef("sim/weather/temperature_sealevel_c")));
+		drefs.insert(make_pair(DREF_WindSpeedKts, XPLMFindDataRef("sim/cockpit2/gauges/indicators/wind_speed_kts")));
 
-			{ DREF::YokePitch, XPLMFindDataRef("sim/joystick/yoke_pitch_ratio") },
-			{ DREF::YokeRoll, XPLMFindDataRef("sim/joystick/yoke_roll_ratio") },
-			{ DREF::YokeHeading, XPLMFindDataRef("sim/joystick/yoke_heading_ratio") },
+		drefs.insert(make_pair(DREF_YokePitch, XPLMFindDataRef("sim/joystick/yoke_pitch_ratio")));
+		drefs.insert(make_pair(DREF_YokeRoll, XPLMFindDataRef("sim/joystick/yoke_roll_ratio")));
+		drefs.insert(make_pair(DREF_YokeHeading, XPLMFindDataRef("sim/joystick/yoke_heading_ratio")));
 
-			{ DREF::Elevator, XPLMFindDataRef("sim/cockpit2/controls/yoke_pitch_ratio") },
-			{ DREF::Aileron, XPLMFindDataRef("sim/cockpit2/controls/yoke_roll_ratio") },
-			{ DREF::Rudder, XPLMFindDataRef("sim/cockpit2/controls/yoke_heading_ratio") },
+		drefs.insert(make_pair(DREF_Elevator, XPLMFindDataRef("sim/cockpit2/controls/yoke_pitch_ratio")));
+		drefs.insert(make_pair(DREF_Aileron, XPLMFindDataRef("sim/cockpit2/controls/yoke_roll_ratio")));
+		drefs.insert(make_pair(DREF_Rudder, XPLMFindDataRef("sim/cockpit2/controls/yoke_heading_ratio")));
 
-			{ DREF::FlapSetting, XPLMFindDataRef("sim/flightmodel/controls/flaprqst") },
-			{ DREF::FlapActual, XPLMFindDataRef("sim/flightmodel/controls/flaprat") },
+		drefs.insert(make_pair(DREF_FlapSetting, XPLMFindDataRef("sim/flightmodel/controls/flaprqst")));
+		drefs.insert(make_pair(DREF_FlapActual, XPLMFindDataRef("sim/flightmodel/controls/flaprat")));
 
-			{ DREF::GearDeploy, XPLMFindDataRef("sim/aircraft/parts/acf_gear_deploy") },
-			{ DREF::GearHandle, XPLMFindDataRef("sim/cockpit/switches/gear_handle_status") },
-			{ DREF::BrakeParking, XPLMFindDataRef("sim/flightmodel/controls/parkbrakel") },
-			{ DREF::BrakeLeft, XPLMFindDataRef("sim/cockpit2/controls/left_brake_ratio") },
-			{ DREF::BrakeRight, XPLMFindDataRef("sim/cockpit2/controls/right_brake_ratio") },
+		drefs.insert(make_pair(DREF_GearDeploy, XPLMFindDataRef("sim/aircraft/parts/acf_gear_deploy")));
+		drefs.insert(make_pair(DREF_GearHandle, XPLMFindDataRef("sim/cockpit/switches/gear_handle_status")));
+		drefs.insert(make_pair(DREF_BrakeParking, XPLMFindDataRef("sim/flightmodel/controls/parkbrakel")));
+		drefs.insert(make_pair(DREF_BrakeLeft, XPLMFindDataRef("sim/cockpit2/controls/left_brake_ratio")));
+		drefs.insert(make_pair(DREF_BrakeRight, XPLMFindDataRef("sim/cockpit2/controls/right_brake_ratio")));
 
-			{ DREF::M, XPLMFindDataRef("sim/flightmodel/position/M") },
-			{ DREF::L, XPLMFindDataRef("sim/flightmodel/position/L") },
-			{ DREF::N, XPLMFindDataRef("sim/flightmodel/position/N") },
+		drefs.insert(make_pair(DREF_M, XPLMFindDataRef("sim/flightmodel/position/M")));
+		drefs.insert(make_pair(DREF_L, XPLMFindDataRef("sim/flightmodel/position/L")));
+		drefs.insert(make_pair(DREF_N, XPLMFindDataRef("sim/flightmodel/position/N")));
 
-			{ DREF::QRad, XPLMFindDataRef("sim/flightmodel/position/Qrad") },
-			{ DREF::PRad, XPLMFindDataRef("sim/flightmodel/position/Prad") },
-			{ DREF::RRad, XPLMFindDataRef("sim/flightmodel/position/Rrad") },
-			{ DREF::Q, XPLMFindDataRef("sim/flightmodel/position/Q") },
-			{ DREF::P, XPLMFindDataRef("sim/flightmodel/position/P") },
-			{ DREF::R, XPLMFindDataRef("sim/flightmodel/position/R") },
+		drefs.insert(make_pair(DREF_QRad, XPLMFindDataRef("sim/flightmodel/position/Qrad")));
+		drefs.insert(make_pair(DREF_PRad, XPLMFindDataRef("sim/flightmodel/position/Prad")));
+		drefs.insert(make_pair(DREF_RRad, XPLMFindDataRef("sim/flightmodel/position/Rrad")));
+		drefs.insert(make_pair(DREF_Q, XPLMFindDataRef("sim/flightmodel/position/Q")));
+		drefs.insert(make_pair(DREF_P, XPLMFindDataRef("sim/flightmodel/position/P")));
+		drefs.insert(make_pair(DREF_R, XPLMFindDataRef("sim/flightmodel/position/R")));
 
-			{ DREF::Pitch, XPLMFindDataRef("sim/flightmodel/position/theta") },
-			{ DREF::Roll, XPLMFindDataRef("sim/flightmodel/position/phi") },
-			{ DREF::HeadingTrue, XPLMFindDataRef("sim/flightmodel/position/psi") },
-			{ DREF::HeadingMag, XPLMFindDataRef("sim/flightmodel/position/magpsi") },
-			{ DREF::Quaternion, XPLMFindDataRef("sim/flightmodel/position/q") },
+		drefs.insert(make_pair(DREF_Pitch, XPLMFindDataRef("sim/flightmodel/position/theta")));
+		drefs.insert(make_pair(DREF_Roll, XPLMFindDataRef("sim/flightmodel/position/phi")));
+		drefs.insert(make_pair(DREF_HeadingTrue, XPLMFindDataRef("sim/flightmodel/position/psi")));
+		drefs.insert(make_pair(DREF_HeadingMag, XPLMFindDataRef("sim/flightmodel/position/magpsi")));
+		drefs.insert(make_pair(DREF_Quaternion, XPLMFindDataRef("sim/flightmodel/position/q")));
 
-			{ DREF::AngleOfAttack, XPLMFindDataRef("sim/flightmodel/position/alpha") },
-			{ DREF::Sideslip, XPLMFindDataRef("sim/cockpit2/gauges/indicators/sideslip_degrees") },
-			{ DREF::HPath, XPLMFindDataRef("sim/flightmodel/position/hpath") },
-			{ DREF::VPath, XPLMFindDataRef("sim/flightmodel/position/vpath") },
+		drefs.insert(make_pair(DREF_AngleOfAttack, XPLMFindDataRef("sim/flightmodel/position/alpha")));
+		drefs.insert(make_pair(DREF_Sideslip, XPLMFindDataRef("sim/cockpit2/gauges/indicators/sideslip_degrees")));
+		drefs.insert(make_pair(DREF_HPath, XPLMFindDataRef("sim/flightmodel/position/hpath")));
+		drefs.insert(make_pair(DREF_VPath, XPLMFindDataRef("sim/flightmodel/position/vpath")));
 
-			{ DREF::VPath, XPLMFindDataRef("sim/flightmodel/position/magnetic_variation") },
+		drefs.insert(make_pair(DREF_VPath, XPLMFindDataRef("sim/flightmodel/position/magnetic_variation")));
 
-			{ DREF::Latitude, XPLMFindDataRef("sim/flightmodel/position/latitude") },
-			{ DREF::Longitude, XPLMFindDataRef("sim/flightmodel/position/longitude") },
-			{ DREF::AGL, XPLMFindDataRef("sim/flightmodel/position/y_agl") },
-            { DREF::Elevation, XPLMFindDataRef("sim/flightmodel/position/elevation") },
+		drefs.insert(make_pair(DREF_Latitude, XPLMFindDataRef("sim/flightmodel/position/latitude")));
+		drefs.insert(make_pair(DREF_Longitude, XPLMFindDataRef("sim/flightmodel/position/longitude")));
+		drefs.insert(make_pair(DREF_AGL, XPLMFindDataRef("sim/flightmodel/position/y_agl")));
+        drefs.insert(make_pair(DREF_Elevation, XPLMFindDataRef("sim/flightmodel/position/elevation")));
 
-			{ DREF::LocalX, XPLMFindDataRef("sim/flightmodel/position/local_x") },
-			{ DREF::LocalY, XPLMFindDataRef("sim/flightmodel/position/local_y") },
-			{ DREF::LocalZ, XPLMFindDataRef("sim/flightmodel/position/local_z") },
-			{ DREF::LocalVX, XPLMFindDataRef("sim/flightmodel/position/local_vx") },
-			{ DREF::LocalVY, XPLMFindDataRef("sim/flightmodel/position/local_vy") },
-			{ DREF::LocalVZ, XPLMFindDataRef("sim/flightmodel/position/local_vz") },
+		drefs.insert(make_pair(DREF_LocalX, XPLMFindDataRef("sim/flightmodel/position/local_x")));
+		drefs.insert(make_pair(DREF_LocalY, XPLMFindDataRef("sim/flightmodel/position/local_y")));
+		drefs.insert(make_pair(DREF_LocalZ, XPLMFindDataRef("sim/flightmodel/position/local_z")));
+		drefs.insert(make_pair(DREF_LocalVX, XPLMFindDataRef("sim/flightmodel/position/local_vx")));
+		drefs.insert(make_pair(DREF_LocalVY, XPLMFindDataRef("sim/flightmodel/position/local_vy")));
+		drefs.insert(make_pair(DREF_LocalVZ, XPLMFindDataRef("sim/flightmodel/position/local_vz")));
 
-			{ DREF::ThrottleSet, XPLMFindDataRef("sim/flightmodel/engine/ENGN_thro") },
-			{ DREF::ThrottleActual, XPLMFindDataRef("sim/flightmodel2/engines/throttle_used_ratio") },
+		drefs.insert(make_pair(DREF_ThrottleSet, XPLMFindDataRef("sim/flightmodel/engine/ENGN_thro")));
+		drefs.insert(make_pair(DREF_ThrottleActual, XPLMFindDataRef("sim/flightmodel2/engines/throttle_used_ratio")));
 
-			{ DREF::MP1Lat, XPLMFindDataRef("sim/multiplayer/position/plane1_lat") },
-			{ DREF::MP2Lat, XPLMFindDataRef("sim/multiplayer/position/plane2_lat") },
-			{ DREF::MP3Lat, XPLMFindDataRef("sim/multiplayer/position/plane3_lat") },
-			{ DREF::MP4Lat, XPLMFindDataRef("sim/multiplayer/position/plane4_lat") },
-			{ DREF::MP5Lat, XPLMFindDataRef("sim/multiplayer/position/plane5_lat") },
-			{ DREF::MP6Lat, XPLMFindDataRef("sim/multiplayer/position/plane6_lat") },
-			{ DREF::MP7Lat, XPLMFindDataRef("sim/multiplayer/position/plane7_lat") },
+		drefs.insert(make_pair(DREF_MP1Lat, XPLMFindDataRef("sim/multiplayer/position/plane1_lat")));
+		drefs.insert(make_pair(DREF_MP2Lat, XPLMFindDataRef("sim/multiplayer/position/plane2_lat")));
+		drefs.insert(make_pair(DREF_MP3Lat, XPLMFindDataRef("sim/multiplayer/position/plane3_lat")));
+		drefs.insert(make_pair(DREF_MP4Lat, XPLMFindDataRef("sim/multiplayer/position/plane4_lat")));
+		drefs.insert(make_pair(DREF_MP5Lat, XPLMFindDataRef("sim/multiplayer/position/plane5_lat")));
+		drefs.insert(make_pair(DREF_MP6Lat, XPLMFindDataRef("sim/multiplayer/position/plane6_lat")));
+		drefs.insert(make_pair(DREF_MP7Lat, XPLMFindDataRef("sim/multiplayer/position/plane7_lat")));
 
-			{ DREF::MP1Lon, XPLMFindDataRef("sim/multiplayer/position/plane1_lon") },
-			{ DREF::MP2Lon, XPLMFindDataRef("sim/multiplayer/position/plane2_lon") },
-			{ DREF::MP3Lon, XPLMFindDataRef("sim/multiplayer/position/plane3_lon") },
-			{ DREF::MP4Lon, XPLMFindDataRef("sim/multiplayer/position/plane4_lon") },
-			{ DREF::MP5Lon, XPLMFindDataRef("sim/multiplayer/position/plane5_lon") },
-			{ DREF::MP6Lon, XPLMFindDataRef("sim/multiplayer/position/plane6_lon") },
-			{ DREF::MP7Lon, XPLMFindDataRef("sim/multiplayer/position/plane7_lon") },
+		drefs.insert(make_pair(DREF_MP1Lon, XPLMFindDataRef("sim/multiplayer/position/plane1_lon")));
+		drefs.insert(make_pair(DREF_MP2Lon, XPLMFindDataRef("sim/multiplayer/position/plane2_lon")));
+		drefs.insert(make_pair(DREF_MP3Lon, XPLMFindDataRef("sim/multiplayer/position/plane3_lon")));
+		drefs.insert(make_pair(DREF_MP4Lon, XPLMFindDataRef("sim/multiplayer/position/plane4_lon")));
+		drefs.insert(make_pair(DREF_MP5Lon, XPLMFindDataRef("sim/multiplayer/position/plane5_lon")));
+		drefs.insert(make_pair(DREF_MP6Lon, XPLMFindDataRef("sim/multiplayer/position/plane6_lon")));
+		drefs.insert(make_pair(DREF_MP7Lon, XPLMFindDataRef("sim/multiplayer/position/plane7_lon")));
 
-			{ DREF::MP1Alt, XPLMFindDataRef("sim/multiplayer/position/plane1_el") },
-			{ DREF::MP2Alt, XPLMFindDataRef("sim/multiplayer/position/plane2_el") },
-			{ DREF::MP3Alt, XPLMFindDataRef("sim/multiplayer/position/plane3_el") },
-			{ DREF::MP4Alt, XPLMFindDataRef("sim/multiplayer/position/plane4_el") },
-			{ DREF::MP5Alt, XPLMFindDataRef("sim/multiplayer/position/plane5_el") },
-			{ DREF::MP6Alt, XPLMFindDataRef("sim/multiplayer/position/plane6_el") },
-			{ DREF::MP7Alt, XPLMFindDataRef("sim/multiplayer/position/plane7_el") },
-		});
+		drefs.insert(make_pair(DREF_MP1Alt, XPLMFindDataRef("sim/multiplayer/position/plane1_el")));
+		drefs.insert(make_pair(DREF_MP2Alt, XPLMFindDataRef("sim/multiplayer/position/plane2_el")));
+		drefs.insert(make_pair(DREF_MP3Alt, XPLMFindDataRef("sim/multiplayer/position/plane3_el")));
+		drefs.insert(make_pair(DREF_MP4Alt, XPLMFindDataRef("sim/multiplayer/position/plane4_el")));
+		drefs.insert(make_pair(DREF_MP5Alt, XPLMFindDataRef("sim/multiplayer/position/plane5_el")));
+		drefs.insert(make_pair(DREF_MP6Alt, XPLMFindDataRef("sim/multiplayer/position/plane6_el")));
+		drefs.insert(make_pair(DREF_MP7Alt, XPLMFindDataRef("sim/multiplayer/position/plane7_el")));
 
 		char multi[256];
 		for (int i = 1; i < 20; i++)
 		{
 			sprintf(multi, "sim/multiplayer/position/plane%i_x", i);
-			mdrefs[i][DREF::LocalX] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_LocalX] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_y", i);
-			mdrefs[i][DREF::LocalY] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_LocalY] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_z", i);
-			mdrefs[i][DREF::LocalZ] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_LocalZ] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_lat", i);
-			mdrefs[i][DREF::Latitude] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_Latitude] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_lon", i);
-			mdrefs[i][DREF::Longitude] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_Longitude] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_el", i);
-			mdrefs[i][DREF::Elevation] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_Elevation] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_the", i);
-			mdrefs[i][DREF::Pitch] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_Pitch] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_phi", i);
-			mdrefs[i][DREF::Roll] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_Roll] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_psi", i);
-			mdrefs[i][DREF::HeadingTrue] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_HeadingTrue] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_gear_deploy", i);
-			mdrefs[i][DREF::GearDeploy] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_GearDeploy] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_flap_ratio", i);
-			mdrefs[i][DREF::FlapSetting] = XPLMFindDataRef(multi); // Can't set the actual flap setting on npc aircraft
-			mdrefs[i][DREF::FlapActual] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_FlapSetting] = XPLMFindDataRef(multi); // Can't set the actual flap setting on npc aircraft
+			mdrefs[i][DREF_FlapActual] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_flap_ratio2", i);
-			mdrefs[i][DREF::FlapActual2] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_FlapActual2] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_spoiler_ratio", i);
-			mdrefs[i][DREF::Spoiler] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_Spoiler] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_speedbrake_ratio", i);
-			mdrefs[i][DREF::BrakeSpeed] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_BrakeSpeed] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_slat_ratio", i);
-			mdrefs[i][DREF::Slats] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_Slats] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_wing_sweep", i);
-			mdrefs[i][DREF::Sweep] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_Sweep] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_throttle", i);
-			mdrefs[i][DREF::ThrottleActual] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_ThrottleActual] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_pitch", i);
-			mdrefs[i][DREF::YokePitch] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_YokePitch] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_roll", i);
-			mdrefs[i][DREF::YokeRoll] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_YokeRoll] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_yaw", i);
-			mdrefs[i][DREF::YokeHeading] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_YokeHeading] = XPLMFindDataRef(multi);
 		}
+
+		// Row 0: Frame Rates
+		// Row 1: Times
+		XPData[1][1] = DREF_TotalRuntime;
+		XPData[1][2] = DREF_TotalFlighttime;
+		XPData[1][3] = DREF_TimerElapsedtime;
+		// Row 2: Sim stats
+		// Row 3: Velocities
+		XPData[3][0] = DREF_IndicatedAirspeed;
+		XPData[3][2] = DREF_TrueAirspeed;
+		XPData[3][4] = DREF_GroundSpeed;
+		// Row 4: Mach, VVI, G-Loads
+		XPData[4][0] = DREF_MachNumber;
+		XPData[4][4] = DREF_GForceNormal;
+		XPData[4][5] = DREF_GForceAxial;
+		XPData[4][6] = DREF_GForceSide;
+		// Row 5: Atmosphere: Weather
+		XPData[5][0] = DREF_BarometerSealevelInHg;
+		XPData[5][1] = DREF_TemperaturSealevelC;
+		XPData[5][3] = DREF_WindSpeedKts;
+		// Row 6: Atmosphere: Aircraft
+		// Row 7: System Pressures
+		// Row 8: Joystick
+		XPData[8][0] = DREF_YokePitch;
+		XPData[8][1] = DREF_YokeRoll;
+		XPData[8][2] = DREF_YokeHeading;
+		// Row 9: Other Flight Controls
+		// Row 10: Art stab ail/elv/rud
+		// Row 11: Control Surfaces
+		XPData[11][0] = DREF_Elevator;
+		XPData[11][1] = DREF_Aileron;
+		XPData[11][2] = DREF_Rudder;
+		// Row 12: Wing Sweep/Trust Vec
+		// Row 13: trip/flap/slat/s-brakes
+		XPData[13][3] = DREF_FlapSetting;
+		XPData[13][4] = DREF_FlapActual;
+		// Row 14: Gear, Brakes
+		XPData[14][0] = DREF_GearDeploy;
+		XPData[14][1] = DREF_BrakeParking;
+		XPData[14][2] = DREF_BrakeLeft;
+		XPData[14][3] = DREF_BrakeRight;
+		XPData[14][7] = DREF_GearHandle;
+		// Row 15: MNR (Angular Moments)
+		XPData[15][0] = DREF_M;
+		XPData[15][1] = DREF_L;
+		XPData[15][2] = DREF_N;
+		// Row 16: PQR (Angular Velocities)
+		XPData[16][0] = DREF_QRad;
+		XPData[16][1] = DREF_PRad;
+		XPData[16][2] = DREF_RRad;
+		XPData[16][3] = DREF_Q;
+		XPData[16][4] = DREF_P;
+		XPData[16][5] = DREF_R;
+		// Row 17: Orientation: pitch, roll, yaw, heading
+		XPData[17][0] = DREF_Pitch;
+		XPData[17][1] = DREF_Roll;
+		XPData[17][2] = DREF_HeadingTrue;
+		XPData[17][3] = DREF_HeadingMag;
+		XPData[17][4] = DREF_Quaternion;
+		// Row 18: Orientation: alpha beta hpath vpath slip
+		XPData[18][0] = DREF_AngleOfAttack;
+		XPData[18][1] = DREF_Sideslip;
+		XPData[18][2] = DREF_HPath;
+		XPData[18][3] = DREF_VPath;
+		XPData[18][4] = DREF_Sideslip;
+		// Row 19: Mag Compass
+		XPData[19][0] = DREF_HeadingMag;
+		XPData[19][1] = DREF_MagneticVariation;
+		// Row 20: Global Position
+		XPData[20][0] = DREF_Latitude;
+		XPData[20][1] = DREF_Longitude;
+		XPData[20][2] = DREF_Elevation;
+		XPData[20][3] = DREF_AGL;
+		// Row 21: Local Position, Velocity
+		XPData[21][0] = DREF_LocalX;
+		XPData[21][1] = DREF_LocalY;
+		XPData[21][2] = DREF_LocalZ;
+		XPData[21][3] = DREF_LocalVX;
+		XPData[21][4] = DREF_LocalVY;
+		XPData[21][5] = DREF_LocalVZ;
+		// Row 22: All Planes: Lat
+		XPData[22][0] = DREF_Latitude;
+		XPData[22][1] = DREF_MP1Lat;
+		XPData[22][2] = DREF_MP2Lat;
+		XPData[22][3] = DREF_MP3Lat;
+		XPData[22][4] = DREF_MP4Lat;
+		XPData[22][5] = DREF_MP5Lat;
+		XPData[22][6] = DREF_MP6Lat;
+		XPData[22][7] = DREF_MP7Lat;
+		// Row 23: All Planes: Lon
+		XPData[23][0] = DREF_Longitude;
+		XPData[23][1] = DREF_MP1Lon;
+		XPData[23][2] = DREF_MP2Lon;
+		XPData[23][3] = DREF_MP3Lon;
+		XPData[23][4] = DREF_MP4Lon;
+		XPData[23][5] = DREF_MP5Lon;
+		XPData[23][6] = DREF_MP6Lon;
+		XPData[23][7] = DREF_MP7Lon;
+		// Row 22: All Planes: Alt
+		XPData[24][0] = DREF_AGL;
+		XPData[24][1] = DREF_MP1Alt;
+		XPData[24][2] = DREF_MP2Alt;
+		XPData[24][3] = DREF_MP3Alt;
+		XPData[24][4] = DREF_MP4Alt;
+		XPData[24][5] = DREF_MP5Alt;
+		XPData[24][6] = DREF_MP6Alt;
+		XPData[24][7] = DREF_MP7Alt;
+		// Row 25: Throttle Command
+		XPData[25][0] = DREF_ThrottleSet;
+		// Row 26: Throttle Actual
+		XPData[26][0] = DREF_ThrottleActual;
 	}
 
 	int DataManager::Get(string dref, float values[], int size)
 	{
 		XPLMDataRef& xdref = sdrefs[dref];
-		if (xdref == nullptr)
+		if (xdref == NULL)
 		{
 			xdref = XPLMFindDataRef(dref.c_str());
 		}
@@ -430,7 +527,7 @@ namespace XPC
 	void DataManager::Set(string dref, float values[], int size)
 	{
 		XPLMDataRef& xdref = sdrefs[dref];
-		if (xdref == nullptr)
+		if (xdref == NULL)
 		{
 			xdref = XPLMFindDataRef(dref.c_str());
 		}
@@ -591,15 +688,15 @@ namespace XPC
 
 		if (aircraft == 0) // Own aircraft
 		{
-			Set(DREF::GearHandle, (int)gear);
+			Set(DREF_GearHandle, (int)gear);
 			if (immediate)
 			{
-				Set(DREF::GearDeploy, gearArray, 10);
+				Set(DREF_GearDeploy, gearArray, 10);
 			}
 		}
 		else // Multiplayer aircraft
 		{
-			Set(DREF::GearDeploy, gearArray, 10, aircraft);
+			Set(DREF_GearDeploy, gearArray, 10, aircraft);
 		}
 	}
 
@@ -618,29 +715,29 @@ namespace XPC
 
 		if (pos[0] < -997.9 && pos[0] > -999.1)
 		{
-			pos[0] = (float)GetDouble(DREF::Latitude, aircraft);
+			pos[0] = (float)GetDouble(DREF_Latitude, aircraft);
 		}
 		if (pos[1] < -997.9 && pos[1] > -999.1)
 		{
-			pos[1] = (float)GetDouble(DREF::Longitude, aircraft);
+			pos[1] = (float)GetDouble(DREF_Longitude, aircraft);
 		}
 		if (pos[2] < -997.9 && pos[2] > -999.1)
 		{
-			pos[2] = (float)GetDouble(DREF::Elevation, aircraft);
+			pos[2] = (float)GetDouble(DREF_Elevation, aircraft);
 		}
 
 		double local[3];
 		XPLMWorldToLocal(pos[0], pos[1], pos[2], &local[0], &local[1], &local[2]);
 		// If the sim is paused, setting global position won't update the
 		// local position, so set them just in case.
-		Set(DREF::LocalX, local[0], aircraft);
-		Set(DREF::LocalY, local[1], aircraft);
-		Set(DREF::LocalZ, local[2], aircraft);
+		Set(DREF_LocalX, local[0], aircraft);
+		Set(DREF_LocalY, local[1], aircraft);
+		Set(DREF_LocalZ, local[2], aircraft);
 		// If the sim is unpaused, this will override the above settings.
 		// TODO: Are these setable when paused? Are these necessary?
-		Set(DREF::Latitude, (double)pos[0], aircraft);
-		Set(DREF::Longitude, (double)pos[1], aircraft);
-		Set(DREF::Elevation, (double)pos[2], aircraft);
+		Set(DREF_Latitude, (double)pos[0], aircraft);
+		Set(DREF_Longitude, (double)pos[1], aircraft);
+		Set(DREF_Elevation, (double)pos[2], aircraft);
 	}
 
 	void DataManager::SetOrientation(float orient[3], char aircraft)
@@ -659,24 +756,24 @@ namespace XPC
 
 		if (orient[0] < -997.9 && orient[0] > -999.1)
 		{
-			orient[0] = GetFloat(DREF::Pitch, aircraft);
+			orient[0] = GetFloat(DREF_Pitch, aircraft);
 		}
 		if (orient[1] < -997.9 && orient[1] > -999.1)
 		{
-			orient[1] = GetFloat(DREF::Roll, aircraft);
+			orient[1] = GetFloat(DREF_Roll, aircraft);
 		}
 		if (orient[2] < -997.9 && orient[2] > -999.1)
 		{
-			orient[2] = GetFloat(DREF::HeadingTrue, aircraft);
+			orient[2] = GetFloat(DREF_HeadingTrue, aircraft);
 		}
 
 
 		// If the sim is paused, setting the quaternion won't update these values,
 		// so we set them here just in case. This also covers multiplayer aircraft,
 		// which we can't set the quaternion on.
-		Set(DREF::Pitch, orient[0], aircraft);
-		Set(DREF::Roll, orient[1], aircraft);
-		Set(DREF::HeadingTrue, orient[2], aircraft);
+		Set(DREF_Pitch, orient[0], aircraft);
+		Set(DREF_Roll, orient[1], aircraft);
+		Set(DREF_HeadingTrue, orient[2], aircraft);
 		if (aircraft == 0) // Player aircraft
 		{
 			// Convert to Quaternions
@@ -694,7 +791,7 @@ namespace XPC
 
 			// If the sim is un-paused, this will overwrite the pitch/roll/yaw
 			// values set above.
-			Set(DREF::Quaternion, q, 4);
+			Set(DREF_Quaternion, q, 4);
 		}
 	}
 
@@ -715,7 +812,7 @@ namespace XPC
 		value = (float)fmaxl(value, 0);
 		value = (float)fminl(value, 1);
 
-		Set(DREF::FlapSetting, value);
-		Set(DREF::FlapActual, value);
+		Set(DREF_FlapSetting, value);
+		Set(DREF_FlapActual, value);
 	}
 }

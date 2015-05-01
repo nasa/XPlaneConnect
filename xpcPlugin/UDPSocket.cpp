@@ -4,6 +4,7 @@
 #include "UDPSocket.h"
 
 #include <cstring>
+#include <cstdio>
 
 namespace XPC
 {
@@ -163,7 +164,7 @@ namespace XPC
 			inet_ntop(AF_INET, &sin->sin_addr, ip, INET6_ADDRSTRLEN);
 			int len = strnlen(ip, INET6_ADDRSTRLEN);
 			ip[len++] = ':';
-			sprintf(ip + len, "%u", ntohs((*sin).sin_port));
+			std::sprintf(ip + len, "%u", ntohs((*sin).sin_port));
 			break;
 		}
 		case AF_INET6:
@@ -172,7 +173,7 @@ namespace XPC
 			inet_ntop(AF_INET6, &sin->sin6_addr, ip, INET6_ADDRSTRLEN);
 			int len = strnlen(ip, INET6_ADDRSTRLEN);
 			ip[len++] = ':';
-			sprintf(ip + len, "%u", ntohs((*sin).sin6_port));
+			std::sprintf(ip + len, "%u", ntohs((*sin).sin6_port));
 			break;
 		}
 		default:

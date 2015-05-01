@@ -41,7 +41,7 @@ namespace XPC
 	{
 		if (size == 0)
 		{
-			return nullptr;
+			return NULL;
 		}
 		return buffer;
 	}
