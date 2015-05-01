@@ -1,8 +1,9 @@
 import socket
 import struct
 
-class XPlaneConnect:
+class XPlaneConnect(object):
     '''XPlaneConnect (XPC) facilitates communication to and from the XPCPlugin.'''
+    socket = None
 
     # Basic Functions
     def __init__(self, xpHost = 'localhost', xpPort = 49009, port = 0, timeout = 100):
@@ -71,7 +72,7 @@ class XPlaneConnect:
         if port < 0 or port > 65535:
             raise ValueError("The specified port is not a valid port number.")
 
-        buffer = struct.pack("<4sxH", ("CONN", port))
+        buffer = struct.pack("<4sxH", "CONN", port)
         self.sendUDP(buffer)
 
     def pauseSim(self, pause):
@@ -84,7 +85,7 @@ class XPlaneConnect:
         if pause:
             pause_val = 1
 
-        buffer = struct.pack("<4sxB", ("SIMU", pause_val))
+        buffer = struct.pack("<4sxB", "SIMU", pause_val)
         self.sendUDP(buffer)
 
     # X-Plane UDP Data
@@ -116,11 +117,11 @@ class XPlaneConnect:
         if len(data) > 134:
             raise ValueError("Too many rows in data.")
 
-        buffer = struct.pack("4sx", "DATA")
+        buffer = struct.pack("<4sxB", "DATA", len(data))
         for row in data:
             if len(row) != 9:
                 raise ValueError("Row does not contain exactly 9 values. <" + str(row) + ">")
-            struct.pack_into("<I8f", buffer, len(buffer), row)
+            buffer += struct.pack("<I8f", *row)
         self.sendUDP(buffer)
 
     # Position
@@ -148,12 +149,12 @@ class XPlaneConnect:
             raise ValueError("Aircraft number must be between 0 and 20.")
 
         # Pack message
-        buffer = struct.pack("<4sxB", ("POSI", ac))
+        buffer = struct.pack("<4sxB", "POSI", ac)
         for i in range(7):
             val = -998
             if i < len(values):
                 val = values[i]
-            struct.pack_into("<f", buffer, len(buffer), val)
+            buffer += struct.pack("<f", val)
 
         # Send
         self.sendUDP(buffer)
@@ -187,8 +188,12 @@ class XPlaneConnect:
             val = -998
             if i < len(values):
                 val = values[i]
-            struct.pack_into("<f", buffer, len(buffer), val)
-        struct.pack_into("B", buffer, len(buffer), ac)
+            if i == 4:
+                val = -1 if val == -998 else val
+                buffer += struct.pack("B", val)
+            else:
+                buffer += struct.pack("<f", val)
+        buffer += struct.pack("B", ac)
 
         # Send
         self.sendUDP(buffer)
@@ -282,7 +287,7 @@ class XPlaneConnect:
             msg = ""
 
         msgLen = len(msg)
-        buffer = struct.pack("<4sxiiB" + msgLen + "s", ("TEXT", x, y, msgLen, msg))
+        buffer = struct.pack("<4sxiiB" + str(msgLen) + "s", "TEXT", x, y, msgLen, msg)
         self.sendUDP(buffer)
 
     def sendWYPT(self, op, points):
@@ -304,5 +309,8 @@ class XPlaneConnect:
         if len(points) / 3 > 255:
             raise ValueError("Too many points. You can only send 255 points at a time.")
 
-        buffer = struct.pack("<4sxBB" + len(points) + "f", ("WYPT", op, len(points), points))
+        if op == 3:
+            buffer = struct.pack("<4sxBB", "WYPT", 3, 0)
+        else:
+            buffer = struct.pack("<4sxBB" + str(len(points)) + "f", "WYPT", op, len(points), *points)
         self.sendUDP(buffer)

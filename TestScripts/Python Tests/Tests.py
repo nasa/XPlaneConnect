@@ -1,65 +1,66 @@
 import random
 import unittest
 import imp
+import time
 
-xplaneConnect = imp.load_source('xplaneConnect', '../../Python/src/xplaneConnect.py')
+xpc = imp.load_source('xplaneConnect', '../../Python/src/xplaneConnect.py')
 
 class XPCTests(unittest.TestCase):
     """Tests the functionality of the XPlaneConnect class."""
 
     def test_init(self):
         try:
-            xpc = xplaneConnect.XPlaneConnect()
+            client = xpc.XPlaneConnect()
         except:
             self.fail("Default constructor failed.")
             
         try:
-            xpc = xplaneConnect.XPlaneConnect("I'm not a real host")
+            client = xpc.XPlaneConnect("I'm not a real host")
             self.fail("Failed to catch invalid XP host.")
         except ValueError:
             pass
         
         try:
-            xpc = xplaneConnect.XPlaneConnect("127.0.0.1", 90001)
+            client = xpc.XPlaneConnect("127.0.0.1", 90001)
             self.fail("Failed to catch invalid XP port.")
         except ValueError:
             pass
         try:
-            xpc = xplaneConnect.XPlaneConnect("127.0.0.1", -1)
+            client = xpc.XPlaneConnect("127.0.0.1", -1)
             self.fail("Failed to catch invalid XP port.")
         except ValueError:
             pass
 
         try:
-            xpc = xplaneConnect.XPlaneConnect("127.0.0.1", 49009, 90001)
+            client = xpc.XPlaneConnect("127.0.0.1", 49009, 90001)
             self.fail("Failed to catch invalid local port.")
         except ValueError:
             pass
         try:
-            xpc = xplaneConnect.XPlaneConnect("127.0.0.1", 49009, -1)
+            client = xpc.XPlaneConnect("127.0.0.1", 49009, -1)
             self.fail("Failed to catch invalid XP port.")
         except ValueError:
             pass
         
         try:
-            xpc = xplaneConnect.XPlaneConnect("127.0.0.1", 49009, 0, -1)
+            client = xpc.XPlaneConnect("127.0.0.1", 49009, 0, -1)
             self.fail("Failed to catch invalid timeout.")
         except ValueError:
             pass
 
     def test_close(self):
-        xpc = xplaneConnect.XPlaneConnect("127.0.0.1", 49009, 49063)
-        xpc.close()
-        self.assertIsNone(xpc.socket)
-        xpc = xplaneConnect.XPlaneConnect("127.0.0.1", 49009, 49063)
+        client = xpc.XPlaneConnect("127.0.0.1", 49009, 49063)
+        client.close()
+        self.assertIsNone(client.socket)
+        client = xpc.XPlaneConnect("127.0.0.1", 49009, 49063)
 
     def test_send_read(self):
         # Init
         test = "\x00\x01\x02\x03\x05"
 
         # Setup
-        sender = xplaneConnect.XPlaneConnect("127.0.0.1", 49063, 49064)
-        receiver = xplaneConnect.XPlaneConnect("127.0.0.1", 49009, 49063)
+        sender = xpc.XPlaneConnect("127.0.0.1", 49063, 49064)
+        receiver = xpc.XPlaneConnect("127.0.0.1", 49009, 49063)
 
         # Execution
         sender.sendUDP(test)
@@ -75,15 +76,15 @@ class XPCTests(unittest.TestCase):
 
     def test_getDREFs(self):
         # Setup
-        xpc = xplaneConnect.XPlaneConnect()
+        client = xpc.XPlaneConnect()
         drefs = ["sim/cockpit/switches/gear_handle_status",\
                  "sim/cockpit2/switches/panel_brightness_ratio"]
 
         # Execution
-        result = xpc.getDREFs(drefs)
+        result = client.getDREFs(drefs)
 
         # Cleanup
-        xpc.close()
+        client.close()
 
         # Tests
         self.assertEqual(2, len(result))
@@ -91,46 +92,207 @@ class XPCTests(unittest.TestCase):
         self.assertEqual(4, len(result[1]))
 
     def test_sendDREF(self):
-        # Setup
-        xpc = xplaneConnect.XPlaneConnect()
         dref = "sim/cockpit/switches/gear_handle_status"
+        value = None
+        def do_test():
+            # Setup
+            client = xpc.XPlaneConnect()
 
-        # Execution
-        xpc.sendDREF(dref, 0.0)
-        result = xpc.getDREF(dref)
+            # Execute
+            client.sendDREF(dref, value)
+            result = client.getDREF(dref)
 
-        # Cleanup
-        xpc.close()
+            # Cleanup
+            client.close()
 
-        # Tests
-        self.assertEqual(1, len(result))
-        self.assertEqual(0.0, result[0])
-
-    def test_pauseSim(self):
-        # Setup
-        xpc = xplaneConnect.XPlaneConnect()
-        dref = "sim/operation/override/override_planepath"
-
-        # Execution 1
-        xpc.pauseSim(True)
-        result = xpc.getDREF(dref)
-        
-        # Cleanup 1
-        xpc.close()
+            # Tests
+            self.assertEqual(1, len(result))
+            self.assertEqual(value, result[0])
 
         # Test 1
-        self.assertAlmostEqual(1.0, result[0])
+        value = 1
+        do_test()
 
-        # Execution 2
-        xpc = xplaneConnect.XPlaneConnect()
-        xpc.pauseSim(False)
-        result = xpc.getDREF(dref)
+        # Test 2
+        value = 0
+        do_test()
 
-        # Cleanup 2
-        xpc.close()
+    def test_sendDATA(self):
+        # Setup
+        dref = "sim/aircraft/parts/acf_gear_deploy"
+        data = [[ 14, 1, 0, -998, -998, -998, -998, -998, -998 ]]
+        client = xpc.XPlaneConnect()
 
-        # Tests
-        self.assertEqual(0.0, result[0])
+        # Execute
+        client.sendDATA(data)
+        result = client.getDREF(dref)
+
+        # Cleanup
+        client.close()
+
+        #Tests
+        self.assertEqual(result[0], data[0][1])
+
+    def test_pauseSim(self):
+        dref = "sim/operation/override/override_planepath"
+        value = None
+        expected = None
+        def do_test():
+            # Setup
+            client = xpc.XPlaneConnect()
+
+            # Execute
+            client.pauseSim(value)
+            result = client.getDREF(dref)
+        
+            # Cleanup
+            client.close()
+
+            # Test
+            self.assertAlmostEqual(expected, result[0])
+
+        # Test 1
+        value = True
+        expected = 1.0
+        do_test()
+
+        # Test 2
+        value = False
+        expected = 0.0
+        do_test()
+
+
+    def test_sendCTRL(self):
+        # Setup
+        drefs = ["sim/cockpit2/controls/yoke_pitch_ratio",\
+		         "sim/cockpit2/controls/yoke_roll_ratio",\
+		         "sim/cockpit2/controls/yoke_heading_ratio",\
+		         "sim/flightmodel/engine/ENGN_thro",\
+		         "sim/cockpit/switches/gear_handle_status",\
+		         "sim/flightmodel/controls/flaprqst"]
+        ctrl = []
+
+        def do_test():            
+            client = xpc.XPlaneConnect()
+
+            # Execute
+            client.sendCTRL(ctrl)
+            result = client.getDREFs(drefs)
+
+            # Cleanup
+            client.close()
+
+            # Tests
+            self.assertEqual(6, len(result))
+            for i in range(6):
+                self.assertAlmostEqual(ctrl[i], result[i][0], 4)
+
+        # Test 1
+        ctrl = [ -1.0, -1.0, -1.0, 0.0, 1.0, 1.0 ]
+        do_test()
+
+        # Test 2
+        ctrl = [ 1.0, 1.0, 1.0, 0.0, 1.0, 0.5 ]
+        do_test()
+
+        # Test 2
+        ctrl = [ 0.0, 0.0, 0.0, 0.8, 1.0, 0.0 ]
+        do_test()
+
+    def test_sendPOSI(self):
+        # Setup
+        drefs = ["sim/flightmodel/position/latitude",\
+		         "sim/flightmodel/position/longitude",\
+		         "sim/flightmodel/position/elevation",\
+		         "sim/flightmodel/position/theta",\
+		         "sim/flightmodel/position/phi",\
+		         "sim/flightmodel/position/psi",\
+		         "sim/cockpit/switches/gear_handle_status"]
+        posi = None
+        def do_test():
+            client = xpc.XPlaneConnect()
+
+            # Execute
+            client.pauseSim(True)
+            client.sendPOSI(posi)
+            result = client.getDREFs(drefs)
+            client.pauseSim(False)
+
+            # Cleanup
+            client.close()
+
+            # Tests
+            self.assertEqual(7, len(result))
+            for i in range(7):
+                self.assertAlmostEqual(posi[i], result[i][0], 4)
+
+        # Test 1
+        posi = [ 37.524, -122.06899, 2500, 5, 7, 11, 1 ]
+        do_test()
+
+        # Test 2
+        posi = [ 38, -121.0, 2000, -10, 0, 0, 0 ]
+        do_test()
+
+    def test_sendTEXT(self):
+        # Setup
+        client = xpc.XPlaneConnect()
+        x = 200
+        y = 700
+        msg = "Python sendTEXT test message."
+
+        # Execution
+        client.sendTEXT(msg, x, y)
+        # NOTE: Manually verify that msg appears on the screen in X-Plane
+
+        # Cleanup
+        client.close()
+
+    def test_sendWYPT(self):
+        # Setup
+        client = xpc.XPlaneConnect()
+        points = [\
+		    37.5245, -122.06899, 2500,\
+		    37.455397, -122.050037, 2500,\
+		    37.469567, -122.051411, 2500,\
+		    37.479376, -122.060509, 2300,\
+		    37.482237, -122.076130, 2100,\
+		    37.474881, -122.087288, 1900,\
+		    37.467660, -122.079391, 1700,\
+		    37.466298, -122.090549, 1500,\
+		    37.362562, -122.039223, 1000,\
+		    37.361448, -122.034416, 1000,\
+		    37.361994, -122.026348, 1000,\
+		    37.365541, -122.022572, 1000,\
+		    37.373727, -122.024803, 1000,\
+		    37.403869, -122.041283, 50,\
+		    37.418544, -122.049222, 6]
+
+        # Execution
+        client.sendPOSI([37.5245, -122.06899, 2500])
+        client.sendWYPT(3, [])
+        client.sendWYPT(1, points)
+        # NOTE: Manually verify that points appear on the screen in X-Plane
+
+        # Cleanup
+        client.close()
+
+    def test_setCONN(self):
+        # Setup
+        dref = "sim/cockpit/switches/gear_handle_status";
+        client = xpc.XPlaneConnect()
+
+        # Execute
+        client.setCONN(49055)
+        result = client.getDREF(dref)
+
+        # Cleanup
+        client.close()
+        
+        # Test
+        self.assertEqual(1, len(result))
+
+
 
 if __name__ == '__main__':
     unittest.main()
