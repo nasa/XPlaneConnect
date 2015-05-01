@@ -81,11 +81,11 @@ class XPlaneConnect(object):
             Args:
               pause: True to pause the simulation; False to resume.
         '''
-        pause_val = 0
-        if pause:
-            pause_val = 1
+        pause = int(pause)
+        if pause < 0 or pause > 2:
+            raise ValueError("Invalid argument for pause command.")
 
-        buffer = struct.pack("<4sxB", "SIMU", pause_val)
+        buffer = struct.pack("<4sxB", "SIMU", pause)
         self.sendUDP(buffer)
 
     # X-Plane UDP Data
