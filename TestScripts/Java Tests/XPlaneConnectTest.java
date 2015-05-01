@@ -208,12 +208,30 @@ public class XPlaneConnectTest
         {
             xpc.pauseSim(true);
             float[] result = xpc.getDREF(dref);
-            //assertEquals(1, result.length); //TODO: Why is this result 20 elements long in Java? (It's only one in MATLAB)
+            assertEquals(20, result.length);
             assertEquals(1, result[0], 1e-4);
 
             xpc.pauseSim(false);
             result = xpc.getDREF(dref);
-            //assertEquals(1, result.length);
+            assertEquals(20, result.length);
+            assertEquals(0, result[0], 1e-4);
+        }
+    }
+
+    @Test
+    public void testPauseSim_Switch() throws IOException
+    {
+        String dref = "sim/operation/override/override_planepath";
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.pauseSim(true);
+            float[] result = xpc.getDREF(dref);
+            assertEquals(20, result.length);
+            assertEquals(1, result[0], 1e-4);
+
+            xpc.pauseSim(2);
+            result = xpc.getDREF(dref);
+            assertEquals(20, result.length);
             assertEquals(0, result[0], 1e-4);
         }
     }

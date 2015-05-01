@@ -496,28 +496,51 @@ namespace XPC
 	void MessageHandlers::HandleSimu(Message& msg)
 	{
 		// Update log
-#if LOG_VERBOSITY > 0
+#if LOG_VERBOSITY > 1
 		Log::FormatLine("[SIMU] Message Received (Conn %i)", connection.id);
 #endif
 
-		const unsigned char* buffer = msg.GetBuffer();
-
-		// Set DREF
-		int value[20];
-		for (int i = 0; i < 20; ++i)
+		char v = msg.GetBuffer()[5];
+		if (v < 0 || v > 2)
 		{
-			value[i] = buffer[5];
+#if LOG_VERBOSITY > 0
+			Log::FormatLine("[SIMU] ERROR: Invalid argument: %i", v);
+			return;
+#endif
 		}
-		DataManager::Set(DREF::Pause, value, 20);
-
-#if LOG_VERBOSITY > 2
-		if (buffer[5] == 0)
+		
+		int value[20];
+		if (v == 2)
 		{
-			Log::FormatLine("[SIMU] Simulation Resumed (Conn %i)", connection.id);
+			DataManager::GetIntArray(DREF::Pause, value, 20);
+			for (int i = 0; i < 20; ++i)
+			{
+				value[i] = value[i] ? 0 : 1;
+			}
 		}
 		else
 		{
-			Log::FormatLine("[SIMU] Simulation Paused (Conn %i)", connection.id);
+			for (int i = 0; i < 20; ++i)
+			{
+				value[i] = v;
+			}
+		}
+
+		// Set DREF
+		DataManager::Set(DREF::Pause, value, 20);
+
+#if LOG_VERBOSITY > 2
+		switch (v)
+		{
+		case 0:
+			Log::WriteLine("[SIMU] Simulation Resumed");
+			break;
+		case 1:
+			Log::WriteLine("[SIMU] Simulation Paused");
+			break;
+		case 2:
+			Log::WriteLine("[SIMU] Simulation switched.");
+			break;
 		}
 #endif
 	}

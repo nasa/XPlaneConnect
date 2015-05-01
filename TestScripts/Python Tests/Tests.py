@@ -161,6 +161,16 @@ class XPCTests(unittest.TestCase):
         expected = 0.0
         do_test()
 
+        # Test 3
+        value = 1
+        expected = 1.0
+        do_test()
+
+        # Test 4
+        value = 2
+        expected = 0.0
+        do_test()
+
 
     def test_sendCTRL(self):
         # Setup

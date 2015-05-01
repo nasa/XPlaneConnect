@@ -29,7 +29,7 @@ if ~exist('socket', 'var')
 end
 
 %% Validate input
-pause = logical(pause);
+pause = int32(pause);
 
 %% Send command
 socket.pauseSim(pause);

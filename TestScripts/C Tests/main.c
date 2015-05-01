@@ -833,53 +833,60 @@ int sendWYPTTest()
 
 int pauseTest() // pauseSim test
 {
-    // Initialize
+    // Setup
 	// Note: Always run this test to the end so that the sim ends up unpaused in the
 	//       case where commands are working but reading results isn't.
 	int result = 0; 
-	char* drefs[100] =
-	{
-		"sim/operation/override/override_planepath"
-	};
-    float* data[100];
-	int sizes[100];
+	char* dref = "sim/operation/override/override_planepath";
+	int size = 20;
+	float data[20];
 	XPCSocket sock = openUDP(IP);
     
-    // Setup
-    for (int i = 0; i < 100; i++)
-	{
-		data[i] = (float*)malloc(40 * sizeof(float));
-		sizes[i] = 40;
-    }
-    
     // Execute
-    pauseSim(sock, 1);
-	result = getDREF(sock, drefs[0], data[0], sizes);
+    pauseSim(sock, 0);
+	result = getDREF(sock, dref, data, &size);
 
     // Test
     if (result < 0)
 	{
         result = -1;
     }
-	if (data[0][0] != 1)
+	else if (data[0] != 0)
     {
         result = -2;
-    }
+	}
 
 	if (result == 0)
 	{
 		// Execute 2
-		pauseSim(sock, 0);
-		result = getDREF(sock, drefs[0], data[0], sizes);
+		pauseSim(sock, 2);
+		result = getDREF(sock, dref, data, &size);
 
 		// Test 2
 		if (result < 0)
 		{
 			result = -3;
 		}
-		if (data[0][0] != 0)
+		else if (data[0] != 1)
 		{
 			result = -4;
+		}
+	}
+
+	if (result == 0)
+	{
+		// Execute 3
+		pauseSim(sock, 0);
+		result = getDREF(sock, dref, data, &size);
+
+		// Test 2
+		if (result < 0)
+		{
+			result = -5;
+		}
+		else if (data[0] != 0)
+		{
+			result = -6;
 		}
 	}
 
