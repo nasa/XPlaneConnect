@@ -264,9 +264,17 @@ int setCONN(XPCSocket* sock, unsigned short port)
 
 int pauseSim(XPCSocket sock, char pause)
 {
+	// Validte input
+	if (pause < 0 || pause > 2)
+	{
+		printError("pauseSim", "Invalid argument: %i", pause);
+		return;
+	}
+
 	// Setup command
 	char buffer[6] = "SIMU";
-	buffer[5] = pause == 0 ? 0 : 1;
+	buffer[5] = pause;
+
 	// Send command
 	if (sendUDP(sock, buffer, 6) < 0)
 	{
