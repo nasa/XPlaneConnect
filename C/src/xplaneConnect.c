@@ -268,7 +268,7 @@ int pauseSim(XPCSocket sock, char pause)
 	if (pause < 0 || pause > 2)
 	{
 		printError("pauseSim", "Invalid argument: %i", pause);
-		return;
+		return -2;
 	}
 
 	// Setup command
