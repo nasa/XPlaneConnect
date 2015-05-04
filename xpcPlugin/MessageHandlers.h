@@ -64,5 +64,4 @@ namespace XPC
 		static UDPSocket* sock; // Outgoing network socket
 	};
 }
-
 #endif

@@ -57,5 +57,4 @@ namespace XPC
 		static void RemoveWaypoints(Waypoint points[], size_t numPoints);
 	};
 }
-
 #endif

@@ -53,5 +53,4 @@ namespace XPC
 		struct sockaddr source;
 	};
 }
-
 #endif

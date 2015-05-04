@@ -407,5 +407,4 @@ namespace XPC
 		static void SetFlaps(float value);
 	};
 }
-
 #endif

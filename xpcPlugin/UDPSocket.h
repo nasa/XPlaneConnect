@@ -70,5 +70,4 @@ namespace XPC
 #endif
 	};
 }
-
 #endif
