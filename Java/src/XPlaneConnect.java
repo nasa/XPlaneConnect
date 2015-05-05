@@ -175,12 +175,12 @@ public class XPlaneConnect implements AutoCloseable
      */
     private byte[] readUDP() throws IOException
     {
-        byte[] buffer = new byte[2048];
+        byte[] buffer = new byte[65536];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         try
         {
             socket.receive(packet);
-            return Arrays.copyOf(buffer, buffer[4]);
+            return Arrays.copyOf(buffer, packet.getLength());
         }
         catch (SocketTimeoutException ex)
         {
@@ -293,37 +293,29 @@ public class XPlaneConnect implements AutoCloseable
         sendUDP(os.toByteArray());
 
         //Read response
-        for(int i = 0; i < 40; ++i)
+        byte[] data = readUDP();
+        if(data.length == 0)
         {
-            byte[] data = readUDP();
-            if(data.length == 0)
-            {
-                continue;
-            }
-            if(data.length < 6)
-            {
-                throw new Error("Response too short"); //TODO: Make custom error type
-            }
-            if(data[5] != drefs.length)
-            {
-                throw new Error("Unexpected response length"); //TODO: Make custom error type
-            }
-            float[][] result = new float[drefs.length][];
-            ByteBuffer bb = ByteBuffer.wrap(data);
-            bb.order(ByteOrder.LITTLE_ENDIAN);
-            int cur = 6;
-            for(int j = 0; j < result.length; ++j)
-            {
-                result[j] = new float[data[cur++]];
-                for(int k = 0; k < result[j].length; ++k) //TODO: There must be a better way to do this
-                {
-                    result[j][k] = bb.getFloat(cur);
-                    cur += 4;
-                }
-            }
-            return result;
+            throw new IOException("No response received.");
         }
-        throw new IOException("No response received.");
+        if(data.length < 6)
+        {
+            throw new IOException("Response too short");
+        }
+        float[][] result = new float[drefs.length][];
+        ByteBuffer bb = ByteBuffer.wrap(data);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        int cur = 6;
+        for(int j = 0; j < result.length; ++j)
+        {
+            result[j] = new float[data[cur++]];
+            for(int k = 0; k < result[j].length; ++k) //TODO: There must be a better way to do this
+            {
+                result[j][k] = bb.getFloat(cur);
+                cur += 4;
+            }
+        }
+        return result;
     }
 
     public void sendDREF(String dref, float value) throws IOException
