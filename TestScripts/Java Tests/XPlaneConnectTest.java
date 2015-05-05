@@ -463,6 +463,34 @@ public class XPlaneConnectTest
         }
     }
 
+    @Test
+    public void testSendCTRL_Speedbrakes() throws IOException
+    {
+        String dref = "sim/flightmodel/controls/sbrkrqst";
+        float[] ctrl = new float[] { -998.0F, -998.0F, -998.0F, -998.0F, -998.0F, -998.0F, -0.5F };
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            // Speedbrakes armed
+            xpc.sendCTRL(ctrl);
+            float[] result = xpc.getDREF(dref);
+
+            assertEquals(-0.5F, result[0], 1e-4);
+
+            ctrl[6] = 1.0F; // Deploy speedbrakes
+            xpc.sendCTRL(ctrl);
+            result = xpc.getDREF(dref);
+
+            assertEquals(1.0F, result[0], 1e-4);
+
+            ctrl[6] = 0.0F; // Retract speedbrakes
+            xpc.sendCTRL(ctrl);
+            result = xpc.getDREF(dref);
+
+            assertEquals(0.0F, result[0], 1e-4);
+        }
+
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testSendCTRL_NullCtrl() throws IOException
     {
@@ -475,7 +503,7 @@ public class XPlaneConnectTest
     @Test(expected = IllegalArgumentException.class)
     public void testSendCTRL_LongCtrl() throws IOException
     {
-        float[] ctrl = new float[] {0, 0, 1, 0.8F, 0, 1, -998};
+        float[] ctrl = new float[] {0, 0, 1, 0.8F, 0, 1, 0, -998};
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendCTRL(ctrl);

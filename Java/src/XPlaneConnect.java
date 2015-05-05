@@ -422,9 +422,9 @@ public class XPlaneConnect implements AutoCloseable
         {
             throw new IllegalArgumentException("ctrl must no be null.");
         }
-        if(values.length > 6)
+        if(values.length > 7)
         {
-            throw new IllegalArgumentException("ctrl must have 6 or fewer elements.");
+            throw new IllegalArgumentException("ctrl must have 7 or fewer elements.");
         }
         if(ac < 0 || ac > 9)
         {
@@ -434,14 +434,19 @@ public class XPlaneConnect implements AutoCloseable
         //Pad command values and convert to bytes
         int i;
         int cur = 0;
-        ByteBuffer bb = ByteBuffer.allocate(22);
+        ByteBuffer bb = ByteBuffer.allocate(26);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        for(i = 0; i < values.length; ++i)
+        for(i = 0; i < 6; ++i)
         {
             if(i == 4)
             {
                 bb.put(cur, (byte) values[i]);
                 cur += 1;
+            }
+            else if (i >= values.length)
+            {
+                bb.putFloat(cur, -998);
+                cur+= 4;
             }
             else
             {
@@ -449,20 +454,8 @@ public class XPlaneConnect implements AutoCloseable
                 cur += 4;
             }
         }
-        for(; i < 6; ++i)
-        {
-            if(i == 4)
-            {
-                bb.put(cur, (byte) 0);
-                cur += 1;
-            }
-            else
-                {
-                bb.putFloat(cur, -998);
-                cur += 4;
-            }
-        }
-        bb.put(cur, (byte) ac);
+        bb.put(cur++, (byte) ac);
+        bb.putFloat(cur, values.length == 7 ? values[6] : -998);
 
         //Build and send message
         ByteArrayOutputStream os = new ByteArrayOutputStream();
