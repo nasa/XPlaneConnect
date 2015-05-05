@@ -132,7 +132,7 @@ namespace XPC
 		DREF_MP4Alt,
 		DREF_MP5Alt,
 		DREF_MP6Alt,
-		DREF_MP7Alt,
+		DREF_MP7Alt
 	};
 
 	/// Marshals data between the plugin and X-Plane.
