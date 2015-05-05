@@ -133,7 +133,7 @@ namespace XPC
 		DREF_MP4Alt,
 		DREF_MP5Alt,
 		DREF_MP6Alt,
-		DREF_MP7Alt,
+		DREF_MP7Alt
 	};
 
 	/// Maps X-Plane dataref lines to XPC DREF values.
