@@ -169,7 +169,7 @@ namespace XPC
 		std::size_t size = msg.GetSize();
 		//Legacy packets that don't specify an aircraft number should be 26 bytes long.
 		//Packets specifying an A/C num should be 27 bytes.
-		if (size != 26 && size != 27)
+		if (size != 26 && size != 27 && size != 31)
 		{
 #if LOG_VERBOSITY > 0
 			Log::FormatLine("[CTRL] ERROR: Unexpected message length (%i)", size);
@@ -185,9 +185,14 @@ namespace XPC
 		char gear = buffer[21];
 		float flaps = *((float*)(buffer + 22));
 		unsigned char aircraft = 0;
-		if (size == 27)
+		if (size >= 27)
 		{
 			aircraft = buffer[26];
+		}
+		float spdbrk = -998;
+		if (size >= 31)
+		{
+			spdbrk = *((float*)(buffer + 27));
 		}
 
 		float thrArray[8];
@@ -212,6 +217,10 @@ namespace XPC
 		if (flaps < -999.5 || flaps > -997.5)
 		{
 			DataManager::Set(DREF_FlapSetting, flaps, aircraft);
+		}
+		if (spdbrk < -999.5 || spdbrk > -997.5)
+		{
+			DataManager::Set(DREF_SpeedBrakeSet, spdbrk, aircraft);
 		}
 	}
 

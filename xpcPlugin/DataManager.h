@@ -105,7 +105,8 @@ namespace XPC
 		// Multiplayer Aircraft
 		DREF_FlapActual2,
 		DREF_Spoiler,
-		DREF_BrakeSpeed,
+		DREF_SpeedBrakeSet,
+		DREF_SpeedBrakeActual,
 		DREF_Sweep,
 		DREF_Slats,
 

@@ -69,6 +69,9 @@ namespace XPC
 		drefs.insert(make_pair(DREF_FlapSetting, XPLMFindDataRef("sim/flightmodel/controls/flaprqst")));
 		drefs.insert(make_pair(DREF_FlapActual, XPLMFindDataRef("sim/flightmodel/controls/flaprat")));
 
+		drefs.insert(make_pair(DREF_SpeedBrakeSet, XPLMFindDataRef("sim/flightmodel/controls/sbrkrqst")));
+		drefs.insert(make_pair(DREF_SpeedBrakeActual, XPLMFindDataRef("sim/flightmodel/controls/sbrkrat")));
+
 		drefs.insert(make_pair(DREF_GearDeploy, XPLMFindDataRef("sim/aircraft/parts/acf_gear_deploy")));
 		drefs.insert(make_pair(DREF_GearHandle, XPLMFindDataRef("sim/cockpit/switches/gear_handle_status")));
 		drefs.insert(make_pair(DREF_BrakeParking, XPLMFindDataRef("sim/flightmodel/controls/parkbrakel")));
@@ -169,7 +172,7 @@ namespace XPC
 			sprintf(multi, "sim/multiplayer/position/plane%i_spoiler_ratio", i);
 			mdrefs[i][DREF_Spoiler] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_speedbrake_ratio", i);
-			mdrefs[i][DREF_BrakeSpeed] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_SpeedBrakeSet] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_slat_ratio", i);
 			mdrefs[i][DREF_Slats] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_wing_sweep", i);
