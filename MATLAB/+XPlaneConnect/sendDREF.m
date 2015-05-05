@@ -35,4 +35,4 @@ end
 value = single(value);
 
 %%Send command
-socket.setDREF(dref, value);
+socket.sendDREF(dref, value);

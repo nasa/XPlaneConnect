@@ -9,6 +9,7 @@ function sendCTRL( values, ac, socket )
 %           4. Throttle [-1, 1]
 %           5. Gear (0=up, 1=down)
 %           6. Flaps [0, 1]
+%           7. Speed Brakes [-0.5, 1.5]
 %     ac (optional): The aircraft to set. 0 for the player aircraft.
 %     socket (optional): The client to use when sending the command.
 %       
