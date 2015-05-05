@@ -391,8 +391,9 @@ int psendCTRLTest() // sendCTRL test
 	}
 
 	sock = openUDP(IP);
-	// Execute 2
+	// Execute 3
 	// Set non-zero pitch, roll, & yaw. Also set throttle, gear, and flaps
+	float expected[] = { data[0][0], data[1][0], data[2][0], CTRL[3], CTRL[4], CTRL[5] };
 	CTRL[0] = -998.0F;
 	CTRL[1] = -998.0F;
 	CTRL[2] = -998.0F;
@@ -409,7 +410,7 @@ int psendCTRLTest() // sendCTRL test
 	}
 	for (int i = 0; i < 6; i++)
 	{
-		if (fabs(data[i][0] - CTRL[i]) > 1e-2)
+		if (fabs(data[i][0] - expected[i]) > 1e-2)
 		{
 			return -i - 31;
 		}
@@ -489,8 +490,9 @@ int sendCTRLTest()
 	}
 
 	sock = openUDP(IP);
-	// Execute 2
+	// Execute 3
 	// Set non-zero pitch, roll, & yaw. Also set throttle, gear, and flaps
+	float expected[] = { data[0][0], data[1][0], data[2][0], CTRL[3], CTRL[4], CTRL[5] };
 	CTRL[0] = -998.0F;
 	CTRL[1] = -998.0F;
 	CTRL[2] = -998.0F;
@@ -507,7 +509,7 @@ int sendCTRLTest()
 	}
 	for (int i = 0; i < 6; i++)
 	{
-		if (fabs(data[i][0] - CTRL[i]) > 1e-2)
+		if (fabs(data[i][0] - expected[i]) > 1e-2)
 		{
 			return -i - 31;
 		}
@@ -539,7 +541,7 @@ int sendCTRLspeedbrakeTest() // sendCTRL test
 	{
 		return -1;
 	}
-	if (data != 0.5F)
+	if (fabs(data - CTRL[6]) > 1e-4)
 	{
 		return -11;
 	}
@@ -559,7 +561,7 @@ int sendCTRLspeedbrakeTest() // sendCTRL test
 	{
 		return -2;
 	}
-	if (data != 1.0F)
+	if (fabs(data - CTRL[6]) > 1e-4)
 	{
 		return -21;
 	}
@@ -568,7 +570,7 @@ int sendCTRLspeedbrakeTest() // sendCTRL test
 	// Execute 3
 	// Retract speedbrakes
 	CTRL[6] = 0.0F;
-	sendCTRL(sock, CTRL, 6, 0);
+	sendCTRL(sock, CTRL, 7, 0);
 	result = getDREF(sock, dref, &data, &size);
 
 	// Close socket
@@ -579,7 +581,7 @@ int sendCTRLspeedbrakeTest() // sendCTRL test
 	{
 		return -3;
 	}
-	if (data != 0.0F)
+	if (fabs(data - CTRL[6]) > 1e-4)
 	{
 		return -31;
 	}
@@ -588,7 +590,7 @@ int sendCTRLspeedbrakeTest() // sendCTRL test
 	// Execute 4
 	// Verify -998 does not change value.
 	CTRL[6] = -998.0F;
-	sendCTRL(sock, CTRL, 6, 0);
+	sendCTRL(sock, CTRL, 7, 0);
 	result = getDREF(sock, dref, &data, &size);
 
 	// Close socket
@@ -599,7 +601,7 @@ int sendCTRLspeedbrakeTest() // sendCTRL test
 	{
 		return -4;
 	}
-	if (data != 0.0F)
+	if (data> 1e-4)
 	{
 		return -41;
 	}
