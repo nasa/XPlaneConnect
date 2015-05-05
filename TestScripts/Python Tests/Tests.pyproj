@@ -6,8 +6,7 @@
     <ProjectGuid>6931ebb2-4e01-4c5a-86b6-668c0e75051b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>Tests.py</StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <SearchPath>..\..\Python\src\</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Tests</Name>

@@ -3,7 +3,7 @@ import unittest
 import imp
 import time
 
-xpc = imp.load_source('xplaneConnect', '../../Python/src/xplaneConnect.py')
+import xpc
 
 class XPCTests(unittest.TestCase):
     """Tests the functionality of the XPlaneConnect class."""
