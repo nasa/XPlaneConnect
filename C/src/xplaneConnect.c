@@ -560,13 +560,13 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 	}
 	if (size < 1 || size > 7)
 	{
-		printError("sendCTRL", "size should be a value between 1 and 6.");
+		printError("sendCTRL", "size should be a value between 1 and 7.");
 		return -2;
 	}
 
 	// Setup Command
 	// 5 byte header + 5 float values * 4 + 2 byte values
-	unsigned char buffer[27] = "CTRL";
+	unsigned char buffer[31] = "CTRL";
 	int cur = 5;
 	for (int i = 0; i < 6; i++)
 	{
@@ -587,9 +587,10 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 		}
 	}
 	buffer[26] = ac;
+	*((float*)(buffer + 27)) = size == 7 ? values[6]: -998;
 
 	// Send Command
-	if (sendUDP(sock, buffer, 27) < 0)
+	if (sendUDP(sock, buffer, 31) < 0)
 	{
 		printError("sendCTRL", "Failed to send command");
 		return -3;

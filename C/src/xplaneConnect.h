@@ -182,8 +182,8 @@ int sendPOSI(XPCSocket sock, float values[], int size, char ac);
 ///
 /// \param sock   The socket to use to send the command.
 /// \param values An array representing position data about the aircraft. The format of values is
-///               [Elevator, Aileron, Rudder, Throttle, Gear, Flaps]. If less than 6 values are
-///               specified, the unspecified values will be left unchanged.
+///               [Elevator, Aileron, Rudder, Throttle, Gear, Flaps, Speed Brakes]. If less than
+///               6 values are specified, the unspecified values will be left unchanged.
 /// \param size   The number of elements in values.
 /// \param ac     The aircraft number to set the control surfaces of. 0 for the player aircraft.
 /// \returns      0 if successful, otherwise a negative value.
