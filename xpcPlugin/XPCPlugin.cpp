@@ -73,7 +73,7 @@
 #define RECVPORT 49009 // Port that the plugin receives commands on
 #define OPS_PER_CYCLE 20 // Max Number of operations per cycle
 
-XPC::UDPSocket* sock = nullptr;
+XPC::UDPSocket* sock = NULL;
 
 double start,lap;
 static double timeConvert = 0.0;
@@ -126,7 +126,7 @@ PLUGIN_API void XPluginDisable(void)
 {
 	// Close sockets
 	delete sock;
-	sock = nullptr;
+	sock = NULL;
 
 	// Stop rendering messages to screen.
 	XPC::Drawing::ClearMessage();

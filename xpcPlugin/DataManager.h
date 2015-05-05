@@ -8,131 +8,131 @@
 namespace XPC
 {
 	/// Represents named datarefs used by X-Plane Connect
-	enum class DREF : unsigned long
+	enum DREF
 	{
-		None = 0,
+		DREF_None = 0,
 
-		Pause,
-		PauseAI,
+		DREF_Pause,
+		DREF_PauseAI,
 
 		// Times
-		TotalRuntime = 100,
-		TotalFlighttime,
-		TimerElapsedtime,
+		DREF_TotalRuntime = 100,
+		DREF_TotalFlighttime,
+		DREF_TimerElapsedtime,
 
 		// Velocities
-		IndicatedAirspeed = 300,
-		TrueAirspeed,
-		GroundSpeed,
+		DREF_IndicatedAirspeed = 300,
+		DREF_TrueAirspeed,
+		DREF_GroundSpeed,
 
 		// Mach, VVI, G-loads
-		MachNumber = 400,
-		GForceNormal,
-		GForceAxial,
-		GForceSide,
+		DREF_MachNumber = 400,
+		DREF_GForceNormal,
+		DREF_GForceAxial,
+		DREF_GForceSide,
 
 		// Atmosphere: Weather
-		BarometerSealevelInHg = 500,
-		TemperaturSealevelC,
-		WindSpeedKts,
+		DREF_BarometerSealevelInHg = 500,
+		DREF_TemperaturSealevelC,
+		DREF_WindSpeedKts,
 
 		// Joystick
-		YokePitch = 800,
-		YokeRoll,
-		YokeHeading,
+		DREF_YokePitch = 800,
+		DREF_YokeRoll,
+		DREF_YokeHeading,
 
 		// Control Surfaces
-		Elevator = 1100,
-		Aileron,
-		Rudder,
+		DREF_Elevator = 1100,
+		DREF_Aileron,
+		DREF_Rudder,
 
 		// Flaps
-		FlapSetting = 1300,
-		FlapActual,
+		DREF_FlapSetting = 1300,
+		DREF_FlapActual,
 
 		// Gear & Brakes
-		GearDeploy = 1400,
-		GearHandle,
-		BrakeParking,
-		BrakeLeft,
-		BrakeRight,
+		DREF_GearDeploy = 1400,
+		DREF_GearHandle,
+		DREF_BrakeParking,
+		DREF_BrakeLeft,
+		DREF_BrakeRight,
 
 		// MNR (Angular Moments)
-		M = 1500,
-		L,
-		N,
+		DREF_M = 1500,
+		DREF_L,
+		DREF_N,
 
 		//PQR (Angular Velocities)
-		QRad = 1600,
-		PRad,
-		RRad,
-		Q,
-		P,
-		R,
+		DREF_QRad = 1600,
+		DREF_PRad,
+		DREF_RRad,
+		DREF_Q,
+		DREF_P,
+		DREF_R,
 
 		// Orientation: pitch, roll, yaw, heading
-		Pitch = 1700,
-		Roll,
-		HeadingTrue,
-		HeadingMag,
-		Quaternion,
+		DREF_Pitch = 1700,
+		DREF_Roll,
+		DREF_HeadingTrue,
+		DREF_HeadingMag,
+		DREF_Quaternion,
 
 		// Orientation: alpha beta hpath vpath slip
-		AngleOfAttack = 1800,
-		Sideslip,
-		HPath,
-		VPath,
+		DREF_AngleOfAttack = 1800,
+		DREF_Sideslip,
+		DREF_HPath,
+		DREF_VPath,
 
-		MagneticVariation = 1901,
+		DREF_MagneticVariation = 1901,
 
 		// Global Position
-		Latitude = 2000,
-		Longitude,
-        Elevation,
-		AGL,
+		DREF_Latitude = 2000,
+		DREF_Longitude,
+		DREF_Elevation,
+		DREF_AGL,
 
 		// Local Postion & Velocity
-		LocalX = 2100,
-		LocalY,
-		LocalZ,
-		LocalVX,
-		LocalVY,
-		LocalVZ,
+		DREF_LocalX = 2100,
+		DREF_LocalY,
+		DREF_LocalZ,
+		DREF_LocalVX,
+		DREF_LocalVY,
+		DREF_LocalVZ,
 
-		ThrottleSet = 2200,
-		ThrottleActual = 2300,
+		DREF_ThrottleSet = 2200,
+		DREF_ThrottleActual = 2300,
 
 		// Multiplayer Aircraft
-		FlapActual2,
-		Spoiler,
-		BrakeSpeed,
-		Sweep,
-		Slats,
+		DREF_FlapActual2,
+		DREF_Spoiler,
+		DREF_BrakeSpeed,
+		DREF_Sweep,
+		DREF_Slats,
 
 		// Mulitplayer positon
-		MP1Lat,
-		MP2Lat,
-		MP3Lat,
-		MP4Lat,
-		MP5Lat,
-		MP6Lat,
-		MP7Lat,
+		DREF_MP1Lat,
+		DREF_MP2Lat,
+		DREF_MP3Lat,
+		DREF_MP4Lat,
+		DREF_MP5Lat,
+		DREF_MP6Lat,
+		DREF_MP7Lat,
 
-		MP1Lon,
-		MP2Lon,
-		MP3Lon,
-		MP4Lon,
-		MP5Lon,
-		MP6Lon,
-		MP7Lon,
+		DREF_MP1Lon,
+		DREF_MP2Lon,
+		DREF_MP3Lon,
+		DREF_MP4Lon,
+		DREF_MP5Lon,
+		DREF_MP6Lon,
+		DREF_MP7Lon,
 
-		MP1Alt,
-		MP2Alt,
-		MP3Alt,
-		MP4Alt,
-		MP5Alt,
-		MP6Alt,
-		MP7Alt,
+		DREF_MP1Alt,
+		DREF_MP2Alt,
+		DREF_MP3Alt,
+		DREF_MP4Alt,
+		DREF_MP5Alt,
+		DREF_MP6Alt,
+		DREF_MP7Alt,
 	};
 
 	/// Marshals data between the plugin and X-Plane.

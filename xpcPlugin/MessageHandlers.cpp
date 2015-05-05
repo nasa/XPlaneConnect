@@ -11,43 +11,8 @@
 
 namespace XPC
 {
-	std::unordered_map<std::string, MessageHandlers::ConnectionInfo> MessageHandlers::connections;
-	std::unordered_map<std::string, MessageHandler> MessageHandlers::handlers(
-	{
-		// Common messages
-		{ "CONN", MessageHandlers::HandleConn },
-		{ "CTRL", MessageHandlers::HandleCtrl },
-		{ "DATA", MessageHandlers::HandleData },
-		{ "DREF", MessageHandlers::HandleDref },
-		{ "GETD", MessageHandlers::HandleGetD },
-		{ "POSI", MessageHandlers::HandlePosi },
-		{ "SIMU", MessageHandlers::HandleSimu },
-		{ "TEXT", MessageHandlers::HandleText },
-		{ "WYPT", MessageHandlers::HandleWypt },
-		// Not implemented messages
-		{ "VIEW", MessageHandlers::HandleUnknown },
-		// X-Plane data messages
-		{ "DSEL", MessageHandlers::HandleXPlaneData },
-		{ "USEL", MessageHandlers::HandleXPlaneData },
-		{ "DCOC", MessageHandlers::HandleXPlaneData },
-		{ "UCOC", MessageHandlers::HandleXPlaneData },
-		{ "MOUS", MessageHandlers::HandleXPlaneData },
-		{ "CHAR", MessageHandlers::HandleXPlaneData },
-		{ "MENU", MessageHandlers::HandleXPlaneData },
-		{ "SOUN", MessageHandlers::HandleXPlaneData },
-		{ "FAIL", MessageHandlers::HandleXPlaneData },
-		{ "RECO", MessageHandlers::HandleXPlaneData },
-		{ "PAPT", MessageHandlers::HandleXPlaneData },
-		{ "VEHN", MessageHandlers::HandleXPlaneData },
-		{ "VEH1", MessageHandlers::HandleXPlaneData },
-		{ "VEHA", MessageHandlers::HandleXPlaneData },
-		{ "GSET", MessageHandlers::HandleXPlaneData },
-		{ "OBJN", MessageHandlers::HandleXPlaneData },
-		{ "OBJL", MessageHandlers::HandleXPlaneData },
-		{ "GSET", MessageHandlers::HandleXPlaneData },
-		{ "ISET", MessageHandlers::HandleXPlaneData },
-		{ "BOAT", MessageHandlers::HandleXPlaneData },
-	});
+	std::map<std::string, MessageHandlers::ConnectionInfo> MessageHandlers::connections;
+	std::map<std::string, MessageHandler> MessageHandlers::handlers;
 
 	std::string MessageHandlers::connectionKey;
 	MessageHandlers::ConnectionInfo MessageHandlers::connection;
@@ -60,6 +25,43 @@ namespace XPC
 
 	void MessageHandlers::HandleMessage(Message& msg)
 	{
+		if (handlers.size() == 0)
+		{
+			// Common messages
+			handlers.insert(std::make_pair("CONN", MessageHandlers::HandleConn));
+			handlers.insert(std::make_pair("CTRL", MessageHandlers::HandleCtrl));
+			handlers.insert(std::make_pair("DATA", MessageHandlers::HandleData));
+			handlers.insert(std::make_pair("DREF", MessageHandlers::HandleDref));
+			handlers.insert(std::make_pair("GETD", MessageHandlers::HandleGetD));
+			handlers.insert(std::make_pair("POSI", MessageHandlers::HandlePosi));
+			handlers.insert(std::make_pair("SIMU", MessageHandlers::HandleSimu));
+			handlers.insert(std::make_pair("TEXT", MessageHandlers::HandleText));
+			handlers.insert(std::make_pair("WYPT", MessageHandlers::HandleWypt));
+			// Not implemented messages
+			handlers.insert(std::make_pair("VIEW", MessageHandlers::HandleUnknown));
+			// X-Plane data messages
+			handlers.insert(std::make_pair("DSEL", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("USEL", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("DCOC", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("UCOC", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("MOUS", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("CHAR", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("MENU", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("SOUN", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("FAIL", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("RECO", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("PAPT", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("VEHN", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("VEH1", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("VEHA", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("GSET", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("OBJN", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("OBJL", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("GSET", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("ISET", MessageHandlers::HandleXPlaneData));
+			handlers.insert(std::make_pair("BOAT", MessageHandlers::HandleXPlaneData));
+		}
+
 		// Make sure we really have a message to handle.
 		std::string head = msg.GetHead();
 		if (head == "")
@@ -74,18 +76,16 @@ namespace XPC
 #if LOG_VERBOSITY > 4
 		Log::FormatLine("[MSGH] Handling message from %s", connectionKey.c_str());
 #endif
-		auto conn = connections.find(connectionKey);
+		std::map<std::string, ConnectionInfo>::iterator conn = connections.find(connectionKey);
 		if (conn == connections.end()) // New connection
 		{
-			connection = MessageHandlers::ConnectionInfo
-			{
-				// If this is a new connection, that means we just added an elment
-				// to connections. As long as we never remove elements, the size of
-				// connections will serve as a unique id.
-				static_cast<unsigned char>(connections.size()),
-				sourceaddr,
-				0
-			};
+			connection = MessageHandlers::ConnectionInfo();
+			// If this is a new connection, that means we just added an elment
+			// to connections. As long as we never remove elements, the size of
+			// connections will serve as a unique id.
+			connection.id = static_cast<unsigned char>(connections.size());
+			connection.addr = sourceaddr;
+			connection.getdCount = 0;
 			connections[connectionKey] = connection;
 #if LOG_VERBOSITY > 2
 			Log::FormatLine("[MSGH] New connection. ID=%u, Remote=%s", connection.id, connectionKey.c_str());
@@ -102,7 +102,7 @@ namespace XPC
 		
 		// Check if there is a handler for this message type. If so, execute
 		// that handler. Otherwise, execute the unknown message handler.
-		auto iter = handlers.find(head);
+		std::map<std::string, MessageHandler>::iterator iter = handlers.find(head);
 		if (iter != handlers.end())
 		{
 			MessageHandler handler = (*iter).second;
@@ -197,11 +197,11 @@ namespace XPC
 			thrArray[i] = thr;
 		}
 
-		DataManager::Set(DREF::YokePitch, pitch, aircraft);
-		DataManager::Set(DREF::YokeRoll, roll, aircraft);
-		DataManager::Set(DREF::YokeHeading, yaw, aircraft); 
-		DataManager::Set(DREF::ThrottleSet, thrArray, 8, aircraft);
-		DataManager::Set(DREF::ThrottleActual, thrArray, 8, aircraft);
+		DataManager::Set(DREF_YokePitch, pitch, aircraft);
+		DataManager::Set(DREF_YokeRoll, roll, aircraft);
+		DataManager::Set(DREF_YokeHeading, yaw, aircraft); 
+		DataManager::Set(DREF_ThrottleSet, thrArray, 8, aircraft);
+		DataManager::Set(DREF_ThrottleActual, thrArray, 8, aircraft);
 		if (aircraft == 0)
 		{
 			DataManager::Set("sim/flightmodel/engine/ENGN_thro_override", thrArray, 1);
@@ -212,7 +212,7 @@ namespace XPC
 		}
 		if (flaps < -999.5 || flaps > -997.5)
 		{
-			DataManager::Set(DREF::FlapSetting, flaps, aircraft);
+			DataManager::Set(DREF_FlapSetting, flaps, aircraft);
 		}
 	}
 
@@ -269,9 +269,9 @@ namespace XPC
 			{
 			case 3: // Velocity
 			{
-				float theta = DataManager::GetFloat(DREF::Pitch);
-				float alpha = savedAlpha != -998 ? savedAlpha : DataManager::GetFloat(DREF::AngleOfAttack);
-				float hpath = savedHPath != -998 ? savedHPath : DataManager::GetFloat(DREF::HPath);
+				float theta = DataManager::GetFloat(DREF_Pitch);
+				float alpha = savedAlpha != -998 ? savedAlpha : DataManager::GetFloat(DREF_AngleOfAttack);
+				float hpath = savedHPath != -998 ? savedHPath : DataManager::GetFloat(DREF_HPath);
 				if (alpha != alpha || hpath != hpath)
 				{
 #if LOG_VERBOSITY > 0
@@ -286,21 +286,19 @@ namespace XPC
 					float v = values[i][ind[j]];
 					if (v != -998)
 					{
-						DataManager::Set(DREF::LocalVX, v*cos((theta - alpha)*deg2rad)*sin(hpath*deg2rad));
-						DataManager::Set(DREF::LocalVY, v*sin((theta - alpha)*deg2rad));
-						DataManager::Set(DREF::LocalVZ, -v*cos((theta - alpha)*deg2rad)*cos(hpath*deg2rad));
+						DataManager::Set(DREF_LocalVX, v*cos((theta - alpha)*deg2rad)*sin(hpath*deg2rad));
+						DataManager::Set(DREF_LocalVY, v*sin((theta - alpha)*deg2rad));
+						DataManager::Set(DREF_LocalVZ, -v*cos((theta - alpha)*deg2rad)*cos(hpath*deg2rad));
 					}
 				}
 				break;
 			}
 			case 17: // Orientation
 			{
-				float orient[3]
-				{
-					values[i][1],
-					values[i][2],
-					values[i][3]
-				};
+				float orient[3];
+				orient[0] = values[i][1];
+				orient[1] = values[i][2];
+				orient[2] = values[i][3];
 				DataManager::SetOrientation(orient);
 				break;
 			}
@@ -325,12 +323,10 @@ namespace XPC
 			}
 			case 20: // Position
 			{
-				float pos[3]
-				{
-					values[i][2],
-					values[i][3],
-					values[i][4]
-				};
+				float pos[3];
+				pos[0] = values[i][2];
+				pos[1] = values[i][3];
+				pos[2] = values[i][4];
 				DataManager::SetPosition(pos);
 				break;
 			}
@@ -348,7 +344,7 @@ namespace XPC
 				{
 					thr[j] = values[i][1];
 				}
-				DataManager::Set(DREF::ThrottleSet, thr, 8);
+				DataManager::Set(DREF_ThrottleSet, thr, 8);
 				break;
 			}
 			default: // Non-Special dataRefs
@@ -368,7 +364,7 @@ namespace XPC
 					}
 
 					DREF dref = XPData[dataRef][j];
-					if (dref == DREF::None)
+					if (dref == DREF_None)
 					{
 						// TODO: Send single line instead!
 						HandleXPlaneData(msg);
@@ -477,11 +473,11 @@ namespace XPC
 		{
 			// Enable AI for the aircraft we are setting
 			float ai[20];
-			std::size_t result = DataManager::GetFloatArray(DREF::PauseAI, ai, 20);
+			std::size_t result = DataManager::GetFloatArray(DREF_PauseAI, ai, 20);
 			if (result == 20) // Only set values if they were retrieved successfully.
 			{
 				ai[aircraft] = 1;
-				DataManager::Set(DREF::PauseAI, ai, 0, 20);
+				DataManager::Set(DREF_PauseAI, ai, 0, 20);
 			}
 		}
 
@@ -512,7 +508,7 @@ namespace XPC
 		int value[20];
 		if (v == 2)
 		{
-			DataManager::GetIntArray(DREF::Pause, value, 20);
+			DataManager::GetIntArray(DREF_Pause, value, 20);
 			for (int i = 0; i < 20; ++i)
 			{
 				value[i] = value[i] ? 0 : 1;
@@ -527,7 +523,7 @@ namespace XPC
 		}
 
 		// Set DREF
-		DataManager::Set(DREF::Pause, value, 20);
+		DataManager::Set(DREF_Pause, value, 20);
 
 #if LOG_VERBOSITY > 2
 		switch (v)

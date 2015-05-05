@@ -196,7 +196,7 @@ int readUDP(XPCSocket sock, char buffer[], int len)
 
 	struct timeval tv;
 	tv.tv_sec = 0;
-	tv.tv_usec = 250;
+	tv.tv_usec = 100000;
 
 	// Select Command
 	int status = select(-1, &stReadFDS, (FD_SET*)0, &stExceptFDS, &tv);
