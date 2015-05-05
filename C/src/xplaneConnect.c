@@ -48,8 +48,10 @@
 #include <sys/types.h>
 #include <time.h>
 
-
-
+int sendUDP(XPCSocket sock, char buffer[], int len);
+int readUDP(XPCSocket sock, char buffer[], int len);
+int sendDREFRequest(XPCSocket sock, const char* drefs[], unsigned char count);
+int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int sizes[]);
 
 void printError(char *functionName, char *format, ...)
 {
