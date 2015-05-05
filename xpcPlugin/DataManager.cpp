@@ -15,7 +15,6 @@
 //    without specific prior written permission from the authors or
 //    Laminar Research, respectively.
 #include "DataManager.h"
-#include "DataMaps.h"
 #include "Log.h"
 
 #include "XPLMDataAccess.h"
@@ -32,6 +31,8 @@ namespace XPC
 	static map<DREF, XPLMDataRef> drefs;
 	static map<DREF, XPLMDataRef> mdrefs[20];
 	static map<string, XPLMDataRef> sdrefs;
+
+	DREF XPData[134][8] = { DREF_None };
 
 	void DataManager::Initialize()
 	{

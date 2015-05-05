@@ -135,6 +135,9 @@ namespace XPC
 		DREF_MP7Alt,
 	};
 
+	/// Maps X-Plane dataref lines to XPC DREF values.
+	extern DREF XPData[134][8];
+
 	/// Marshals data between the plugin and X-Plane.
 	///
 	/// \author Jason Watkins
