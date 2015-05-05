@@ -391,8 +391,9 @@ int psendCTRLTest() // sendCTRL test
 	}
 
 	sock = openUDP(IP);
-	// Execute 2
+	// Execute 3
 	// Set non-zero pitch, roll, & yaw. Also set throttle, gear, and flaps
+	float expected[] = { data[0][0], data[1][0], data[2][0], CTRL[3], CTRL[4], CTRL[5] };
 	CTRL[0] = -998.0F;
 	CTRL[1] = -998.0F;
 	CTRL[2] = -998.0F;
@@ -409,7 +410,7 @@ int psendCTRLTest() // sendCTRL test
 	}
 	for (int i = 0; i < 6; i++)
 	{
-		if (fabs(data[i][0] - CTRL[i]) > 1e-2)
+		if (fabs(data[i][0] - expected[i]) > 1e-2)
 		{
 			return -i - 31;
 		}
@@ -489,8 +490,9 @@ int sendCTRLTest()
 	}
 
 	sock = openUDP(IP);
-	// Execute 2
+	// Execute 3
 	// Set non-zero pitch, roll, & yaw. Also set throttle, gear, and flaps
+	float expected[] = { data[0][0], data[1][0], data[2][0], CTRL[3], CTRL[4], CTRL[5] };
 	CTRL[0] = -998.0F;
 	CTRL[1] = -998.0F;
 	CTRL[2] = -998.0F;
@@ -507,10 +509,101 @@ int sendCTRLTest()
 	}
 	for (int i = 0; i < 6; i++)
 	{
-		if (fabs(data[i][0] - CTRL[i]) > 1e-2)
+		if (fabs(data[i][0] - expected[i]) > 1e-2)
 		{
 			return -i - 31;
 		}
+	}
+
+	return 0;
+}
+
+
+int sendCTRLspeedbrakeTest() // sendCTRL test
+{
+	// Initialize
+	char* dref = "sim/flightmodel/controls/sbrkrqst";
+	float data;
+	int size = 1;
+	float CTRL[7] = { -998.0F, -998.0F, -998.0F, -998.0F, -998.0F, -998.0F, -0.5F };
+	XPCSocket sock = openUDP(IP);
+
+	// Execute 1
+	// Arm speedbrakes
+	sendCTRL(sock, CTRL, 7, 0);
+	int result = getDREF(sock, dref, &data, &size);
+
+	// Close socket
+	closeUDP(sock);
+
+	// Tests
+	if (result < 0)
+	{
+		return -1;
+	}
+	if (fabs(data - CTRL[6]) > 1e-4)
+	{
+		return -11;
+	}
+
+	sock = openUDP(IP);
+	// Execute 2
+	// Set full speedbrakes
+	CTRL[6] = 1.0F;
+	sendCTRL(sock, CTRL, 7, 0);
+	result = getDREF(sock, dref, &data, &size);
+
+	// Close socket
+	closeUDP(sock);
+
+	// Tests
+	if (result < 0)
+	{
+		return -2;
+	}
+	if (fabs(data - CTRL[6]) > 1e-4)
+	{
+		return -21;
+	}
+
+	sock = openUDP(IP);
+	// Execute 3
+	// Retract speedbrakes
+	CTRL[6] = 0.0F;
+	sendCTRL(sock, CTRL, 7, 0);
+	result = getDREF(sock, dref, &data, &size);
+
+	// Close socket
+	closeUDP(sock);
+
+	// Tests
+	if (result < 0)
+	{
+		return -3;
+	}
+	if (fabs(data - CTRL[6]) > 1e-4)
+	{
+		return -31;
+	}
+
+	sock = openUDP(IP);
+	// Execute 4
+	// Verify -998 does not change value.
+	CTRL[6] = -998.0F;
+	sendCTRL(sock, CTRL, 7, 0);
+	result = getDREF(sock, dref, &data, &size);
+
+	// Close socket
+	closeUDP(sock);
+
+	// Tests
+	if (result < 0)
+	{
+		return -4;
+	}
+	if (data> 1e-4)
+	{
+		return -41;
 	}
 
 	return 0;
@@ -952,6 +1045,7 @@ int main(int argc, const char * argv[])
 	runTest(sendDATATest, "DATA");
 	runTest(sendCTRLTest, "CTRL");
 	runTest(psendCTRLTest, "CTRL (player)");
+	runTest(sendCTRLspeedbrakeTest, "CTRL (speedbrake)");
 	runTest(sendPOSITest, "POSI");
 	runTest(psendPOSITest, "POSI (player)");
 	runTest(sendWYPTTest, "WYPT");

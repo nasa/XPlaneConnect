@@ -174,10 +174,11 @@ class XPlaneConnect(object):
                   * Throttle [-1, 1]
                   * Gear (0=up, 1=down)
                   * Flaps [0, 1]
+                  * Speedbrakes [-0.5, 1.5]
               ac: The aircraft to set the control surfaces of. 0 is the main/player aircraft.
         '''
         # Preconditions
-        if len(values) < 1 or len(values) > 6:
+        if len(values) < 1 or len(values) > 7:
             raise ValueError("Must have between 0 and 6 items in values.")
         if ac < 0 or ac > 20:
             raise ValueError("Aircraft number must be between 0 and 20.")
@@ -189,11 +190,13 @@ class XPlaneConnect(object):
             if i < len(values):
                 val = values[i]
             if i == 4:
-                val = -1 if val == -998 else val
-                buffer += struct.pack("B", val)
+                val = -1 if (abs(val + 998) < 1e-4) else val
+                buffer += struct.pack("b", val)
             else:
                 buffer += struct.pack("<f", val)
         buffer += struct.pack("B", ac)
+        if len(values) == 7:
+            buffer += struct.pack("<f", values[6])
 
         # Send
         self.sendUDP(buffer)

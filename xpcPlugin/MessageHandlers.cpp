@@ -169,7 +169,7 @@ namespace XPC
 		std::size_t size = msg.GetSize();
 		//Legacy packets that don't specify an aircraft number should be 26 bytes long.
 		//Packets specifying an A/C num should be 27 bytes.
-		if (size != 26 && size != 27)
+		if (size != 26 && size != 27 && size != 31)
 		{
 #if LOG_VERBOSITY > 0
 			Log::FormatLine("[CTRL] ERROR: Unexpected message length (%i)", size);
@@ -185,25 +185,43 @@ namespace XPC
 		char gear = buffer[21];
 		float flaps = *((float*)(buffer + 22));
 		unsigned char aircraft = 0;
-		if (size == 27)
+		if (size >= 27)
 		{
 			aircraft = buffer[26];
 		}
-
-		float thrArray[8];
-		for (int i = 0; i < 8; ++i)
+		float spdbrk = -998;
+		if (size >= 31)
 		{
-			thrArray[i] = thr;
+			spdbrk = *((float*)(buffer + 27));
 		}
 
-		DataManager::Set(DREF_YokePitch, pitch, aircraft);
-		DataManager::Set(DREF_YokeRoll, roll, aircraft);
-		DataManager::Set(DREF_YokeHeading, yaw, aircraft); 
-		DataManager::Set(DREF_ThrottleSet, thrArray, 8, aircraft);
-		DataManager::Set(DREF_ThrottleActual, thrArray, 8, aircraft);
-		if (aircraft == 0)
+
+		if (pitch < -999.5 || pitch > -997.5)
 		{
-			DataManager::Set("sim/flightmodel/engine/ENGN_thro_override", thrArray, 1);
+			DataManager::Set(DREF_YokePitch, pitch, aircraft);
+		}
+		if (roll < -999.5 || roll > -997.5)
+		{
+			DataManager::Set(DREF_YokeRoll, roll, aircraft);
+		}
+		if (yaw < -999.5 || yaw > -997.5)
+		{
+			DataManager::Set(DREF_YokeHeading, yaw, aircraft);
+		}
+		if (thr < -999.5 || thr > -997.5)
+		{
+
+			float thrArray[8];
+			for (int i = 0; i < 8; ++i)
+			{
+				thrArray[i] = thr;
+			}
+			DataManager::Set(DREF_ThrottleSet, thrArray, 8, aircraft);
+			DataManager::Set(DREF_ThrottleActual, thrArray, 8, aircraft);
+			if (aircraft == 0)
+			{
+				DataManager::Set("sim/flightmodel/engine/ENGN_thro_override", thrArray, 1);
+			}
 		}
 		if (gear != -1)
 		{
@@ -212,6 +230,10 @@ namespace XPC
 		if (flaps < -999.5 || flaps > -997.5)
 		{
 			DataManager::Set(DREF_FlapSetting, flaps, aircraft);
+		}
+		if (spdbrk < -999.5 || spdbrk > -997.5)
+		{
+			DataManager::Set(DREF_SpeedBrakeSet, spdbrk, aircraft);
 		}
 	}
 

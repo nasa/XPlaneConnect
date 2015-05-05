@@ -171,7 +171,7 @@ class XPCTests(unittest.TestCase):
         expected = 0.0
         do_test()
 
-
+        
     def test_sendCTRL(self):
         # Setup
         drefs = ["sim/cockpit2/controls/yoke_pitch_ratio",\
@@ -207,6 +207,36 @@ class XPCTests(unittest.TestCase):
 
         # Test 2
         ctrl = [ 0.0, 0.0, 0.0, 0.8, 1.0, 0.0 ]
+        do_test()
+
+    def test_sendCTRL_speedbrake(self):
+        # Setup
+        dref = "sim/flightmodel/controls/sbrkrqst"
+        ctrl = []
+
+        def do_test():            
+            client = xpc.XPlaneConnect()
+
+            # Execute
+            client.sendCTRL(ctrl)
+            result = client.getDREF(dref)
+
+            # Cleanup
+            client.close()
+
+            # Tests
+            self.assertAlmostEqual(result[0], ctrl[6])
+
+        # Test 1
+        ctrl = [-998, -998, -998, -998, -998, -998, -0.5]
+        do_test()
+
+        # Test 2
+        ctrl[6] = 1.0
+        do_test()
+
+        # Test 2
+        ctrl[6] = 0.0
         do_test()
 
     def test_sendPOSI(self):
