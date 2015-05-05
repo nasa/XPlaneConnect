@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3c7a940d-17c8-4e91-882f-9bc8b1d2f54b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\xpc.py</StartupFile>
+    <StartupFile>src\example.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

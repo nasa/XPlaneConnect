@@ -43,6 +43,13 @@ class XPlaneConnect(object):
     def __del__(self):
         self.close()
 
+    # Define __enter__ and __exit__ to support the `with` construct.
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+
     def close(self):
         '''Closes the specified connection and releases resources associated with it.'''
         if self.socket is not None:
