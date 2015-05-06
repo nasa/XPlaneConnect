@@ -402,18 +402,41 @@ namespace XPC
 
 	void MessageHandlers::HandleDref(Message& msg)
 	{
-		const unsigned char* buffer = msg.GetBuffer();
-		unsigned char len = buffer[5];
-		std::string dref = std::string((char*)buffer + 6, len);
-
-		unsigned char valueCount = buffer[6 + len];
-		float* values = (float*)(buffer + 7 + len);
-
-#if LOG_VERBOSITY > 1
-		Log::FormatLine("[DREF] Request to set DREF value received (Conn %i): %s", connection.id, dref.c_str());
+#if LOG_VERBOSITY >= 3
+		Log::FormatLine("[DREF] Request to set DREF value received (Conn %i)", connection.id);
 #endif
+		const unsigned char* buffer = msg.GetBuffer();
+		std::size_t size = msg.GetSize();
+		std::size_t pos = 5;
+		while (pos < size)
+		{
+			unsigned char len = buffer[pos++];
+			if (pos + len > size)
+			{
+				break;
+			}
+			std::string dref = std::string((char*)buffer + pos, len);
+			pos += len;
 
-		DataManager::Set(dref, values, valueCount);
+			unsigned char valueCount = buffer[pos++];
+			if (pos + 4 * valueCount > size)
+			{
+				break;
+			}
+			float* values = (float*)(buffer + pos);
+			pos += 4 * valueCount;
+
+			DataManager::Set(dref, values, valueCount);
+#if LOG_VERBOSITY >= 4
+			Log::FormatLine("[DREF]     Set %d values for %s", valueCount, dref.c_str());
+#endif
+		}
+#if LOG_VERBOSITY >= 2
+		if (pos != size)
+		{
+			Log::WriteLine("[DREF] Error: Command did not terminate at the expected position.");
+		}
+#endif
 	}
 
 	void MessageHandlers::HandleGetD(Message& msg)
