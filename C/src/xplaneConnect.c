@@ -366,32 +366,46 @@ int readDATA(XPCSocket sock, float data[][9], int rows)
 /*****************************************************************************/
 int sendDREF(XPCSocket sock, const char* dref, float value[], int size)
 {
-	// Setup command
-	// 5 byte header + max 255 char dref name + max 255 values * 4 bytes per value = 1279
-	unsigned char buffer[1279] = "DREF";
-	int drefLen = strnlen(dref, 256);
-	if (drefLen > 255)
-	{
-		printError("setDREF", "dref length is too long. Must be less than 256 characters.");
-		return -1;
-	}
-	if (size > 255)
-	{
-		printError("setDREF", "size is too big. Must be less than 256.");
-		return -2;
-	}
-	int len = 7 + drefLen + size * sizeof(float);
-	
-	// Copy dref to buffer
-	buffer[5] = (unsigned char)drefLen;
-	memcpy(buffer + 6, dref, drefLen);
+	return sendDREFs(sock, &dref, &value, &size, 1);
+}
 
-	// Copy values to buffer
-	buffer[6 + drefLen] = (unsigned char)size;
-	memcpy(buffer + 7 + drefLen, value, size * sizeof(float));
+int sendDREFs(XPCSocket sock, const char* drefs[], float* values[], int sizes[], int count)
+{
+	// Setup command
+	// Max size is technically unlimited.
+	unsigned char buffer[65536] = "DREF";
+	int pos = 5;
+	for (int i = 0; i < count; ++i)
+	{
+		int drefLen = strnlen(drefs[i], 256);
+		if (pos + drefLen + sizes[i] * 4 + 2 > 65536)
+		{
+			printError("sendDREF", "About to overrun the send buffer!");
+			return -4;
+		}
+		if (drefLen > 255)
+		{
+			printError("sendDREF", "dref %d is too long. Must be less than 256 characters.", i);
+			return -1;
+		}
+		if (sizes[i] > 255)
+		{
+			printError("sendDREF", "size %d is too big. Must be less than 256.", i);
+			return -2;
+		}
+		// Copy dref to buffer
+		buffer[pos++] = (unsigned char)drefLen;
+		memcpy(buffer + pos, drefs[i], drefLen);
+		pos += drefLen;
+
+		// Copy values to buffer
+		buffer[pos++] = (unsigned char)sizes[i];
+		memcpy(buffer + pos, values[i], sizes[i] * sizeof(float));
+		pos += sizes[i] * sizeof(float);
+	}
 
 	// Send command
-	if (sendUDP(sock, buffer, len) < 0)
+	if (sendUDP(sock, buffer, pos) < 0)
 	{
 		printError("setDREF", "Failed to send command");
 		return -3;
