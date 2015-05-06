@@ -12,10 +12,11 @@
 //      As a result, these log messages may be the only indication of failure.
 //   2: All errors. Any time something unexpected happens, log it.
 //   3: Significant actions. Any time something happens outside of normal
-//      command processing, log it.
+//      command processing, log it. Will also log when commands are received.
+//   4: Detailed actions. Log aditional information as commands are processed.
 //   5: Everything. Log nearly every single action the plugin takes. This may
 //      have a detrimental impact on X-Plane performance.
-#define LOG_VERBOSITY 2
+#define LOG_VERBOSITY 3
 
 namespace XPC
 {
