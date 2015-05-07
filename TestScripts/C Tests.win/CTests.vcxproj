@@ -21,9 +21,19 @@
   <ItemGroup>
     <ClCompile Include="..\..\C\src\xplaneConnect.c" />
     <ClCompile Include="..\C Tests\main.c" />
+    <ClCompile Include="..\C Tests\Test.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\C\src\xplaneConnect.h" />
+    <ClInclude Include="..\C Tests\CtrlTests.h" />
+    <ClInclude Include="..\C Tests\DataTests.h" />
+    <ClInclude Include="..\C Tests\DrefTests.h" />
+    <ClInclude Include="..\C Tests\PosiTests.h" />
+    <ClInclude Include="..\C Tests\SimuTests.h" />
+    <ClInclude Include="..\C Tests\Test.h" />
+    <ClInclude Include="..\C Tests\TextTests.h" />
+    <ClInclude Include="..\C Tests\UDPTests.h" />
+    <ClInclude Include="..\C Tests\WyptTests.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BC701AF4-552C-4C9D-82A1-B352542783A4}</ProjectGuid>
