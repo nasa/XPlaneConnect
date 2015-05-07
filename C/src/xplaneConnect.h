@@ -127,12 +127,26 @@ int sendDATA(XPCSocket sock, float data[][9], int rows);
 ///          http://www.xsquawkbox.net/xpsdk/docs/DataRefs.html. The size of values should match
 ///          the size given on that page. XPC currently sends all values as floats regardless of
 ///          the type described on the wiki. This doesn't cause any data loss for most datarefs.
-/// \param sock   The socket to use to send the command.
-/// \param dref   The name of the dataref to set.
-/// \param values An array of values representing the data to set.
-/// \param size   The number of elements in values.
-/// \returns      0 if successful, otherwise a negative value.
+/// \param sock  The socket to use to send the command.
+/// \param dref  The name of the dataref to set.
+/// \param value An array of values representing the data to set.
+/// \param size  The number of elements in values.
+/// \returns     0 if successful, otherwise a negative value.
 int sendDREF(XPCSocket sock, const char* dref, float value[], int size);
+
+/// Sets the specified datarefs to the specified values.
+///
+/// \details dref names and their associated data types can be found on the XPSDK wiki at
+///          http://www.xsquawkbox.net/xpsdk/docs/DataRefs.html. The size of values should match
+///          the size given on that page. XPC currently sends all values as floats regardless of
+///          the type described on the wiki. This doesn't cause any data loss for most datarefs.
+/// \param sock   The socket to use to send the command.
+/// \param drefs  The names of the datarefs to set.
+/// \param values A multidimensional array containing the values for each dataref to set.
+/// \param sizes  The number of elements in each array in values
+/// \param count  The number of datarefs being set.
+/// \returns      0 if successful, otherwise a negative value.
+int sendDREFs(XPCSocket sock, const char* drefs[], float* values[], int sizes[], int count);
 
 /// Gets the value of the specified dataref.
 ///

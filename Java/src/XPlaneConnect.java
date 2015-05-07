@@ -332,42 +332,69 @@ public class XPlaneConnect implements AutoCloseable
      */
     public void sendDREF(String dref, float[] value) throws IOException
     {
+        sendDREFs(new String[] {dref}, new float[][] {value});
+    }
+
+    /**
+     * Sends a command to X-Plane that sets the given DREF.
+     *
+     * @param drefs  The names of the X-Plane datarefs to set.
+     * @param values A sequence of arrays of floating point values whose structure depends on the drefs specified.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void sendDREFs(String[] drefs, float[][] values) throws IOException
+    {
         //Preconditions
-        if(dref == null)
+        if(drefs == null || drefs.length == 0)
         {
-            throw new IllegalArgumentException("dref must be a valid string.");
+            throw new IllegalArgumentException(("drefs must be non-empty."));
         }
-        if(value == null || value.length == 0)
+        if(values == null ||  values.length != drefs.length)
         {
-            throw new IllegalArgumentException("value must be non-null and should contain at least one value.");
-        }
-
-        //Convert drefs to bytes.
-        byte[] drefBytes = dref.getBytes(StandardCharsets.UTF_8);
-        if(drefBytes.length == 0)
-        {
-            throw new IllegalArgumentException("DREF is an empty string!");
-        }
-        if(drefBytes.length > 255)
-        {
-            throw new IllegalArgumentException("dref must be less than 255 bytes in UTF-8. Are you sure this is a valid dref?");
+            throw new IllegalArgumentException("values must be of the same size as drefs.");
         }
 
-        ByteBuffer bb = ByteBuffer.allocate(4 * value.length);
-        bb.order(ByteOrder.LITTLE_ENDIAN);
-        for(int i = 0; i < value.length; ++i)
-        {
-            bb.putFloat(i * 4, value[i]);
-        }
-
-        //Build and send message
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         os.write("DREF".getBytes(StandardCharsets.UTF_8));
         os.write(0xFF); //Placeholder for message length
-        os.write(drefBytes.length);
-        os.write(drefBytes, 0, drefBytes.length);
-        os.write(value.length);
-        os.write(bb.array());
+        for(int i = 0; i < drefs.length; ++i)
+        {
+            String dref = drefs[i];
+            float[] value = values[i];
+
+            if (dref == null)
+            {
+                throw new IllegalArgumentException("dref must be a valid string.");
+            }
+            if (value == null || value.length == 0)
+            {
+                throw new IllegalArgumentException("value must be non-null and should contain at least one value.");
+            }
+
+            //Convert drefs to bytes.
+            byte[] drefBytes = dref.getBytes(StandardCharsets.UTF_8);
+            if (drefBytes.length == 0)
+            {
+                throw new IllegalArgumentException("DREF is an empty string!");
+            }
+            if (drefBytes.length > 255)
+            {
+                throw new IllegalArgumentException("dref must be less than 255 bytes in UTF-8. Are you sure this is a valid dref?");
+            }
+
+            ByteBuffer bb = ByteBuffer.allocate(4 * value.length);
+            bb.order(ByteOrder.LITTLE_ENDIAN);
+            for (int j = 0; j < value.length; ++j)
+            {
+                bb.putFloat(j * 4, value[j]);
+            }
+
+            //Build and send message
+            os.write(drefBytes.length);
+            os.write(drefBytes, 0, drefBytes.length);
+            os.write(value.length);
+            os.write(bb.array());
+        }
         sendUDP(os.toByteArray());
     }
 
