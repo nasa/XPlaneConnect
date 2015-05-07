@@ -671,16 +671,16 @@ namespace XPC
 #if LOG_VERBOSITY > 3
 		Log::FormatLine("[DMAN] Setting gear (value:%f, immediate:%i) for aircraft %i", gear, immediate, aircraft);
 #endif
-		if (isnan(gear) || gear < 0 || gear > 1)
-		{
-#if LOG_VERBOSITY > 0
-			Log::WriteLine("[GEAR] ERROR: Value must be 0 or 1");
-#endif
-			return;
-		}
 
 		if ((gear < -8.5 && gear > -9.5) || (gear < -997.9 && gear > -999.1))
 		{
+			return;
+		}
+		if (isnan(gear) || gear < 0 || gear > 1)
+		{
+#if LOG_VERBOSITY > 1
+			Log::WriteLine("[GEAR] ERROR: Value must be 0 or 1");
+#endif
 			return;
 		}
 
