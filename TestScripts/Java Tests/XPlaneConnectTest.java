@@ -333,6 +333,33 @@ public class XPlaneConnectTest
         }
     }
 
+    @Test
+    public void testSendDREFs() throws IOException
+    {
+        String[] drefs =
+        {
+            "sim/cockpit/switches/gear_handle_status",
+            "sim/cockpit/autopilot/altitude"
+        };
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            float[][] values = {{1}, {2000}};
+            xpc.sendDREFs(drefs, values);
+
+            float[][] result = xpc.getDREFs(drefs);
+            assertEquals(values[0][0], result[0][0], 1e-4);
+            assertEquals(values[1][0], result[1][0], 1e-4);
+
+            values[0][0] = 0;
+            values[1][0] = 4000;
+            xpc.sendDREFs(drefs, values);
+
+            result = xpc.getDREFs(drefs);
+            assertEquals(values[0][0], result[0][0], 1e-4);
+            assertEquals(values[1][0], result[1][0], 1e-4);
+        }
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testSendDREF_NullDREF() throws IOException
     {
