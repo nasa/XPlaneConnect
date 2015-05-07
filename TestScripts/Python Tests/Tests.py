@@ -117,6 +117,37 @@ class XPCTests(unittest.TestCase):
         value = 0
         do_test()
 
+    def test_sendDREFs(self):
+        drefs = [\
+            "sim/cockpit/switches/gear_handle_status",\
+            "sim/cockpit/autopilot/altitude"]
+        values = None
+        def do_test():
+            # Setup
+            client = xpc.XPlaneConnect()
+
+            # Execute
+            client.sendDREFs(drefs, values)
+            result = client.getDREFs(drefs)
+
+            # Cleanup
+            client.close()
+
+            # Tests
+            self.assertEqual(2, len(result))
+            self.assertEqual(1, len(result[0]))
+            self.assertEqual(values[0], result[0][0])
+            self.assertEqual(1, len(result[1]))
+            self.assertEqual(values[1], result[1][0])
+
+        # Test 1
+        values = [1, 2000]
+        do_test()
+
+        # Test 2
+        values = [0, 4000]
+        do_test()
+
     def test_sendDATA(self):
         # Setup
         dref = "sim/aircraft/parts/acf_gear_deploy"

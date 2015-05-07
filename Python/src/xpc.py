@@ -79,8 +79,20 @@ class XPlaneConnect(object):
         if port < 0 or port > 65535:
             raise ValueError("The specified port is not a valid port number.")
 
+        #Send command
         buffer = struct.pack("<4sxH", "CONN", port)
         self.sendUDP(buffer)
+        
+        #Rebind socket
+        clientAddr = ("0.0.0.0", port)
+        timeout = self.socket.gettimeout();
+        self.socket.close();
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        self.socket.bind(clientAddr)
+        self.socket.settimeout(timeout)
+
+        #Read response
+        buffer = self.socket.recv(1024)
 
     def pauseSim(self, pause):
         '''Pauses or un-pauses the physics simulation engine in X-Plane.
@@ -208,31 +220,45 @@ class XPlaneConnect(object):
         # Send
         self.sendUDP(buffer)
         
-    # DREF Manipulation
+    # DREF Manipulation    
     def sendDREF(self, dref, values):
         '''Sets the specified dataref to the specified value.
 
             Args:
-              dref: The name of the dataref to set.
+              dref: The name of the datarefs to set.
               values: Either a scalar value or a sequence of values.
         '''
-        # Preconditions
-        if len(dref) == 0 or len(dref) > 255:
-            raise ValueError("dref must be a non-empty string less than 256 characters.")
-        if values == None:
-            raise ValueError("values must be a scalar or sequence of floats.")
+        self.sendDREFs([dref], [values])
+
+    def sendDREFs(self, drefs, values):
+        '''Sets the specified datarefs to the specified values.
+
+            Args:
+              drefs: A list of names of the datarefs to set.
+              values: A list of scalar or vector values to set.
+        '''
+        if len(drefs) != len(values):
+            raise ValueError("drefs and values must have the same number of elements.")
+
+        buffer = struct.pack("<4sx", "DREF")
+        for i in range(len(drefs)):
+            dref = drefs[i]
+            value = values[i]
+            # Preconditions
+            if len(dref) == 0 or len(dref) > 255:
+                raise ValueError("dref must be a non-empty string less than 256 characters.")
+            if value == None:
+                raise ValueError("value must be a scalar or sequence of floats.")
         
-        # Pack message
-        fmt = ""
-        buffer = None
-        if hasattr(values, "__len__"):
-            if len(values) > 255:
-                raise ValueError("values must have less than 256 items.")
-            fmt = "<4sxB{0:d}sB{1:d}f".format(len(dref), len(values))
-            buffer = struct.pack(fmt, "DREF", len(dref), dref, len(values), values)
-        else:
-            fmt = "<4sxB{0:d}sBf".format(len(dref))
-            buffer = struct.pack(fmt, "DREF", len(dref), dref, 1, values)
+            # Pack message
+            if hasattr(value, "__len__"):
+                if len(value) > 255:
+                    raise ValueError("value must have less than 256 items.")
+                fmt = "<B{0:d}sB{1:d}f".format(len(dref), len(value))
+                buffer += struct.pack(fmt, len(dref), dref, len(value), value)
+            else:
+                fmt = "<B{0:d}sBf".format(len(dref))
+                buffer += struct.pack(fmt, len(dref), dref, 1, value)
 
         # Send
         self.sendUDP(buffer)
