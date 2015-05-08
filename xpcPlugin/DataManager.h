@@ -1,7 +1,7 @@
 //Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
-#ifndef XPC_DATAMANAGER_H
-#define XPC_DATAMANAGER_H
+#ifndef XPCPLUGIN_DATAMANAGER_H_
+#define XPCPLUGIN_DATAMANAGER_H_
 
 #include <string>
 

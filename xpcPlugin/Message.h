@@ -1,7 +1,7 @@
 //Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
-#ifndef XPC_MESSAGE_H
-#define XPC_MESSAGE_H
+#ifndef XPCPLUGIN_MESSAGE_H_
+#define XPCPLUGIN_MESSAGE_H_
 
 #include "UDPSocket.h"
 
@@ -24,25 +24,25 @@ namespace XPC
 		/// \returns    A message parsed from the data read from sock. If no
 		///             data was read or an error occurs, returns a message
 		///             with the size set to 0.
-		static Message ReadFrom(UDPSocket& sock);
+		static Message ReadFrom(const UDPSocket& sock);
 
 		/// Gets the message header in binary form.
-		unsigned long GetMagicNumber();
+		unsigned long GetMagicNumber() const;
 
 		/// Gets the message header.
-		std::string GetHead();
+		std::string GetHead() const;
 
 		/// Gets the buffer underlying the message.
-		const unsigned char* GetBuffer();
+		const unsigned char* GetBuffer() const;
 
 		/// Gets the size of the message in bytes.
-		std::size_t GetSize();
+		std::size_t GetSize() const;
 
 		/// Gets the address this message was read from.
-		struct sockaddr GetSource();
+		struct sockaddr GetSource() const;
 
 		/// Prints the contents of the message to the XPC log.
-		void PrintToLog();
+		void PrintToLog() const;
 
 	private:
 		Message();

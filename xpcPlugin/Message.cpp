@@ -11,15 +11,15 @@ namespace XPC
 {
     Message::Message() {}
 
-	Message Message::ReadFrom(UDPSocket& sock)
+	Message Message::ReadFrom(const UDPSocket& sock)
 	{
 		Message m;
 		int len = sock.Read(m.buffer, bufferSize, &m.source);
 		m.size = len < 0 ? 0 : len;
 		return m;
 	}
-	
-	unsigned long Message::GetMagicNumber()
+
+	unsigned long Message::GetMagicNumber() const
 	{
 		if (size < 4)
 		{
@@ -28,7 +28,7 @@ namespace XPC
 		return *((unsigned long*)buffer);
 	}
 
-	std::string Message::GetHead()
+	std::string Message::GetHead() const
 	{
 		if (size < 4)
 		{
@@ -37,7 +37,7 @@ namespace XPC
 		return std::string((char*)buffer, 4);
 	}
 
-	const unsigned char* Message::GetBuffer()
+	const unsigned char* Message::GetBuffer() const
 	{
 		if (size == 0)
 		{
@@ -46,17 +46,17 @@ namespace XPC
 		return buffer;
 	}
 
-	std::size_t Message::GetSize()
+	std::size_t Message::GetSize() const
 	{
 		return size;
 	}
 
-	struct sockaddr Message::GetSource()
+	struct sockaddr Message::GetSource() const
 	{
 		return source;
 	}
 
-	void Message::PrintToLog()
+	void Message::PrintToLog() const
 	{
 #if LOG_VERBOSITY > 4
 		std::stringstream ss;

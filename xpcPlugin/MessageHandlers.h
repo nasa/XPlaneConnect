@@ -1,7 +1,7 @@
 //Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
-#ifndef XPC_MESSAGEHANDLERS_H
-#define XPC_MESSAGEHANDLERS_H
+#ifndef XPCPLUGIN_MESSAGEHANDLERS_H_
+#define XPCPLUGIN_MESSAGEHANDLERS_H_
 #include "Message.h"
 
 #include <string>
@@ -10,7 +10,7 @@
 namespace XPC
 {
 	/// A function that handles a message.
-	typedef void(*MessageHandler)(Message&);
+	typedef void(*MessageHandler)(const Message&);
 
 	/// Handles incommming messages and manages connections.
 	///
@@ -37,18 +37,18 @@ namespace XPC
 		static void SetSocket(UDPSocket* socket);
 
 	private:
-		static void HandleConn(Message& msg);
-		static void HandleCtrl(Message& msg);
-		static void HandleData(Message& msg);
-		static void HandleDref(Message& msg);
-		static void HandleGetD(Message& msg);
-		static void HandlePosi(Message& msg);
-		static void HandleSimu(Message& msg);
-		static void HandleText(Message& msg);
-		static void HandleWypt(Message& msg);
-		static void HandleView(Message& msg);
-		static void HandleXPlaneData(Message& msg);
-		static void HandleUnknown(Message& msg);
+		static void HandleConn(const Message& msg);
+		static void HandleCtrl(const Message& msg);
+		static void HandleData(const Message& msg);
+		static void HandleDref(const Message& msg);
+		static void HandleGetD(const Message& msg);
+		static void HandlePosi(const Message& msg);
+		static void HandleSimu(const Message& msg);
+		static void HandleText(const Message& msg);
+		static void HandleWypt(const Message& msg);
+		static void HandleView(const Message& msg);
+		static void HandleXPlaneData(const Message& msg);
+		static void HandleUnknown(const Message& msg);
 
 		typedef struct
 		{

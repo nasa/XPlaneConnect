@@ -4,10 +4,11 @@
 
 #include "XPLMUtilities.h"
 
-#include <chrono>
 #include <cstdarg>
 #include <cstdio>
 #include <ctime>
+
+#include <chrono>
 #include <iomanip>
 #include <sstream>
 
@@ -33,7 +34,7 @@ namespace XPC
 			<< std::setw(2) << tm->tm_min << ":"
 			<< std::setw(2) << tm->tm_sec << "."
 			<< std::setw(3) << ms.count() << "]";
-		
+
 		std::fprintf(fd, ss.str().c_str());
 	}
 

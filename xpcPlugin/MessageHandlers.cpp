@@ -113,7 +113,7 @@ namespace XPC
 				connection.id, connectionKey.c_str());
 #endif
 		}
-		
+
 		// Check if there is a handler for this message type. If so, execute
 		// that handler. Otherwise, execute the unknown message handler.
 		std::map<std::string, MessageHandler>::iterator iter = handlers.find(head);
@@ -128,7 +128,7 @@ namespace XPC
 		}
 	}
 
-	void MessageHandlers::HandleConn(Message& msg)
+	void MessageHandlers::HandleConn(const Message& msg)
 	{
 		const unsigned char* buffer = msg.GetBuffer();
 
@@ -173,7 +173,7 @@ namespace XPC
 		sock->SendTo(response, 6, &connection.addr);
 	}
 
-	void MessageHandlers::HandleCtrl(Message& msg)
+	void MessageHandlers::HandleCtrl(const Message& msg)
 	{
 		// Update Log
 #if LOG_VERBOSITY > 2
@@ -252,7 +252,7 @@ namespace XPC
 		}
 	}
 
-	void MessageHandlers::HandleData(Message& msg)
+	void MessageHandlers::HandleData(const Message& msg)
 	{
 		// Parse data
 		const unsigned char* buffer = msg.GetBuffer();
@@ -402,7 +402,7 @@ namespace XPC
 					DREF dref = XPData[dataRef][j];
 					if (dref == DREF_None)
 					{
-						// TODO: Send single line instead!
+						// TODO(jason): Send single line instead!
 						HandleXPlaneData(msg);
 					}
 					else
@@ -415,7 +415,7 @@ namespace XPC
 		}
 	}
 
-	void MessageHandlers::HandleDref(Message& msg)
+	void MessageHandlers::HandleDref(const Message& msg)
 	{
 #if LOG_VERBOSITY >= 3
 		Log::FormatLine("[DREF] Request to set DREF value received (Conn %i)", connection.id);
@@ -454,7 +454,7 @@ namespace XPC
 #endif
 	}
 
-	void MessageHandlers::HandleGetD(Message& msg)
+	void MessageHandlers::HandleGetD(const Message& msg)
 	{
 		const unsigned char* buffer = msg.GetBuffer();
 		unsigned char drefCount = buffer[5];
@@ -504,7 +504,7 @@ namespace XPC
 		sock->SendTo(response, cur, &connection.addr);
 	}
 
-	void MessageHandlers::HandlePosi(Message& msg)
+	void MessageHandlers::HandlePosi(const Message& msg)
 	{
 		// Update log
 #if LOG_VERBOSITY > 0
@@ -548,7 +548,7 @@ namespace XPC
 		}
 	}
 
-	void MessageHandlers::HandleSimu(Message& msg)
+	void MessageHandlers::HandleSimu(const Message& msg)
 	{
 		// Update log
 #if LOG_VERBOSITY > 1
@@ -600,7 +600,7 @@ namespace XPC
 #endif
 	}
 
-	void MessageHandlers::HandleText(Message& msg)
+	void MessageHandlers::HandleText(const Message& msg)
 	{
 		// Update Log
 #if LOG_VERBOSITY > 0
@@ -638,7 +638,7 @@ namespace XPC
 		}
 	}
 
-	void MessageHandlers::HandleView(Message& msg)
+	void MessageHandlers::HandleView(const Message& msg)
 	{
 		// Update Log
 #if LOG_VERBOSITY > 0
@@ -658,7 +658,7 @@ namespace XPC
 		XPLMCommandKeyStroke(type);
 	}
 
-	void MessageHandlers::HandleWypt(Message& msg)
+	void MessageHandlers::HandleWypt(const Message& msg)
 	{
 		// Update Log
 #if LOG_VERBOSITY > 0
@@ -702,7 +702,7 @@ namespace XPC
 		}
 	}
 
-	void MessageHandlers::HandleXPlaneData(Message& msg)
+	void MessageHandlers::HandleXPlaneData(const Message& msg)
 	{
 #if LOG_VERBOSITY > 1
 		Log::WriteLine("[MSGH] Sending raw data to X-Plane");
@@ -714,7 +714,7 @@ namespace XPC
 		sock->SendTo(msg.GetBuffer(), msg.GetSize(), (sockaddr*)&loopback);
 	}
 
-	void MessageHandlers::HandleUnknown(Message& msg)
+	void MessageHandlers::HandleUnknown(const Message& msg)
 	{
 		// UPDATE LOG
 #if LOG_VERBOSITY > 0

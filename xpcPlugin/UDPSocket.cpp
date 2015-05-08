@@ -18,7 +18,7 @@ namespace XPC
 		localAddr.sin_family = AF_INET;
 		localAddr.sin_addr.s_addr = INADDR_ANY;
 		localAddr.sin_port = htons(recvPort);
-		
+
 		//Create and bind the socket
 #ifdef _WIN32
 		WSADATA wsa;
@@ -92,7 +92,7 @@ namespace XPC
 #endif
 	}
 
-	int UDPSocket::Read(unsigned char* dst, int maxLen, sockaddr* recvAddr)
+	int UDPSocket::Read(unsigned char* dst, int maxLen, sockaddr* recvAddr) const
 	{
 		socklen_t recvaddrlen = sizeof(*recvAddr);
 		int status = 0;
@@ -137,7 +137,7 @@ namespace XPC
 		return status;
 	}
 
-	void UDPSocket::SendTo(const unsigned char* buffer, std::size_t len, sockaddr* remote)
+	void UDPSocket::SendTo(const unsigned char* buffer, std::size_t len, sockaddr* remote) const
 	{
 		if (sendto(sock, (char*)buffer, (int)len, 0, remote, sizeof(*remote)) < 0)
 		{
@@ -152,7 +152,7 @@ namespace XPC
 #endif
 		}
 	}
-	
+
 	std::string UDPSocket::GetHost(sockaddr* sa)
 	{
 		char ip[INET6_ADDRSTRLEN + 6] = { 0 };

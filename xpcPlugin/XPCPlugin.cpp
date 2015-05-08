@@ -2,7 +2,7 @@
 //National Aeronautics and Space Administration. All Rights Reserved.
 //
 //DISCLAIMERS
-//    No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND, 
+//    No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND,
 //    EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT
 //    THE SUBJECT SOFTWARE WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
 //    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM INFRINGEMENT, ANY WARRANTY
@@ -75,7 +75,8 @@
 
 XPC::UDPSocket* sock = NULL;
 
-double start,lap;
+double start;
+double lap;
 static double timeConvert = 0.0;
 int benchmarkingSwitch = 0; // 1 = time for operations, 2 = time for op + cycle;
 int cyclesToClear = -1; // Clear message bus every n cycles. -1 == dont clear
@@ -93,12 +94,12 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 	strcpy(outName, "X-Plane Connect [Version 1.0.1]");
 	strcpy(outSig, "NASA.XPlaneConnect");
 	strcpy(outDesc, "X Plane Communications Toolbox\nCopyright (c) 2013-2015 United States Government as represented by the Administrator of the National Aeronautics and Space Administration. All Rights Reserved.");
-		
+
 #if (__APPLE__)
 	if ( abs(timeConvert) <= 1e-9 ) // is about 0
 	{
 		mach_timebase_info_data_t timeBase;
-		(void)mach_timebase_info( &timeBase );
+		(void)mach_timebase_info(&timeBase);
 		timeConvert = (double)timeBase.numer /
 		(double)timeBase.denom /
 		1000000000.0;
@@ -107,11 +108,11 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 	XPC::Log::Initialize("1.0.1");
 	XPC::Log::WriteLine("[EXEC] Plugin Start");
 	XPC::DataManager::Initialize();
-	
+
 	float interval = -1; // Call every frame
 	void* refcon = NULL; // Don't pass anything to the callback directly
 	XPLMRegisterFlightLoopCallback(XPCFlightLoopCallback, interval, refcon);
-	
+
 	return 1;
 }
 
@@ -151,7 +152,7 @@ PLUGIN_API int XPluginEnable(void)
 #if LOG_VERBOSITY > 0
 	XPC::Log::FormatLine("[EXEC] Debug Logging Enabled (Verbosity: %i)", LOG_VERBOSITY);
 #endif
-	
+
 	return 1;
 }
 
@@ -196,8 +197,8 @@ float XPCFlightLoopCallback(float inElapsedSinceLastCall,
 		{
 #if (__APPLE__)
 			lap = (double)mach_absolute_time( ) * timeConvert;
-			diff_t = lap-start;
-			XPC::Log::FormatLine("[BENCH] Runtime %.6f",diff_t);
+			diff_t = lap - start;
+			XPC::Log::FormatLine("[BENCH] Runtime %.6f", diff_t);
 #endif
 		}
 	}

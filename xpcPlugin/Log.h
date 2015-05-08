@@ -1,7 +1,7 @@
 //Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
-#ifndef XPC_LOG_H
-#define XPC_LOG_H
+#ifndef XPCPLUGIN_LOG_H_
+#define XPCPLUGIN_LOG_H_
 #include <string>
 
 // LOG_VERBOSITY determines the level of logging throughout the plugin.

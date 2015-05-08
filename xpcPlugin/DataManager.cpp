@@ -20,6 +20,7 @@
 #include "XPLMDataAccess.h"
 #include "XPLMGraphics.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <map>
@@ -516,7 +517,7 @@ namespace XPC
 		drefSize = min(drefSize, size);
 		XPLMSetDatavf(xdref, values, 0, drefSize);
 	}
-	
+
 	void DataManager::Set(DREF dref, int values[], int size, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
@@ -738,7 +739,6 @@ namespace XPC
 		Set(DREF_LocalY, local[1], aircraft);
 		Set(DREF_LocalZ, local[2], aircraft);
 		// If the sim is unpaused, this will override the above settings.
-		// TODO: Are these setable when paused? Are these necessary?
 		Set(DREF_Latitude, (double)pos[0], aircraft);
 		Set(DREF_Longitude, (double)pos[1], aircraft);
 		Set(DREF_Elevation, (double)pos[2], aircraft);
