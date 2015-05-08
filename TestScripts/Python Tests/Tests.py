@@ -319,6 +319,22 @@ class XPCTests(unittest.TestCase):
         # Cleanup
         client.close()
 
+    def test_sendView(self):
+        # Setup
+        dref = "sim/graphics/view/view_type"
+        fwd = 1000
+        chase = 1017
+
+        #Execution
+        with xpc.XPlaneConnect() as client:
+            client.sendVIEW(xpc.ViewType.Forwards)
+            result = client.getDREF(dref)
+            self.assertAlmostEqual(fwd, result[0], 1e-4)
+            client.sendVIEW(xpc.ViewType.Chase)
+            result = client.getDREF(dref)
+            self.assertAlmostEqual(chase, result[0], 1e-4)
+             
+
     def test_sendWYPT(self):
         # Setup
         client = xpc.XPlaneConnect()
