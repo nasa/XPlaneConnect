@@ -326,6 +326,23 @@ class XPlaneConnect(object):
         buffer = struct.pack("<4sxiiB" + str(msgLen) + "s", "TEXT", x, y, msgLen, msg)
         self.sendUDP(buffer)
 
+    def sendVIEW(self, view):
+        '''Sets the camera view in X-Plane
+
+            Args:
+              view: The view to use. The ViewType class provides named constants
+                    for known views.
+        '''
+        # Preconditions
+        if view < ViewType.Forwards or view > ViewType.FullscreenNoHud:
+            raise ValueError("Unknown view command.")
+
+        # Pack buffer
+        buffer = struct.pack("<4sxi", "VIEW", view)
+
+        # Send message
+        self.sendUDP(buffer)
+
     def sendWYPT(self, op, points):
         '''Adds, removes, or clears waypoints. Waypoints are three dimensional points on or
            above the Earth's surface that are represented visually in the simulator. Each
@@ -350,3 +367,18 @@ class XPlaneConnect(object):
         else:
             buffer = struct.pack("<4sxBB" + str(len(points)) + "f", "WYPT", op, len(points), *points)
         self.sendUDP(buffer)
+
+class ViewType(object):
+    Forwards = 73
+    Down = 74
+    Left = 75
+    Right = 76
+    Back = 77
+    Tower = 78
+    Runway = 79
+    Chase = 80
+    Follow = 81
+    FollowWithPanel = 82
+    Spot = 83
+    FullscreenWithHud = 84
+    FullscreenNoHud = 85

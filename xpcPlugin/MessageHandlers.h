@@ -46,6 +46,7 @@ namespace XPC
 		static void HandleSimu(Message& msg);
 		static void HandleText(Message& msg);
 		static void HandleWypt(Message& msg);
+		static void HandleView(Message& msg);
 		static void HandleXPlaneData(Message& msg);
 		static void HandleUnknown(Message& msg);
 
