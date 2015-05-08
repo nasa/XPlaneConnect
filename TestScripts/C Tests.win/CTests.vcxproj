@@ -33,6 +33,7 @@
     <ClInclude Include="..\C Tests\Test.h" />
     <ClInclude Include="..\C Tests\TextTests.h" />
     <ClInclude Include="..\C Tests\UDPTests.h" />
+    <ClInclude Include="..\C Tests\ViewTests.h" />
     <ClInclude Include="..\C Tests\WyptTests.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

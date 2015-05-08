@@ -8,6 +8,7 @@
 #include "PosiTests.h"
 #include "DataTests.h"
 #include "TextTests.h"
+#include "ViewTests.h"
 #include "WyptTests.h"
 
 int main(int argc, const char * argv[])
@@ -48,10 +49,14 @@ int main(int argc, const char * argv[])
 	runTest(testTEXT, "TEXT");
 	// Waypoints
 	runTest(testWYPT, "WYPT");
+	// View
+	runTest(testView, "VIEW");
 	// setConn
 	runTest(testCONN, "CONN");
     
     printf( "----------------\nTest Summary\n\tFailed: %i\n\tPassed: %i\n", testFailed, testPassed );
+	printf("Press any key to exit.");
+	getchar();
     
     return 0;
 }

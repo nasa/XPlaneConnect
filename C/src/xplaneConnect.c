@@ -48,9 +48,6 @@
 #include <sys/types.h>
 #include <time.h>
 
-
-
-
 void printError(char *functionName, char *format, ...)
 {
 	va_list args;
@@ -693,4 +690,32 @@ int sendWYPT(XPCSocket sock, WYPT_OP op, float points[], int count)
 }
 /*****************************************************************************/
 /****                      End Drawing functions                          ****/
+/*****************************************************************************/
+
+/*****************************************************************************/
+/****                          View functions                             ****/
+/*****************************************************************************/
+int sendVIEW(XPCSocket sock, VIEW_TYPE view)
+{
+	// Validate Input
+	if (view < XPC_VIEW_FORWARDS || view > XPC_VIEW_FULLSCREENNOHUD)
+	{
+		printError("sendVIEW", "Unrecognized view");
+		return -1;
+	}
+
+	// Setup Command
+	char buffer[9] = "VIEW";
+	*((int*)(buffer + 5)) = view;
+
+	// Send Command
+	if (sendUDP(sock, buffer, 9) < 0)
+	{
+		printError("sendVIEW", "Failed to send command");
+		return -2;
+	}
+	return 0;
+}
+/*****************************************************************************/
+/****                        End View functions                           ****/
 /*****************************************************************************/

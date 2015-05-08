@@ -61,6 +61,23 @@ typedef enum
 	XPC_WYPT_DEL = 2,
 	XPC_WYPT_CLR = 3
 } WYPT_OP;
+
+typedef enum
+{
+	XPC_VIEW_FORWARDS = 73,
+	XPC_VIEW_DOWN,
+	XPC_VIEW_LEFT,
+	XPC_VIEW_RIGHT,
+	XPC_VIEW_BACK,
+	XPC_VIEW_TOWER,
+	XPC_VIEW_RUNWAY,
+	XPC_VIEW_CHASE,
+	XPC_VIEW_FOLLOW,
+	XPC_VIEW_FOLLOWWITHPANEL,
+	XPC_VIEW_SPOT,
+	XPC_VIEW_FULLSCREENWITHHUD,
+	XPC_VIEW_FULLSCREENNOHUD,
+} VIEW_TYPE;
         
 // Low Level UDP Functions
 
@@ -213,6 +230,13 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac);
 /// \param y    The distance in pixels from the bottom edge of the screen to print the top line of text.
 /// \returns      0 if successful, otherwise a negative value.
 int sendTEXT(XPCSocket sock, char* msg, int x, int y);
+
+/// Sets the camera view in X-Plane.
+///
+/// \param sock The socket to use to send the command.
+/// \param view The view to use.
+/// \returns    0 if successful, otherwise a negative value.
+int sendVIEW(XPCSocket sock, VIEW_TYPE view);
 
 /// Adds, removes, or clears a set of waypoints. If the command is clear, the points are ignored
 /// and all points are removed.
