@@ -721,6 +721,26 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
+     * Sets the camera view in X-Plane.
+     *
+     * @param view The view to use.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void sendVIEW(ViewType view) throws IOException
+    {
+        ByteBuffer bb = ByteBuffer.allocate(4);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.putInt(view.getValue());
+
+        //Build and send message
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write("VIEW".getBytes(StandardCharsets.UTF_8));
+        os.write(0xFF); //Placeholder for message length
+        os.write(bb.array());
+        sendUDP(os.toByteArray());
+    }
+
+    /**
      * Adds, removes, or clears a set of waypoints. If the command is clear, the points are ignored
      * and all points are removed.
      *

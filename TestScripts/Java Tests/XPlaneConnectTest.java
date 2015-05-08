@@ -1,5 +1,6 @@
 package gov.nasa.xpc.test;
 
+import gov.nasa.xpc.ViewType;
 import gov.nasa.xpc.WaypointOp;
 import gov.nasa.xpc.XPlaneConnect;
 
@@ -676,5 +677,25 @@ public class XPlaneConnectTest
             xpc.setCONN(65536);
             fail();
         }
+    }
+
+    @Test
+    public void testSendView() throws IOException
+    {
+        String dref = "sim/graphics/view/view_type";
+        float fwd = 1000;
+        float chase = 1017;
+
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.sendVIEW(ViewType.Forwards);
+            float result = xpc.getDREF(dref)[0];
+            assertEquals(fwd, result, 1e-4);
+
+            xpc.sendVIEW(ViewType.Chase);
+            result = xpc.getDREF(dref)[0];
+            assertEquals(chase, result, 1e-4);
+        }
+
     }
 }
