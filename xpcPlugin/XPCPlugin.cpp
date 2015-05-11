@@ -105,7 +105,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 		1000000000.0;
 	}
 #endif
-	XPC::Log::Initialize("1.0.1");
+	XPC::Log::Initialize("1.1.0");
 	XPC::Log::WriteLine(LOG_INFO, "EXEC", "Plugin Start");
 	XPC::DataManager::Initialize();
 
