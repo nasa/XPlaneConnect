@@ -106,7 +106,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 	}
 #endif
 	XPC::Log::Initialize("1.0.1");
-	XPC::Log::WriteLine("[EXEC] Plugin Start");
+	XPC::Log::WriteLine(LOG_INFO, "EXEC", "Plugin Start");
 	XPC::DataManager::Initialize();
 
 	float interval = -1; // Call every frame
@@ -119,7 +119,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 PLUGIN_API void	XPluginStop(void)
 {
 	XPLMUnregisterFlightLoopCallback(XPCFlightLoopCallback, NULL);
-	XPC::Log::WriteLine("[EXEC] Plugin Shutdown");
+	XPC::Log::WriteLine(LOG_INFO, "EXEC", "Plugin Shutdown");
 	XPC::Log::Close();
 }
 
@@ -135,7 +135,7 @@ PLUGIN_API void XPluginDisable(void)
 	// Stop rendering waypoints to screen.
 	XPC::Drawing::ClearWaypoints();
 
-	XPC::Log::WriteLine("[EXEC] Plugin Disabled, sockets closed");
+	XPC::Log::WriteLine(LOG_INFO, "EXEC", "Plugin Disabled, sockets closed");
 }
 
 PLUGIN_API int XPluginEnable(void)
@@ -144,14 +144,12 @@ PLUGIN_API int XPluginEnable(void)
 	sock = new XPC::UDPSocket(RECVPORT);
 	XPC::MessageHandlers::SetSocket(sock);
 
-	XPC::Log::WriteLine("[EXEC] Plugin Enabled, sockets opened");
+	XPC::Log::WriteLine(LOG_INFO, "EXEC", "Plugin Enabled, sockets opened");
 	if (benchmarkingSwitch > 0)
 	{
-		XPC::Log::FormatLine("[EXEC] Benchmarking Enabled (Verbosity: %i)", benchmarkingSwitch);
+		XPC::Log::FormatLine(LOG_INFO, "EXEC", "Benchmarking Enabled (Verbosity: %i)", benchmarkingSwitch);
 	}
-#if LOG_VERBOSITY > 0
-	XPC::Log::FormatLine("[EXEC] Debug Logging Enabled (Verbosity: %i)", LOG_VERBOSITY);
-#endif
+	XPC::Log::FormatLine(LOG_INFO, "EXEC", "Debug Logging Enabled (Verbosity: %i)", LOG_LEVEL);
 
 	return 1;
 }
@@ -174,7 +172,7 @@ float XPCFlightLoopCallback(float inElapsedSinceLastCall,
 	counter++;
 	if (benchmarkingSwitch > 1)
 	{
-		XPC::Log::FormatLine("Cycle time %.6f", inElapsedSinceLastCall);
+		XPC::Log::FormatLine(LOG_DEBUG, "EXEC", "Cycle time %.6f", inElapsedSinceLastCall);
 	}
 
 	for (int i = 0; i < OPS_PER_CYCLE; i++)
@@ -198,14 +196,14 @@ float XPCFlightLoopCallback(float inElapsedSinceLastCall,
 #if (__APPLE__)
 			lap = (double)mach_absolute_time( ) * timeConvert;
 			diff_t = lap - start;
-			XPC::Log::FormatLine("[BENCH] Runtime %.6f", diff_t);
+			XPC::Log::FormatLine(LOG_INFO, "EXEC", "Runtime %.6f", diff_t);
 #endif
 		}
 	}
 
 	if (cyclesToClear != -1 && counter%cyclesToClear == 0)
 	{
-		XPC::Log::WriteLine("[EXEC] Cleared UDP Buffer");
+		XPC::Log::WriteLine(LOG_DEBUG, "EXEC", "Cleared UDP Buffer");
 		delete sock;
 		sock = new XPC::UDPSocket(RECVPORT);
 	}

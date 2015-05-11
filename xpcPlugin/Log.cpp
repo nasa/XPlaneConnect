@@ -12,7 +12,7 @@
 #include <iomanip>
 #include <sstream>
 
-// Implementation note: I initial wrote this class using C++ iostreams, but I couldn't find any
+// Implementation note: I initially wrote this class using C++ iostreams, but I couldn't find any
 // way to implement FormatLine without adding in a call to sprintf. It therefore seems more
 // efficient to me to just use C-style IO and call std::fprintf directly.
 namespace XPC
@@ -38,8 +38,13 @@ namespace XPC
 		std::fprintf(fd, ss.str().c_str());
 	}
 
-	void Log::Initialize(std::string version)
+	void Log::Initialize(const std::string& version)
 	{
+		if (LOG_LEVEL == LOG_OFF)
+		{
+			return;
+		}
+
 		fd = std::fopen("XPCLog.txt", "w");
 		if (fd != NULL)
 		{
@@ -82,35 +87,31 @@ namespace XPC
 		}
 	}
 
-	void Log::WriteLine(const std::string& value)
+	void Log::WriteLine(int level, const std::string& tag, const std::string& value)
 	{
-		Log::WriteLine(value.c_str());
-	}
-
-	void Log::WriteLine(const char* value)
-	{
-		if (!fd)
+		if (level > LOG_LEVEL || !fd)
 		{
 			return;
 		}
 
 		WriteTime(fd);
-		std::fprintf(fd, "%s\n", value);
+		std::fprintf(fd, "[%s] %s\n", tag.c_str(), value.c_str());
 		std::fflush(fd);
 	}
 
-	void Log::FormatLine(const char* format, ...)
+	void Log::FormatLine(int level, const std::string& tag, const std::string& format, ...)
 	{
 		va_list args;
 
-		if (!fd)
+		if (level > LOG_LEVEL || !fd)
 		{
 			return;
 		}
 		va_start(args, format);
 
 		WriteTime(fd);
-		std::vfprintf(fd, format, args);
+		std::fprintf(fd, "[%s] ", tag.c_str());
+		std::vfprintf(fd, format.c_str(), args);
 		std::fprintf(fd, "\n");
 		std::fflush(fd);
 

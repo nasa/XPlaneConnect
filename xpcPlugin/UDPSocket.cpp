@@ -8,11 +8,11 @@
 
 namespace XPC
 {
+	const static std::string tag = "SOCK";
+
 	UDPSocket::UDPSocket(unsigned short recvPort)
 	{
-#if LOG_VERBOSITY > 1
-		Log::FormatLine("[SOCK] Opening socket (port:%d)",	recvPort);
-#endif
+		Log::FormatLine(LOG_TRACE, tag, "Opening socket (port:%d)",	recvPort);
 		// Setup Port
 		struct sockaddr_in localAddr;
 		localAddr.sin_family = AF_INET;
@@ -25,18 +25,14 @@ namespace XPC
 		int startResult = WSAStartup(MAKEWORD(2, 2), &wsa);
 		if (startResult != 0)
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[SOCK] ERROR: WSAStartup failed with error code %i.", startResult);
-#endif
+			Log::FormatLine(LOG_FATAL, tag, "ERROR: WSAStartup failed with error code %i.", startResult);
 			this->sock = ~0;
 			return;
 		}
 		if ((this->sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
 		{
-#if LOG_VERBOSITY > 0
 			int err = WSAGetLastError();
-			Log::FormatLine("[SOCK] ERROR: Failed to open socket. (Error code %i)", err);
-#endif
+			Log::FormatLine(LOG_FATAL, tag, "ERROR: Failed to open socket. (Error code %i)", err);
 			return;
 		}
 #elif (__APPLE__ || __linux)
@@ -52,10 +48,10 @@ namespace XPC
 		if (bind(this->sock, (struct sockaddr*)&localAddr, sizeof(localAddr)) != 0)
 		{
 #ifdef _WIN32
-#if LOG_VERBOSITY > 0
 			int err = WSAGetLastError();
-			Log::FormatLine("[SOCK] ERROR: Failed to bind socket. (Error code %i)", err);
-#endif
+			Log::FormatLine(LOG_FATAL, tag, "ERROR: Failed to bind socket. (Error code %i)", err);
+#else
+			Log::WriteLine(LOG_FATAL, tag, "ERROR: Failed to bind socket.");
 #endif
 			return;
 		}
@@ -67,10 +63,8 @@ namespace XPC
 		DWORD msTimeOutWin = 1; // Minimum socket timeout in Windows is 1ms
 		if(setsockopt(this->sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&msTimeOutWin, sizeof(msTimeOutWin)) != 0)
 		{
-#if LOG_VERBOSITY > 1
 			int err = WSAGetLastError();
-			Log::FormatLine("[SOCK] ERROR: Failed to set timeout. (Error code %i)", err);
-#endif
+			Log::FormatLine(LOG_ERROR, tag, "ERROR: Failed to set timeout. (Error code %i)", err);
 		}
 #else
 		struct timeval tv;
@@ -82,9 +76,7 @@ namespace XPC
 
 	UDPSocket::~UDPSocket()
 	{
-#if LOG_VERBOSITY > 1
-		Log::FormatLine("[SOCK] Closing socket (%d)", this->sock);
-#endif
+		Log::FormatLine(LOG_TRACE, tag, "Closing socket (%d)", this->sock);
 #ifdef _WIN32
 		closesocket(this->sock);
 #elif (__APPLE__ || __linux)
@@ -116,13 +108,11 @@ namespace XPC
 
 		// Select Command
 		int result = select(-1, &stReadFDS, (FD_SET *)0, &stExceptFDS, &tv);
-#if LOG_VERBOSITY > 1
 		if (result == SOCKET_ERROR)
 		{
 			int err = WSAGetLastError();
-			Log::FormatLine("[SOCK] ERROR: Select failed. (Error code %i)", err);
+			Log::FormatLine(LOG_ERROR, tag, "ERROR: Select failed. (Error code %i)", err);
 		}
-#endif
 		if (result <= 0) // No Data or error
 		{
 			return -1;
@@ -141,15 +131,11 @@ namespace XPC
 	{
 		if (sendto(sock, (char*)buffer, (int)len, 0, remote, sizeof(*remote)) < 0)
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[SOCK] Send failed. (remote: %s)", GetHost(remote).c_str());
-#endif
+			Log::FormatLine(LOG_ERROR, tag, "Send failed. (remote: %s)", GetHost(remote).c_str());
 		}
 		else
 		{
-#if LOG_VERBOSITY > 3
-			Log::FormatLine("[SOCK] Datagram sent. (remote: %s)", GetHost(remote).c_str());
-#endif
+			Log::FormatLine(LOG_INFO, tag, "Send failed. (remote: %s)", GetHost(remote).c_str());
 		}
 	}
 

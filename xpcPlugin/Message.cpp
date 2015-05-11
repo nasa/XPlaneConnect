@@ -58,9 +58,7 @@ namespace XPC
 
 	void Message::PrintToLog() const
 	{
-#if LOG_VERBOSITY > 4
 		std::stringstream ss;
-		ss << "[DEBUG]";
 
 		// Dump raw bytes to string
 		ss << std::hex << std::setfill('0');
@@ -68,18 +66,18 @@ namespace XPC
 		{
 			ss << ' ' << std::setw(2) << static_cast<unsigned>(buffer[i]);
 		}
-		Log::WriteLine(ss.str());
+		Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
 
 		ss << std::dec;
 		ss.str("");
-		ss << "[" << GetHead() << "-DEBUG] (" << GetSize() << ")";
+		ss << "Head:" << GetHead() << " Size:" << GetSize();
 		switch (GetMagicNumber()) // Binary version of head
 		{
 		case 0x4E4EF443: // CONN
         case 0x54505957: // WYPT
         case 0x54584554: // TEXT
         {
-            Log::WriteLine(ss.str());
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             break;
         }
         case 0x4C525443: // CTRL
@@ -98,7 +96,7 @@ namespace XPC
 			}
             ss << " Attitude:(" << pitch << " " << roll << " " << yaw << ")";
             ss << " Thr:" << thr << " Gear:" << (int)gear << " Flaps:" << flaps;
-            Log::WriteLine(ss.str());
+            Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             break;
         }
         case 0x41544144: // DATA
@@ -110,43 +108,44 @@ namespace XPC
 				values[i][0] = buffer[5 + 36 * i];
 				std::memcpy(values[i] + 1, buffer + 9 + 36 * i, 9 * sizeof(float));
 			}
-            ss << " (" << numCols << " lines)";
-            Log::WriteLine(ss.str());
+			ss << " (" << numCols << " lines)";
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             for (int i = 0; i < numCols; ++i)
             {
                 ss.str("");
-				ss << "\t#" << values[i][0];
+				ss << "    #" << values[i][0];
                 for (int j = 1; j < 9; ++j)
                 {
 					ss << " " << values[i][j];
-                }
-                Log::WriteLine(ss.str());
+				}
+				Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             }
             break;
         }
         case 0x46455244: // DREF
-        {
-            Log::WriteLine(ss.str());
+		{
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             std::string dref((char*)buffer + 6, buffer[5]);
-            Log::FormatLine("-\tDREF  (size %i) = %s", dref.length(), dref.c_str());
+            Log::FormatLine(LOG_DEBUG, "DBUG", "    DREF (size %i) = %s", dref.length(), dref);
             ss.str("");
             int values = buffer[6 + buffer[5]];
-            ss << "\tValues(size " << values << ") =";
+            ss << "    Values(size " << values << ") =";
             for (int i = 0; i < values; ++i)
             {
                 ss << " " << *((float*)(buffer + values + 1 + sizeof(float) * i));
-            }
-            Log::WriteLine(ss.str());
+			}
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             break;
         }
         case 0x44544547: // GETD
-        {
-            Log::WriteLine(ss.str());
+		{
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             int cur = 6;
             for (int i = 0; i < buffer[5]; ++i)
             {
                 std::string dref((char*)buffer + cur + 1, buffer[cur]);
-                Log::FormatLine("\t#%i/%i (size:%i) %s", i + 1, buffer[5], dref.length(), dref.c_str());
+                Log::FormatLine(LOG_DEBUG, "DBUG", "    #%i/%i (size:%i) %s",
+					i + 1, buffer[5], dref.length(), dref);
                 cur += 1 + buffer[cur];
             }
             break;
@@ -162,23 +161,22 @@ namespace XPC
             ss << " AC:" << (int)aircraft;
 			ss << " Pos:(" << pos[0] << ' ' << pos[1] << ' ' << pos[2] << ") Orient:(";
 			ss << orient[3] << ' ' << orient[4] << ' ' << orient[5] << ") Gear:";
-            ss << gear;
-            Log::WriteLine(ss.str());
+			ss << gear;
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             break;
         }
         case 0x554D4953: // SIMU
         {
-            ss << ' ' << (int)buffer[5];
-            Log::WriteLine(ss.str());
+			ss << ' ' << (int)buffer[5];
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             break;
         }
         default:
         {
-            ss << " UNKNOWN HEADER ";
-            Log::WriteLine(ss.str());
+			ss << " UNKNOWN HEADER ";
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             break;
         }
 		}
-#endif
 	}
 }

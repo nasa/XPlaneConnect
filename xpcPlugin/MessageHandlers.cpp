@@ -80,19 +80,14 @@ namespace XPC
 		std::string head = msg.GetHead();
 		if (head == "")
 		{
-#if LOG_VERBOSITY > 1
-			Log::WriteLine("[MSGH] Warning: HandleMessage called with empty message.");
-#endif
+			Log::WriteLine(LOG_WARN, "MSGH", "Warning: HandleMessage called with empty message.");
 			return; // No Message to handle
 		}
-		msg.PrintToLog();
 
 		// Set current connection
 		sockaddr sourceaddr = msg.GetSource();
 		connectionKey = UDPSocket::GetHost(&sourceaddr);
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[MSGH] Handling message from %s", connectionKey.c_str());
-#endif
+		Log::FormatLine(LOG_INFO, "MSGH", "Handling message from %s", connectionKey);
 		std::map<std::string, ConnectionInfo>::iterator conn = connections.find(connectionKey);
 		if (conn == connections.end()) // New connection
 		{
@@ -104,19 +99,17 @@ namespace XPC
 			connection.addr = sourceaddr;
 			connection.getdCount = 0;
 			connections[connectionKey] = connection;
-#if LOG_VERBOSITY > 2
-			Log::FormatLine("[MSGH] New connection. ID=%u, Remote=%s", connection.id, connectionKey.c_str());
-#endif
+			Log::FormatLine(LOG_TRACE, "MSGH", "New connection. ID=%u, Remote=%s",
+				connection.id, connectionKey);
 		}
 		else
 		{
 			connection = (*conn).second;
-#if LOG_VERBOSITY > 3
-			Log::FormatLine("[MSGH] Existing connection. ID=%u, Remote=%s",
-				connection.id, connectionKey.c_str());
-#endif
+			Log::FormatLine(LOG_TRACE, "MSGH", "Existing connection. ID=%u, Remote=%s",
+				connection.id, connectionKey);
 		}
 
+		msg.PrintToLog();
 		// Check if there is a handler for this message type. If so, execute
 		// that handler. Otherwise, execute the unknown message handler.
 		std::map<std::string, MessageHandler>::iterator iter = handlers.find(head);
@@ -153,10 +146,8 @@ namespace XPC
 			break;
 		}
 		default:
-#if LOG_VERBOSITY > 0
-			Log::WriteLine("[CONN] ERROR: Unknown address type.");
+			Log::WriteLine(LOG_ERROR, "CONN", "ERROR: Unknown address type.");
 			return;
-#endif
 		}
 		connections.erase(connectionKey);
 		connectionKey = UDPSocket::GetHost(&connection.addr);
@@ -167,10 +158,8 @@ namespace XPC
 		response[5] = connection.id;
 
 		// Update log
-#if LOG_VERBOSITY > 1
-		Log::FormatLine("[CONN] ID: %u New destination port: %u",
+		Log::FormatLine(LOG_TRACE, "CONN", "ID: %u New destination port: %u",
 			connection.id, port);
-#endif
 
 		// Send response
 		sock->SendTo(response, 6, &connection.addr);
@@ -179,19 +168,16 @@ namespace XPC
 	void MessageHandlers::HandleCtrl(const Message& msg)
 	{
 		// Update Log
-#if LOG_VERBOSITY > 2
-		Log::FormatLine("[CTRL] Message Received (Conn %i)", connection.id);
-#endif
+		Log::FormatLine(LOG_TRACE, "CTRL", "Message Received (Conn %i)", connection.id);
 
 		const unsigned char* buffer = msg.GetBuffer();
 		std::size_t size = msg.GetSize();
-		//Legacy packets that don't specify an aircraft number should be 26 bytes long.
-		//Packets specifying an A/C num should be 27 bytes.
+		// Legacy packets that don't specify an aircraft number should be 26 bytes long.
+		// Packets specifying an A/C num should be 27 bytes. Packets specifying a speedbrake
+		// should be 31 bytes.
 		if (size != 26 && size != 27 && size != 31)
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[CTRL] ERROR: Unexpected message length (%i)", size);
-#endif
+			Log::FormatLine(LOG_ERROR, "CTRL", "ERROR: Unexpected message length (%i)", size);
 			return;
 		}
 
@@ -263,23 +249,17 @@ namespace XPC
 		std::size_t numCols = (size - 5) / 36;
 		if (numCols > 0)
 		{
-#if LOG_VERBOSITY > 1
-			Log::FormatLine("[DATA] Message Received (Conn %i)", connection.id);
-#endif
+			Log::FormatLine(LOG_TRACE, "DATA", "Message Received (Conn %i)", connection.id);
 		}
 		else
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[DATA] WARNING: Empty data packet received (Conn %i)", connection.id);
-#endif
+			Log::FormatLine(LOG_WARN, "DATA", "WARNING: Empty data packet received (Conn %i)", connection.id);
 			return;
 		}
 
 		if (numCols > 134) // Error. Will overflow values
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[DATA] ERROR: numCols to large.");
-#endif
+			Log::FormatLine(LOG_ERROR, "DATA", "ERROR: numCols to large.");
 			return;
 		}
 		float values[134][9];
@@ -299,9 +279,7 @@ namespace XPC
 			unsigned char dataRef = (unsigned char)values[i][0];
 			if (dataRef >= 134)
 			{
-#if LOG_VERBOSITY > 0
-				Log::FormatLine("[DATA] ERROR: DataRef # must be between 0 - 134 (Received: %hi)", (int)dataRef);
-#endif
+				Log::FormatLine(LOG_ERROR, "DATA", "ERROR: DataRef # must be between 0 - 134 (Received: %hi)", (int)dataRef);
 				continue;
 			}
 
@@ -315,9 +293,7 @@ namespace XPC
 				float hpath = savedHPath != -998 ? savedHPath : DataManager::GetFloat(DREF_HPath);
 				if (alpha != alpha || hpath != hpath)
 				{
-#if LOG_VERBOSITY > 0
-					Log::WriteLine("[DATA] ERROR: Value must be a number (NaN received)");
-#endif
+					Log::WriteLine(LOG_ERROR, "DATA", "ERROR: Value must be a number (NaN received)");
 					break;
 				}
 				const float deg2rad = 0.0174532925F;
@@ -347,9 +323,7 @@ namespace XPC
 			{
 				if (values[i][1] != values[i][1] || values[i][3] != values[i][3])
 				{
-#if LOG_VERBOSITY > 0
-					Log::WriteLine("[DATA] ERROR: Value must be a number (NaN received)");
-#endif
+					Log::WriteLine(LOG_ERROR, "DATA", "ERROR: Value must be a number (NaN received)");
 					break;
 				}
 				if (values[i][1] != -998)
@@ -375,9 +349,7 @@ namespace XPC
 			{
 				if (values[i][1] != values[i][1])
 				{
-#if LOG_VERBOSITY > 0
-					Log::WriteLine("[DATA] ERROR: Value must be a number (NaN received)");
-#endif
+					Log::WriteLine(LOG_ERROR, "DATA", "ERROR: Value must be a number (NaN received)");
 					break;
 				}
 				float throttle[8];
@@ -394,9 +366,7 @@ namespace XPC
 				memcpy(line, values[i] + 1, 8 * sizeof(float));
 				for (int j = 0; j < 8; ++j)
 				{
-#if LOG_VERBOSITY > 1
-					Log::FormatLine("[DATA] Setting Dataref %i.%i to %f", dataRef, j, line[j]);
-#endif
+					Log::FormatLine(LOG_ERROR, "DATA", "Setting Dataref %i.%i to %f", dataRef, j, line[j]);
 					// TODO(jason-watkins): Why is this a special case?
 					if (dataRef == 14 && j == 0)
 					{
@@ -465,24 +435,20 @@ namespace XPC
 		unsigned char drefCount = buffer[5];
 		if (drefCount == 0) // Use last request
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[GETD] DATA Requested: Repeat last request from connection %i (%i data refs)",
+			Log::FormatLine(LOG_TRACE, "GETD",
+				"DATA Requested: Repeat last request from connection %i (%i data refs)",
 				connection.id, connection.getdCount);
-#endif
 			if (connection.getdCount == 0) // No previous request to use
 			{
-#if LOG_VERBOSITY > 1
-				Log::FormatLine("[GETD] ERROR: No previous requests from connection %i.", connection.id);
-#endif
+				Log::FormatLine(LOG_ERROR, "GETD", "ERROR: No previous requests from connection %i.",
+					connection.id);
 				return;
 			}
 		}
 		else // New request
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[GETD] DATA Requested: New Request for connection %i (%i data refs)",
+			Log::FormatLine(LOG_TRACE, "GETD", "DATA Requested: New Request for connection %i (%i data refs)",
 				connection.id, drefCount);
-#endif
 			std::size_t ptr = 6;
 			for (int i = 0; i < drefCount; ++i)
 			{
@@ -512,17 +478,13 @@ namespace XPC
 	void MessageHandlers::HandlePosi(const Message& msg)
 	{
 		// Update log
-#if LOG_VERBOSITY > 0
-		Log::FormatLine("[POSI] Message Received (Conn %i)", connection.id);
-#endif
+		Log::FormatLine(LOG_TRACE, "POSI", "Message Received (Conn %i)", connection.id);
 
 		const unsigned char* buffer = msg.GetBuffer();
 		const std::size_t size = msg.GetSize();
 		if (size < 34)
 		{
-#if LOG_VERBOSITY > 1
-			Log::FormatLine("[POSI] ERROR: Unexpected size: %i (Expected at least 34)", size);
-#endif
+			Log::FormatLine(LOG_ERROR, "POSI", "ERROR: Unexpected size: %i (Expected at least 34)", size);
 			return;
 		}
 
@@ -556,17 +518,13 @@ namespace XPC
 	void MessageHandlers::HandleSimu(const Message& msg)
 	{
 		// Update log
-#if LOG_VERBOSITY > 1
-		Log::FormatLine("[SIMU] Message Received (Conn %i)", connection.id);
-#endif
+		Log::FormatLine(LOG_TRACE, "SIMU", "Message Received (Conn %i)", connection.id);
 
 		char v = msg.GetBuffer()[5];
 		if (v < 0 || v > 2)
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[SIMU] ERROR: Invalid argument: %i", v);
+			Log::FormatLine(LOG_ERROR, "SIMU", "ERROR: Invalid argument: %i", v);
 			return;
-#endif
 		}
 		
 		int value[20];
@@ -589,28 +547,24 @@ namespace XPC
 		// Set DREF
 		DataManager::Set(DREF_Pause, value, 20);
 
-#if LOG_VERBOSITY > 2
 		switch (v)
 		{
 		case 0:
-			Log::WriteLine("[SIMU] Simulation Resumed");
+			Log::WriteLine(LOG_INFO, "SIMU", "Simulation resumed");
 			break;
 		case 1:
-			Log::WriteLine("[SIMU] Simulation Paused");
+			Log::WriteLine(LOG_INFO, "SIMU", "Simulation paused");
 			break;
 		case 2:
-			Log::WriteLine("[SIMU] Simulation switched.");
+			Log::WriteLine(LOG_INFO, "SIMU", "Simulation switched");
 			break;
 		}
-#endif
 	}
 
 	void MessageHandlers::HandleText(const Message& msg)
 	{
 		// Update Log
-#if LOG_VERBOSITY > 0
-		Log::FormatLine("[TEXT] Message Received (Conn %i)", connection.id);
-#endif
+		Log::FormatLine(LOG_TRACE, "TEXT", "Message Received (Conn %i)", connection.id);
 
 		std::size_t len = msg.GetSize();
 		const unsigned char*  buffer = msg.GetBuffer();
@@ -618,18 +572,14 @@ namespace XPC
 		char text[256] = { 0 };
 		if (len < 14)
 		{
-#if LOG_VERBOSITY > 1
-			Log::WriteLine("[TEXT] ERROR: Length less than 14 bytes");
-#endif
+			Log::WriteLine(LOG_ERROR, "TEXT", "ERROR: Length less than 14 bytes");
 			return;
 		}
 		size_t msgLen = (unsigned char)buffer[13];
 		if (msgLen == 0)
 		{
 			Drawing::ClearMessage();
-#if LOG_VERBOSITY > 2
-			Log::WriteLine("[TEXT] Text cleared");
-#endif
+			Log::WriteLine(LOG_INFO, "TEXT", "[TEXT] Text cleared");
 		}
 		else
 		{
@@ -637,25 +587,19 @@ namespace XPC
 			int y = *((int*)(buffer + 9));
 			strncpy(text, (char*)buffer + 14, msgLen);
 			Drawing::SetMessage(x, y, text);
-#if LOG_VERBOSITY > 2
-			Log::WriteLine("[TEXT] Text set");
-#endif
+			Log::WriteLine(LOG_INFO, "TEXT", "[TEXT] Text set");
 		}
 	}
 
 	void MessageHandlers::HandleView(const Message& msg)
 	{
 		// Update Log
-#if LOG_VERBOSITY > 0
-		Log::FormatLine("[VIEW] Message Received (Conn %i)", connection.id);
-#endif
+		Log::FormatLine(LOG_TRACE, "VIEW", "Message Received(Conn %i)", connection.id);
 
 		const std::size_t size = msg.GetSize();
 		if (size != 9)
 		{
-#if LOG_VERBOSITY > 1
-			Log::FormatLine("[VIEW] Error: Unexpected length. Message was %d bytes, expected 9.", size);
-#endif
+			Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 9.", size);
 			return;
 		}
 		const unsigned char* buffer = msg.GetBuffer();
@@ -666,9 +610,7 @@ namespace XPC
 	void MessageHandlers::HandleWypt(const Message& msg)
 	{
 		// Update Log
-#if LOG_VERBOSITY > 0
-		Log::FormatLine("[WYPT] Message Received (Conn %i)", connection.id);
-#endif
+		Log::FormatLine(LOG_TRACE, "WYPT", "Message Received (Conn %i)", connection.id);
 
 		// Parse data
 		const unsigned char* buffer = msg.GetBuffer();
@@ -685,9 +627,7 @@ namespace XPC
 		}
 
 		// Perform operation
-#if LOG_VERBOSITY > 2
-		Log::FormatLine("[WYPT] Performing operation %i", op);
-#endif
+		Log::FormatLine(LOG_INFO, "WYPT", "Performing operation %i", op);
 		switch (op)
 		{
 		case 1:
@@ -700,18 +640,14 @@ namespace XPC
 			Drawing::ClearWaypoints();
 			break;
 		default:
-#if LOG_VERBOSITY > 1
-			Log::FormatLine("[WYPT] ERROR: %i is not a valid operation.", op);
-#endif
+			Log::FormatLine(LOG_ERROR, "WYPT", "ERROR: %i is not a valid operation.", op);
 			break;
 		}
 	}
 
 	void MessageHandlers::HandleXPlaneData(const Message& msg)
 	{
-#if LOG_VERBOSITY > 1
-		Log::WriteLine("[MSGH] Sending raw data to X-Plane");
-#endif
+		Log::WriteLine(LOG_TRACE, "MSGH", "Sending raw data to X - Plane");
 		sockaddr_in loopback;
 		loopback.sin_family = AF_INET;
 		loopback.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
@@ -721,9 +657,6 @@ namespace XPC
 
 	void MessageHandlers::HandleUnknown(const Message& msg)
 	{
-		// UPDATE LOG
-#if LOG_VERBOSITY > 0
-		Log::FormatLine("[EXEC] ERROR: Unknown packet type %s", msg.GetHead().c_str());
-#endif
+		Log::FormatLine(LOG_ERROR, "MSGH", "ERROR: Unknown packet type %s", msg.GetHead().c_str());
 	}
 }

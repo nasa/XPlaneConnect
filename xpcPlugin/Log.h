@@ -5,18 +5,26 @@
 #include <string>
 
 // LOG_VERBOSITY determines the level of logging throughout the plugin.
-//   0: Minimum logging. Only plugin manager events will be logged.
-//   1: Critical errors. When an error that prevents correct operation of the
-//      plugin, attempt to write useful information to the log. Note that since
-//      XPC runs inside the X-Plane executable, we try very hard no to crash.
-//      As a result, these log messages may be the only indication of failure.
-//   2: All errors. Any time something unexpected happens, log it.
-//   3: Significant actions. Any time something happens outside of normal
-//      command processing, log it. Will also log when commands are received.
-//   4: Detailed actions. Log aditional information as commands are processed.
-//   5: Everything. Log nearly every single action the plugin takes. This may
-//      have a detrimental impact on X-Plane performance.
-#define LOG_VERBOSITY 3
+//     OFF: No logging at all will be performed.
+//   FATAL: Critical errors that would normally resulti in termination of the program. Because XPC
+//          operates in the X-Plane process, we try to never actually crash. As a result, we this
+//          level of logging may be the only indication of a problem.
+//   ERROR: All errors not covered by FATAL
+//    WARN: Potentially, but not definitely, incorrect behavior
+//    INFO: Information about normal actions taken by the plugin.
+//   DEBUG: More verbose information usefull for debugging.
+//   TRACE: Log all the things!
+#define LOG_OFF   0
+#define LOG_FATAL 1
+#define LOG_ERROR 2
+#define LOG_WARN  3
+#define LOG_INFO  4
+#define LOG_DEBUG 5
+#define LOG_TRACE 6
+
+#ifndef LOG_LEVEL
+#define LOG_LEVEL LOG_ERROR
+#endif
 
 namespace XPC
 {
@@ -33,31 +41,25 @@ namespace XPC
 	public:
 		/// Initializes the logging component by deleting old log files,
 		/// writing header information to the log file.
-		static void Initialize(std::string header);
+		static void Initialize(const std::string& header);
 
 		/// Closes the log file.
 		static void Close();
 
-		/// Writes the C string pointed to by format, followed by a line
+		/// Writes the string pointed to by format, followed by a line
 		/// terminator to the XPC log file. If format contains format
 		/// specifiers, additional arguments following format will be formatted
 		/// and inserted in the resulting string, replacing their respective
 		/// specifiers.
 		///
 		/// \param format The format string appropriate for consumption by sprintf.
-		static void FormatLine(const char* format, ...);
+		static void FormatLine(int level, const std::string& tag, const std::string& format, ...);
 
 		/// Writes the specified string value, followed by a line terminator
 		/// to the XPC log file.
 		///
 		/// \param value The value to write.
-		static void WriteLine(const std::string& value);
-
-		/// Writes the specified C string value, followed by a line terminator
-		/// to the XPC log file.
-		///
-		/// \param value The value to write.
-		static void WriteLine(const char* value);
+		static void WriteLine(int level, const std::string& tag, const std::string& value);
 	};
 }
 #endif
