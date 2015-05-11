@@ -174,7 +174,7 @@ namespace XPC
 		///          doubles where high precision is required, using this method may result
 		///          in a loss of precision. In that case, consider using one of the
 		///          strongly typed methods instead.
-		static int Get(std::string dref, float values[], int size);
+		static int Get(const std::string& dref, float values[], int size);
 
 		/// Gets the value of a double dataref.
 		///
@@ -294,7 +294,7 @@ namespace XPC
 		///          doubles where high precision is required, using this method may result
 		///          in a loss of precision. In that case, consider using one of the
 		///          strongly typed methods instead.
-		static void Set(std::string dref, float values[], int size);
+		static void Set(const std::string& dref, float values[], int size);
 
 		/// Sets the value of a double dataref.
 		///

@@ -300,7 +300,7 @@ namespace XPC
 		XPData[26][0] = DREF_ThrottleActual;
 	}
 
-	int DataManager::Get(string dref, float values[], int size)
+	int DataManager::Get(const string& dref, float values[], int size)
 	{
 		XPLMDataRef& xdref = sdrefs[dref];
 		if (xdref == NULL)
@@ -529,7 +529,7 @@ namespace XPC
 		XPLMSetDatavi(xdref, values, 0, drefSize);
 	}
 
-	void DataManager::Set(string dref, float values[], int size)
+	void DataManager::Set(const string& dref, float values[], int size)
 	{
 		XPLMDataRef& xdref = sdrefs[dref];
 		if (xdref == NULL)
