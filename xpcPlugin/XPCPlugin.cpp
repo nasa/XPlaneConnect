@@ -109,22 +109,19 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 	XPC::Log::WriteLine(LOG_INFO, "EXEC", "Plugin Start");
 	XPC::DataManager::Initialize();
 
-	float interval = -1; // Call every frame
-	void* refcon = NULL; // Don't pass anything to the callback directly
-	XPLMRegisterFlightLoopCallback(XPCFlightLoopCallback, interval, refcon);
-
 	return 1;
 }
 
 PLUGIN_API void	XPluginStop(void)
 {
-	XPLMUnregisterFlightLoopCallback(XPCFlightLoopCallback, NULL);
 	XPC::Log::WriteLine(LOG_INFO, "EXEC", "Plugin Shutdown");
 	XPC::Log::Close();
 }
 
 PLUGIN_API void XPluginDisable(void)
 {
+	XPLMUnregisterFlightLoopCallback(XPCFlightLoopCallback, NULL);
+
 	// Close sockets
 	delete sock;
 	sock = NULL;
@@ -150,6 +147,10 @@ PLUGIN_API int XPluginEnable(void)
 		XPC::Log::FormatLine(LOG_INFO, "EXEC", "Benchmarking Enabled (Verbosity: %i)", benchmarkingSwitch);
 	}
 	XPC::Log::FormatLine(LOG_INFO, "EXEC", "Debug Logging Enabled (Verbosity: %i)", LOG_LEVEL);
+	
+	float interval = -1; // Call every frame
+	void* refcon = NULL; // Don't pass anything to the callback directly
+	XPLMRegisterFlightLoopCallback(XPCFlightLoopCallback, interval, refcon);
 
 	return 1;
 }
