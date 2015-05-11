@@ -10,10 +10,10 @@ namespace XPC
 	/// Represents a message received from an XPC client.
 	///
 	/// \author Jason Watkins
-	/// \version 1.0
+	/// \version 1.1
 	/// \since 1.0
 	/// \date Intial Version: 2015-04-11
-	/// \date Last Updated: 2015-04-11
+	/// \date Last Updated: 2015-05-11
 	class Message
 	{
 	public:

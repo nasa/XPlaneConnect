@@ -65,6 +65,8 @@ namespace XPC
 	XPLMDataRef	planeZref;
 
 	//Internal Functions
+
+	/// Comparse two size_t integers. Used by qsort in RemoveWaypoints.
 	static int cmp(const void * a, const void * b)
 	{
 		std::size_t sa = *(size_t*)a;
@@ -80,6 +82,12 @@ namespace XPC
 		return 0;
 	}
 
+	/// Draws a cube centered at the specified OpenGL world coordinates.
+	///
+	/// \param x The X coordinate.
+	/// \param y The Y coordinate.
+	/// \param z The Z coordinate.
+	/// \param d The distance from the player airplane to the center of the cube.
 	static void gl_drawCube(float x, float y, float z, float d)
 	{
 		//tan(0.25) degrees. Should scale all markers to appear about the same size
@@ -118,18 +126,21 @@ namespace XPC
 		glEnd();
 	}
 
+	/// Draws the string set by the TEXT command.
 	static int MessageDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void * inRefcon)
 	{
+		const int LINE_HEIGHT = 16;
 		XPLMDrawString(rgb, msgX, msgY, msgVal, NULL, xplmFont_Basic);
-		int y = msgY - 16;
+		int y = msgY - LINE_HEIGHT;
 		for (size_t i = 0; i < newLineCount; ++i)
 		{
 			XPLMDrawString(rgb, msgX, y, msgVal + newLines[i], NULL, xplmFont_Basic);
-			y -= 16;
+			y -= LINE_HEIGHT;
 		}
 		return 1;
 	}
 
+	/// Draws waypoints.
 	static int RouteDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void * inRefcon)
 	{
 		float px = XPLMGetDataf(planeXref);
@@ -190,8 +201,7 @@ namespace XPC
 
 	void Drawing::SetMessage(int x, int y, char* msg)
 	{
-		//Determine size of message and clear instead if the message string
-		//is empty.
+		// Determine the size of the message and clear it if it is empty.
 		size_t len = strnlen(msg, MSG_MAX - 1);
 		if (len == 0)
 		{

@@ -45,6 +45,9 @@ namespace XPC
 			return;
 		}
 
+		// Note: Mode "w" deletes an existing file with the same name. This means that we only
+		//       ever get the log from the last run. This matches the way that X-Plane treats its
+		//       log.
 		fd = std::fopen("XPCLog.txt", "w");
 		if (fd != NULL)
 		{
