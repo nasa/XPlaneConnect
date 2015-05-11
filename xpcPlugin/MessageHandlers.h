@@ -33,10 +33,12 @@ namespace XPC
 		/// \param msg The message to be processed.
 		static void HandleMessage(Message& msg);
 
-		/// Sets the socke that message handlers use to send responses.
+		/// Sets the socket that message handlers use to send responses.
 		static void SetSocket(UDPSocket* socket);
 
 	private:
+		// One handler per message type. Message types are descripbed on the
+		// wiki at https://github.com/nasa/XPlaneConnect/wiki/Network-Information
 		static void HandleConn(const Message& msg);
 		static void HandleCtrl(const Message& msg);
 		static void HandleData(const Message& msg);
@@ -47,6 +49,7 @@ namespace XPC
 		static void HandleText(const Message& msg);
 		static void HandleWypt(const Message& msg);
 		static void HandleView(const Message& msg);
+
 		static void HandleXPlaneData(const Message& msg);
 		static void HandleUnknown(const Message& msg);
 

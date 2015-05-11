@@ -80,6 +80,9 @@ namespace XPC
 		std::string head = msg.GetHead();
 		if (head == "")
 		{
+#if LOG_VERBOSITY > 1
+			Log::WriteLine("[MSGH] Warning: HandleMessage called with empty message.");
+#endif
 			return; // No Message to handle
 		}
 		msg.PrintToLog();
@@ -137,13 +140,13 @@ namespace XPC
 		sockaddr* sa = &connection.addr;
 		switch (sa->sa_family)
 		{
-		case AF_INET:
+		case AF_INET: // IPV4 address
 		{
 			sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(sa);
 			(*sin).sin_port = htons(port);
 			break;
 		}
-		case AF_INET6:
+		case AF_INET6: // IPV6 addres
 		{
 			sockaddr_in6* sin = reinterpret_cast<sockaddr_in6*>(sa);
 			(*sin).sin6_port = htons(port);
@@ -196,13 +199,13 @@ namespace XPC
 		float pitch = *((float*)(buffer + 5));
 		float roll = *((float*)(buffer + 9));
 		float yaw = *((float*)(buffer + 13));
-		float thr = *((float*)(buffer + 17));
+		float throttle = *((float*)(buffer + 17));
 		char gear = buffer[21];
 		float flaps = *((float*)(buffer + 22));
-		unsigned char aircraft = 0;
+		unsigned char aircraftNumber = 0;
 		if (size >= 27)
 		{
-			aircraft = buffer[26];
+			aircraftNumber = buffer[26];
 		}
 		float spdbrk = -998;
 		if (size >= 31)
@@ -213,42 +216,42 @@ namespace XPC
 
 		if (pitch < -999.5 || pitch > -997.5)
 		{
-			DataManager::Set(DREF_YokePitch, pitch, aircraft);
+			DataManager::Set(DREF_YokePitch, pitch, aircraftNumber);
 		}
 		if (roll < -999.5 || roll > -997.5)
 		{
-			DataManager::Set(DREF_YokeRoll, roll, aircraft);
+			DataManager::Set(DREF_YokeRoll, roll, aircraftNumber);
 		}
 		if (yaw < -999.5 || yaw > -997.5)
 		{
-			DataManager::Set(DREF_YokeHeading, yaw, aircraft);
+			DataManager::Set(DREF_YokeHeading, yaw, aircraftNumber);
 		}
-		if (thr < -999.5 || thr > -997.5)
+		if (throttle < -999.5 || throttle > -997.5)
 		{
 
-			float thrArray[8];
+			float throttleArray[8];
 			for (int i = 0; i < 8; ++i)
 			{
-				thrArray[i] = thr;
+				throttleArray[i] = throttle;
 			}
-			DataManager::Set(DREF_ThrottleSet, thrArray, 8, aircraft);
-			DataManager::Set(DREF_ThrottleActual, thrArray, 8, aircraft);
-			if (aircraft == 0)
+			DataManager::Set(DREF_ThrottleSet, throttleArray, 8, aircraftNumber);
+			DataManager::Set(DREF_ThrottleActual, throttleArray, 8, aircraftNumber);
+			if (aircraftNumber == 0)
 			{
-				DataManager::Set("sim/flightmodel/engine/ENGN_thro_override", thrArray, 1);
+				DataManager::Set("sim/flightmodel/engine/ENGN_thro_override", throttleArray, 1);
 			}
 		}
 		if (gear != -1)
 		{
-			DataManager::SetGear(gear, false, aircraft);
+			DataManager::SetGear(gear, false, aircraftNumber);
 		}
 		if (flaps < -999.5 || flaps > -997.5)
 		{
-			DataManager::Set(DREF_FlapSetting, flaps, aircraft);
+			DataManager::Set(DREF_FlapSetting, flaps, aircraftNumber);
 		}
 		if (spdbrk < -999.5 || spdbrk > -997.5)
 		{
-			DataManager::Set(DREF_SpeedBrakeSet, spdbrk, aircraft);
+			DataManager::Set(DREF_SpeedBrakeSet, spdbrk, aircraftNumber);
 		}
 	}
 
@@ -282,6 +285,7 @@ namespace XPC
 		float values[134][9];
 		for (int i = 0; i < numCols; ++i)
 		{
+			// 5 byte header + (9 * 4 = 36) bytes per row
 			values[i][0] = buffer[5 + 36 * i];
 			memcpy(values[i] + 1, buffer + 9 + 36 * i, 9 * sizeof(float));
 		}
@@ -303,6 +307,7 @@ namespace XPC
 
 			switch (dataRef)
 			{
+			// TODO(jason-watkins): This currently overwrites the velocity several times. Should look into making this case smarter somehow.
 			case 3: // Velocity
 			{
 				float theta = DataManager::GetFloat(DREF_Pitch);
@@ -331,11 +336,11 @@ namespace XPC
 			}
 			case 17: // Orientation
 			{
-				float orient[3];
-				orient[0] = values[i][1];
-				orient[1] = values[i][2];
-				orient[2] = values[i][3];
-				DataManager::SetOrientation(orient);
+				float orientation[3];
+				orientation[0] = values[i][1];
+				orientation[1] = values[i][2];
+				orientation[2] = values[i][3];
+				DataManager::SetOrientation(orientation);
 				break;
 			}
 			case 18: // Alpha, hpath etc.
@@ -375,12 +380,12 @@ namespace XPC
 #endif
 					break;
 				}
-				float thr[8];
+				float throttle[8];
 				for (int j = 0; j < 8; ++j)
 				{
-					thr[j] = values[i][1];
+					throttle[j] = values[i][1];
 				}
-				DataManager::Set(DREF_ThrottleSet, thr, 8);
+				DataManager::Set(DREF_ThrottleSet, throttle, 8);
 				break;
 			}
 			default: // Non-Special dataRefs
@@ -392,7 +397,7 @@ namespace XPC
 #if LOG_VERBOSITY > 1
 					Log::FormatLine("[DATA] Setting Dataref %i.%i to %f", dataRef, j, line[j]);
 #endif
-
+					// TODO(jason-watkins): Why is this a special case?
 					if (dataRef == 14 && j == 0)
 					{
 						DataManager::SetGear(line[0], true);
@@ -521,30 +526,30 @@ namespace XPC
 			return;
 		}
 
-		char aircraft = buffer[5];
+		char aircraftNumber = buffer[5];
 		float gear = *((float*)(buffer + 30));
 		float pos[3];
 		float orient[3];
 		memcpy(pos, buffer + 6, 12);
 		memcpy(orient, buffer + 18, 12);
 
-		if (aircraft > 0)
+		if (aircraftNumber > 0)
 		{
-			// Enable AI for the aircraft we are setting
+			// Enable AI for the aircraftNumber we are setting
 			float ai[20];
 			std::size_t result = DataManager::GetFloatArray(DREF_PauseAI, ai, 20);
 			if (result == 20) // Only set values if they were retrieved successfully.
 			{
-				ai[aircraft] = 1;
+				ai[aircraftNumber] = 1;
 				DataManager::Set(DREF_PauseAI, ai, 0, 20);
 			}
 		}
 
-		DataManager::SetPosition(pos, aircraft);
-		DataManager::SetOrientation(orient, aircraft);
+		DataManager::SetPosition(pos, aircraftNumber);
+		DataManager::SetOrientation(orient, aircraftNumber);
 		if (gear != -1)
 		{
-			DataManager::SetGear(gear, true, aircraft);
+			DataManager::SetGear(gear, true, aircraftNumber);
 		}
 	}
 
