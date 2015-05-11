@@ -1,5 +1,5 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
-//National Aeronautics and Space Administration. All Rights Reserved.
+// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
 #ifndef XPCPLUGIN_DATAMANAGER_H_
 #define XPCPLUGIN_DATAMANAGER_H_
 
@@ -62,7 +62,7 @@ namespace XPC
 		DREF_L,
 		DREF_N,
 
-		//PQR (Angular Velocities)
+		// PQR (Angular Velocities)
 		DREF_QRad = 1600,
 		DREF_PRad,
 		DREF_RRad,

@@ -1,5 +1,5 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
-//National Aeronautics and Space Administration. All Rights Reserved.
+// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
 #include "Log.h"
 #include "UDPSocket.h"
 
@@ -19,7 +19,7 @@ namespace XPC
 		localAddr.sin_addr.s_addr = INADDR_ANY;
 		localAddr.sin_port = htons(recvPort);
 
-		//Create and bind the socket
+		// Create and bind the socket
 #ifdef _WIN32
 		WSADATA wsa;
 		int startResult = WSAStartup(MAKEWORD(2, 2), &wsa);
@@ -56,7 +56,7 @@ namespace XPC
 			return;
 		}
 
-		//Set Timout
+		// Set Timout
 		int usTimeOut = 500;
 
 #ifdef _WIN32
@@ -68,8 +68,8 @@ namespace XPC
 		}
 #else
 		struct timeval tv;
-		tv.tv_sec = 0;  /* Sec Timeout */
-		tv.tv_usec = usTimeOut;  // Microsec Timeout
+		tv.tv_sec = 0;
+		tv.tv_usec = usTimeOut;
 		setsockopt(this->sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
 #endif
 	}
@@ -103,8 +103,8 @@ namespace XPC
 		FD_SET(sock, &stReadFDS);
 		FD_ZERO(&stExceptFDS);
 		FD_SET(sock, &stExceptFDS);
-		tv.tv_sec = 0;  /* Sec Timeout */
-		tv.tv_usec = 250;  // Microsec Timeout
+		tv.tv_sec = 0;
+		tv.tv_usec = 250;
 
 		// Select Command
 		int result = select(-1, &stReadFDS, (FD_SET *)0, &stExceptFDS, &tv);

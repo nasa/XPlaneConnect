@@ -1,5 +1,5 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
-//National Aeronautics and Space Administration. All Rights Reserved.
+// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
 #ifndef XPCPLUGIN_MESSAGEHANDLERS_H_
 #define XPCPLUGIN_MESSAGEHANDLERS_H_
 #include "Message.h"

@@ -1,5 +1,5 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
-//National Aeronautics and Space Administration. All Rights Reserved.
+// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
 #ifndef XPCPLUGIN_SOCKET_H_
 #define XPCPLUGIN_SOCKET_H_
 
@@ -8,7 +8,7 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#pragma comment(lib, "ws2_32.lib") //Winsock Library
+#pragma comment(lib, "ws2_32.lib") // Winsock Library
 #elif (__APPLE__ || __linux)
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -45,9 +45,9 @@ namespace XPC
 		/// \param buffer	 The array to copy the data into.
 		/// \param size	   The number of bytes to read.
 		/// \param remoteAddr When at least one byte is read, contains the address
-		///				   of the remote host.
+		///                   of the remote host.
 		/// \returns		  The number of bytes read, or a negative number if
-		///				   an error occurs.
+		///                   an error occurs.
 		int Read(unsigned char* buffer, int size, sockaddr* remoteAddr) const;
 
 		/// Sends data to the specified remote endpoint.

@@ -1,58 +1,58 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
-//National Aeronautics and Space Administration. All Rights Reserved.
+// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
 //
-//DISCLAIMERS
-//    No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND,
-//    EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT
-//    THE SUBJECT SOFTWARE WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
-//    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM INFRINGEMENT, ANY WARRANTY
-//    THAT THE SUBJECT SOFTWARE WILL BE ERROR FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED,
-//    WILL CONFORM TO THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER, CONSTITUTE AN
-//    ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT OF ANY RESULTS, RESULTING DESIGNS,
-//    HARDWARE, SOFTWARE PRODUCTS OR ANY OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT
-//    SOFTWARE.  FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES REGARDING
-//    THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE, AND DISTRIBUTES IT "AS IS."
+// DISCLAIMERS
+//     No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND,
+//     EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT
+//     THE SUBJECT SOFTWARE WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+//     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM INFRINGEMENT, ANY WARRANTY
+//     THAT THE SUBJECT SOFTWARE WILL BE ERROR FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED,
+//     WILL CONFORM TO THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER, CONSTITUTE AN
+//     ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT OF ANY RESULTS, RESULTING DESIGNS,
+//     HARDWARE, SOFTWARE PRODUCTS OR ANY OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT
+//     SOFTWARE.  FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES REGARDING
+//     THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE, AND DISTRIBUTES IT "AS IS."
 //
-//    Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS AGAINST THE UNITED STATES
-//    GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF
-//    RECIPIENT'S USE OF THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES, EXPENSES
-//    OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM PRODUCTS BASED ON, OR RESULTING
-//    FROM, RECIPIENT'S USE OF THE SUBJECT SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE
-//    UNITED STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT,
-//    TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE REMEDY FOR ANY SUCH MATTER SHALL BE THE
-//    IMMEDIATE, UNILATERAL TERMINATION OF THIS AGREEMENT.
+//     Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS AGAINST THE UNITED STATES
+//     GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF
+//     RECIPIENT'S USE OF THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES, EXPENSES
+//     OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM PRODUCTS BASED ON, OR RESULTING
+//     FROM, RECIPIENT'S USE OF THE SUBJECT SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE
+//     UNITED STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT,
+//     TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE REMEDY FOR ANY SUCH MATTER SHALL BE THE
+//     IMMEDIATE, UNILATERAL TERMINATION OF THIS AGREEMENT.
 //
-//X-Plane API
-//Copyright(c) 2008, Sandy Barbour and Ben Supnik All rights reserved.
-//Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-//associated documentation files(the "Software"), to deal in the Software without restriction,
-//including without limitation the rights to use, copy, modify, merge, publish, distribute,
-//sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is
-//furnished to do so, subject to the following conditions :
-//  * Redistributions of source code must retain the above copyright notice,
-//    this list of conditions and the following disclaimer.
-//  * Neither the names of the authors nor that of X - Plane or Laminar Research
-//    may be used to endorse or promote products derived from this software
-//    without specific prior written permission from the authors or
-//    Laminar Research, respectively.
+// X-Plane API
+// Copyright(c) 2008, Sandy Barbour and Ben Supnik All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+// associated documentation files(the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute,
+// sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//   * Redistributions of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//   * Neither the names of the authors nor that of X - Plane or Laminar Research
+//     may be used to endorse or promote products derived from this software
+//     without specific prior written permission from the authors or
+//     Laminar Research, respectively.
 
 
-//  X-Plane Connect Plugin
+// X-Plane Connect Plugin
 //
-//  DESCRIPTION
-//      XPCPlugin Facilitates Communication to and from the XPlane
+// DESCRIPTION
+//     XPCPlugin Facilitates Communication to and from the XPlane
 //
-//  INSTRUCTIONS
-//      See Readme.md in the root of this repository or the wiki hosted on GitHub at
-//      https://github.com/nasa/XPlaneConnect/wiki for requirements, installation instructions,
-//      and detailed documentation.
+// INSTRUCTIONS
+//     See Readme.md in the root of this repository or the wiki hosted on GitHub at
+//     https://github.com/nasa/XPlaneConnect/wiki for requirements, installation instructions,
+//     and detailed documentation.
 //
-//  CONTACT
-//      For questions email Christopher Teubert (christopher.a.teubert@nasa.gov)
+// CONTACT
+//     For questions email Christopher Teubert (christopher.a.teubert@nasa.gov)
 //
-//	CONTRIBUTORS
-//		CT: Christopher Teubert (christopher.a.teubert@nasa.gov)
-//		JW: Jason Watkins (jason.w.watkins@nasa.gov)
+// CONTRIBUTORS
+//     CT: Christopher Teubert (christopher.a.teubert@nasa.gov)
+//     JW: Jason Watkins (jason.w.watkins@nasa.gov)
 
 // XPC Includes
 #include "DataManager.h"
