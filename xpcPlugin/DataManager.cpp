@@ -38,6 +38,8 @@ namespace XPC
 
 	void DataManager::Initialize()
 	{
+		Log::WriteLine(LOG_TRACE, "DMAN", "Initializing drefs");
+
 		drefs.insert(make_pair(DREF_None, XPLMFindDataRef("sim/test/test_float")));
 
 		drefs.insert(make_pair(DREF_Pause, XPLMFindDataRef("sim/operation/override/override_planepath")));

@@ -35,6 +35,7 @@ namespace XPC
 
 	void MessageHandlers::SetSocket(UDPSocket* socket)
 	{
+		Log::WriteLine(LOG_TRACE, "MSGH", "Setting socket");
 		MessageHandlers::sock = socket;
 	}
 
@@ -42,6 +43,7 @@ namespace XPC
 	{
 		if (handlers.size() == 0)
 		{
+			Log::WriteLine(LOG_TRACE, "MSGH", "Initializing handlers");
 			// Common messages
 			handlers.insert(std::make_pair("CONN", MessageHandlers::HandleConn));
 			handlers.insert(std::make_pair("CTRL", MessageHandlers::HandleCtrl));
@@ -99,13 +101,13 @@ namespace XPC
 			connection.addr = sourceaddr;
 			connection.getdCount = 0;
 			connections[connectionKey] = connection;
-			Log::FormatLine(LOG_TRACE, "MSGH", "New connection. ID=%u, Remote=%s",
+			Log::FormatLine(LOG_DEBUG, "MSGH", "New connection. ID=%u, Remote=%s",
 				connection.id, connectionKey);
 		}
 		else
 		{
 			connection = (*conn).second;
-			Log::FormatLine(LOG_TRACE, "MSGH", "Existing connection. ID=%u, Remote=%s",
+			Log::FormatLine(LOG_DEBUG, "MSGH", "Existing connection. ID=%u, Remote=%s",
 				connection.id, connectionKey);
 		}
 
@@ -392,9 +394,7 @@ namespace XPC
 
 	void MessageHandlers::HandleDref(const Message& msg)
 	{
-#if LOG_VERBOSITY >= 3
-		Log::FormatLine("[DREF] Request to set DREF value received (Conn %i)", connection.id);
-#endif
+		Log::FormatLine(LOG_TRACE, "DREF", "Request to set DREF value received (Conn %i)", connection.id);
 		const unsigned char* buffer = msg.GetBuffer();
 		std::size_t size = msg.GetSize();
 		std::size_t pos = 5;
@@ -417,16 +417,12 @@ namespace XPC
 			pos += 4 * valueCount;
 
 			DataManager::Set(dref, values, valueCount);
-#if LOG_VERBOSITY >= 4
-			Log::FormatLine("[DREF]     Set %d values for %s", valueCount, dref.c_str());
-#endif
+			Log::FormatLine(LOG_DEBUG, "DREF", "Set %d values for %s", valueCount, dref);
 		}
-#if LOG_VERBOSITY >= 2
 		if (pos != size)
 		{
-			Log::WriteLine("[DREF] Error: Command did not terminate at the expected position.");
+			Log::WriteLine(LOG_ERROR, "DREF", "ERROR: Command did not terminate at the expected position.");
 		}
-#endif
 	}
 
 	void MessageHandlers::HandleGetD(const Message& msg)
@@ -556,7 +552,7 @@ namespace XPC
 			Log::WriteLine(LOG_INFO, "SIMU", "Simulation paused");
 			break;
 		case 2:
-			Log::WriteLine(LOG_INFO, "SIMU", "Simulation switched");
+			Log::FormatLine(LOG_INFO, "SIMU", "Simulation switched to %i", value[0]);
 			break;
 		}
 	}
