@@ -139,7 +139,7 @@ namespace XPC
 	/// Maps X-Plane dataref lines to XPC DREF values.
 	extern DREF XPData[134][8];
 
-	/// Marshals data between the plugin and X-Plane.
+	/// Contains methods to martial data between the plugin and X-Plane.
 	///
 	/// \author Jason Watkins
 	/// \version 1.1
@@ -165,7 +165,7 @@ namespace XPC
 		/// \remarks The first time this method is called for a given dataref, it must
 		///          perform a relatively expensive lookup operation to translate the
 		///          given string into an X-Plane internal pointer. This value is cached,
-		///          so subsequent calls will incure minimal extra overhead compared to
+		///          so subsequent calls will incur minimal extra overhead compared to
 		///          the other methods in this class.
 		///
 		/// \remarks For simplicity, this method is provided with only one output type.

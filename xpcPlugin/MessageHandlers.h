@@ -12,7 +12,7 @@ namespace XPC
 	/// A function that handles a message.
 	typedef void(*MessageHandler)(const Message&);
 
-	/// Handles incommming messages and manages connections.
+	/// Handles incoming messages and manages connections.
 	///
 	/// \author Jason Watkins
 	/// \version 1.1

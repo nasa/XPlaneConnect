@@ -6,7 +6,7 @@
 
 // LOG_VERBOSITY determines the level of logging throughout the plugin.
 //     OFF: No logging at all will be performed.
-//   FATAL: Critical errors that would normally resulti in termination of the program. Because XPC
+//   FATAL: Critical errors that would normally result in termination of the program. Because XPC
 //          operates in the X-Plane process, we try to never actually crash. As a result, we this
 //          level of logging may be the only indication of a problem.
 //   ERROR: All errors not covered by FATAL
