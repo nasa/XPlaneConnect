@@ -22,6 +22,9 @@
     <ClCompile Include="..\..\C\src\xplaneConnect.c" />
     <ClCompile Include="..\C Tests\main.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\C\src\xplaneConnect.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BC701AF4-552C-4C9D-82A1-B352542783A4}</ProjectGuid>
     <RootNamespace>CTests</RootNamespace>

@@ -8,10 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */; };
-		BE5F2FF118FCA1D500AFCD17 /* xpcPluginTools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE5F2FF018FCA1D500AFCD17 /* xpcPluginTools.cpp */; };
 		BE8361EF18C5591C00E9C923 /* mac.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* mac.xpl */; };
+		BEABAD371AE041A3007BA7DA /* DataManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */; };
+		BEABAD381AE041A3007BA7DA /* DataMaps.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD2D1AE041A3007BA7DA /* DataMaps.cpp */; };
+		BEABAD391AE041A3007BA7DA /* Drawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD2F1AE041A3007BA7DA /* Drawing.cpp */; };
+		BEABAD3A1AE041A3007BA7DA /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD311AE041A3007BA7DA /* Log.cpp */; };
+		BEABAD3B1AE041A3007BA7DA /* Message.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD331AE041A3007BA7DA /* Message.cpp */; };
+		BEABAD3C1AE041A3007BA7DA /* MessageHandlers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD351AE041A3007BA7DA /* MessageHandlers.cpp */; };
+		BEABAD3F1AE0498D007BA7DA /* UDPSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD3D1AE0498D007BA7DA /* UDPSocket.cpp */; };
 		BEDC620418EDF1A7005DB364 /* xplaneConnect.c in Sources */ = {isa = PBXBuildFile; fileRef = BEDC620218EDF1A7005DB364 /* xplaneConnect.c */; };
-		BEFBC0CB1AD4A0290025705B /* xpcDrawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEFBC0C91AD4A0290025705B /* xpcDrawing.cpp */; };
 		D6A7BDAA16A1DEA200D1426A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDA916A1DEA200D1426A /* OpenGL.framework */; };
 		D6A7BDC116A1DEC000D1426A /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDC016A1DEC000D1426A /* CoreFoundation.framework */; };
 		D6A7BDF116A1DED200D1426A /* XPLM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDF016A1DED200D1426A /* XPLM.framework */; };
@@ -33,13 +38,22 @@
 
 /* Begin PBXFileReference section */
 		BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XPCPlugin.cpp; sourceTree = SOURCE_ROOT; usesTabs = 1; };
-		BE3C039719DF043D0063D8DD /* Readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Readme.txt; path = ../Readme.txt; sourceTree = "<group>"; };
-		BE5F2FEF18FCA13700AFCD17 /* xpcPluginTools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = xpcPluginTools.h; sourceTree = "<group>"; };
-		BE5F2FF018FCA1D500AFCD17 /* xpcPluginTools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xpcPluginTools.cpp; sourceTree = "<group>"; };
+		BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataManager.cpp; sourceTree = "<group>"; };
+		BEABAD2C1AE041A3007BA7DA /* DataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataManager.h; sourceTree = "<group>"; };
+		BEABAD2D1AE041A3007BA7DA /* DataMaps.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataMaps.cpp; sourceTree = "<group>"; };
+		BEABAD2E1AE041A3007BA7DA /* DataMaps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataMaps.h; sourceTree = "<group>"; };
+		BEABAD2F1AE041A3007BA7DA /* Drawing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Drawing.cpp; sourceTree = "<group>"; };
+		BEABAD301AE041A3007BA7DA /* Drawing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Drawing.h; sourceTree = "<group>"; };
+		BEABAD311AE041A3007BA7DA /* Log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Log.cpp; sourceTree = "<group>"; };
+		BEABAD321AE041A3007BA7DA /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Log.h; sourceTree = "<group>"; };
+		BEABAD331AE041A3007BA7DA /* Message.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Message.cpp; sourceTree = "<group>"; };
+		BEABAD341AE041A3007BA7DA /* Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
+		BEABAD351AE041A3007BA7DA /* MessageHandlers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageHandlers.cpp; sourceTree = "<group>"; };
+		BEABAD361AE041A3007BA7DA /* MessageHandlers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageHandlers.h; sourceTree = "<group>"; };
+		BEABAD3D1AE0498D007BA7DA /* UDPSocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UDPSocket.cpp; sourceTree = "<group>"; };
+		BEABAD3E1AE0498D007BA7DA /* UDPSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UDPSocket.h; sourceTree = "<group>"; };
 		BEDC620218EDF1A7005DB364 /* xplaneConnect.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xplaneConnect.c; path = ../C/src/xplaneConnect.c; sourceTree = "<group>"; };
 		BEDC620318EDF1A7005DB364 /* xplaneConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xplaneConnect.h; path = ../C/src/xplaneConnect.h; sourceTree = "<group>"; };
-		BEFBC0C91AD4A0290025705B /* xpcDrawing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xpcDrawing.cpp; sourceTree = "<group>"; };
-		BEFBC0CA1AD4A0290025705B /* xpcDrawing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xpcDrawing.h; sourceTree = "<group>"; };
 		D607B19909A556E400699BC3 /* mac.xpl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = mac.xpl; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6A7BDA916A1DEA200D1426A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		D6A7BDC016A1DEC000D1426A /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -62,26 +76,43 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		AC4E46B809C2E0B3006B7E1B /* C Source */ = {
+		AC4E46B809C2E0B3006B7E1B /* src */ = {
 			isa = PBXGroup;
 			children = (
 				BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */,
 				BEDC620218EDF1A7005DB364 /* xplaneConnect.c */,
-				BEDC620318EDF1A7005DB364 /* xplaneConnect.h */,
-				BE5F2FF018FCA1D500AFCD17 /* xpcPluginTools.cpp */,
-				BE5F2FEF18FCA13700AFCD17 /* xpcPluginTools.h */,
-				BEFBC0C91AD4A0290025705B /* xpcDrawing.cpp */,
-				BEFBC0CA1AD4A0290025705B /* xpcDrawing.h */,
+				BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */,
+				BEABAD2D1AE041A3007BA7DA /* DataMaps.cpp */,
+				BEABAD2F1AE041A3007BA7DA /* Drawing.cpp */,
+				BEABAD311AE041A3007BA7DA /* Log.cpp */,
+				BEABAD331AE041A3007BA7DA /* Message.cpp */,
+				BEABAD351AE041A3007BA7DA /* MessageHandlers.cpp */,
+				BEABAD3D1AE0498D007BA7DA /* UDPSocket.cpp */,
 			);
-			name = "C Source";
+			name = src;
+			sourceTree = "<group>";
+		};
+		BE953E0B1AEB183400CE4A8C /* inc */ = {
+			isa = PBXGroup;
+			children = (
+				BEDC620318EDF1A7005DB364 /* xplaneConnect.h */,
+				BEABAD2C1AE041A3007BA7DA /* DataManager.h */,
+				BEABAD2E1AE041A3007BA7DA /* DataMaps.h */,
+				BEABAD301AE041A3007BA7DA /* Drawing.h */,
+				BEABAD321AE041A3007BA7DA /* Log.h */,
+				BEABAD341AE041A3007BA7DA /* Message.h */,
+				BEABAD361AE041A3007BA7DA /* MessageHandlers.h */,
+				BEABAD3E1AE0498D007BA7DA /* UDPSocket.h */,
+			);
+			name = inc;
 			sourceTree = "<group>";
 		};
 		D607B15F09A5563000699BC3 = {
 			isa = PBXGroup;
 			children = (
-				BE3C039719DF043D0063D8DD /* Readme.txt */,
 				D6A7BDAD16A1DEA700D1426A /* Frameworks */,
-				AC4E46B809C2E0B3006B7E1B /* C Source */,
+				AC4E46B809C2E0B3006B7E1B /* src */,
+				BE953E0B1AEB183400CE4A8C /* inc */,
 				D607B19A09A556E400699BC3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -158,10 +189,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BEABAD3A1AE041A3007BA7DA /* Log.cpp in Sources */,
+				BEABAD3B1AE041A3007BA7DA /* Message.cpp in Sources */,
+				BEABAD3C1AE041A3007BA7DA /* MessageHandlers.cpp in Sources */,
+				BEABAD381AE041A3007BA7DA /* DataMaps.cpp in Sources */,
 				BEDC620418EDF1A7005DB364 /* xplaneConnect.c in Sources */,
+				BEABAD371AE041A3007BA7DA /* DataManager.cpp in Sources */,
+				BEABAD391AE041A3007BA7DA /* Drawing.cpp in Sources */,
 				BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */,
-				BEFBC0CB1AD4A0290025705B /* xpcDrawing.cpp in Sources */,
-				BE5F2FF118FCA1D500AFCD17 /* xpcPluginTools.cpp in Sources */,
+				BEABAD3F1AE0498D007BA7DA /* UDPSocket.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -171,6 +207,9 @@
 		D607B16309A5563100699BC3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++98";
+				CLANG_CXX_LIBRARY = "libc++";
 				CONFIGURATION_BUILD_DIR = ./XPlaneConnect;
 				DYLIB_COMPATIBILITY_VERSION = "";
 				DYLIB_CURRENT_VERSION = "";
@@ -189,7 +228,7 @@
 					"$(HEADER_SEARCH_PATHS)",
 				);
 				MACH_O_TYPE = mh_bundle;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(OTHER_LDFLAGS)",
@@ -208,7 +247,7 @@
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				SYMROOT = build;
 				XPSDK_ROOT = SDK;
 			};
@@ -217,7 +256,10 @@
 		D607B16409A5563100699BC3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CONFIGURATION_BUILD_DIR = ./Mac;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++98";
+				CLANG_CXX_LIBRARY = "libc++";
+				CONFIGURATION_BUILD_DIR = ./XPlaneConnect;
 				DYLIB_COMPATIBILITY_VERSION = "";
 				DYLIB_CURRENT_VERSION = "";
 				EXECUTABLE_EXTENSION = xpl;
@@ -235,7 +277,7 @@
 					"$(HEADER_SEARCH_PATHS)",
 				);
 				MACH_O_TYPE = mh_bundle;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_LDFLAGS = (
 					"$(OTHER_LDFLAGS)",
 					"-Wl,-exported_symbol",
@@ -253,7 +295,7 @@
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				SYMROOT = build;
 				XPSDK_ROOT = SDK;
 			};
@@ -291,6 +333,7 @@
 				);
 				MACH_O_TYPE = mh_bundle;
 				PRODUCT_NAME = mac;
+				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = XPC;
@@ -328,7 +371,9 @@
 					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/xplaneConnect-asdjuezcjkhojuewbyxhyhabxfwc/Build/Products/Debug",
 				);
 				MACH_O_TYPE = mh_bundle;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = mac;
+				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = XPC;

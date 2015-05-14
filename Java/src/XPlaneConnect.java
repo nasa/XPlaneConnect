@@ -44,8 +44,7 @@ import java.util.Arrays;
 public class XPlaneConnect implements AutoCloseable
 {
     private static int clientNum;
-    private DatagramSocket outSocket;
-    private DatagramSocket inSocket;
+    private DatagramSocket socket;
     private InetAddress xplaneAddr;
     private int xplanePort;
 
@@ -54,7 +53,7 @@ public class XPlaneConnect implements AutoCloseable
      *
      * @return The incoming port number.
      */
-    public int getRecvPort() { return inSocket.getLocalPort(); }
+    public int getRecvPort() { return socket.getLocalPort(); }
 
     /**
      * Gets the port on which the client sends data to X-Plane.
@@ -116,62 +115,55 @@ public class XPlaneConnect implements AutoCloseable
      */
     public XPlaneConnect(int timeout) throws SocketException
     {
-        this.inSocket = new DatagramSocket(49008);
-        this.outSocket = new DatagramSocket(50000 + ++clientNum);
+        this.socket = new DatagramSocket(0);
         this.xplaneAddr = InetAddress.getLoopbackAddress();
         this.xplanePort = 49009;
-        this.inSocket.setSoTimeout(timeout);
+        this.socket.setSoTimeout(timeout);
     }
 
     /**
      * Initializes a new instance of the {@code XPlaneConnect} class using the specified ports and X-Plane host.
      *
-     * @param port       The port on which the X-Plane Connect plugin is sending data.
-     * @param xplaneHost The network host on which X-Plane is running.
-     * @param xplanePort The port on which the X-Plane Connect plugin is listening.
+     * @param xpHost The network host on which X-Plane is running.
+     * @param xpPort The port on which the X-Plane Connect plugin is listening.
+     * @param port   The local port to use when sending and receiving data from XPC.
      * @throws java.net.SocketException      If this instance is unable to bind to the specified port.
      * @throws java.net.UnknownHostException If the specified hostname can not be resolved.
      */
-    public XPlaneConnect(int port, String xplaneHost, int xplanePort)
+    public XPlaneConnect(String xpHost, int xpPort, int port)
             throws java.net.SocketException, java.net.UnknownHostException
     {
-        this(port, xplaneHost, xplanePort, 100);
+        this(xpHost, xpPort, port, 100);
     }
 
     /**
      * Initializes a new instance of the {@code XPlaneConnect} class using the specified ports, hostname, and timeout.
      *
-     * @param port       The port on which the X-Plane Connect plugin is sending data.
-     * @param xplaneHost The network host on which X-Plane is running.
-     * @param xplanePort The port on which the X-Plane Connect plugin is listening.
+     * @param xpHost The network host on which X-Plane is running.
+     * @param xpPort The port on which the X-Plane Connect plugin is listening.
+     * @param port   The port on which the X-Plane Connect plugin is sending data.
      * @param timeout    The time, in milliseconds, after which read attempts will timeout.
      * @throws java.net.SocketException      If this instance is unable to bind to the specified port.
      * @throws java.net.UnknownHostException If the specified hostname can not be resolved.
      */
-    public XPlaneConnect(int port, String xplaneHost, int xplanePort, int timeout)
+    public XPlaneConnect(String xpHost, int xpPort, int port, int timeout)
             throws java.net.SocketException, java.net.UnknownHostException
     {
-        this.inSocket = new DatagramSocket(port);
-        this.outSocket = new DatagramSocket(50000 + ++clientNum);
-        this.xplaneAddr = InetAddress.getByName(xplaneHost);
-        this.xplanePort = xplanePort;
-        this.inSocket.setSoTimeout(timeout);
+        this.socket = new DatagramSocket(port);
+        this.xplaneAddr = InetAddress.getByName(xpHost);
+        this.xplanePort = xpPort;
+        this.socket.setSoTimeout(timeout);
     }
 
     /**
-     * Closes the underlying inSocket.
+     * Closes the underlying socket.
      */
     public void close()
     {
-        if(inSocket != null)
+        if(socket != null)
         {
-            inSocket.close();
-            inSocket = null;
-        }
-        if(outSocket != null)
-        {
-            outSocket.close();
-            outSocket = null;
+            socket.close();
+            socket = null;
         }
     }
 
@@ -181,14 +173,14 @@ public class XPlaneConnect implements AutoCloseable
      * @return The data send from X-Plane.
      * @throws IOException If the read operation fails
      */
-    private byte[] readUDP() throws IOException //TODO: Store data in a class level buffer to account for partial messages
+    private byte[] readUDP() throws IOException
     {
         byte[] buffer = new byte[2048];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         try
         {
-            inSocket.receive(packet);
-            return Arrays.copyOf(buffer, buffer[4]);
+            socket.receive(packet);
+            return Arrays.copyOf(buffer, packet.getLength());
         }
         catch (SocketTimeoutException ex)
         {
@@ -197,22 +189,15 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
-     * Send the given data to the X-Plane plugin. This method automatically sets the length byte before sending,
-     * overwriting any value previously stored in @{code buffer[4]}.
+     * Send the given data to the X-Plane plugin.
      *
      * @param buffer The data to send.
      * @throws IOException If the send operation fails.
      */
     private void sendUDP(byte[] buffer) throws IOException
     {
-        if(buffer.length < 5 || buffer.length > 255)
-        {
-            throw new IllegalArgumentException("buffer must be between 5 and 255 bytes long.");
-        }
-        buffer[4] = (byte)buffer.length;
-
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, xplaneAddr, xplanePort);
-        outSocket.send(packet);
+        socket.send(packet);
     }
 
     /**
@@ -236,9 +221,9 @@ public class XPlaneConnect implements AutoCloseable
      * @return     A byte array representing data dependent on the dref requested.
      * @throws IOException If either the request or the response fails.
      */
-    public float[] requestDREF(String dref) throws IOException
+    public float[] getDREF(String dref) throws IOException
     {
-        return requestDREFs(new String[]{dref})[0];
+        return getDREFs(new String[] {dref})[0];
     }
 
     /**
@@ -248,7 +233,7 @@ public class XPlaneConnect implements AutoCloseable
      * @return      A multidimensional array representing the data for each requested dref.
      * @throws IOException If either the request or the response fails.
      */
-    public float[][] requestDREFs(String[] drefs) throws IOException
+    public float[][] getDREFs(String[] drefs) throws IOException
     {
         //Preconditions
         if(drefs == null || drefs.length == 0)
@@ -329,7 +314,7 @@ public class XPlaneConnect implements AutoCloseable
     /**
      * Sends a command to X-Plane that sets the given DREF.
      *
-     * @param dref  The name of the DREF to set.
+     * @param dref  The name of the X-Plane dataref to set.
      * @param value An array of floating point values whose structure depends on the dref specified.
      * @throws IOException If the command cannot be sent.
      */
@@ -375,33 +360,33 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
-     * Sends command to X-Plane setting control surfaces on the player aircraft.
+     * Sends command to X-Plane setting control surfaces on the player ac.
      *
-     * @param ctrl <p>An array containing zero to six values representing control surface data as follows:</p>
-     *             <ol>
-     *                 <li>Latitudinal Stick [-1,1]</li>
-     *                 <li>Longitudinal Stick [-1,1]</li>
-     *                 <li>Rudder Pedals [-1, 1]</li>
-     *                 <li>Throttle [-1, 1]</li>
-     *                 <li>Gear (0=up, 1=down)</li>
-     *                 <li>Flaps [0, 1]</li>
-     *             </ol>
-     *             <p>
-     *                 If @{code ctrl} is less than 6 elements long, The missing elements will not be changed. To
-     *                 change values in the middle of the array without affecting the preceding values, set the
-     *                 preceding values to -998.
-     *             </p>
+     * @param values <p>An array containing zero to six values representing control surface data as follows:</p>
+     *               <ol>
+     *                   <li>Latitudinal Stick [-1,1]</li>
+     *                   <li>Longitudinal Stick [-1,1]</li>
+     *                   <li>Rudder Pedals [-1, 1]</li>
+     *                   <li>Throttle [-1, 1]</li>
+     *                   <li>Gear (0=up, 1=down)</li>
+     *                   <li>Flaps [0, 1]</li>
+     *               </ol>
+     *               <p>
+     *                   If @{code ctrl} is less than 6 elements long, The missing elements will not be changed. To
+     *                   change values in the middle of the array without affecting the preceding values, set the
+     *                   preceding values to -998.
+     *               </p>
      * @throws IOException If the command cannot be sent.
      */
-    public void sendCTRL(float[] ctrl) throws IOException
+    public void sendCTRL(float[] values) throws IOException
     {
-        sendCTRL(ctrl, 0);
+        sendCTRL(values, 0);
     }
 
     /**
-     * Sends command to X-Plane setting control surfaces on the specified aircraft.
+     * Sends command to X-Plane setting control surfaces on the specified ac.
      *
-     * @param ctrl     <p>An array containing zero to six values representing control surface data as follows:</p>
+     * @param values   <p>An array containing zero to six values representing control surface data as follows:</p>
      *                 <ol>
      *                     <li>Latitudinal Stick [-1,1]</li>
      *                     <li>Longitudinal Stick [-1,1]</li>
@@ -415,23 +400,23 @@ public class XPlaneConnect implements AutoCloseable
      *                     change values in the middle of the array without affecting the preceding values, set the
      *                     preceding values to -998.
      *                 </p>
-     * @param aircraft The aircraft to set. 0 for the player's aircraft.
+     * @param ac The ac to set. 0 for the player's ac.
      * @throws IOException If the command cannot be sent.
      */
-    public void sendCTRL(float[] ctrl, int aircraft) throws IOException
+    public void sendCTRL(float[] values, int ac) throws IOException
     {
         //Preconditions
-        if(ctrl == null)
+        if(values == null)
         {
             throw new IllegalArgumentException("ctrl must no be null.");
         }
-        if(ctrl.length > 6)
+        if(values.length > 6)
         {
             throw new IllegalArgumentException("ctrl must have 6 or fewer elements.");
         }
-        if(aircraft < 0 || aircraft > 9)
+        if(ac < 0 || ac > 9)
         {
-            throw new IllegalArgumentException("aircraft must be non-negative and less than 9.");
+            throw new IllegalArgumentException("ac must be non-negative and less than 9.");
         }
 
         //Pad command values and convert to bytes
@@ -439,16 +424,16 @@ public class XPlaneConnect implements AutoCloseable
         int cur = 0;
         ByteBuffer bb = ByteBuffer.allocate(22);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        for(i = 0; i < ctrl.length; ++i)
+        for(i = 0; i < values.length; ++i)
         {
             if(i == 4)
             {
-                bb.put(cur, (byte) ctrl[i]);
+                bb.put(cur, (byte) values[i]);
                 cur += 1;
             }
             else
             {
-                bb.putFloat(cur, ctrl[i]);
+                bb.putFloat(cur, values[i]);
                 cur += 4;
             }
         }
@@ -465,7 +450,7 @@ public class XPlaneConnect implements AutoCloseable
                 cur += 4;
             }
         }
-        bb.put(cur, (byte) aircraft);
+        bb.put(cur, (byte) ac);
 
         //Build and send message
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -476,11 +461,11 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
-     * Sets the position of the player aircraft.
+     * Sets the position of the player ac.
      *
-     * @param posi     <p>An array containing position elements as follows:</p>
+     * @param values   <p>An array containing position elements as follows:</p>
      *                 <ol>
-     *                     <li>Latitiude (deg)</li>
+     *                     <li>Latitude (deg)</li>
      *                     <li>Longitude (deg)</li>
      *                     <li>Altitude (m above MSL)</li>
      *                     <li>Roll (deg)</li>
@@ -495,17 +480,17 @@ public class XPlaneConnect implements AutoCloseable
      *                 </p>
      * @throws IOException If the command can not be sent.
      */
-    public void sendPOSI(float[] posi) throws IOException
+    public void sendPOSI(float[] values) throws IOException
     {
-        sendPOSI(posi, 0);
+        sendPOSI(values, 0);
     }
 
     /**
-     * Sets the position of the specified aircraft.
+     * Sets the position of the specified ac.
      *
-     * @param posi     <p>An array containing position elements as follows:</p>
+     * @param values   <p>An array containing position elements as follows:</p>
      *                 <ol>
-     *                     <li>Latitiude (deg)</li>
+     *                     <li>Latitude (deg)</li>
      *                     <li>Longitude (deg)</li>
      *                     <li>Altitude (m above MSL)</li>
      *                     <li>Roll (deg)</li>
@@ -518,32 +503,32 @@ public class XPlaneConnect implements AutoCloseable
      *                     change values in the middle of the array without affecting the preceding values, set the
      *                     preceding values to -998.
      *                 </p>
-     * @param aircraft The aircraft to set. 0 for the player aircraft.
+     * @param ac The ac to set. 0 for the player ac.
      * @throws IOException If the command can not be sent.
      */
-    public void sendPOSI(float[] posi, int aircraft) throws IOException
+    public void sendPOSI(float[] values, int ac) throws IOException
     {
         //Preconditions
-        if(posi == null)
+        if(values == null)
         {
             throw new IllegalArgumentException("posi must no be null.");
         }
-        if(posi.length > 7)
+        if(values.length > 7)
         {
             throw new IllegalArgumentException("posi must have 7 or fewer elements.");
         }
-        if(aircraft < 0 || aircraft > 255)
+        if(ac < 0 || ac > 255)
         {
-            throw new IllegalArgumentException("aircraft must be between 0 and 255.");
+            throw new IllegalArgumentException("ac must be between 0 and 255.");
         }
 
         //Pad command values and convert to bytes
         int i;
         ByteBuffer bb = ByteBuffer.allocate(28);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        for(i = 0; i < posi.length; ++i)
+        for(i = 0; i < values.length; ++i)
         {
-            bb.putFloat(i * 4, posi[i]);
+            bb.putFloat(i * 4, values[i]);
         }
         for(; i < 7; ++i)
         {
@@ -554,11 +539,41 @@ public class XPlaneConnect implements AutoCloseable
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         os.write("POSI".getBytes(StandardCharsets.UTF_8));
         os.write(0xFF); //Placeholder for message length
-        os.write(aircraft);
+        os.write(ac);
         os.write(bb.array());
         sendUDP(os.toByteArray());
     }
 
+    /**
+     * Reads X-Plane data
+     *
+     * @return The data read.
+     * @throws IOException If the read operation fails.
+     */
+    public float[][] readData() throws IOException
+    {
+        byte[] buffer = readUDP();
+        ByteBuffer bb = ByteBuffer.wrap(buffer);
+        int cur = 5;
+        int len = bb.get(cur++);
+        float[][] result = new float[bb.get(len)][9];
+        for(int i = 0; i < len; ++i)
+        {
+            for(int j = 0; j < 9; ++j)
+            {
+                result[i][j] = bb.getFloat(cur);
+                cur += 4;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Sends data to X-Plane
+     *
+     * @param data The data to send.
+     * @throws IOException If the command cannot be sent.
+     */
     public void sendDATA(float[][] data) throws IOException
     {
         //Preconditions
@@ -589,6 +604,36 @@ public class XPlaneConnect implements AutoCloseable
         //Build and send message
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         os.write("DATA".getBytes(StandardCharsets.UTF_8));
+        os.write(0xFF); //Placeholder for message length
+        os.write(bb.array());
+        sendUDP(os.toByteArray());
+    }
+
+    /**
+     * Selects what data X-Plane will export over UDP.
+     *
+     * @param rows The row numbers to select.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void selectDATA(int[] rows) throws IOException
+    {
+        //Preconditions
+        if(rows == null || rows.length == 0)
+        {
+            throw new IllegalArgumentException("rows must be a non-null, non-empty array.");
+        }
+
+        //Convert data to bytes
+        ByteBuffer bb = ByteBuffer.allocate(4 * rows.length);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        for(int i = 0; i < rows.length; ++i)
+        {
+            bb.putInt(i * 4, rows[i]);
+        }
+
+        //Build and send message
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write("DSEL".getBytes(StandardCharsets.UTF_8));
         os.write(0xFF); //Placeholder for message length
         os.write(bb.array());
         sendUDP(os.toByteArray());
@@ -643,12 +688,25 @@ public class XPlaneConnect implements AutoCloseable
         sendUDP(os.toByteArray());
     }
 
+    /**
+     * Adds, removes, or clears a set of waypoints. If the command is clear, the points are ignored
+     * and all points are removed.
+     *
+     * @param op     The operation to perform.
+     * @param points An array of values representing points. Each triplet in the array will be
+     *               interpreted as a (Lat, Lon, Alt) point.
+     * @throws IOException  If the command cannot be sent.
+     */
     public void sendWYPT(WaypointOp op,  float[] points) throws IOException
     {
         //Preconditions
         if(points.length % 3 != 0)
         {
             throw new IllegalArgumentException("points.length should be divisible by 3.");
+        }
+        if(points.length / 3 > 255)
+        {
+            throw new IllegalArgumentException("Too many points. Must be less than 256.");
         }
 
         //Convert points to bytes
@@ -672,12 +730,12 @@ public class XPlaneConnect implements AutoCloseable
     /**
      * Sets the port on which the client will receive data from X-Plane.
      *
-     * @param recvPort The new incoming port number.
-     * @throws IOException If the command cannnot be sent.
+     * @param port The new incoming port number.
+     * @throws IOException If the command cannot be sent.
      */
-    public void setCONN(int recvPort) throws IOException
+    public void setCONN(int port) throws IOException
     {
-        if(recvPort < 0 || recvPort >= 0xFFFF)
+        if(port < 0 || port >= 0xFFFF)
         {
             throw new IllegalArgumentException("Invalid port (must be non-negative and less than 65536).");
         }
@@ -685,13 +743,14 @@ public class XPlaneConnect implements AutoCloseable
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         os.write("CONN".getBytes(StandardCharsets.UTF_8));
         os.write(0xFF); //Placeholder for message length
-        os.write((byte) recvPort);
-        os.write((byte) (recvPort >> 8));
+        os.write((byte) port);
+        os.write((byte) (port >> 8));
         sendUDP(os.toByteArray());
 
-        int soTimeout = inSocket.getSoTimeout();
-        inSocket.close();
-        inSocket = new DatagramSocket(recvPort);
-        inSocket.setSoTimeout(soTimeout);
+        int soTimeout = socket.getSoTimeout();
+        socket.close();
+        socket = new DatagramSocket(port);
+        socket.setSoTimeout(soTimeout);
+        readUDP(); // Try to read response
     }
 }

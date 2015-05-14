@@ -10,11 +10,10 @@ value = rand();
 data = struct('h',25,'d',[value,-998,-998,-998,-998,-998,-998,-998]);
  
 sendDATA(data);
-result = requestDREF(DREFS);
+result = getDREFs(DREFS);
 
-assert(isequal(length(result),1),'DATATest: requestDREF unsucessful-wrong number of elements returned');
-assert(isequal(length(result{1}),8),'DATATest: requestDREF unsucessful- element 1 incorrect size (should be size 8)');
-assert(abs(result{1}(1)-value)<1e-4,'DATATest: DATA set unsucessful');
+assert(isequal(length(result),8),'DATATest: getDREFs unsucessful-wrong number of elements returned');
+assert(abs(result(1)-value)<1e-4,'DATATest: DATA set unsucessful');
 
 end
 
