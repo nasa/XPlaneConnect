@@ -48,6 +48,10 @@
 #include <sys/types.h>
 #include <time.h>
 
+int sendUDP(XPCSocket sock, char buffer[], int len);
+int readUDP(XPCSocket sock, char buffer[], int len);
+int sendDREFRequest(XPCSocket sock, const char* drefs[], unsigned char count);
+int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int sizes[]);
 void printError(char *functionName, char *format, ...)
 {
 	va_list args;
@@ -112,7 +116,7 @@ XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
 #else
 	struct timeval timeout;
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 1000;
+	timeout.tv_usec = 100000;
 #endif
 	if (setsockopt(sock.sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0)
 	{

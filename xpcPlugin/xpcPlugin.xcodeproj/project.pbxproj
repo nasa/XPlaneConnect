@@ -207,7 +207,8 @@
 		D607B16309A5563100699BC3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++98";
 				CLANG_CXX_LIBRARY = "libc++";
 				CONFIGURATION_BUILD_DIR = ./XPlaneConnect;
 				DYLIB_COMPATIBILITY_VERSION = "";
@@ -246,7 +247,7 @@
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				SYMROOT = build;
 				XPSDK_ROOT = SDK;
 			};
@@ -255,9 +256,10 @@
 		D607B16409A5563100699BC3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++98";
 				CLANG_CXX_LIBRARY = "libc++";
-				CONFIGURATION_BUILD_DIR = ./Mac;
+				CONFIGURATION_BUILD_DIR = ./XPlaneConnect;
 				DYLIB_COMPATIBILITY_VERSION = "";
 				DYLIB_CURRENT_VERSION = "";
 				EXECUTABLE_EXTENSION = xpl;
@@ -293,7 +295,7 @@
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx;
 				SYMROOT = build;
 				XPSDK_ROOT = SDK;
 			};
@@ -331,6 +333,7 @@
 				);
 				MACH_O_TYPE = mh_bundle;
 				PRODUCT_NAME = mac;
+				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = XPC;
@@ -368,7 +371,9 @@
 					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/xplaneConnect-asdjuezcjkhojuewbyxhyhabxfwc/Build/Products/Debug",
 				);
 				MACH_O_TYPE = mh_bundle;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = mac;
+				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = XPC;

@@ -16,3 +16,4 @@ if ~exist('socket', 'var')
 else
     sendDREFs(dref, value, socket)
 end
+socket.sendDREF(dref, value);
