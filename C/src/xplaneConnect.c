@@ -685,7 +685,7 @@ int sendWYPT(XPCSocket sock, WYPT_OP op, float points[], int count)
 	memcpy(buffer + 7, points, ptLen);
 
 	// Send Command
-	if (sendUDP(sock, buffer, 40) < 0)
+	if (sendUDP(sock, buffer, 7 + 12 * count) < 0)
 	{
 		printError("sendWYPT", "Failed to send command");
 		return -2;
