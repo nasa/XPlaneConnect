@@ -148,7 +148,7 @@ namespace XPC
 
 		WriteTime(fd);
 		WriteLevel(fd, level);
-		std::fprintf(fd, "%s| ", tag.c_str());
+		std::fprintf(fd, "%s|", tag.c_str());
 		std::vfprintf(fd, format.c_str(), args);
 		std::fprintf(fd, "\n");
 		std::fflush(fd);
