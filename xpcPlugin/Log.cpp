@@ -29,13 +29,46 @@ namespace XPC
 		std::tm * tm = std::localtime(&now_tt);
 
 		std::stringstream ss;
-		ss << std::setfill('0') << "["
+		ss << std::setfill('0')
 			<< std::setw(2) << tm->tm_hour << ":"
 			<< std::setw(2) << tm->tm_min << ":"
 			<< std::setw(2) << tm->tm_sec << "."
-			<< std::setw(3) << ms.count() << "]";
+			<< std::setw(3) << ms.count() << "|";
 
 		std::fprintf(fd, ss.str().c_str());
+	}
+
+	static void WriteLevel(FILE* fd, int level)
+	{
+		char* str;
+		switch (level)
+		{
+		case LOG_OFF:
+			str = "  OFF|";
+			break;
+		case LOG_FATAL:
+			str = "FATAL|";
+			break;
+		case LOG_ERROR:
+			str = "ERROR|";
+			break;
+		case LOG_WARN:
+			str = " WARN|";
+			break;
+		case LOG_INFO:
+			str = " INFO|";
+			break;
+		case LOG_DEBUG:
+			str = "DEBUG|";
+			break;
+		case LOG_TRACE:
+			str = "TRACE|";
+			break;
+		default:
+			str = "  UNK|";
+			break;
+		}
+		std::fprintf(fd, str);
 	}
 
 	void Log::Initialize(const std::string& version)
@@ -98,11 +131,12 @@ namespace XPC
 		}
 
 		WriteTime(fd);
-		std::fprintf(fd, "[%s] %s\n", tag.c_str(), value.c_str());
+		WriteLevel(fd, level);
+		std::fprintf(fd, "%s|%s\n", tag.c_str(), value.c_str());
 		std::fflush(fd);
 	}
 
-	void Log::FormatLine(int level, const std::string& tag, const std::string& format, ...)
+	void Log::FormatLine(int level, const std::string& tag, std::string format, ...)
 	{
 		va_list args;
 
@@ -113,7 +147,8 @@ namespace XPC
 		va_start(args, format);
 
 		WriteTime(fd);
-		std::fprintf(fd, "[%s] ", tag.c_str());
+		WriteLevel(fd, level);
+		std::fprintf(fd, "%s| ", tag.c_str());
 		std::vfprintf(fd, format.c_str(), args);
 		std::fprintf(fd, "\n");
 		std::fflush(fd);

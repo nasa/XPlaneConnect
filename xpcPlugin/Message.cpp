@@ -13,44 +13,41 @@ namespace XPC
 
 	Message Message::ReadFrom(const UDPSocket& sock)
 	{
-		Log::WriteLine(LOG_TRACE, "MESG", "Reading Message");
 		Message m;
 		int len = sock.Read(m.buffer, bufferSize, &m.source);
 		m.size = len < 0 ? 0 : len;
-		Log::FormatLine(LOG_TRACE, "MESG", "Read result: %i", len);
+		if (len > 0)
+		{
+			Log::FormatLine(LOG_TRACE, "MESG", "Read message with length %i", len);
+		}
 		return m;
 	}
 
 	unsigned long Message::GetMagicNumber() const
 	{
 		unsigned long val = size < 4 ? 0 : *((unsigned long*)buffer);
-		Log::FormatLine(LOG_TRACE, "MESG", "Gettting magic number 0x%lX for message 0x%zX", val, this);
 		return val;
 	}
 
 	std::string Message::GetHead() const
 	{
 		std::string val = size < 4 ? "" : std::string((char*)buffer, 4);
-		Log::FormatLine(LOG_TRACE, "MESG", "Getting head %s for message 0x%zX", val, this);
 		return val;
 	}
 
 	const unsigned char* Message::GetBuffer() const
 	{
 		const unsigned char* val = size == 0 ? NULL : buffer;
-		Log::FormatLine(LOG_TRACE, "MESG", "Returning buffer 0x%lX for message 0x%zX", val, this);
 		return val;
 	}
 
 	std::size_t Message::GetSize() const
 	{
-		Log::FormatLine(LOG_TRACE, "MESG", "Returning size %zu for message 0x%zX", size, this);
 		return size;
 	}
 
 	struct sockaddr Message::GetSource() const
 	{
-		Log::FormatLine(LOG_TRACE, "MESG", "Returning source for message 0x%zX", this);
 		return source;
 	}
 

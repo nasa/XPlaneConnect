@@ -22,9 +22,7 @@
 #define LOG_DEBUG 5
 #define LOG_TRACE 6
 
-#ifndef LOG_LEVEL
-#define LOG_LEVEL LOG_ERROR
-#endif
+#define LOG_LEVEL LOG_TRACE
 
 namespace XPC
 {
@@ -53,7 +51,10 @@ namespace XPC
 		/// specifiers.
 		///
 		/// \param format The format string appropriate for consumption by sprintf.
-		static void FormatLine(int level, const std::string& tag, const std::string& format, ...);
+		///
+		/// \remarks Note that Visual C++ silently fails va_start when the last non-varargs
+		///          argument is a reference, so we need a value-type format here.
+		static void FormatLine(int level, const std::string& tag, const std::string format, ...);
 
 		/// Writes the specified string value, followed by a line terminator
 		/// to the XPC log file.
