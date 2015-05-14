@@ -180,7 +180,7 @@ public class XPlaneConnect implements AutoCloseable
         try
         {
             socket.receive(packet);
-            return Arrays.copyOf(buffer, buffer[4]);
+            return Arrays.copyOf(buffer, packet.getLength());
         }
         catch (SocketTimeoutException ex)
         {
