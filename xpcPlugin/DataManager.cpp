@@ -626,7 +626,7 @@ namespace XPC
 		Log::FormatLine(LOG_INFO, "DMAN", "Setting gear (value:%f, immediate:%i) for aircraft %i",
 			gear, immediate, aircraft);
 
-		if ((gear < -8.5 && gear > -9.5) || (gear < -997.9 && gear > -999.1))
+		if ((gear < -8.5 && gear > -9.5) || IsDefault(gear))
 		{
 			return;
 		}
@@ -666,15 +666,15 @@ namespace XPC
 			return;
 		}
 
-		if (pos[0] < -997.9 && pos[0] > -999.1)
+		if (IsDefault(pos[0]))
 		{
 			pos[0] = (float)GetDouble(DREF_Latitude, aircraft);
 		}
-		if (pos[1] < -997.9 && pos[1] > -999.1)
+		if (IsDefault(pos[1]))
 		{
 			pos[1] = (float)GetDouble(DREF_Longitude, aircraft);
 		}
-		if (pos[2] < -997.9 && pos[2] > -999.1)
+		if (IsDefault(pos[2]))
 		{
 			pos[2] = (float)GetDouble(DREF_Elevation, aircraft);
 		}
@@ -702,15 +702,15 @@ namespace XPC
 			return;
 		}
 
-		if (orient[0] < -997.9 && orient[0] > -999.1)
+		if (IsDefault(orient[0]))
 		{
 			orient[0] = GetFloat(DREF_Pitch, aircraft);
 		}
-		if (orient[1] < -997.9 && orient[1] > -999.1)
+		if (IsDefault(orient[1]))
 		{
 			orient[1] = GetFloat(DREF_Roll, aircraft);
 		}
-		if (orient[2] < -997.9 && orient[2] > -999.1)
+		if (IsDefault(orient[2]))
 		{
 			orient[2] = GetFloat(DREF_HeadingTrue, aircraft);
 		}
@@ -752,7 +752,7 @@ namespace XPC
 			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Flap value must be a number (NaN received)");
 			return;
 		}
-		if (value < -997.9 && value > -999.1)
+		if (IsDefault(value))
 		{
 			return;
 		}
@@ -762,5 +762,15 @@ namespace XPC
 
 		Set(DREF_FlapSetting, value);
 		Set(DREF_FlapActual, value);
+	}
+
+	float DataManager::GetDefaultValue()
+	{
+		return -998.0F;
+	}
+
+	bool DataManager::IsDefault(float value)
+	{
+		return value < -997.9 && value > -999.1;
 	}
 }

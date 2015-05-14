@@ -195,26 +195,26 @@ namespace XPC
 		{
 			aircraftNumber = buffer[26];
 		}
-		float spdbrk = -998;
+		float spdbrk = DataManager::GetDefaultValue();
 		if (size >= 31)
 		{
 			spdbrk = *((float*)(buffer + 27));
 		}
 
 
-		if (pitch < -999.5 || pitch > -997.5)
+		if (!DataManager::IsDefault(pitch))
 		{
 			DataManager::Set(DREF_YokePitch, pitch, aircraftNumber);
 		}
-		if (roll < -999.5 || roll > -997.5)
+		if (!DataManager::IsDefault(roll))
 		{
 			DataManager::Set(DREF_YokeRoll, roll, aircraftNumber);
 		}
-		if (yaw < -999.5 || yaw > -997.5)
+		if (!DataManager::IsDefault(yaw))
 		{
 			DataManager::Set(DREF_YokeHeading, yaw, aircraftNumber);
 		}
-		if (throttle < -999.5 || throttle > -997.5)
+		if (!DataManager::IsDefault(throttle))
 		{
 
 			float throttleArray[8];
@@ -233,11 +233,11 @@ namespace XPC
 		{
 			DataManager::SetGear(gear, false, aircraftNumber);
 		}
-		if (flaps < -999.5 || flaps > -997.5)
+		if (!DataManager::IsDefault(flaps))
 		{
 			DataManager::Set(DREF_FlapSetting, flaps, aircraftNumber);
 		}
-		if (spdbrk < -999.5 || spdbrk > -997.5)
+		if (!DataManager::IsDefault(spdbrk))
 		{
 			DataManager::Set(DREF_SpeedBrakeSet, spdbrk, aircraftNumber);
 		}
@@ -274,8 +274,8 @@ namespace XPC
 
 		// Update log
 
-		float savedAlpha = -998;
-		float savedHPath = -998;
+		float savedAlpha = DataManager::GetDefaultValue();
+		float savedHPath = DataManager::GetDefaultValue();
 		for (int i = 0; i < numCols; ++i)
 		{
 			unsigned char dataRef = (unsigned char)values[i][0];
@@ -291,8 +291,8 @@ namespace XPC
 			case 3: // Velocity
 			{
 				float theta = DataManager::GetFloat(DREF_Pitch);
-				float alpha = savedAlpha != -998 ? savedAlpha : DataManager::GetFloat(DREF_AngleOfAttack);
-				float hpath = savedHPath != -998 ? savedHPath : DataManager::GetFloat(DREF_HPath);
+				float alpha = DataManager::IsDefault(savedAlpha) ? savedAlpha : DataManager::GetFloat(DREF_AngleOfAttack);
+				float hpath = DataManager::IsDefault(savedHPath) ? savedHPath : DataManager::GetFloat(DREF_HPath);
 				if (alpha != alpha || hpath != hpath)
 				{
 					Log::WriteLine(LOG_ERROR, "DATA", "ERROR: Value must be a number (NaN received)");
@@ -303,7 +303,7 @@ namespace XPC
 				for (int j = 0; j < 3; ++j)
 				{
 					float v = values[i][ind[j]];
-					if (v != -998)
+					if (!DataManager::IsDefault(v))
 					{
 						DataManager::Set(DREF_LocalVX, v*cos((theta - alpha)*deg2rad)*sin(hpath*deg2rad));
 						DataManager::Set(DREF_LocalVY, v*sin((theta - alpha)*deg2rad));
@@ -328,11 +328,11 @@ namespace XPC
 					Log::WriteLine(LOG_ERROR, "DATA", "ERROR: Value must be a number (NaN received)");
 					break;
 				}
-				if (values[i][1] != -998)
+				if (!DataManager::IsDefault(values[i][1]))
 				{
 					savedAlpha = values[i][1];
 				}
-				if (values[i][3] != -998)
+				if (DataManager::IsDefault(values[i][3]))
 				{
 					savedHPath = values[i][3];
 				}

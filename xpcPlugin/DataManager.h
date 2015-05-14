@@ -145,7 +145,7 @@ namespace XPC
 	/// \version 1.1
 	/// \since 1.0.0
 	/// \date Intial Version: 2015-04-13
-	/// \date Last Updated: 2015-05-11
+	/// \date Last Updated: 2015-05-14
 	class DataManager
 	{
 	public:
@@ -409,6 +409,15 @@ namespace XPC
 		///
 		/// \param value The flaps settings. Should be between 0.0 (no flaps) and 1.0 (full flaps).
 		static void SetFlaps(float value);
+
+		/// Gets a default value that indicates that a dataref should not be changed.
+		static float GetDefaultValue();
+
+		/// Checks whether the given value should be treated as a default value.
+		///
+		/// \param value The value to check.
+		/// \returns     true if value is a default value; otherwise false.
+		static bool IsDefault(float value);
 	};
 }
 #endif
