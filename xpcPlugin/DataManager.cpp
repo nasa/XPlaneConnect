@@ -169,8 +169,8 @@ namespace XPC
 			sprintf(multi, "sim/multiplayer/position/plane%i_gear_deploy", i);
 			mdrefs[i][DREF_GearDeploy] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_flap_ratio", i);
-			mdrefs[i][DREF_FlapSetting] = XPLMFindDataRef(multi); // Can't set the actual flap setting on npc aircraft
 			mdrefs[i][DREF_FlapActual] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_FlapSetting] = mdrefs[i][DREF_FlapActual]; // Can't set the actual flap setting on npc aircraft
 			sprintf(multi, "sim/multiplayer/position/plane%i_flap_ratio2", i);
 			mdrefs[i][DREF_FlapActual2] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_spoiler_ratio", i);
@@ -183,6 +183,7 @@ namespace XPC
 			mdrefs[i][DREF_Sweep] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_throttle", i);
 			mdrefs[i][DREF_ThrottleActual] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_ThrottleSet] = mdrefs[i][DREF_ThrottleActual]; // No throttle set for multiplayer planes.
 			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_pitch", i);
 			mdrefs[i][DREF_YokePitch] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_roll", i);
@@ -729,13 +730,13 @@ namespace XPC
 			// 	     http://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19770024290.pdf
 			float q[4];
 			float halfRad = 0.00872664625997F;
-			orient[2] = halfRad * orient[2];
-			orient[0] = halfRad * orient[0];
-			orient[1] = halfRad * orient[1];
-			q[0] = cos(orient[2]) * cos(orient[0]) * cos(orient[1]) + sin(orient[2]) * sin(orient[0]) * sin(orient[1]);
-			q[1] = cos(orient[2]) * cos(orient[0]) * sin(orient[1]) - sin(orient[2]) * sin(orient[0]) * cos(orient[1]);
-			q[2] = cos(orient[2]) * sin(orient[0]) * cos(orient[1]) + sin(orient[2]) * cos(orient[0]) * sin(orient[1]);
-			q[3] = sin(orient[2]) * cos(orient[0]) * cos(orient[1]) - cos(orient[2]) * sin(orient[0]) * sin(orient[1]);
+			float theta = halfRad * orient[0];
+			float phi = halfRad * orient[1];
+			float psi = halfRad * orient[2];
+			q[0] = cos(phi) * cos(theta) * cos(psi) + sin(phi) * sin(theta) * sin(psi);
+			q[1] = sin(phi) * cos(theta) * cos(psi) - cos(phi) * sin(theta) * sin(psi);
+			q[2] = cos(phi) * sin(theta) * cos(psi) + sin(phi) * cos(theta) * sin(psi);
+			q[3] = cos(phi) * cos(theta) * sin(psi) - sin(phi) * sin(theta) * cos(psi);
 
 			// If the sim is un-paused, this will overwrite the pitch/roll/yaw
 			// values set above.
