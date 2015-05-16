@@ -38,6 +38,33 @@ int doCTRLTest(char* drefs[7], float values[], int size, int ac, float expected[
 	return compareArray(expected, actual, 7);
 }
 
+int doGETCTest(float values[7], int ac, float expected[7])
+{
+	// Execute Test
+	float actual[7];
+	XPCSocket sock = openUDP(IP);
+	int result = sendCTRL(sock, values, 7, ac);
+	if (result >= 0)
+	{
+		result = getCTRL(sock, actual, ac);
+	}
+	closeUDP(sock);
+	if (result < 0)
+	{
+		return -1;
+	}
+
+	// Test values
+	for (int i = 0; i < 7; ++i)
+	{
+		if (fabs(expected[i] - actual[i]) > 1e-4)
+		{
+			return -10 - i;
+		}
+	}
+	return 0;
+}
+
 int basicCTRLTest(char** drefs, int ac)
 {
 	// Set control surfaces to known state.
@@ -145,5 +172,17 @@ int testCTRL_Speedbrakes()
 		return -30000 + result;
 	}
     return 0;
+}
+
+int testGETC()
+{
+	float CTRL[7] = { 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.5F, -1.5F };
+	return doGETCTest(CTRL, 0, CTRL);
+}
+
+int testGETC_NonPlayer()
+{
+	float CTRL[7] = { 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.5F, -1.5F };
+	return doGETCTest(CTRL, 2, CTRL);
 }
 #endif

@@ -530,7 +530,10 @@ namespace XPC
 		*((float*)(response + 18)) = DataManager::GetFloat(DREF_Pitch, aircraft);
 		*((float*)(response + 22)) = DataManager::GetFloat(DREF_Roll, aircraft);
 		*((float*)(response + 26)) = DataManager::GetFloat(DREF_HeadingTrue, aircraft);
-		*((float*)(response + 30)) = (float)DataManager::GetInt(DREF_GearHandle, aircraft);
+		
+		float gear[10];
+		DataManager::GetFloatArray(DREF_GearDeploy, gear, 10, aircraft);
+		*((float*)(response + 30)) = gear[0];
 
 		sock->SendTo(response, 34, &connection.addr);
 	}
