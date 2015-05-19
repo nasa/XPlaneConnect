@@ -202,6 +202,29 @@ class XPCTests(unittest.TestCase):
         expected = 0.0
         do_test()
 
+    def test_getCTRL(self):
+        values = None
+        ac = 0
+        expected = None
+        def do_test():
+            with xpc.XPlaneConnect() as client:
+                # Execute
+                client.sendCTRL(values, ac)
+                result = client.getCTRL(ac)
+
+                # Test
+                self.assertEqual(len(result), len(expected))
+                for a, e in zip(result, expected):
+                    self.assertAlmostEqual(a, e, 4)
+                    
+        values = [0.0, 0.0, 0.0, 0.8, 1.0, 0.5, -1.5]
+        expected = values
+        ac = 0
+        do_test()
+
+        ac = 3
+        do_test()
+
         
     def test_sendCTRL(self):
         # Setup
@@ -268,6 +291,31 @@ class XPCTests(unittest.TestCase):
 
         # Test 2
         ctrl[6] = 0.0
+        do_test()
+
+    def test_getPOSI(self):
+        values = None
+        ac = 0
+        expected = None
+        def do_test():
+            with xpc.XPlaneConnect() as client:
+                # Execute
+                client.pauseSim(True)
+                client.sendPOSI(values, ac)
+                result = client.getPOSI(ac)
+                client.pauseSim(False)
+
+                # Test
+                self.assertEqual(len(result), len(expected))
+                for a, e in zip(result, expected):
+                    self.assertAlmostEqual(a, e, 4)
+                    
+        values = [ 37.524, -122.06899, 2500, 45, -45, 15, 1 ]
+        expected = values
+        ac = 0
+        do_test()
+
+        ac = 3
         do_test()
 
     def test_sendPOSI(self):
