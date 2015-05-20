@@ -698,4 +698,31 @@ public class XPlaneConnectTest
         }
 
     }
+
+    @Test
+    public void testGetPOSI() throws IOException
+    {
+        float[] values = { 37.524F, -122.06899F, 2500.0F, 45.0F, -45.0F, 15.0F, 1.0F };
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.pauseSim(true);
+            xpc.sendPOSI(values);
+            float[] actual = xpc.getPOSI(0);
+
+            assertArrayEquals(values, actual, 1e-4F);
+        }
+    }
+
+    @Test
+    public void testGetCTRL() throws IOException
+    {
+        float[] values = { 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.5F, -1.5F };
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.sendCTRL(values);
+            float[] actual = xpc.getCTRL(0);
+
+            assertArrayEquals(values, actual, 1e-4F);
+        }
+    }
 }
