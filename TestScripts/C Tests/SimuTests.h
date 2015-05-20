@@ -31,6 +31,7 @@ int doSIMUTest(int value, float expected)
 			return -100 - i;
 		}
 	}
+    return 0;
 }
 
 int testSIMU_Basic()

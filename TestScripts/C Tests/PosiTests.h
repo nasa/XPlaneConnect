@@ -83,6 +83,7 @@ int basicPOSITest(char** drefs, int ac)
 	{
 		return -20000 + result;
 	}
+    return 0;
 }
 
 int testPOSI_Player()
