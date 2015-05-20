@@ -409,6 +409,7 @@ public class XPlaneConnect implements AutoCloseable
      *                   <li>Throttle [-1, 1]</li>
      *                   <li>Gear (0=up, 1=down)</li>
      *                   <li>Flaps [0, 1]</li>
+     *                     <li>Speedbrakes [-0.5, 1.5]</li>
      *               </ol>
      *               <p>
      *                   If @{code ctrl} is less than 6 elements long, The missing elements will not be changed. To
@@ -433,6 +434,7 @@ public class XPlaneConnect implements AutoCloseable
      *                     <li>Throttle [-1, 1]</li>
      *                     <li>Gear (0=up, 1=down)</li>
      *                     <li>Flaps [0, 1]</li>
+     *                     <li>Speedbrakes [-0.5, 1.5]</li>
      *                 </ol>
      *                 <p>
      *                     If @{code ctrl} is less than 6 elements long, The missing elements will not be changed. To
