@@ -38,7 +38,7 @@ namespace XPC
 #elif (__APPLE__ || __linux)
 		if ((this->sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
 		{
-			Log::WriteLine("[SOCK] ERROR: Failed to open socket");
+			Log::WriteLine(LOG_FATAL, tag, "ERROR: Failed to open socket");
 			return;
 		}
 		int optval = 1;
