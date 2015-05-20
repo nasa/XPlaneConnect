@@ -63,9 +63,8 @@ namespace XPC
 		}
 		Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
 
-		ss << std::dec;
 		ss.str("");
-		ss << "Head:" << GetHead() << " Size:" << GetSize();
+		ss << "Head: " << GetHead() << "(0x" << std::setw(8) << GetMagicNumber() << ")" << std::dec << " Size: " << GetSize();
 		switch (GetMagicNumber()) // Binary version of head
 		{
 		case 0x4E4EF443: // CONN
