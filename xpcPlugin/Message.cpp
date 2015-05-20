@@ -121,7 +121,7 @@ namespace XPC
 		{
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             std::string dref((char*)buffer + 6, buffer[5]);
-            Log::FormatLine(LOG_DEBUG, "DBUG", "    DREF (size %i) = %s", dref.length(), dref);
+            Log::FormatLine(LOG_DEBUG, "DBUG", "    DREF (size %i) = %s", dref.length(), dref.c_str());
             ss.str("");
             int values = buffer[6 + buffer[5]];
             ss << "    Values(size " << values << ") =";
@@ -140,7 +140,7 @@ namespace XPC
             {
                 std::string dref((char*)buffer + cur + 1, buffer[cur]);
                 Log::FormatLine(LOG_DEBUG, "DBUG", "    #%i/%i (size:%i) %s",
-					i + 1, buffer[5], dref.length(), dref);
+					i + 1, buffer[5], dref.length(), dref.c_str());
                 cur += 1 + buffer[cur];
             }
             break;

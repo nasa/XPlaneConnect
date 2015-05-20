@@ -89,7 +89,7 @@ namespace XPC
 		// Set current connection
 		sockaddr sourceaddr = msg.GetSource();
 		connectionKey = UDPSocket::GetHost(&sourceaddr);
-		Log::FormatLine(LOG_INFO, "MSGH", "Handling message from %s", connectionKey);
+		Log::FormatLine(LOG_INFO, "MSGH", "Handling message from %s", connectionKey.c_str());
 		std::map<std::string, ConnectionInfo>::iterator conn = connections.find(connectionKey);
 		if (conn == connections.end()) // New connection
 		{
@@ -102,13 +102,13 @@ namespace XPC
 			connection.getdCount = 0;
 			connections[connectionKey] = connection;
 			Log::FormatLine(LOG_DEBUG, "MSGH", "New connection. ID=%u, Remote=%s",
-				connection.id, connectionKey);
+				connection.id, connectionKey.c_str());
 		}
 		else
 		{
 			connection = (*conn).second;
 			Log::FormatLine(LOG_DEBUG, "MSGH", "Existing connection. ID=%u, Remote=%s",
-				connection.id, connectionKey);
+				connection.id, connectionKey.c_str());
 		}
 
 		msg.PrintToLog();
@@ -417,7 +417,7 @@ namespace XPC
 			pos += 4 * valueCount;
 
 			DataManager::Set(dref, values, valueCount);
-			Log::FormatLine(LOG_DEBUG, "DREF", "Set %d values for %s", valueCount, dref);
+			Log::FormatLine(LOG_DEBUG, "DREF", "Set %d values for %s", valueCount, dref.c_str());
 		}
 		if (pos != size)
 		{

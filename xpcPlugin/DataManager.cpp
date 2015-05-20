@@ -313,12 +313,12 @@ namespace XPC
 		}
 		if (!xdref) // DREF does not exist
 		{
-			Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: invalid DREF %s", dref);
+			Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: invalid DREF %s", dref.c_str());
 			return 0;
 		}
 
 		XPLMDataTypeID dataType = XPLMGetDataRefTypes(xdref);
-		Log::FormatLine(LOG_INFO, "DMAN", "Get DREF %s (x:%X) Type: %i", dref, xdref, dataType);
+		Log::FormatLine(LOG_INFO, "DMAN", "Get DREF %s (x:%X) Type: %i", dref.c_str(), xdref, dataType);
 		// XPLMDataTypeID is a bit flag, so it may contain more than one of the
 		// following types. We prefer types as close to float as possible.
 		if ((dataType & 2) == 2) // Float
@@ -518,7 +518,7 @@ namespace XPC
 		if (!xdref)
 		{
 			// DREF does not exist
-			Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: invalid DREF %s", dref);
+			Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: invalid DREF %s", dref.c_str());
 			return;
 		}
 		if (isnan(values[0]))
