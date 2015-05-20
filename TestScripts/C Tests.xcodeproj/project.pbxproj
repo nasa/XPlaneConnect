@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BE7CF6311B0CFA34008B1E07 /* Test.c in Sources */ = {isa = PBXBuildFile; fileRef = BE7CF62B1B0CFA34008B1E07 /* Test.c */; };
 		BEB0F5071A28F9A3001975A6 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = BEB0F5061A28F9A3001975A6 /* main.c */; };
 		BEB0F5091A28F9A3001975A6 /* C_Tests.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = BEB0F5081A28F9A3001975A6 /* C_Tests.1 */; };
 		BEB0F5111A28F9D5001975A6 /* xplaneConnect.c in Sources */ = {isa = PBXBuildFile; fileRef = BEB0F50F1A28F9D5001975A6 /* xplaneConnect.c */; };
@@ -27,6 +28,17 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		BE7CF6261B0CFA34008B1E07 /* CtrlTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CtrlTests.h; sourceTree = "<group>"; };
+		BE7CF6271B0CFA34008B1E07 /* DataTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataTests.h; sourceTree = "<group>"; };
+		BE7CF6281B0CFA34008B1E07 /* DrefTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrefTests.h; sourceTree = "<group>"; };
+		BE7CF6291B0CFA34008B1E07 /* PosiTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PosiTests.h; sourceTree = "<group>"; };
+		BE7CF62A1B0CFA34008B1E07 /* SimuTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimuTests.h; sourceTree = "<group>"; };
+		BE7CF62B1B0CFA34008B1E07 /* Test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Test.c; sourceTree = "<group>"; };
+		BE7CF62C1B0CFA34008B1E07 /* Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Test.h; sourceTree = "<group>"; };
+		BE7CF62D1B0CFA34008B1E07 /* TextTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextTests.h; sourceTree = "<group>"; };
+		BE7CF62E1B0CFA34008B1E07 /* UDPTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UDPTests.h; sourceTree = "<group>"; };
+		BE7CF62F1B0CFA34008B1E07 /* ViewTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewTests.h; sourceTree = "<group>"; };
+		BE7CF6301B0CFA34008B1E07 /* WyptTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WyptTests.h; sourceTree = "<group>"; };
 		BEB0F5031A28F9A3001975A6 /* C Tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C Tests"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEB0F5061A28F9A3001975A6 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		BEB0F5081A28F9A3001975A6 /* C_Tests.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = C_Tests.1; sourceTree = "<group>"; };
@@ -66,6 +78,17 @@
 		BEB0F5051A28F9A3001975A6 /* C Tests */ = {
 			isa = PBXGroup;
 			children = (
+				BE7CF6261B0CFA34008B1E07 /* CtrlTests.h */,
+				BE7CF6271B0CFA34008B1E07 /* DataTests.h */,
+				BE7CF6281B0CFA34008B1E07 /* DrefTests.h */,
+				BE7CF6291B0CFA34008B1E07 /* PosiTests.h */,
+				BE7CF62A1B0CFA34008B1E07 /* SimuTests.h */,
+				BE7CF62B1B0CFA34008B1E07 /* Test.c */,
+				BE7CF62C1B0CFA34008B1E07 /* Test.h */,
+				BE7CF62D1B0CFA34008B1E07 /* TextTests.h */,
+				BE7CF62E1B0CFA34008B1E07 /* UDPTests.h */,
+				BE7CF62F1B0CFA34008B1E07 /* ViewTests.h */,
+				BE7CF6301B0CFA34008B1E07 /* WyptTests.h */,
 				BEB0F5061A28F9A3001975A6 /* main.c */,
 				BEB0F5081A28F9A3001975A6 /* C_Tests.1 */,
 			);
@@ -126,6 +149,7 @@
 				BEB0F5111A28F9D5001975A6 /* xplaneConnect.c in Sources */,
 				BEB0F5121A28F9D5001975A6 /* xplaneConnect.h in Sources */,
 				BEB0F5071A28F9A3001975A6 /* main.c in Sources */,
+				BE7CF6311B0CFA34008B1E07 /* Test.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
