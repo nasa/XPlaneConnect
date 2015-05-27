@@ -175,7 +175,7 @@ public class XPlaneConnect implements AutoCloseable
      */
     private byte[] readUDP() throws IOException
     {
-        byte[] buffer = new byte[2048];
+        byte[] buffer = new byte[65536];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         try
         {
@@ -211,6 +211,26 @@ public class XPlaneConnect implements AutoCloseable
         //            S     I     M     U     LEN   VAL
         byte[] msg = {0x53, 0x49, 0x4D, 0x55, 0x00, 0x00};
         msg[5] = (byte)(pause ? 0x01 : 0x00);
+        sendUDP(msg);
+    }
+
+    /**
+     * Pauses, unpauses, or switches the pause state of X-Plane.
+     *
+     * @param pause {@code 1} to pause the simulator, {@code 0} to unpause, or {@code 2} to switch.
+     * @throws IllegalArgumentException If the values of {@code pause} is not a valid command.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void pauseSim(int pause) throws IOException
+    {
+        if(pause < 0 || pause > 2)
+        {
+            throw new IllegalArgumentException("pause must be a value in the range [0, 2].");
+        }
+
+        //            S     I     M     U     LEN   VAL
+        byte[] msg = {0x53, 0x49, 0x4D, 0x55, 0x00, 0x00};
+        msg[5] = (byte)pause;
         sendUDP(msg);
     }
 
@@ -273,37 +293,29 @@ public class XPlaneConnect implements AutoCloseable
         sendUDP(os.toByteArray());
 
         //Read response
-        for(int i = 0; i < 40; ++i)
+        byte[] data = readUDP();
+        if(data.length == 0)
         {
-            byte[] data = readUDP();
-            if(data.length == 0)
-            {
-                continue;
-            }
-            if(data.length < 6)
-            {
-                throw new Error("Response too short"); //TODO: Make custom error type
-            }
-            if(data[5] != drefs.length)
-            {
-                throw new Error("Unexpected response length"); //TODO: Make custom error type
-            }
-            float[][] result = new float[drefs.length][];
-            ByteBuffer bb = ByteBuffer.wrap(data);
-            bb.order(ByteOrder.LITTLE_ENDIAN);
-            int cur = 6;
-            for(int j = 0; j < result.length; ++j)
-            {
-                result[j] = new float[data[cur++]];
-                for(int k = 0; k < result[j].length; ++k) //TODO: There must be a better way to do this
-                {
-                    result[j][k] = bb.getFloat(cur);
-                    cur += 4;
-                }
-            }
-            return result;
+            throw new IOException("No response received.");
         }
-        throw new IOException("No response received.");
+        if(data.length < 6)
+        {
+            throw new IOException("Response too short");
+        }
+        float[][] result = new float[drefs.length][];
+        ByteBuffer bb = ByteBuffer.wrap(data);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        int cur = 6;
+        for(int j = 0; j < result.length; ++j)
+        {
+            result[j] = new float[data[cur++]];
+            for(int k = 0; k < result[j].length; ++k) //TODO: There must be a better way to do this
+            {
+                result[j][k] = bb.getFloat(cur);
+                cur += 4;
+            }
+        }
+        return result;
     }
 
     public void sendDREF(String dref, float value) throws IOException
@@ -320,42 +332,69 @@ public class XPlaneConnect implements AutoCloseable
      */
     public void sendDREF(String dref, float[] value) throws IOException
     {
+        sendDREFs(new String[] {dref}, new float[][] {value});
+    }
+
+    /**
+     * Sends a command to X-Plane that sets the given DREF.
+     *
+     * @param drefs  The names of the X-Plane datarefs to set.
+     * @param values A sequence of arrays of floating point values whose structure depends on the drefs specified.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void sendDREFs(String[] drefs, float[][] values) throws IOException
+    {
         //Preconditions
-        if(dref == null)
+        if(drefs == null || drefs.length == 0)
         {
-            throw new IllegalArgumentException("dref must be a valid string.");
+            throw new IllegalArgumentException(("drefs must be non-empty."));
         }
-        if(value == null || value.length == 0)
+        if(values == null ||  values.length != drefs.length)
         {
-            throw new IllegalArgumentException("value must be non-null and should contain at least one value.");
-        }
-
-        //Convert drefs to bytes.
-        byte[] drefBytes = dref.getBytes(StandardCharsets.UTF_8);
-        if(drefBytes.length == 0)
-        {
-            throw new IllegalArgumentException("DREF is an empty string!");
-        }
-        if(drefBytes.length > 255)
-        {
-            throw new IllegalArgumentException("dref must be less than 255 bytes in UTF-8. Are you sure this is a valid dref?");
+            throw new IllegalArgumentException("values must be of the same size as drefs.");
         }
 
-        ByteBuffer bb = ByteBuffer.allocate(4 * value.length);
-        bb.order(ByteOrder.LITTLE_ENDIAN);
-        for(int i = 0; i < value.length; ++i)
-        {
-            bb.putFloat(i * 4, value[i]);
-        }
-
-        //Build and send message
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         os.write("DREF".getBytes(StandardCharsets.UTF_8));
         os.write(0xFF); //Placeholder for message length
-        os.write(drefBytes.length);
-        os.write(drefBytes, 0, drefBytes.length);
-        os.write(value.length);
-        os.write(bb.array());
+        for(int i = 0; i < drefs.length; ++i)
+        {
+            String dref = drefs[i];
+            float[] value = values[i];
+
+            if (dref == null)
+            {
+                throw new IllegalArgumentException("dref must be a valid string.");
+            }
+            if (value == null || value.length == 0)
+            {
+                throw new IllegalArgumentException("value must be non-null and should contain at least one value.");
+            }
+
+            //Convert drefs to bytes.
+            byte[] drefBytes = dref.getBytes(StandardCharsets.UTF_8);
+            if (drefBytes.length == 0)
+            {
+                throw new IllegalArgumentException("DREF is an empty string!");
+            }
+            if (drefBytes.length > 255)
+            {
+                throw new IllegalArgumentException("dref must be less than 255 bytes in UTF-8. Are you sure this is a valid dref?");
+            }
+
+            ByteBuffer bb = ByteBuffer.allocate(4 * value.length);
+            bb.order(ByteOrder.LITTLE_ENDIAN);
+            for (int j = 0; j < value.length; ++j)
+            {
+                bb.putFloat(j * 4, value[j]);
+            }
+
+            //Build and send message
+            os.write(drefBytes.length);
+            os.write(drefBytes, 0, drefBytes.length);
+            os.write(value.length);
+            os.write(bb.array());
+        }
         sendUDP(os.toByteArray());
     }
 
@@ -410,9 +449,9 @@ public class XPlaneConnect implements AutoCloseable
         {
             throw new IllegalArgumentException("ctrl must no be null.");
         }
-        if(values.length > 6)
+        if(values.length > 7)
         {
-            throw new IllegalArgumentException("ctrl must have 6 or fewer elements.");
+            throw new IllegalArgumentException("ctrl must have 7 or fewer elements.");
         }
         if(ac < 0 || ac > 9)
         {
@@ -422,14 +461,19 @@ public class XPlaneConnect implements AutoCloseable
         //Pad command values and convert to bytes
         int i;
         int cur = 0;
-        ByteBuffer bb = ByteBuffer.allocate(22);
+        ByteBuffer bb = ByteBuffer.allocate(26);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        for(i = 0; i < values.length; ++i)
+        for(i = 0; i < 6; ++i)
         {
             if(i == 4)
             {
                 bb.put(cur, (byte) values[i]);
                 cur += 1;
+            }
+            else if (i >= values.length)
+            {
+                bb.putFloat(cur, -998);
+                cur+= 4;
             }
             else
             {
@@ -437,20 +481,8 @@ public class XPlaneConnect implements AutoCloseable
                 cur += 4;
             }
         }
-        for(; i < 6; ++i)
-        {
-            if(i == 4)
-            {
-                bb.put(cur, (byte) 0);
-                cur += 1;
-            }
-            else
-                {
-                bb.putFloat(cur, -998);
-                cur += 4;
-            }
-        }
-        bb.put(cur, (byte) ac);
+        bb.put(cur++, (byte) ac);
+        bb.putFloat(cur, values.length == 7 ? values[6] : -998);
 
         //Build and send message
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -685,6 +717,26 @@ public class XPlaneConnect implements AutoCloseable
         os.write(bb.array());
         os.write(msgBytes.length);
         os.write(msgBytes);
+        sendUDP(os.toByteArray());
+    }
+
+    /**
+     * Sets the camera view in X-Plane.
+     *
+     * @param view The view to use.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void sendVIEW(ViewType view) throws IOException
+    {
+        ByteBuffer bb = ByteBuffer.allocate(4);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.putInt(view.getValue());
+
+        //Build and send message
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write("VIEW".getBytes(StandardCharsets.UTF_8));
+        os.write(0xFF); //Placeholder for message length
+        os.write(bb.array());
         sendUDP(os.toByteArray());
     }
 

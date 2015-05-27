@@ -1,14 +1,14 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
-//National Aeronautics and Space Administration. All Rights Reserved.
-#ifndef XPC_SOCKET_H
-#define XPC_SOCKET_H
+// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
+#ifndef XPCPLUGIN_SOCKET_H_
+#define XPCPLUGIN_SOCKET_H_
 
 #include <cstdlib>
 #include <string>
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#pragma comment(lib,"ws2_32.lib") //Winsock Library
+#pragma comment(lib, "ws2_32.lib") // Winsock Library
 #elif (__APPLE__ || __linux)
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -23,10 +23,10 @@ namespace XPC
 	/// data to XPC clients.
 	///
 	/// \author Jason Watkins
-	/// \version 1.0
+	/// \version 1.1
 	/// \since 1.0
 	/// \date Intial Version: 2015-04-10
-	/// \date Last Updated: 2015-04-11
+	/// \date Last Updated: 2015-05-11
 	class UDPSocket
 	{
 	public:
@@ -34,7 +34,7 @@ namespace XPC
 		/// specified receive port.
 		///
 		/// \param recvPort The port on which this instance will receive data.
-		UDPSocket(unsigned short recvPort);
+		explicit UDPSocket(unsigned short recvPort);
 
 		/// Closes the underlying socket for this instance.
 		~UDPSocket();
@@ -45,17 +45,17 @@ namespace XPC
 		/// \param buffer	 The array to copy the data into.
 		/// \param size	   The number of bytes to read.
 		/// \param remoteAddr When at least one byte is read, contains the address
-		///				   of the remote host.
+		///                   of the remote host.
 		/// \returns		  The number of bytes read, or a negative number if
-		///				   an error occurs.
-		int Read(unsigned char* buffer, int size, sockaddr* remoteAddr);
+		///                   an error occurs.
+		int Read(unsigned char* buffer, int size, sockaddr* remoteAddr) const;
 
 		/// Sends data to the specified remote endpoint.
 		///
 		/// \param data   The data to be sent.
 		/// \param len    The number of bytes to send.
 		/// \param remote The destination socket.
-		void SendTo(const unsigned char* buffer, std::size_t len, sockaddr* remote);
+		void SendTo(const unsigned char* buffer, std::size_t len, sockaddr* remote) const;
 
 		/// Gets a string containing the IP address and port contained in the given sockaddr.
 		///
@@ -70,5 +70,4 @@ namespace XPC
 #endif
 	};
 }
-
 #endif

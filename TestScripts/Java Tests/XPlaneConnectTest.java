@@ -1,5 +1,6 @@
 package gov.nasa.xpc.test;
 
+import gov.nasa.xpc.ViewType;
 import gov.nasa.xpc.WaypointOp;
 import gov.nasa.xpc.XPlaneConnect;
 
@@ -208,12 +209,30 @@ public class XPlaneConnectTest
         {
             xpc.pauseSim(true);
             float[] result = xpc.getDREF(dref);
-            //assertEquals(1, result.length); //TODO: Why is this result 20 elements long in Java? (It's only one in MATLAB)
+            assertEquals(20, result.length);
             assertEquals(1, result[0], 1e-4);
 
             xpc.pauseSim(false);
             result = xpc.getDREF(dref);
-            //assertEquals(1, result.length);
+            assertEquals(20, result.length);
+            assertEquals(0, result[0], 1e-4);
+        }
+    }
+
+    @Test
+    public void testPauseSim_Switch() throws IOException
+    {
+        String dref = "sim/operation/override/override_planepath";
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.pauseSim(true);
+            float[] result = xpc.getDREF(dref);
+            assertEquals(20, result.length);
+            assertEquals(1, result[0], 1e-4);
+
+            xpc.pauseSim(2);
+            result = xpc.getDREF(dref);
+            assertEquals(20, result.length);
             assertEquals(0, result[0], 1e-4);
         }
     }
@@ -312,6 +331,33 @@ public class XPlaneConnectTest
 
             float result = xpc.getDREF(dref)[0];
             assertEquals(value, result, 1e-4);
+        }
+    }
+
+    @Test
+    public void testSendDREFs() throws IOException
+    {
+        String[] drefs =
+        {
+            "sim/cockpit/switches/gear_handle_status",
+            "sim/cockpit/autopilot/altitude"
+        };
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            float[][] values = {{1}, {2000}};
+            xpc.sendDREFs(drefs, values);
+
+            float[][] result = xpc.getDREFs(drefs);
+            assertEquals(values[0][0], result[0][0], 1e-4);
+            assertEquals(values[1][0], result[1][0], 1e-4);
+
+            values[0][0] = 0;
+            values[1][0] = 4000;
+            xpc.sendDREFs(drefs, values);
+
+            result = xpc.getDREFs(drefs);
+            assertEquals(values[0][0], result[0][0], 1e-4);
+            assertEquals(values[1][0], result[1][0], 1e-4);
         }
     }
 
@@ -445,6 +491,34 @@ public class XPlaneConnectTest
         }
     }
 
+    @Test
+    public void testSendCTRL_Speedbrakes() throws IOException
+    {
+        String dref = "sim/flightmodel/controls/sbrkrqst";
+        float[] ctrl = new float[] { -998.0F, -998.0F, -998.0F, -998.0F, -998.0F, -998.0F, -0.5F };
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            // Speedbrakes armed
+            xpc.sendCTRL(ctrl);
+            float[] result = xpc.getDREF(dref);
+
+            assertEquals(-0.5F, result[0], 1e-4);
+
+            ctrl[6] = 1.0F; // Deploy speedbrakes
+            xpc.sendCTRL(ctrl);
+            result = xpc.getDREF(dref);
+
+            assertEquals(1.0F, result[0], 1e-4);
+
+            ctrl[6] = 0.0F; // Retract speedbrakes
+            xpc.sendCTRL(ctrl);
+            result = xpc.getDREF(dref);
+
+            assertEquals(0.0F, result[0], 1e-4);
+        }
+
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testSendCTRL_NullCtrl() throws IOException
     {
@@ -457,7 +531,7 @@ public class XPlaneConnectTest
     @Test(expected = IllegalArgumentException.class)
     public void testSendCTRL_LongCtrl() throws IOException
     {
-        float[] ctrl = new float[] {0, 0, 1, 0.8F, 0, 1, -998};
+        float[] ctrl = new float[] {0, 0, 1, 0.8F, 0, 1, 0, -998};
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendCTRL(ctrl);
@@ -603,5 +677,25 @@ public class XPlaneConnectTest
             xpc.setCONN(65536);
             fail();
         }
+    }
+
+    @Test
+    public void testSendView() throws IOException
+    {
+        String dref = "sim/graphics/view/view_type";
+        float fwd = 1000;
+        float chase = 1017;
+
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.sendVIEW(ViewType.Forwards);
+            float result = xpc.getDREF(dref)[0];
+            assertEquals(fwd, result, 1e-4);
+
+            xpc.sendVIEW(ViewType.Chase);
+            result = xpc.getDREF(dref)[0];
+            assertEquals(chase, result, 1e-4);
+        }
+
     }
 }

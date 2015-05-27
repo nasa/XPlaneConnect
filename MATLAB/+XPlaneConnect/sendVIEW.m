@@ -1,19 +1,16 @@
-function pauseSim( pause, socket )
-%pauseSim Pauses or unpauses X-Plane.
+function sendVIEW(view, socket)
+% sendVIEW Sets the camera
 %
 %Inputs
-%     pause: binary value 0=run, 1=pause
+%     view: The view to use.
 %     socket (optional): The client to use when sending the command.
 %
 %Use
 %	1. import XPlaneConnect.*;
-%	2. status = pauseSim(1);
+%	2. sendView(Forwards);
 %
 % Contributors
-%   [CT] Christopher Teubert (SGT, Inc.)
-%       christopher.a.teubert@nasa.gov
-%   [JW] Jason Watkins
-%       jason.w.watkins@nasa.gov
+%   [JW] Jason Watkins <jason.w.watkins@nasa.gov>
 
 import XPlaneConnect.*
 
@@ -29,9 +26,10 @@ if ~exist('socket', 'var')
 end
 
 %% Validate input
-pause = int32(pause);
+
 
 %% Send command
-socket.pauseSim(pause);
+socket.sendVIEW(view)
 
 end
+

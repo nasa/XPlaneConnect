@@ -52,7 +52,6 @@ int sendUDP(XPCSocket sock, char buffer[], int len);
 int readUDP(XPCSocket sock, char buffer[], int len);
 int sendDREFRequest(XPCSocket sock, const char* drefs[], unsigned char count);
 int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int sizes[]);
-
 void printError(char *functionName, char *format, ...)
 {
 	va_list args;
@@ -266,9 +265,17 @@ int setCONN(XPCSocket* sock, unsigned short port)
 
 int pauseSim(XPCSocket sock, char pause)
 {
+	// Validte input
+	if (pause < 0 || pause > 2)
+	{
+		printError("pauseSim", "Invalid argument: %i", pause);
+		return -2;
+	}
+
 	// Setup command
 	char buffer[6] = "SIMU";
-	buffer[5] = pause == 0 ? 0 : 1;
+	buffer[5] = pause;
+
 	// Send command
 	if (sendUDP(sock, buffer, 6) < 0)
 	{
@@ -360,32 +367,46 @@ int readDATA(XPCSocket sock, float data[][9], int rows)
 /*****************************************************************************/
 int sendDREF(XPCSocket sock, const char* dref, float value[], int size)
 {
-	// Setup command
-	// 5 byte header + max 255 char dref name + max 255 values * 4 bytes per value = 1279
-	unsigned char buffer[1279] = "DREF";
-	int drefLen = strnlen(dref, 256);
-	if (drefLen > 255)
-	{
-		printError("setDREF", "dref length is too long. Must be less than 256 characters.");
-		return -1;
-	}
-	if (size > 255)
-	{
-		printError("setDREF", "size is too big. Must be less than 256.");
-		return -2;
-	}
-	int len = 7 + drefLen + size * sizeof(float);
-	
-	// Copy dref to buffer
-	buffer[5] = (unsigned char)drefLen;
-	memcpy(buffer + 6, dref, drefLen);
+	return sendDREFs(sock, &dref, &value, &size, 1);
+}
 
-	// Copy values to buffer
-	buffer[6 + drefLen] = (unsigned char)size;
-	memcpy(buffer + 7 + drefLen, value, size * sizeof(float));
+int sendDREFs(XPCSocket sock, const char* drefs[], float* values[], int sizes[], int count)
+{
+	// Setup command
+	// Max size is technically unlimited.
+	unsigned char buffer[65536] = "DREF";
+	int pos = 5;
+	for (int i = 0; i < count; ++i)
+	{
+		int drefLen = strnlen(drefs[i], 256);
+		if (pos + drefLen + sizes[i] * 4 + 2 > 65536)
+		{
+			printError("sendDREF", "About to overrun the send buffer!");
+			return -4;
+		}
+		if (drefLen > 255)
+		{
+			printError("sendDREF", "dref %d is too long. Must be less than 256 characters.", i);
+			return -1;
+		}
+		if (sizes[i] > 255)
+		{
+			printError("sendDREF", "size %d is too big. Must be less than 256.", i);
+			return -2;
+		}
+		// Copy dref to buffer
+		buffer[pos++] = (unsigned char)drefLen;
+		memcpy(buffer + pos, drefs[i], drefLen);
+		pos += drefLen;
+
+		// Copy values to buffer
+		buffer[pos++] = (unsigned char)sizes[i];
+		memcpy(buffer + pos, values[i], sizes[i] * sizeof(float));
+		pos += sizes[i] * sizeof(float);
+	}
 
 	// Send command
-	if (sendUDP(sock, buffer, len) < 0)
+	if (sendUDP(sock, buffer, pos) < 0)
 	{
 		printError("setDREF", "Failed to send command");
 		return -3;
@@ -554,13 +575,13 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 	}
 	if (size < 1 || size > 7)
 	{
-		printError("sendCTRL", "size should be a value between 1 and 6.");
+		printError("sendCTRL", "size should be a value between 1 and 7.");
 		return -2;
 	}
 
 	// Setup Command
 	// 5 byte header + 5 float values * 4 + 2 byte values
-	unsigned char buffer[27] = "CTRL";
+	unsigned char buffer[31] = "CTRL";
 	int cur = 5;
 	for (int i = 0; i < 6; i++)
 	{
@@ -581,9 +602,10 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 		}
 	}
 	buffer[26] = ac;
+	*((float*)(buffer + 27)) = size == 7 ? values[6]: -998;
 
 	// Send Command
-	if (sendUDP(sock, buffer, 27) < 0)
+	if (sendUDP(sock, buffer, 31) < 0)
 	{
 		printError("sendCTRL", "Failed to send command");
 		return -3;
@@ -663,7 +685,7 @@ int sendWYPT(XPCSocket sock, WYPT_OP op, float points[], int count)
 	memcpy(buffer + 7, points, ptLen);
 
 	// Send Command
-	if (sendUDP(sock, buffer, 40) < 0)
+	if (sendUDP(sock, buffer, 7 + 12 * count) < 0)
 	{
 		printError("sendWYPT", "Failed to send command");
 		return -2;
@@ -672,4 +694,32 @@ int sendWYPT(XPCSocket sock, WYPT_OP op, float points[], int count)
 }
 /*****************************************************************************/
 /****                      End Drawing functions                          ****/
+/*****************************************************************************/
+
+/*****************************************************************************/
+/****                          View functions                             ****/
+/*****************************************************************************/
+int sendVIEW(XPCSocket sock, VIEW_TYPE view)
+{
+	// Validate Input
+	if (view < XPC_VIEW_FORWARDS || view > XPC_VIEW_FULLSCREENNOHUD)
+	{
+		printError("sendVIEW", "Unrecognized view");
+		return -1;
+	}
+
+	// Setup Command
+	char buffer[9] = "VIEW";
+	*((int*)(buffer + 5)) = view;
+
+	// Send Command
+	if (sendUDP(sock, buffer, 9) < 0)
+	{
+		printError("sendVIEW", "Failed to send command");
+		return -2;
+	}
+	return 0;
+}
+/*****************************************************************************/
+/****                        End View functions                           ****/
 /*****************************************************************************/

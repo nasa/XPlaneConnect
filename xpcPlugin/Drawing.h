@@ -1,7 +1,7 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
-//National Aeronautics and Space Administration. All Rights Reserved.
-#ifndef XPC_DRAWING_H
-#define XPC_DRAWING_H
+// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
+#ifndef XPCPLUGIN_DRAWING_H_
+#define XPCPLUGIN_DRAWING_H_
 
 #include <cstdlib>
 
@@ -57,5 +57,4 @@ namespace XPC
 		static void RemoveWaypoints(Waypoint points[], size_t numPoints);
 	};
 }
-
 #endif

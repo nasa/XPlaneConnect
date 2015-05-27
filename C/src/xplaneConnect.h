@@ -61,6 +61,23 @@ typedef enum
 	XPC_WYPT_DEL = 2,
 	XPC_WYPT_CLR = 3
 } WYPT_OP;
+
+typedef enum
+{
+	XPC_VIEW_FORWARDS = 73,
+	XPC_VIEW_DOWN,
+	XPC_VIEW_LEFT,
+	XPC_VIEW_RIGHT,
+	XPC_VIEW_BACK,
+	XPC_VIEW_TOWER,
+	XPC_VIEW_RUNWAY,
+	XPC_VIEW_CHASE,
+	XPC_VIEW_FOLLOW,
+	XPC_VIEW_FOLLOWWITHPANEL,
+	XPC_VIEW_SPOT,
+	XPC_VIEW_FULLSCREENWITHHUD,
+	XPC_VIEW_FULLSCREENNOHUD,
+} VIEW_TYPE;
         
 // Low Level UDP Functions
 
@@ -127,12 +144,26 @@ int sendDATA(XPCSocket sock, float data[][9], int rows);
 ///          http://www.xsquawkbox.net/xpsdk/docs/DataRefs.html. The size of values should match
 ///          the size given on that page. XPC currently sends all values as floats regardless of
 ///          the type described on the wiki. This doesn't cause any data loss for most datarefs.
-/// \param sock   The socket to use to send the command.
-/// \param dref   The name of the dataref to set.
-/// \param values An array of values representing the data to set.
-/// \param size   The number of elements in values.
-/// \returns      0 if successful, otherwise a negative value.
+/// \param sock  The socket to use to send the command.
+/// \param dref  The name of the dataref to set.
+/// \param value An array of values representing the data to set.
+/// \param size  The number of elements in values.
+/// \returns     0 if successful, otherwise a negative value.
 int sendDREF(XPCSocket sock, const char* dref, float value[], int size);
+
+/// Sets the specified datarefs to the specified values.
+///
+/// \details dref names and their associated data types can be found on the XPSDK wiki at
+///          http://www.xsquawkbox.net/xpsdk/docs/DataRefs.html. The size of values should match
+///          the size given on that page. XPC currently sends all values as floats regardless of
+///          the type described on the wiki. This doesn't cause any data loss for most datarefs.
+/// \param sock   The socket to use to send the command.
+/// \param drefs  The names of the datarefs to set.
+/// \param values A multidimensional array containing the values for each dataref to set.
+/// \param sizes  The number of elements in each array in values
+/// \param count  The number of datarefs being set.
+/// \returns      0 if successful, otherwise a negative value.
+int sendDREFs(XPCSocket sock, const char* drefs[], float* values[], int sizes[], int count);
 
 /// Gets the value of the specified dataref.
 ///
@@ -182,8 +213,8 @@ int sendPOSI(XPCSocket sock, float values[], int size, char ac);
 ///
 /// \param sock   The socket to use to send the command.
 /// \param values An array representing position data about the aircraft. The format of values is
-///               [Elevator, Aileron, Rudder, Throttle, Gear, Flaps]. If less than 6 values are
-///               specified, the unspecified values will be left unchanged.
+///               [Elevator, Aileron, Rudder, Throttle, Gear, Flaps, Speed Brakes]. If less than
+///               6 values are specified, the unspecified values will be left unchanged.
 /// \param size   The number of elements in values.
 /// \param ac     The aircraft number to set the control surfaces of. 0 for the player aircraft.
 /// \returns      0 if successful, otherwise a negative value.
@@ -199,6 +230,13 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac);
 /// \param y    The distance in pixels from the bottom edge of the screen to print the top line of text.
 /// \returns      0 if successful, otherwise a negative value.
 int sendTEXT(XPCSocket sock, char* msg, int x, int y);
+
+/// Sets the camera view in X-Plane.
+///
+/// \param sock The socket to use to send the command.
+/// \param view The view to use.
+/// \returns    0 if successful, otherwise a negative value.
+int sendVIEW(XPCSocket sock, VIEW_TYPE view);
 
 /// Adds, removes, or clears a set of waypoints. If the command is clear, the points are ignored
 /// and all points are removed.
