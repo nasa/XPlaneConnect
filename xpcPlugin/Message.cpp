@@ -3,6 +3,8 @@
 #include "Message.h"
 #include "Log.h"
 
+#include <cstring>
+
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -53,18 +55,19 @@ namespace XPC
 
 	void Message::PrintToLog() const
 	{
-		std::stringstream ss;
+		using namespace std;
+		stringstream ss;
 
 		// Dump raw bytes to string
-		ss << std::hex << std::setfill('0');
+		ss << hex << setfill('0');
 		for (int i = 0; i < size; ++i)
 		{
-			ss << ' ' << std::setw(2) << static_cast<unsigned>(buffer[i]);
+			ss << ' ' << setw(2) << static_cast<unsigned>(buffer[i]);
 		}
 		Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
 
 		ss.str("");
-		ss << "Head: " << GetHead() << "(0x" << std::setw(8) << GetMagicNumber() << ")" << std::dec << " Size: " << GetSize();
+		ss << "Head: " << GetHead() << "(0x" << setw(8) << GetMagicNumber() << ")" << dec << " Size: " << GetSize();
 		switch (GetMagicNumber()) // Binary version of head
 		{
 		case 0x4E4EF443: // CONN
@@ -95,12 +98,12 @@ namespace XPC
         }
         case 0x41544144: // DATA
 		{
-			std::size_t numCols = (size - 5) / 36;
+			size_t numCols = (size - 5) / 36;
 			float values[32][9];
 			for (int i = 0; i < numCols; ++i)
 			{
 				values[i][0] = buffer[5 + 36 * i];
-				std::memcpy(values[i] + 1, buffer + 9 + 36 * i, 9 * sizeof(float));
+				memcpy(values[i] + 1, buffer + 9 + 36 * i, 9 * sizeof(float));
 			}
 			ss << " (" << numCols << " lines)";
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
@@ -119,7 +122,7 @@ namespace XPC
         case 0x46455244: // DREF
 		{
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-            std::string dref((char*)buffer + 6, buffer[5]);
+            string dref((char*)buffer + 6, buffer[5]);
             Log::FormatLine(LOG_DEBUG, "DBUG", "    DREF (size %i) = %s", dref.length(), dref.c_str());
             ss.str("");
             int values = buffer[6 + buffer[5]];
@@ -137,7 +140,7 @@ namespace XPC
             int cur = 6;
             for (int i = 0; i < buffer[5]; ++i)
             {
-                std::string dref((char*)buffer + cur + 1, buffer[cur]);
+                string dref((char*)buffer + cur + 1, buffer[cur]);
                 Log::FormatLine(LOG_DEBUG, "DBUG", "    #%i/%i (size:%i) %s",
 					i + 1, buffer[5], dref.length(), dref.c_str());
                 cur += 1 + buffer[cur];
@@ -150,8 +153,8 @@ namespace XPC
 			float gear = *((float*)(buffer + 30));
 			float pos[3];
 			float orient[3];
-			std::memcpy(pos, buffer + 6, 12);
-			std::memcpy(orient, buffer + 18, 12);
+			memcpy(pos, buffer + 6, 12);
+			memcpy(orient, buffer + 18, 12);
             ss << " AC:" << (int)aircraft;
 			ss << " Pos:(" << pos[0] << ' ' << pos[1] << ' ' << pos[2] << ") Orient:(";
 			ss << orient[3] << ' ' << orient[4] << ' ' << orient[5] << ") Gear:";

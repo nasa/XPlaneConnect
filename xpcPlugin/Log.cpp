@@ -8,7 +8,9 @@
 #include <cstdio>
 #include <ctime>
 
+#ifndef LIN
 #include <chrono>
+#endif
 #include <iomanip>
 #include <sstream>
 
@@ -20,6 +22,20 @@ namespace XPC
 	static std::FILE* fd;
 	static void WriteTime(FILE* fd)
 	{
+#ifdef LIN
+		// Can't provide high resolution logging on Linux because C++11 doesn't work with X-Plane.
+		time_t rawtime;
+		tm* timeinfo;
+		time(&rawtime);
+		timeinfo = localtime(&rawtime);
+
+		char buffer[16] = { 0 };
+		// Format is equivalent to [%F %T], but neither of those specifiers is
+		// supported on Windows as of Visual Studio 13
+		strftime(buffer, 16, "[%H:%M:%S] ", timeinfo);
+
+		fprintf(fd, buffer);
+#else
 		using namespace std::chrono;
 
 		system_clock::time_point now = system_clock::now();
@@ -36,6 +52,7 @@ namespace XPC
 			<< std::setw(3) << ms.count() << "|";
 
 		std::fprintf(fd, ss.str().c_str());
+#endif
 	}
 
 	static void WriteLevel(FILE* fd, int level)
