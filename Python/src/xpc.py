@@ -143,7 +143,29 @@ class XPlaneConnect(object):
             buffer += struct.pack("<I8f", *row)
         self.sendUDP(buffer)
 
-    # Position
+    # Position    
+    def getPOSI(self, ac = 0):
+        '''Gets position information for the specified aircraft.
+
+        Args:
+          ac: The aircraft to set the control surfaces of. 0 is the main/player aircraft.
+        '''
+        # Send request
+        buffer = struct.pack("<4sxB", "GETP", ac)
+        self.sendUDP(buffer)
+
+        # Read response
+        resultBuf = self.readUDP()
+        if len(resultBuf) != 34:
+            raise ValueError("Unexpected response length.")
+
+        result = struct.unpack("<4sxBfffffff", resultBuf)
+        if result[0] != "POSI":
+            raise ValueError("Unexpected header: " + result[0])
+
+        # Drop the header & ac from the return value
+        return result[2:]
+
     def sendPOSI(self, values, ac = 0):
         '''Sets position information on the specified aircraft.
 
@@ -155,8 +177,8 @@ class XPlaneConnect(object):
                   * Latitude (deg)
                   * Longitude (deg)
                   * Altitude (m above MSL)
-                  * Roll (deg)
                   * Pitch (deg)
+                  * Roll (deg)
                   * True Heading (deg)
                   * Gear (0=up, 1=down)
               ac: The aircraft to set the control surfaces of. 0 is the main/player aircraft.
@@ -179,6 +201,29 @@ class XPlaneConnect(object):
         self.sendUDP(buffer)
 
     # Controls
+    def getCTRL(self, ac = 0):
+        '''Gets the control surface information for the specified aircraft.
+
+        Args:
+          ac: The aircraft to set the control surfaces of. 0 is the main/player aircraft.
+        '''
+        # Send request
+        buffer = struct.pack("<4sxB", "GETC", ac)
+        self.sendUDP(buffer)
+
+        # Read response
+        resultBuf = self.readUDP()
+        if len(resultBuf) != 31:
+            raise ValueError("Unexpected response length.")
+
+        result = struct.unpack("<4sxffffbfBf", resultBuf)
+        if result[0] != "CTRL":
+            raise ValueError("Unexpected header: " + result[0])
+
+        # Drop the header from the return value
+        result =result[1:7] + result[8:]
+        return result
+
     def sendCTRL(self, values, ac = 0):
         '''Sets control surface information on the specified aircraft.
 

@@ -40,9 +40,13 @@ int main(int argc, const char * argv[])
 	runTest(testCTRL_Player, "CTRL (player)");
 	runTest(testCTRL_NonPlayer, "CTRL (non-player)");
 	runTest(testCTRL_Speedbrakes, "CTRL (speedbrakes)");
+	runTest(testGETC, "GETC (player)");
+	runTest(testGETC_NonPlayer, "GETC (Non-player)");
 	// POSI
 	runTest(testPOSI_Player, "POSI (player)");
 	runTest(testPOSI_NonPlayer, "POSI (non-player)");
+	runTest(testGetPOSI_Player, "GETP (player)");
+	runTest(testGetPOSI_NonPlayer, "GETP (non-player)");	
 	// Data
 	runTest(testDATA, "DATA");
 	// Text

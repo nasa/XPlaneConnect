@@ -1,4 +1,4 @@
-function CTRLTest(  )
+function sendCTRLTest(  )
 %CTRLTest Summary of this function goes here
 %   Detailed explanation goes here
 %% Test player aircraft

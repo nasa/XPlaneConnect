@@ -1,4 +1,4 @@
-function POSITest(  )
+function sendPOSITest(  )
 %POSITest Summary of this function goes here
 %   Detailed explanation goes here
 addpath('../../MATLAB')
