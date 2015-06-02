@@ -74,6 +74,7 @@ int basicCTRLTest(char** drefs, int ac)
 	{
 		return -30000 + result;
 	}
+    return 0;
 }
 
 int testCTRL_Player()
@@ -143,5 +144,6 @@ int testCTRL_Speedbrakes()
 	{
 		return -30000 + result;
 	}
+    return 0;
 }
 #endif

@@ -1,3 +1,6 @@
+addpath('../../MATLAB')
+import XPlaneConnect.*
+
 testsPassed=0;
 testsFailed=0;
 if ismac()
@@ -22,6 +25,7 @@ theTests = {{@openCloseTest, 'Open/Close Test', 0},...
     {@pauseTest,'Pause Test', 0},...
     {@setConnTest, 'setConn Test', 0}};
 
+socket = openUDP();
 for i=1:length(theTests)
     fprintf(['Test ',num2str(i),': ',theTests{i}{2},' - ']);
     try
@@ -36,6 +40,7 @@ for i=1:length(theTests)
         testsFailed = testsFailed + 1;
     end
 end
+closeUDP(socket);
 
 disp('Results Summary:');
 fprintf('Passed: %i\tFailed: %i\n',testsPassed, testsFailed);
