@@ -35,6 +35,10 @@ void setCursor(short x, short y)
 	if (!console)
 	{
 		console = GetStdHandle(STD_OUTPUT_HANDLE);
+		CONSOLE_CURSOR_INFO info;
+		info.dwSize = 0;
+		info.bVisible = FALSE;
+		SetConsoleCursorInfo(console, &info);
 	}
 	COORD dwCursorPosition;
 	dwCursorPosition.X = x;
@@ -48,9 +52,18 @@ void setCursor(short x, short y)
 	}
 }
 #else
+#include "time.h"
+
 void setCursor(short x, short y)
 {
 	// ???
+}
+
+void Sleep(int ms)
+{
+	struct timespec tv;
+	tv.tv_nsec = ms * 1000 * 1000;
+	nanosleep(tv, NULL);
 }
 #endif
 
@@ -62,12 +75,16 @@ void printChrome()
 	printf("+======================================================================+\n");
 	printf("| X-Plane Connect Status Monitor Example Application                   |\n");
 	printf("+===================+==================================================+\n");
-	printf("| Aircraft Position |                                                  |\n");
-	printf("+-------------------+                                                  |\n");
-	printf("| Lat:              |                                                  |\n");
-	printf("| Lon:              |                                                  |\n");
-	printf("| Alt:              |                                                  |\n");
-	printf("+-------------------+                                                  |\n");
+	printf("| Aircraft Position | Aircraft Orientation | Aircraft Control Surfaces |\n");
+	printf("+-------------------+----------------------+---------------------------+\n");
+	printf("| Lat:              |  Roll:               |  Aileron:                 |\n");
+	printf("| Lon:              | Pitch:               | Elevator:                 |\n");
+	printf("| Alt:              |   Yaw:               |   Rudder:                 |\n");
+	printf("|                   |                      |    Flaps:                 |\n");
+	printf("+-------------------+----------------------+---------------------------+\n");
+	printf("| Throttle:         | Gear:                |                           |\n");
+	printf("+-------------------+----------------------+---------------------------+\n");
+	printf("| Press Ctrl+C to quit.                                                |\n");
 	printf("+======================================================================+\n");
 }
 
@@ -81,16 +98,59 @@ void printLocation(float lat, float lon, float alt)
 	printf("%2fm", alt);
 }
 
+void printOrientation(float roll, float pitch, float yaw)
+{
+	setCursor(29, 5);
+	printf("%4f", roll);
+	setCursor(29, 6);
+	printf("%4f", pitch);
+	setCursor(29, 7);
+	printf("%4f", yaw);
+}
+
+void printControls(float aileron, float elevator, float rudder, float flaps)
+{
+	setCursor(55, 5);
+	printf("%4f", aileron);
+	setCursor(55, 6);
+	printf("%4f", elevator);
+	setCursor(55, 7);
+	printf("%4f", rudder);
+	setCursor(55, 8);
+	printf("%4f", flaps);
+}
+
+void printThrottle(float throttle)
+{
+	setCursor(12, 10);
+	printf("%2f", throttle);
+}
+
+void printGear(float gear)
+{
+	setCursor(28, 10);
+	printf("%2f", gear);
+}
+
 int main(void)
 {
 	printChrome();
 	XPCSocket client = openUDP("127.0.0.1");
 
+	const int aircraftNum = 0;
 	while (1)
 	{
 		float posi[7];
-		getPOSI(client, posi, 0);
+		getPOSI(client, posi, aircraftNum);
 		printLocation(posi[0], posi[1], posi[2]);
+		printOrientation(posi[4], posi[3], posi[5]);
+
+		float ctrl[7];
+		getCTRL(client, ctrl, aircraftNum);
+		printControls(ctrl[1], ctrl[0], ctrl[2], ctrl[5]);
+		printThrottle(ctrl[3]);
+		printGear(ctrl[4]);
+		Sleep(100);
 	}
 	return 0;
 }
