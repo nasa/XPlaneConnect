@@ -10,7 +10,7 @@ import XPlaneConnect.*
 
 disp('xplaneconnect Example Script-');
 disp('Setting up Simulation');
-Socket = openUDP(49005);
+Socket = openUDP('127.0.0.1', 49005);
 
 %% Ensure connected
 getDREFs('sim/test/test_float')
