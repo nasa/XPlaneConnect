@@ -26,131 +26,77 @@
 #include "stdio.h"
 
 #ifdef WIN32
-#include "Windows.h"
-
-HANDLE console;
-
-void setCursor(short x, short y)
+HANDLE hStdIn = NULL;
+INPUT_RECORD buffer;
+int waitForInput()
 {
-	if (!console)
+	if (hStdIn == NULL)
 	{
-		console = GetStdHandle(STD_OUTPUT_HANDLE);
-		CONSOLE_CURSOR_INFO info;
-		info.dwSize = 0;
-		info.bVisible = FALSE;
-		SetConsoleCursorInfo(console, &info);
+		hStdIn = GetStdHandle(STD_INPUT_HANDLE);
 	}
-	COORD dwCursorPosition;
-	dwCursorPosition.X = x;
-	dwCursorPosition.Y = y;
-
-	BOOL result = SetConsoleCursorPosition(console, dwCursorPosition);
-	if (!result)
+	FlushConsoleInputBuffer(hStdIn);
+	DWORD result = WaitForSingleObject(hStdIn, 100);
+	if (result == WAIT_OBJECT_0)
 	{
-		printf("Unable to set console cursor position. Failed with error code %i.\n", GetLastError());
-		exit(EXIT_FAILURE);
+		DWORD eventsRead;
+		PeekConsoleInput(hStdIn, &buffer, 1, &eventsRead);
+		if (eventsRead > 0)
+		{
+			return buffer.EventType == KEY_EVENT;
+		}
 	}
+	return FALSE;
 }
 #else
-#include "time.h"
+int fdstdin = 0;
+fd_set fds;
+struct timeval tv;
+tv.tv_usec = 100 * 1000;
 
-void setCursor(short x, short y)
+int waitForInput()
 {
-	// ???
+
+	FD_ZERO(&fds);
+	FD_SET(fdstdin, &fds);
+	select(1, &fds, NULL, NULL, &tv);
+	return FD_ISSET(fdstdin, &fds);
 }
 
-void Sleep(int ms)
-{
-	struct timespec tv;
-	tv.tv_nsec = ms * 1000 * 1000;
-	nanosleep(tv, NULL);
-}
 #endif
-
-void printChrome()
-{
-	setCursor(0, 0);
-
-	// Set up initial screen, assuming the console is at least 72 characters wide and 16 lines tall.
-	printf("+======================================================================+\n");
-	printf("| X-Plane Connect Status Monitor Example Application                   |\n");
-	printf("+===================+==================================================+\n");
-	printf("| Aircraft Position | Aircraft Orientation | Aircraft Control Surfaces |\n");
-	printf("+-------------------+----------------------+---------------------------+\n");
-	printf("| Lat:              |  Roll:               |  Aileron:                 |\n");
-	printf("| Lon:              | Pitch:               | Elevator:                 |\n");
-	printf("| Alt:              |   Yaw:               |   Rudder:                 |\n");
-	printf("|                   |                      |    Flaps:                 |\n");
-	printf("+-------------------+----------------------+---------------------------+\n");
-	printf("| Throttle:         | Gear:                |                           |\n");
-	printf("+-------------------+----------------------+---------------------------+\n");
-	printf("| Press Ctrl+C to quit.                                                |\n");
-	printf("+======================================================================+\n");
-}
-
-void printLocation(float lat, float lon, float alt)
-{
-	setCursor(7, 5);
-	printf("%4f", lat);
-	setCursor(7, 6);
-	printf("%4f", lon);
-	setCursor(7, 7);
-	printf("%2fm", alt);
-}
-
-void printOrientation(float roll, float pitch, float yaw)
-{
-	setCursor(29, 5);
-	printf("%4f", roll);
-	setCursor(29, 6);
-	printf("%4f", pitch);
-	setCursor(29, 7);
-	printf("%4f", yaw);
-}
-
-void printControls(float aileron, float elevator, float rudder, float flaps)
-{
-	setCursor(55, 5);
-	printf("%4f", aileron);
-	setCursor(55, 6);
-	printf("%4f", elevator);
-	setCursor(55, 7);
-	printf("%4f", rudder);
-	setCursor(55, 8);
-	printf("%4f", flaps);
-}
-
-void printThrottle(float throttle)
-{
-	setCursor(12, 10);
-	printf("%2f", throttle);
-}
-
-void printGear(float gear)
-{
-	setCursor(28, 10);
-	printf("%2f", gear);
-}
 
 int main(void)
 {
-	printChrome();
-	XPCSocket client = openUDP("127.0.0.1");
 
+	XPCSocket client = openUDP("127.0.0.1");
 	const int aircraftNum = 0;
 	while (1)
 	{
 		float posi[7];
-		getPOSI(client, posi, aircraftNum);
-		printLocation(posi[0], posi[1], posi[2]);
-		printOrientation(posi[4], posi[3], posi[5]);
+		int result = getPOSI(client, posi, aircraftNum);
+		if (result < 0) // Error in getPOSI
+		{
+			break;
+		}
 
 		float ctrl[7];
-		getCTRL(client, ctrl, aircraftNum);
-		printControls(ctrl[1], ctrl[0], ctrl[2], ctrl[5]);
-		printThrottle(ctrl[3]);
-		printGear(ctrl[4]);
-		Sleep(100);
+		result = getCTRL(client, ctrl, aircraftNum);
+		if (result < 0) // Error in getCTRL
+		{
+			break;
+		}
+
+		printf("Loc: (%4f, %4f, %4f) Aileron:%2f Elevator:%2f Rudder:%2f\n",
+			posi[0], posi[1], posi[2], ctrl[1], ctrl[0], ctrl[2]);
+
+		// Check if any key has been pressed and break
+		if (waitForInput())
+		{
+			break;
+		}
 	}
+
+
+	printf("\n\nPress Any Key to exit...");
+	getchar();
 	return 0;
 }
