@@ -467,7 +467,14 @@ public class XPlaneConnect implements AutoCloseable
         {
             if(i == 4)
             {
-                bb.put(cur, (byte) values[i]);
+                if(i >= values.length)
+                {
+                    bb.put(cur, (byte)-1);
+                }
+                else
+                {
+                    bb.put(cur, (byte)values[i]);
+                }
                 cur += 1;
             }
             else if (i >= values.length)
