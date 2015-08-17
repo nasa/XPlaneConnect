@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3c7a940d-17c8-4e91-882f-9bc8b1d2f54b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\playbackExample.py</StartupFile>
+    <StartupFile>src\basicExample.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -25,6 +25,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\playbackExample.py">
+    <Compile Include="src\monitorExample.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\xpc.py" />
