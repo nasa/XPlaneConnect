@@ -26,6 +26,7 @@ p = inputParser;
 addOptional(p,'xpHost','127.0.0.1',@ischar);
 addOptional(p,'xpPort',49009,@isnumeric);
 addOptional(p,'port',0,@isnumeric);
+addOptional(p,'timeout',0,@isnumeric);
 parse(p,varargin{:});
 
 %% Create client
@@ -33,7 +34,7 @@ if ~exist('gov.nasa.xpc.XPlaneConnect', 'class')
     [folder, ~, ~] = fileparts(which('XPlaneConnect.openUDP'));
     javaaddpath(fullfile(folder, 'XPlaneConnect.jar'));
 end
-socket = gov.nasa.xpc.XPlaneConnect(p.Results.xpHost, p.Results.xpPort, p.Results.port);
+socket = gov.nasa.xpc.XPlaneConnect(p.Results.xpHost, p.Results.xpPort, p.Results.port, p.Results.timeout);
 
 %% Track open clients
 global clients;
