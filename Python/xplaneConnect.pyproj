@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>3c7a940d-17c8-4e91-882f-9bc8b1d2f54b</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>src\example.py</StartupFile>
+    <StartupFile>src\playbackExample.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -24,8 +24,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="src\playbackExample.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\xpc.py" />
-    <Compile Include="src\example.py">
+    <Compile Include="src\basicExample.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
