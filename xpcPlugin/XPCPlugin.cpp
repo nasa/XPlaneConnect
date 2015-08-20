@@ -91,7 +91,7 @@ static float XPCFlightLoopCallback(float inElapsedSinceLastCall, float inElapsed
 
 PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 {
-	strcpy(outName, "X-Plane Connect [Version 1.1.1]");
+	strcpy(outName, "X-Plane Connect [Version 1.2.0]");
 	strcpy(outSig, "NASA.XPlaneConnect");
 	strcpy(outDesc, "X Plane Communications Toolbox\nCopyright (c) 2013-2015 United States Government as represented by the Administrator of the National Aeronautics and Space Administration. All Rights Reserved.");
 
