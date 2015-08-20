@@ -529,7 +529,7 @@ namespace XPC
 		}
 
 		XPLMDataTypeID dataType = XPLMGetDataRefTypes(xdref);
-		Log::FormatLine(LOG_INFO, "DMAN", "Setting DREF %s (x:%X) Type: %i", dref, xdref, dataType);
+		Log::FormatLine(LOG_INFO, "DMAN", "Setting DREF %s (x:%X) Type: %i", dref.c_str(), xdref, dataType);
 		if ((dataType & 2) == 2) // Float
 		{
 			XPLMSetDataf(xdref, values[0]);

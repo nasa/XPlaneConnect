@@ -116,7 +116,7 @@ XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
 #else
 	struct timeval timeout;
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 100000;
+	timeout.tv_usec = 250000;
 #endif
 	if (setsockopt(sock.sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0)
 	{
