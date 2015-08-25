@@ -8,7 +8,7 @@ addpath('../')
 import XPlaneConnect.*
 
 Socket = openUDP();
-for i=1:100
+while 1
     posi = getPOSI(0, Socket);
     ctrl = getCTRL(0, Socket);
      
