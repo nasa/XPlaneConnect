@@ -7,18 +7,18 @@ def record(path, interval = 0.1, duration = 60):
     except:
         print "Unable to open file."
         return
-    
+
     count = int(duration / interval)
     if count < 1:
         print "duration is less than a single frame."
         return
 
-    with xpc.XPlaneConnect("localhost", 49009, 0, 1000) as client: 
+    with xpc.XPlaneConnect("localhost", 49009, 0, 1000) as client:
         print "Recording..."
         for i in range(0, count):
             try:
                 posi = client.getPOSI()
-                fd.write("{0}, {1}, {2}, {3}, {4}, {5}, {6}\n".format(posi))
+                fd.write("{0}, {1}, {2}, {3}, {4}, {5}, {6}\n".format(*posi))
             except:
                 print "Error reading position"
                 continue
