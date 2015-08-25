@@ -16,12 +16,12 @@ Socket = openUDP(); % Open connection to X-Plane
 fd = fopen(path, 'w'); % Open file
 
 disp('X-Plane Connect Recording Example Script');
-fprintf('Recording to ''%s'' for $f seconds in %fs increments.\n', path, duration, interval);
+fprintf('Recording to ''%s'' for %f seconds in %fs increments.\n', path, duration, interval);
 
 %% Start Recording
 count = floor(duration / interval);
 for i = 1:count
-    posi = getPOSI();
+    posi = getPOSI(0, Socket);
     fprintf(fd, '%f, %f, %f, %f, %f, %f, %f\n', ...
         posi(1), posi(2), posi(3), posi(4), posi(5), posi(6), posi(7));
     pause(interval);

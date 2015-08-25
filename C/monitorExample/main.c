@@ -23,6 +23,7 @@
 //     IMMEDIATE, UNILATERAL TERMINATION OF THIS AGREEMENT.
 
 #include "../src/xplaneConnect.h"
+#include <sys/time.h>
 #include "stdio.h"
 
 #ifdef WIN32
@@ -51,7 +52,6 @@ int waitForInput()
 int fdstdin = 0;
 fd_set fds;
 struct timeval tv;
-tv.tv_usec = 100 * 1000;
 
 int waitForInput()
 {
@@ -61,14 +61,13 @@ int waitForInput()
 	select(1, &fds, NULL, NULL, &tv);
 	return FD_ISSET(fdstdin, &fds);
 }
-
 #endif
 
 int main(void)
 {
-
 	XPCSocket client = openUDP("127.0.0.1");
 	const int aircraftNum = 0;
+    tv.tv_usec = 100 * 1000;
 	while (1)
 	{
 		float posi[7];

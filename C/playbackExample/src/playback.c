@@ -42,7 +42,7 @@ void playbackSleep(int ms)
 #ifdef WIN32
 	Sleep(ms);
 #else
-	uSleep(ms * 1000);
+	usleep(ms * 1000);
 #endif
 }
 
