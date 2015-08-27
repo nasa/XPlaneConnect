@@ -13,7 +13,6 @@ SET(CMAKE_CXX_COMPILER g++)
 
 add_library(xpc64 SHARED XPCPlugin.cpp
 	DataManager.cpp
-	DataMaps.cpp
 	Drawing.cpp
 	Log.cpp
 	Message.cpp
@@ -24,7 +23,6 @@ set_target_properties(xpc64 PROPERTIES COMPILE_FLAGS "-m64" LINK_FLAGS "-shared 
 
 add_library(xpc32 SHARED XPCPlugin.cpp
 	DataManager.cpp
-	DataMaps.cpp
 	Drawing.cpp
 	Log.cpp
 	Message.cpp

@@ -399,6 +399,47 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
+     * Gets the control surface information for the specified airplane.
+     *
+     * @param ac The aircraft to get control surface information for.
+     * @return An array containing control surface data in the same format as {@code sendCTRL}.
+     * @throws IOException If the command cannot be sent or a response cannot be read.
+     */
+    public float[] getCTRL(int ac) throws IOException
+    {
+        // Send request
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write("GETC".getBytes(StandardCharsets.UTF_8));
+        os.write(0xFF); //Placeholder for message length
+        os.write(ac);
+        sendUDP(os.toByteArray());
+
+        // Read response
+        byte[] data = readUDP();
+        if(data.length == 0)
+        {
+            throw new IOException("No response received.");
+        }
+        if(data.length < 31)
+        {
+            throw new IOException("Response too short");
+        }
+
+        // Parse response
+        float[] result = new float[7];
+        ByteBuffer bb = ByteBuffer.wrap(data);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        result[0] = bb.getFloat(5);
+        result[1] = bb.getFloat(9);
+        result[2] = bb.getFloat(13);
+        result[3] = bb.getFloat(17);
+        result[4] = bb.get(21);
+        result[5] = bb.getFloat(22);
+        result[6] = bb.getFloat(27);
+        return result;
+    }
+
+    /**
      * Sends command to X-Plane setting control surfaces on the player ac.
      *
      * @param values <p>An array containing zero to six values representing control surface data as follows:</p>
@@ -409,6 +450,7 @@ public class XPlaneConnect implements AutoCloseable
      *                   <li>Throttle [-1, 1]</li>
      *                   <li>Gear (0=up, 1=down)</li>
      *                   <li>Flaps [0, 1]</li>
+     *                     <li>Speedbrakes [-0.5, 1.5]</li>
      *               </ol>
      *               <p>
      *                   If @{code ctrl} is less than 6 elements long, The missing elements will not be changed. To
@@ -433,6 +475,7 @@ public class XPlaneConnect implements AutoCloseable
      *                     <li>Throttle [-1, 1]</li>
      *                     <li>Gear (0=up, 1=down)</li>
      *                     <li>Flaps [0, 1]</li>
+     *                     <li>Speedbrakes [-0.5, 1.5]</li>
      *                 </ol>
      *                 <p>
      *                     If @{code ctrl} is less than 6 elements long, The missing elements will not be changed. To
@@ -497,6 +540,44 @@ public class XPlaneConnect implements AutoCloseable
         os.write(0xFF); //Placeholder for message length
         os.write(bb.array());
         sendUDP(os.toByteArray());
+    }
+
+    /**
+     * Gets position information for the specified airplane.
+     *
+     * @param ac The aircraft to get position information for.
+     * @return An array containing control surface data in the same format as {@code sendPOSI}.
+     * @throws IOException If the command cannot be sent or a response cannot be read.
+     */
+    public float[] getPOSI(int ac) throws IOException
+    {
+        // Send request
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write("GETP".getBytes(StandardCharsets.UTF_8));
+        os.write(0xFF); //Placeholder for message length
+        os.write(ac);
+        sendUDP(os.toByteArray());
+
+        // Read response
+        byte[] data = readUDP();
+        if(data.length == 0)
+        {
+            throw new IOException("No response received.");
+        }
+        if(data.length < 34)
+        {
+            throw new IOException("Response too short");
+        }
+
+        // Parse response
+        float[] result = new float[7];
+        ByteBuffer bb = ByteBuffer.wrap(data);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        for(int i = 0; i < 7; ++i)
+        {
+            result[i] = bb.getFloat(6 + 4 * i);
+        }
+        return result;
     }
 
     /**
