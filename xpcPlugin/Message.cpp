@@ -25,12 +25,6 @@ namespace XPC
 		return m;
 	}
 
-	unsigned long Message::GetMagicNumber() const
-	{
-		unsigned long val = size < 4 ? 0 : *((unsigned long*)buffer);
-		return val;
-	}
-
 	std::string Message::GetHead() const
 	{
 		std::string val = size < 4 ? "" : std::string((char*)buffer, 4);
@@ -59,26 +53,22 @@ namespace XPC
 		stringstream ss;
 
 		// Dump raw bytes to string
-		ss << hex << setfill('0');
+		ss << std::hex << setfill('0');
 		for (int i = 0; i < size; ++i)
 		{
 			ss << ' ' << setw(2) << static_cast<unsigned>(buffer[i]);
 		}
-		Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
+		Log::WriteLine(LOG_TRACE, "DBUG", ss.str());
 
+		std::string head = GetHead();
 		ss.str("");
-		ss << "Head: " << GetHead() << "(0x" << setw(8) << GetMagicNumber() << ")" << dec << " Size: " << GetSize();
-		switch (GetMagicNumber()) // Binary version of head
+		ss << "Head: " << head << std::dec << " Size: " << GetSize();
+		if (head == "CONN" || head == "WYPT" || head == "TEXT")
 		{
-		case 0x4E4EF443: // CONN
-        case 0x54505957: // WYPT
-        case 0x54584554: // TEXT
-        {
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-            break;
-        }
-        case 0x4C525443: // CTRL
-        {
+		}
+		else if (head == "CTRL")
+		{
 			// Parse message data
 			float pitch = *((float*)(buffer + 5));
 			float roll = *((float*)(buffer + 9));
@@ -91,12 +81,11 @@ namespace XPC
 			{
 				aircraft = buffer[26];
 			}
-            ss << " Attitude:(" << pitch << " " << roll << " " << yaw << ")";
-            ss << " Thr:" << thr << " Gear:" << (int)gear << " Flaps:" << flaps;
-            Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-            break;
-        }
-        case 0x41544144: // DATA
+			ss << " Attitude:(" << pitch << " " << roll << " " << yaw << ")";
+			ss << " Thr:" << thr << " Gear:" << (int)gear << " Flaps:" << flaps;
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
+		}
+		else if (head == "DATA")
 		{
 			size_t numCols = (size - 5) / 36;
 			float values[32][9];
@@ -107,19 +96,18 @@ namespace XPC
 			}
 			ss << " (" << numCols << " lines)";
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-            for (int i = 0; i < numCols; ++i)
-            {
-                ss.str("");
+			for (int i = 0; i < numCols; ++i)
+			{
+				ss.str("");
 				ss << "    #" << values[i][0];
-                for (int j = 1; j < 9; ++j)
-                {
+				for (int j = 1; j < 9; ++j)
+				{
 					ss << " " << values[i][j];
 				}
 				Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-            }
-            break;
-        }
-        case 0x46455244: // DREF
+			}
+		}
+		else if (head == "DREF")
 		{
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             string dref((char*)buffer + 6, buffer[5]);
@@ -132,9 +120,13 @@ namespace XPC
                 ss << " " << *((float*)(buffer + values + 1 + sizeof(float) * i));
 			}
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-            break;
         }
-        case 0x44544547: // GETD
+		else if (head == "GETC" || head == "GETP")
+		{
+			ss << " Aircraft:" << (int)buffer[5];
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
+		}
+		else if (head == "GETD")
 		{
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             int cur = 6;
@@ -145,9 +137,8 @@ namespace XPC
 					i + 1, buffer[5], dref.length(), dref.c_str());
                 cur += 1 + buffer[cur];
             }
-            break;
         }
-        case 0x49534F50: // POSI
+		else if (head == "POSI")
 		{
 			char aircraft = buffer[5];
 			float gear = *((float*)(buffer + 30));
@@ -160,20 +151,21 @@ namespace XPC
 			ss << orient[3] << ' ' << orient[4] << ' ' << orient[5] << ") Gear:";
 			ss << gear;
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-            break;
         }
-        case 0x554D4953: // SIMU
+		else if (head == "SIMU")
         {
 			ss << ' ' << (int)buffer[5];
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-            break;
-        }
-        default:
+		}
+		else if (head == "VIEW")
+		{
+			ss << "Type:" << *((unsigned long*)(buffer + 5));
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
+		}
+		else
         {
 			ss << " UNKNOWN HEADER ";
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-            break;
         }
-		}
 	}
 }

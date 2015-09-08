@@ -1,78 +1,83 @@
 package gov.nasa.xpc;
 
+import com.sun.javafx.scene.EnteredExitedHandler;
+
 import java.io.*;
 import java.util.Scanner;
 
 public class Main
 {
 
-    public static void main(String[] args)
+    public static void main(String[] args) throws IOException
     {
         String[] mainOpts = new String[] { "Record X-Plane", "Playback File", "Exit" };
 
-        System.out.println("X-Plane Connect Playback Example  [Version 1.2.0.0]\n");
-        System.out.println("(c) 2013-2015 United States Government as represented by the Administrator\n");
-        System.out.println("of the National Aeronautics and Space Administration. All Rights Reserved.\n");
+        System.out.println("X-Plane Connect Playback Example  [Version 1.2.0.0]");
+        System.out.println("(c) 2013-2015 United States Government as represented by the Administrator");
+        System.out.println("of the National Aeronautics and Space Administration. All Rights Reserved.");
         while(true)
         {
             int result = displayMenu("What would you like to do?", mainOpts);
-        }
-//        char* mainOpts[3] =
-//            {
-//                    "Record X-Plane",
-//                    "Playback File",
-//                    "Exit"
-//            };
-//        char path[256] = { 0 };
-//
-//        displayStart("1.2.0.0");
-//        while (1)
-//        {
-//            switch (displayMenu("What would you like to do?", mainOpts, 3))
-//            {
-//            case 1:
-//            {
-//                getString("Enter save file path", path);
-//                int interval = getInt("Enter interval between frames (milliseconds)");
-//                int duration = getInt("Enter duration to record for (seconds)");
-//
-//                record(path, interval, duration);
-//                break;
-//            }
-//            case 2:
-//            {
-//                getString("Enter path to saved playback file", path);
-//                int interval = getInt("Enter interval between frames (milliseconds)");
-//
-//                playback(path, interval);
-//                break;
-//            }
-//            case 3:
-//                displayMsg("Exiting.");
-//                return 0;
-//            default:
-//                displayMsg("Unrecognized option.");
-//                break;
-//            }
-//        }
-//
-//        return 0;
+            switch(result)
+            {
+            case 1:
+            {
+                String path = getString("Enter a save file path: ");
+                int interval = getInt("Enter interval between frames (milliseconds): ");
+                int duration = getInt("Enter duration to record for (seconds): ");
 
+                record(path, interval, duration);
+                break;
+            }
+            case 2:
+            {
+                String path = getString("Enter path to saved playback file: ");
+                int interval = getInt("Enter interval between frames (milliseconds): ");
+
+                playback(path, interval);
+                break;
+            }
+            case 3:
+            {
+                System.out.println("Exiting.");
+                return;
+            }
+            default:
+            {
+                System.out.println("Unrecognized menu option.");
+                break;
+            }
+            }
+        }
     }
 
     private static int displayMenu(String title, String[] opts) throws IOException
     {
         System.out.println();
-        System.out.println("+---------------------------------------------- +\n");
-        System.out.println(String.format("|  %1$-42s   |\n", title));
-        System.out.println("+---------------------------------------------- +\n");
+        System.out.println("+---------------------------------------------- +");
+        System.out.println(String.format("|  %1$-42s   |", title));
+        System.out.println("+---------------------------------------------- +");
         for(int i = 0; i < opts.length; ++i)
         {
-            System.out.println(String.format("| %1$2d. %2$-40s  |\n", i + 1, opts[i]));
+            System.out.println(String.format("| %1$2d. %2$-40s  |", i + 1, opts[i]));
 
         }
-        System.out.println("+---------------------------------------------- +\n");
-        System.out.print("Please select an option: ");
+        System.out.println("+---------------------------------------------- +");
+        return getInt("Please select an option: ");
+    }
+
+    private static String getString(String prompt) throws IOException
+    {
+        System.out.print(prompt);
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        return reader.readLine();
+    }
+
+    private static int getInt(String prompt) throws IOException
+    {
+        System.out.print(prompt);
+
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String result = reader.readLine();
 
@@ -114,6 +119,7 @@ public class Main
     {
         try(Scanner reader = new Scanner(new FileReader(path)))
         {
+            reader.useDelimiter("[\\s\\r\\n,]+");
             System.out.println("Starting playback...");
             try (XPlaneConnect xpc = new XPlaneConnect())
             {
@@ -122,8 +128,8 @@ public class Main
                     float[] posi = new float[7];
                     for (int i = 0; i < 7; ++i)
                     {
-                        posi[i] = reader.nextFloat();
-                        reader.skip(", ");
+                        String s = reader.next();
+                        posi[i] = Float.parseFloat(s);
                     }
                     reader.nextLine();
                     xpc.sendPOSI(posi);

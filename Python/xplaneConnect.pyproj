@@ -25,6 +25,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\playbackExample.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\monitorExample.py">
       <SubType>Code</SubType>
     </Compile>

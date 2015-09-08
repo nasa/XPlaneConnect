@@ -146,13 +146,13 @@ int testPOSI_NonPlayer()
 int testGetPOSI_Player()
 {
 	float POSI[7] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
-	doGETPTest(POSI, 0, POSI);
+	return doGETPTest(POSI, 0, POSI);
 }
 
 int testGetPOSI_NonPlayer()
 {
 	float POSI[7] = { 37.624F, -122.06899F, 1500, 0, 0, 0, 1 };
-	doGETPTest(POSI, 3, POSI);
+	return doGETPTest(POSI, 3, POSI);
 }
 
 #endif
