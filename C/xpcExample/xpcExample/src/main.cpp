@@ -24,7 +24,7 @@ int main()
 	const char* IP = "127.0.0.1";      //IP Address of computer running X-Plane
 	XPCSocket sock = openUDP(IP);
 	float tVal[1];
-	int tSize;
+	int tSize = 1;
 	if (getDREF(sock, "sim/test/test_float", tVal, &tSize) < 0)
 	{
 		printf("Error establishing connecting. Unable to read data from X-Plane.");
