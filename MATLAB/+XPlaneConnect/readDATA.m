@@ -37,7 +37,7 @@ import XPlaneConnect.*
 %% Get client
 global clients;
 if ~exist('socket', 'var')
-    assert(istrue(length(clients) < 2), '[readDATA] ERROR: Multiple clients open. You must specify which client to use.');
+    assert(isequal((length(clients) < 2),1), '[readDATA] ERROR: Multiple clients open. You must specify which client to use.');
     if isempty(clients)
     	socket = openUDP(); 
     else
@@ -46,7 +46,7 @@ if ~exist('socket', 'var')
 end
 
 %% Get data
-result.raw = socket.readDATA();
+result.raw = socket.readData();
 
 %% Format data
 rows = (length(result.raw) - 5) / 9;
