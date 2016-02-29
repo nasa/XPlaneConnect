@@ -117,7 +117,7 @@ XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
 #else
 	struct timeval timeout;
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 1000;
+	timeout.tv_usec = 250000;
 #endif
 	if (setsockopt(sock.sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0)
 	{
@@ -368,32 +368,46 @@ int readDATA(XPCSocket sock, float data[][9], int rows)
 /*****************************************************************************/
 int sendDREF(XPCSocket sock, const char* dref, float value[], int size)
 {
-	// Setup command
-	// 5 byte header + max 255 char dref name + max 255 values * 4 bytes per value = 1279
-	unsigned char buffer[1279] = "DREF";
-	int drefLen = strnlen(dref, 256);
-	if (drefLen > 255)
-	{
-		printError("setDREF", "dref length is too long. Must be less than 256 characters.");
-		return -1;
-	}
-	if (size > 255)
-	{
-		printError("setDREF", "size is too big. Must be less than 256.");
-		return -2;
-	}
-	int len = 7 + drefLen + size * sizeof(float);
-	
-	// Copy dref to buffer
-	buffer[5] = (unsigned char)drefLen;
-	memcpy(buffer + 6, dref, drefLen);
+	return sendDREFs(sock, &dref, &value, &size, 1);
+}
 
-	// Copy values to buffer
-	buffer[6 + drefLen] = (unsigned char)size;
-	memcpy(buffer + 7 + drefLen, value, size * sizeof(float));
+int sendDREFs(XPCSocket sock, const char* drefs[], float* values[], int sizes[], int count)
+{
+	// Setup command
+	// Max size is technically unlimited.
+	unsigned char buffer[65536] = "DREF";
+	int pos = 5;
+	for (int i = 0; i < count; ++i)
+	{
+		int drefLen = strnlen(drefs[i], 256);
+		if (pos + drefLen + sizes[i] * 4 + 2 > 65536)
+		{
+			printError("sendDREF", "About to overrun the send buffer!");
+			return -4;
+		}
+		if (drefLen > 255)
+		{
+			printError("sendDREF", "dref %d is too long. Must be less than 256 characters.", i);
+			return -1;
+		}
+		if (sizes[i] > 255)
+		{
+			printError("sendDREF", "size %d is too big. Must be less than 256.", i);
+			return -2;
+		}
+		// Copy dref to buffer
+		buffer[pos++] = (unsigned char)drefLen;
+		memcpy(buffer + pos, drefs[i], drefLen);
+		pos += drefLen;
+
+		// Copy values to buffer
+		buffer[pos++] = (unsigned char)sizes[i];
+		memcpy(buffer + pos, values[i], sizes[i] * sizeof(float));
+		pos += sizes[i] * sizeof(float);
+	}
 
 	// Send command
-	if (sendUDP(sock, buffer, len) < 0)
+	if (sendUDP(sock, buffer, pos) < 0)
 	{
 		printError("setDREF", "Failed to send command");
 		return -3;
@@ -508,6 +522,38 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
 /*****************************************************************************/
 /****                          POSI functions                             ****/
 /*****************************************************************************/
+int getPOSI(XPCSocket sock, float values[7], char ac)
+{
+	// Setup send command
+	unsigned char buffer[6] = "GETP";
+	buffer[5] = ac;
+
+	// Send command
+	if (sendUDP(sock, buffer, 6) < 0)
+	{
+		printError("getPOSI", "Failed to send command.");
+		return -1;
+	}
+
+	// Get response
+	unsigned char readBuffer[34];
+	int readResult = readUDP(sock, readBuffer, 34);
+	if (readResult < 0)
+	{
+		printError("getPOSI", "Failed to read response.");
+		return -2;
+	}
+	if (readResult != 34)
+	{
+		printError("getPOSI", "Unexpected response length.");
+		return -3;
+	}
+
+	// Copy response into values
+	memcpy(values, readBuffer + 6, 7 * sizeof(float));
+	return 0;
+}
+
 int sendPOSI(XPCSocket sock, float values[], int size, char ac)
 {
 	// Validate input
@@ -552,6 +598,41 @@ int sendPOSI(XPCSocket sock, float values[], int size, char ac)
 /*****************************************************************************/
 /****                          CTRL functions                             ****/
 /*****************************************************************************/
+int getCTRL(XPCSocket sock, float values[7], char ac)
+{
+	// Setup send command
+	unsigned char buffer[6] = "GETC";
+	buffer[5] = ac;
+
+	// Send command
+	if (sendUDP(sock, buffer, 6) < 0)
+	{
+		printError("getCTRL", "Failed to send command.");
+		return -1;
+	}
+
+	// Get response
+	unsigned char readBuffer[31];
+	int readResult = readUDP(sock, readBuffer, 31);
+	if (readResult < 0)
+	{
+		printError("getCTRL", "Failed to read response.");
+		return -2;
+	}
+	if (readResult != 31)
+	{
+		printError("getCTRL", "Unexpected response length.");
+		return -3;
+	}
+
+	// Copy response into values
+	memcpy(values, readBuffer + 5, 4 * sizeof(float));
+	values[4] = readBuffer[21];
+	values[5] = *((float*)(readBuffer + 22));
+	values[6] = *((float*)(readBuffer + 27));
+	return 0;
+}
+
 int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 {
 	// Validate input
@@ -672,7 +753,7 @@ int sendWYPT(XPCSocket sock, WYPT_OP op, float points[], int count)
 	memcpy(buffer + 7, points, ptLen);
 
 	// Send Command
-	if (sendUDP(sock, buffer, 40) < 0)
+	if (sendUDP(sock, buffer, 7 + 12 * count) < 0)
 	{
 		printError("sendWYPT", "Failed to send command");
 		return -2;
@@ -681,4 +762,32 @@ int sendWYPT(XPCSocket sock, WYPT_OP op, float points[], int count)
 }
 /*****************************************************************************/
 /****                      End Drawing functions                          ****/
+/*****************************************************************************/
+
+/*****************************************************************************/
+/****                          View functions                             ****/
+/*****************************************************************************/
+int sendVIEW(XPCSocket sock, VIEW_TYPE view)
+{
+	// Validate Input
+	if (view < XPC_VIEW_FORWARDS || view > XPC_VIEW_FULLSCREENNOHUD)
+	{
+		printError("sendVIEW", "Unrecognized view");
+		return -1;
+	}
+
+	// Setup Command
+	char buffer[9] = "VIEW";
+	*((int*)(buffer + 5)) = view;
+
+	// Send Command
+	if (sendUDP(sock, buffer, 9) < 0)
+	{
+		printError("sendVIEW", "Failed to send command");
+		return -2;
+	}
+	return 0;
+}
+/*****************************************************************************/
+/****                        End View functions                           ****/
 /*****************************************************************************/

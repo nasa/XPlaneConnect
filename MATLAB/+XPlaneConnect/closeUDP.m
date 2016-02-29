@@ -22,6 +22,10 @@ socket.close;
 
 %% Track open clients
 global clients;
-%TODO: Remove stale clients
+for i = 1:length(clients)
+    if socket == clients(i)
+        clients = [clients(1:i-1) clients(i+1:length(clients))];
+    end
+end
 
 end

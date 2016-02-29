@@ -1,25 +1,26 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
-//National Aeronautics and Space Administration. All Rights Reserved.
+// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
 //
-//X-Plane API
-//Copyright(c) 2008, Sandy Barbour and Ben Supnik All rights reserved.
-//Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-//associated documentation files(the "Software"), to deal in the Software without restriction,
-//including without limitation the rights to use, copy, modify, merge, publish, distribute,
-//sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is
-//furnished to do so, subject to the following conditions :
-//  * Redistributions of source code must retain the above copyright notice,
-//    this list of conditions and the following disclaimer.
-//  * Neither the names of the authors nor that of X - Plane or Laminar Research
-//    may be used to endorse or promote products derived from this software
-//    without specific prior written permission from the authors or
-//    Laminar Research, respectively.
+// X-Plane API
+// Copyright(c) 2008, Sandy Barbour and Ben Supnik All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+// associated documentation files(the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute,
+// sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//   * Redistributions of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//   * Neither the names of the authors nor that of X - Plane or Laminar Research
+//     may be used to endorse or promote products derived from this software
+//     without specific prior written permission from the authors or
+//     Laminar Research, respectively.
 #include "DataManager.h"
 #include "Log.h"
 
 #include "XPLMDataAccess.h"
 #include "XPLMGraphics.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <map>
@@ -28,14 +29,17 @@ namespace XPC
 {
 	using namespace std;
 
+	const size_t PLANE_COUNT = 20;
 	static map<DREF, XPLMDataRef> drefs;
-	static map<DREF, XPLMDataRef> mdrefs[20];
+	static map<DREF, XPLMDataRef> mdrefs[PLANE_COUNT];
 	static map<string, XPLMDataRef> sdrefs;
 
 	DREF XPData[134][8] = { DREF_None };
 
 	void DataManager::Initialize()
 	{
+		Log::WriteLine(LOG_TRACE, "DMAN", "Initializing drefs");
+
 		drefs.insert(make_pair(DREF_None, XPLMFindDataRef("sim/test/test_float")));
 
 		drefs.insert(make_pair(DREF_Pause, XPLMFindDataRef("sim/operation/override/override_planepath")));
@@ -142,7 +146,7 @@ namespace XPC
 		drefs.insert(make_pair(DREF_MP7Alt, XPLMFindDataRef("sim/multiplayer/position/plane7_el")));
 
 		char multi[256];
-		for (int i = 1; i < 20; i++)
+		for (int i = 1; i < PLANE_COUNT; i++)
 		{
 			sprintf(multi, "sim/multiplayer/position/plane%i_x", i);
 			mdrefs[i][DREF_LocalX] = XPLMFindDataRef(multi);
@@ -165,8 +169,8 @@ namespace XPC
 			sprintf(multi, "sim/multiplayer/position/plane%i_gear_deploy", i);
 			mdrefs[i][DREF_GearDeploy] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_flap_ratio", i);
-			mdrefs[i][DREF_FlapSetting] = XPLMFindDataRef(multi); // Can't set the actual flap setting on npc aircraft
 			mdrefs[i][DREF_FlapActual] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_FlapSetting] = mdrefs[i][DREF_FlapActual]; // Can't set the actual flap setting on npc aircraft
 			sprintf(multi, "sim/multiplayer/position/plane%i_flap_ratio2", i);
 			mdrefs[i][DREF_FlapActual2] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_spoiler_ratio", i);
@@ -179,6 +183,7 @@ namespace XPC
 			mdrefs[i][DREF_Sweep] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_throttle", i);
 			mdrefs[i][DREF_ThrottleActual] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_ThrottleSet] = mdrefs[i][DREF_ThrottleActual]; // No throttle set for multiplayer planes.
 			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_pitch", i);
 			mdrefs[i][DREF_YokePitch] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_roll", i);
@@ -299,8 +304,9 @@ namespace XPC
 		XPData[26][0] = DREF_ThrottleActual;
 	}
 
-	int DataManager::Get(string dref, float values[], int size)
+	int DataManager::Get(const string& dref, float values[], int size)
 	{
+		Log::WriteLine(LOG_TRACE, "DMAN", "Entered Get(string, float*, int)");
 		XPLMDataRef& xdref = sdrefs[dref];
 		if (xdref == NULL)
 		{
@@ -308,24 +314,18 @@ namespace XPC
 		}
 		if (!xdref) // DREF does not exist
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[DMAN] ERROR: invalid DREF %s", dref.c_str());
-#endif
+			Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: invalid DREF %s", dref.c_str());
 			return 0;
 		}
 
 		XPLMDataTypeID dataType = XPLMGetDataRefTypes(xdref);
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Get DREF %s (x:%X) Type: %i", dref.c_str(), xdref, dataType);
-#endif
+		Log::FormatLine(LOG_INFO, "DMAN", "Get DREF %s (x:%X) Type: %i", dref.c_str(), xdref, dataType);
 		// XPLMDataTypeID is a bit flag, so it may contain more than one of the
 		// following types. We prefer types as close to float as possible.
 		if ((dataType & 2) == 2) // Float
 		{
 			values[0] = XPLMGetDataf(xdref);
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("[DMAN] -- value was %f", values[0]);
-#endif
+			Log::FormatLine(LOG_INFO, "DMAN", " -- value was %f", values[0]);
 			return 1;
 		}
 		if ((dataType & 8) == 8) // Float array
@@ -333,99 +333,80 @@ namespace XPC
 			int drefSize = XPLMGetDatavf(xdref, NULL, 0, 0);
 			if (drefSize > size)
 			{
-#if LOG_VERBOSITY > 1
-				Log::WriteLine("[DMAN] WARN: dref size is larger than available space");
-				Log::FormatLine("             Actual dref size: %i, Available size: %i", drefSize, size);
-#endif
+				Log::WriteLine(LOG_WARN, "DMAN", "Warning: dref size is larger than available space");
+				Log::FormatLine(LOG_DEBUG, "DMAN", "Actual dref size : %i, Available size : %i", drefSize, size);
 				drefSize = size;
 			}
 			XPLMGetDatavf(xdref, values, 0, drefSize);
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("[DMAN] -- value count was %i", drefSize);
-#endif
+			Log::FormatLine(LOG_INFO, "DMAN", " -- value count was %i", drefSize);
 			return drefSize;
 		}
 		if ((dataType & 4) == 4) // Double
 		{
 			values[0] = (float)XPLMGetDatad(xdref);
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("[DMAN] -- value was %f", values[0]);
-#endif
+			Log::FormatLine(LOG_INFO, "DMAN", " -- value was %f", values[0]);
 			return 1;
 		}
 		if ((dataType & 1) == 1) // Integer
 		{
-			values[0] = (float)XPLMGetDatai(xdref);
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("[DMAN] -- value was %i", (int)values[0]);
-#endif
+			int iValue = XPLMGetDatai(xdref);
+			values[0] = (float)iValue;
+			Log::FormatLine(LOG_INFO, "DMAN", " -- Real value was %i, cast to %f", iValue, values[0]);
 			return 1;
 		}
 		if ((dataType & 16) == 16) // Integer array
 		{
-			int iValues[200];
+			const std::size_t TMP_SIZE = 200;
+			int iValues[TMP_SIZE];
 			int drefSize = XPLMGetDatavi(xdref, NULL, 0, 0);
 			if (drefSize > size)
 			{
-#if LOG_VERBOSITY > 1
-				Log::WriteLine("[DMAN] WARN: dref size is larger than available space");
-				Log::FormatLine("             Actual dref size: %i, Available size: %i", drefSize, size);
-#endif
+				Log::WriteLine(LOG_WARN, "DMAN", "Warning: dref size is larger than available space");
+				Log::FormatLine(LOG_DEBUG, "DMAN", "Actual dref size : %i, Available size : %i", drefSize, size);
 				drefSize = size;
 			}
-			if (drefSize > 200)
+			if (drefSize > TMP_SIZE)
 			{
-#if LOG_VERBOSITY > 1
-				Log::WriteLine("[DMAN] WARN: dref size is larger than temp buffer");
-				Log::FormatLine("             Actual dref size: %i, Temp buffer size: 200", drefSize);
-#endif
-				drefSize = 200;
+				Log::WriteLine(LOG_WARN, "DMAN", "Warning: dref size is larger than temp buffer");
+				Log::FormatLine(LOG_DEBUG, "DMAN", "Actual dref size : %i, Temp buffer size: %u", drefSize, TMP_SIZE);
+				drefSize = TMP_SIZE;
 			}
 			XPLMGetDatavi(xdref, iValues, 0, drefSize);
 			for (int i = 0; i < drefSize; ++i)
 			{
 				values[i] = (float)iValues[i];
 			}
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("[DMAN] -- value count was %i", drefSize);
-#endif
+			Log::FormatLine(LOG_INFO, "DMAN", " -- value count was %i", drefSize);
 			return drefSize;
 		}
 		if ((dataType & 32) == 32) // Byte array
 		{
-			char bValues[1024];
+			const std::size_t TMP_SIZE = 1024;
+			char bValues[TMP_SIZE];
 			int drefSize = XPLMGetDatab(xdref, NULL, 0, 0);
 			if (drefSize > size)
 			{
-#if LOG_VERBOSITY > 1
-				Log::WriteLine("[DMAN] WARN: dref size is larger than available space");
-				Log::FormatLine("             Actual dref size: %i, Available size: %i", drefSize, size);
-#endif
+				Log::WriteLine(LOG_WARN, "DMAN", "Warning: dref size is larger than available space");
+				Log::FormatLine(LOG_DEBUG, "DMAN", "Actual dref size : %i, Available size : %i", drefSize, size);
 				drefSize = size;
 			}
-			if (drefSize > 1024)
+			if (drefSize > TMP_SIZE)
 			{
-#if LOG_VERBOSITY > 1
-				Log::WriteLine("[DMAN] WARN: dref size is larger than temp buffer");
-				Log::FormatLine("             Actual dref size: %i, Temp buffer size: 1024", drefSize);
-#endif
-				drefSize = 1024;
+				Log::WriteLine(LOG_WARN, "DMAN", "Warning: dref size is larger than temp buffer");
+				Log::FormatLine(LOG_DEBUG, "DMAN", "Actual dref size : %i, Temp buffer size: %u", drefSize, TMP_SIZE);
+				drefSize = TMP_SIZE;
 			}
 			XPLMGetDatab(xdref, bValues, 0, drefSize);
 			for (int i = 0; i < drefSize; ++i)
 			{
 				values[i] = (float)bValues[i];
 			}
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("[DMAN] -- value count was %i", drefSize);
-#endif
+			Log::FormatLine(LOG_INFO, "DMAN", " -- value count was %i", drefSize);
 			return drefSize;
 		}
 
 		// No match
-#if LOG_VERBOSITY > 0
-		Log::WriteLine("[DMAN] ERROR: Unrecognized data type.");
-#endif
+		Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Unrecognized data type.");
 		return 0;
 	}
 
@@ -433,9 +414,8 @@ namespace XPC
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 		double value = XPLMGetDatad(xdref);
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Get DREF %i (x:%X) result %f for a/c %i", dref, xdref, value, aircraft);
-#endif
+		Log::FormatLine(LOG_INFO, "DMAN", "Get DREF %i (x:%X) result %f for a/c %i",
+			dref, xdref, value, aircraft);
 		return value;
 	}
 
@@ -443,9 +423,8 @@ namespace XPC
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 		float value = XPLMGetDataf(xdref);
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Get DREF %i (x:%X) result %f for a/c %i", dref, xdref, value, aircraft);
-#endif
+		Log::FormatLine(LOG_INFO, "DMAN", "Get DREF %i (x:%X) result %f for a/c %i",
+			dref, xdref, value, aircraft);
 		return value;
 	}
 
@@ -453,9 +432,8 @@ namespace XPC
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 		int value = XPLMGetDatai(xdref);
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Get DREF %i (x:%X) result %i for a/c %i", dref, xdref, value, aircraft);
-#endif
+		Log::FormatLine(LOG_INFO, "DMAN", "Get DREF %i (x:%X) result %i for a/c %i",
+			dref, xdref, value, aircraft);
 		return value;
 	}
 
@@ -463,9 +441,8 @@ namespace XPC
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 		int resultSize = XPLMGetDatavf(xdref, values, 0, size);
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Get DREF %i (x:%X) result size %i for a/c %i", dref, xdref, resultSize, aircraft);
-#endif
+		Log::FormatLine(LOG_INFO, "DMAN", "Get DREF %i (x:%X) result size %i for a/c %i",
+			dref, xdref, resultSize, aircraft);
 		return resultSize;
 	}
 
@@ -473,62 +450,66 @@ namespace XPC
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
 		int resultSize = XPLMGetDatavi(xdref, values, 0, size);
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Get DREF %i (x:%X) result size %i for a/c %i", dref, xdref, resultSize, aircraft);
-#endif
+		Log::FormatLine(LOG_INFO, "DMAN", "Get DREF %i (x:%X) result size %i for a/c %i",
+			dref, xdref, resultSize, aircraft);
 		return resultSize;
 	}
 
 	void DataManager::Set(DREF dref, double value, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Setting DREF %i (x:%X) to %f for a/c %i", dref, xdref, value, aircraft);
-#endif
+		Log::FormatLine(LOG_INFO, "DMAN", "Setting DREF %i (x:%X) to %f for a/c %i",
+			dref, xdref, value, aircraft);
 		XPLMSetDatad(xdref, value);
 	}
 
 	void DataManager::Set(DREF dref, float value, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Set DREF %i (x:%X) to %f for a/c %i", dref, xdref, value, aircraft);
-#endif
+		Log::FormatLine(LOG_INFO, "DMAN", "Setting DREF %i (x:%X) to %f for a/c %i",
+			dref, xdref, value, aircraft);
 		XPLMSetDataf(xdref, value);
 	}
 
 	void DataManager::Set(DREF dref, int value, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Set DREF %i (x:%X) to %i for a/c %i", dref, xdref, value, aircraft);
-#endif
+		Log::FormatLine(LOG_INFO, "DMAN", "Setting DREF %i (x:%X) to %i for a/c %i",
+			dref, xdref, value, aircraft);
 		XPLMSetDatai(xdref, value);
 	}
 
 	void DataManager::Set(DREF dref, float values[], int size, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Set DREF %i (x:%X) (%i values) for a/c %i", dref, xdref, size, aircraft);
-#endif
+		Log::FormatLine(LOG_INFO, "DMAN", "Setting DREF %i (x:%X) (%i values) for a/c %i",
+			dref, xdref, size, aircraft);
 		int drefSize = XPLMGetDatavf(xdref, NULL, 0, 0);
+		if (drefSize < size)
+		{
+			Log::FormatLine(LOG_WARN, "DMAN", "Warning: Too many values when setting DREF %i. Expected %i, got %i",
+				dref, drefSize, size);
+		}
 		drefSize = min(drefSize, size);
 		XPLMSetDatavf(xdref, values, 0, drefSize);
 	}
-	
+
 	void DataManager::Set(DREF dref, int values[], int size, char aircraft)
 	{
 		const XPLMDataRef& xdref = aircraft == 0 ? drefs[dref] : mdrefs[aircraft][dref];
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Setting DREF %i (x:%X) (%i values) for a/c %i", dref, xdref, size, aircraft);
-#endif
+		Log::FormatLine(LOG_INFO, "DMAN", "Setting DREF %i (x:%X) (%i values) for a/c %i",
+			dref, xdref, size, aircraft);
 		int drefSize = XPLMGetDatavi(xdref, NULL, 0, 0);
+		if (drefSize < size)
+		{
+			Log::FormatLine(LOG_WARN, "DMAN", "Warning: Too many values when setting DREF %i. Expected %i, got %i",
+				dref, drefSize, size);
+		}
 		drefSize = min(drefSize, size);
 		XPLMSetDatavi(xdref, values, 0, drefSize);
 	}
 
-	void DataManager::Set(string dref, float values[], int size)
+	void DataManager::Set(const string& dref, float values[], int size)
 	{
 		XPLMDataRef& xdref = sdrefs[dref];
 		if (xdref == NULL)
@@ -538,149 +519,121 @@ namespace XPC
 		if (!xdref)
 		{
 			// DREF does not exist
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[DMAN] ERROR: invalid DREF %s", dref.c_str());
-#endif
+			Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: invalid DREF %s", dref.c_str());
 			return;
 		}
 		if (isnan(values[0]))
 		{
-#if LOG_VERBOSITY > 0
-			Log::WriteLine("[DMAN] ERROR: Value must be a number (NaN received)");
-#endif
+			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Value must be a number (NaN received)");
 			return;
 		}
 
 		XPLMDataTypeID dataType = XPLMGetDataRefTypes(xdref);
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[DMAN] Setting DREF %s (x:%X) Type: %i", dref.c_str(), xdref, dataType);
-#endif
+		Log::FormatLine(LOG_INFO, "DMAN", "Setting DREF %s (x:%X) Type: %i", dref.c_str(), xdref, dataType);
 		if ((dataType & 2) == 2) // Float
 		{
 			XPLMSetDataf(xdref, values[0]);
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("[DMAN] -- value was %f", values[0]);
-#endif
+			Log::FormatLine(LOG_INFO, "DMAN", " -- value was %f", values[0]);
 		}
 		else if ((dataType & 8) == 8) // Float Array
 		{
 			int drefSize = XPLMGetDatavf(xdref, NULL, 0, 0);
-#if LOG_VERBOSITY > 1
 			if (size > drefSize)
 			{
-				Log::WriteLine("[DMAN] WARN: Provided size is larger than actual dref size");
-				Log::FormatLine("             Actual dref size: %i, Provided buffer size: %i", drefSize, size);
+				Log::WriteLine(LOG_WARN, "DMAN", "Warning: dref size is larger than actual dref size");
+				Log::FormatLine(LOG_DEBUG, "DMAN", "Actual dref size : %i, Provided buffer size : %i",
+					drefSize, size);
 			}
-#endif
 			drefSize = min(drefSize, size);
 			XPLMSetDatavf(xdref, values, 0, drefSize);
-#if LOG_VERBOSITY > 4
-				Log::FormatLine("[DMAN] -- value count was %i", drefSize);
-#endif
+			Log::FormatLine(LOG_INFO, "DMAN", " -- value count was %i", drefSize);
 		}
 		else if ((dataType & 4) == 4) // Double
 		{
 			XPLMSetDatad(xdref, values[0]);
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("[DMAN] -- value was %f", values[0]);
-#endif
+			Log::FormatLine(LOG_INFO, "DMAN", " -- value was %f", values[0]);
 		}
 		else if ((dataType & 1) == 1) // Integer
 		{
 			XPLMSetDatai(xdref, (int)values[0]);
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("[DMAN] -- value was %i", (int)values[0]);
-#endif
+			Log::FormatLine(LOG_INFO, "DMAN", " -- value was %i", (int)values[0]);
 		}
 		else if ((dataType & 16) == 16) // Integer Array
 		{
-			int iValues[200];
+			const std::size_t TMP_SIZE = 200;
+			int iValues[TMP_SIZE];
 			int drefSize = XPLMGetDatavi(xdref, NULL, 0, 0);
-#if LOG_VERBOSITY > 1
 			if (size > drefSize)
 			{
-				Log::WriteLine("[DMAN] WARN: Provided size is larger than actual dref size");
-				Log::FormatLine("             Actual dref size: %i, Provided buffer size: %i", drefSize, size);
+				Log::WriteLine(LOG_WARN, "DMAN", "Warning: dref size is larger than actual dref size");
+				Log::FormatLine(LOG_DEBUG, "DMAN", "Actual dref size : %i, Provided buffer size : %i",
+					drefSize, size);
 			}
-#endif
 			drefSize = min(drefSize, size);
-			if (drefSize > 200)
+			if (drefSize > TMP_SIZE)
 			{
-#if LOG_VERBOSITY > 1
-				Log::WriteLine("[DMAN] WARN: drefSize larger than temp buffer size.");
-				Log::FormatLine("             Actual dref size: %i, Temp buffer size: 200", drefSize);
-#endif
-				drefSize = 200;
+				Log::WriteLine(LOG_WARN, "DMAN", "Warning: dref size is larger temp buffer size");
+				Log::FormatLine(LOG_DEBUG, "DMAN", "Actual dref size : %i, Temp buffer size: %i",
+					drefSize, TMP_SIZE);
+				drefSize = TMP_SIZE;
 			}
 			for (int i = 0; i < drefSize; ++i)
 			{
 				iValues[i] = (int)values[i];
 			}
 			XPLMSetDatavi(xdref, iValues, 0, drefSize);
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("[DMAN] -- value count was %i", drefSize);
-#endif
+			Log::FormatLine(LOG_INFO, "DMAN", " -- value count was %i", drefSize);
 		}
 		else if ((dataType & 32) == 32) // Byte Array
 		{
-			char bValues[1024];
+			const std::size_t TMP_SIZE = 1024;
+			char bValues[TMP_SIZE];
 			int drefSize = XPLMGetDatab(xdref, NULL, 0, 0);
-#if LOG_VERBOSITY > 1
 			if (size > drefSize)
 			{
-				Log::WriteLine("[DMAN] WARN: Provided size is larger than actual dref size");
-				Log::FormatLine("             Actual dref size: %i, Provided buffer size: %i", drefSize, size);
+				Log::WriteLine(LOG_WARN, "DMAN", "Warning: dref size is larger than actual dref size");
+				Log::FormatLine(LOG_DEBUG, "DMAN", "Actual dref size : %i, Provided buffer size : %i",
+					drefSize, size);
 			}
-#endif
 			drefSize = min(drefSize, size);
-			if (drefSize > 1024)
+			if (drefSize > TMP_SIZE)
 			{
-#if LOG_VERBOSITY > 1
-				Log::WriteLine("[DMAN] WARN: drefSize larger than temp buffer size.");
-				Log::FormatLine("             Actual dref size: %i, Temp buffer size: 1024", drefSize);
-#endif
-				drefSize = 1024;
+				Log::WriteLine(LOG_WARN, "DMAN", "Warning: dref size is larger temp buffer size");
+				Log::FormatLine(LOG_DEBUG, "DMAN", "Actual dref size : %i, Temp buffer size: %i",
+					drefSize, TMP_SIZE);
+				drefSize = TMP_SIZE;
 			}
 			for (int i = 0; i < drefSize; ++i)
 			{
 				bValues[i] = (char)values[i];
 			}
 			XPLMSetDatab(xdref, bValues, 0, drefSize);
-#if LOG_VERBOSITY > 4
-			Log::FormatLine("[DMAN] -- value count was %i", drefSize);
-#endif
+			Log::FormatLine(LOG_INFO, "DMAN", " -- value count was %i", drefSize);
 		}
 		else
 		{
-#if LOG_VERBOSITY > 0
-			Log::WriteLine("[DMAN] ERROR: Unknown type.");
-#endif
+			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Unknown type.");
 		}
 
 
-#if LOG_VERBOSITY > 1
 		if (!XPLMCanWriteDataRef(xdref))
 		{
-			Log::WriteLine("[DMAN] WARN: dref is not writable. The write operation probably failed.");
+			Log::WriteLine(LOG_WARN, "DMAN", "WARN: dref is not writable. The write operation probably failed.");
 		}
-#endif
 	}
 
 	void DataManager::SetGear(float gear, bool immediate, char aircraft)
 	{
-#if LOG_VERBOSITY > 3
-		Log::FormatLine("[DMAN] Setting gear (value:%f, immediate:%i) for aircraft %i", gear, immediate, aircraft);
-#endif
-		if (isnan(gear) || gear < 0 || gear > 1)
+		Log::FormatLine(LOG_INFO, "DMAN", "Setting gear (value:%f, immediate:%i) for aircraft %i",
+			gear, immediate, aircraft);
+
+		if ((gear < -8.5 && gear > -9.5) || IsDefault(gear))
 		{
-#if LOG_VERBOSITY > 0
-			Log::WriteLine("[GEAR] ERROR: Value must be 0 or 1");
-#endif
 			return;
 		}
-
-		if ((gear < -8.5 && gear > -9.5) || (gear < -997.9 && gear > -999.1))
+		if (isnan(gear) || gear < 0 || gear > 1)
 		{
+			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Gear value must be 0 or 1");
 			return;
 		}
 
@@ -706,26 +659,23 @@ namespace XPC
 
 	void DataManager::SetPosition(float pos[3], char aircraft)
 	{
-#if LOG_VERBOSITY > 3
-		Log::FormatLine("[DMAN] Setting position (%f, %f, %f) for aircraft %i", pos[0], pos[1], pos[2], aircraft);
-#endif
+		Log::FormatLine(LOG_INFO, "DMAN", "Setting position (%f, %f, %f) for aircraft %i",
+			pos[0], pos[1], pos[2], aircraft);
 		if (isnan(pos[0] + pos[1] + pos[2]))
 		{
-#if LOG_VERBOSITY > 0
-			Log::WriteLine("[DMAN] ERROR: Position must be a number (NaN received)");
-#endif
+			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Position must be a number (NaN received)");
 			return;
 		}
 
-		if (pos[0] < -997.9 && pos[0] > -999.1)
+		if (IsDefault(pos[0]))
 		{
 			pos[0] = (float)GetDouble(DREF_Latitude, aircraft);
 		}
-		if (pos[1] < -997.9 && pos[1] > -999.1)
+		if (IsDefault(pos[1]))
 		{
 			pos[1] = (float)GetDouble(DREF_Longitude, aircraft);
 		}
-		if (pos[2] < -997.9 && pos[2] > -999.1)
+		if (IsDefault(pos[2]))
 		{
 			pos[2] = (float)GetDouble(DREF_Elevation, aircraft);
 		}
@@ -738,7 +688,6 @@ namespace XPC
 		Set(DREF_LocalY, local[1], aircraft);
 		Set(DREF_LocalZ, local[2], aircraft);
 		// If the sim is unpaused, this will override the above settings.
-		// TODO: Are these setable when paused? Are these necessary?
 		Set(DREF_Latitude, (double)pos[0], aircraft);
 		Set(DREF_Longitude, (double)pos[1], aircraft);
 		Set(DREF_Elevation, (double)pos[2], aircraft);
@@ -746,27 +695,23 @@ namespace XPC
 
 	void DataManager::SetOrientation(float orient[3], char aircraft)
 	{
-#if LOG_VERBOSITY > 3
-		Log::FormatLine("[DMAN] Setting orientation (%f, %f, %f) for aircraft %i",
+		Log::FormatLine(LOG_INFO, "DMAN", "Setting orientation (%f, %f, %f) for aircraft %i",
 			orient[0], orient[1], orient[2], aircraft);
-#endif
 		if (isnan(orient[0] + orient[1] + orient[2]))
 		{
-#if LOG_VERBOSITY > 0
-			Log::WriteLine("[DMAN] ERROR: Orientation must be a number (NaN received)");
-#endif
+			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Orientation must be a number (NaN received)");
 			return;
 		}
 
-		if (orient[0] < -997.9 && orient[0] > -999.1)
+		if (IsDefault(orient[0]))
 		{
 			orient[0] = GetFloat(DREF_Pitch, aircraft);
 		}
-		if (orient[1] < -997.9 && orient[1] > -999.1)
+		if (IsDefault(orient[1]))
 		{
 			orient[1] = GetFloat(DREF_Roll, aircraft);
 		}
-		if (orient[2] < -997.9 && orient[2] > -999.1)
+		if (IsDefault(orient[2]))
 		{
 			orient[2] = GetFloat(DREF_HeadingTrue, aircraft);
 		}
@@ -782,16 +727,16 @@ namespace XPC
 		{
 			// Convert to Quaternions
 			// from: http://www.xsquawkbox.net/xpsdk/mediawiki/MovingThePlane
-			//	     http://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19770024290.pdf
+			// 	     http://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19770024290.pdf
 			float q[4];
 			float halfRad = 0.00872664625997F;
-			orient[2] = halfRad * orient[2];
-			orient[0] = halfRad * orient[0];
-			orient[1] = halfRad * orient[1];
-			q[0] = cos(orient[2]) * cos(orient[0]) * cos(orient[1]) + sin(orient[2]) * sin(orient[0]) * sin(orient[1]);
-			q[1] = cos(orient[2]) * cos(orient[0]) * sin(orient[1]) - sin(orient[2]) * sin(orient[0]) * cos(orient[1]);
-			q[2] = cos(orient[2]) * sin(orient[0]) * cos(orient[1]) + sin(orient[2]) * cos(orient[0]) * sin(orient[1]);
-			q[3] = sin(orient[2]) * cos(orient[0]) * cos(orient[1]) - cos(orient[2]) * sin(orient[0]) * sin(orient[1]);
+			float theta = halfRad * orient[0];
+			float phi = halfRad * orient[1];
+			float psi = halfRad * orient[2];
+			q[0] = cos(phi) * cos(theta) * cos(psi) + sin(phi) * sin(theta) * sin(psi);
+			q[1] = sin(phi) * cos(theta) * cos(psi) - cos(phi) * sin(theta) * sin(psi);
+			q[2] = cos(phi) * sin(theta) * cos(psi) + sin(phi) * cos(theta) * sin(psi);
+			q[3] = cos(phi) * cos(theta) * sin(psi) - sin(phi) * sin(theta) * cos(psi);
 
 			// If the sim is un-paused, this will overwrite the pitch/roll/yaw
 			// values set above.
@@ -801,14 +746,14 @@ namespace XPC
 
 	void DataManager::SetFlaps(float value)
 	{
+		Log::FormatLine(LOG_INFO, "DMAN", "Setting flaps (value:%f)", value);
+
 		if (isnan(value))
 		{
-#if LOG_VERBOSITY > 0
-			Log::WriteLine("[DMAN] ERROR: Flap value must be a number (NaN received)");
-#endif
+			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Flap value must be a number (NaN received)");
 			return;
 		}
-		if (value < -997.9 && value > -999.1)
+		if (IsDefault(value))
 		{
 			return;
 		}
@@ -818,5 +763,15 @@ namespace XPC
 
 		Set(DREF_FlapSetting, value);
 		Set(DREF_FlapActual, value);
+	}
+
+	float DataManager::GetDefaultValue()
+	{
+		return -998.0F;
+	}
+
+	bool DataManager::IsDefault(float value)
+	{
+		return value < -997.9 && value > -999.1;
 	}
 }

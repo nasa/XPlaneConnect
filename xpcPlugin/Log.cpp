@@ -1,17 +1,20 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
-//National Aeronautics and Space Administration. All Rights Reserved.
+// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
 #include "Log.h"
 
 #include "XPLMUtilities.h"
 
-#include <chrono>
 #include <cstdarg>
 #include <cstdio>
 #include <ctime>
+
+#ifndef LIN
+#include <chrono>
+#endif
 #include <iomanip>
 #include <sstream>
 
-// Implementation note: I initial wrote this class using C++ iostreams, but I couldn't find any
+// Implementation note: I initially wrote this class using C++ iostreams, but I couldn't find any
 // way to implement FormatLine without adding in a call to sprintf. It therefore seems more
 // efficient to me to just use C-style IO and call std::fprintf directly.
 namespace XPC
@@ -19,6 +22,20 @@ namespace XPC
 	static std::FILE* fd;
 	static void WriteTime(FILE* fd)
 	{
+#ifdef LIN
+		// Can't provide high resolution logging on Linux because C++11 doesn't work with X-Plane.
+		time_t rawtime;
+		tm* timeinfo;
+		time(&rawtime);
+		timeinfo = localtime(&rawtime);
+
+		char buffer[16] = { 0 };
+		// Format is equivalent to [%F %T], but neither of those specifiers is
+		// supported on Windows as of Visual Studio 13
+		strftime(buffer, 16, "[%H:%M:%S] ", timeinfo);
+
+		fprintf(fd, buffer);
+#else
 		using namespace std::chrono;
 
 		system_clock::time_point now = system_clock::now();
@@ -28,17 +45,59 @@ namespace XPC
 		std::tm * tm = std::localtime(&now_tt);
 
 		std::stringstream ss;
-		ss << std::setfill('0') << "["
+		ss << std::setfill('0')
 			<< std::setw(2) << tm->tm_hour << ":"
 			<< std::setw(2) << tm->tm_min << ":"
 			<< std::setw(2) << tm->tm_sec << "."
-			<< std::setw(3) << ms.count() << "]";
-		
+			<< std::setw(3) << ms.count() << "|";
+
 		std::fprintf(fd, ss.str().c_str());
+#endif
 	}
 
-	void Log::Initialize(std::string version)
+	static void WriteLevel(FILE* fd, int level)
 	{
+		const char* str;
+		switch (level)
+		{
+		case LOG_OFF:
+			str = "  OFF|";
+			break;
+		case LOG_FATAL:
+			str = "FATAL|";
+			break;
+		case LOG_ERROR:
+			str = "ERROR|";
+			break;
+		case LOG_WARN:
+			str = " WARN|";
+			break;
+		case LOG_INFO:
+			str = " INFO|";
+			break;
+		case LOG_DEBUG:
+			str = "DEBUG|";
+			break;
+		case LOG_TRACE:
+			str = "TRACE|";
+			break;
+		default:
+			str = "  UNK|";
+			break;
+		}
+		std::fprintf(fd, str);
+	}
+
+	void Log::Initialize(const std::string& version)
+	{
+		if (LOG_LEVEL == LOG_OFF)
+		{
+			return;
+		}
+
+		// Note: Mode "w" deletes an existing file with the same name. This means that we only
+		//       ever get the log from the last run. This matches the way that X-Plane treats its
+		//       log.
 		fd = std::fopen("XPCLog.txt", "w");
 		if (fd != NULL)
 		{
@@ -81,35 +140,33 @@ namespace XPC
 		}
 	}
 
-	void Log::WriteLine(const std::string& value)
+	void Log::WriteLine(int level, const std::string& tag, const std::string& value)
 	{
-		Log::WriteLine(value.c_str());
-	}
-
-	void Log::WriteLine(const char* value)
-	{
-		if (!fd)
+		if (level > LOG_LEVEL || !fd)
 		{
 			return;
 		}
 
 		WriteTime(fd);
-		std::fprintf(fd, "%s\n", value);
+		WriteLevel(fd, level);
+		std::fprintf(fd, "%s|%s\n", tag.c_str(), value.c_str());
 		std::fflush(fd);
 	}
 
-	void Log::FormatLine(const char* format, ...)
+	void Log::FormatLine(int level, const std::string& tag, std::string format, ...)
 	{
 		va_list args;
 
-		if (!fd)
+		if (level > LOG_LEVEL || !fd)
 		{
 			return;
 		}
 		va_start(args, format);
 
 		WriteTime(fd);
-		std::vfprintf(fd, format, args);
+		WriteLevel(fd, level);
+		std::fprintf(fd, "%s|", tag.c_str());
+		std::vfprintf(fd, format.c_str(), args);
 		std::fprintf(fd, "\n");
 		std::fflush(fd);
 

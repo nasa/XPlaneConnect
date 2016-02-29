@@ -3,7 +3,7 @@ import unittest
 import imp
 import time
 
-import xpc
+xpc = imp.load_source('xpc', '../../Python/src/xpc.py')
 
 class XPCTests(unittest.TestCase):
     """Tests the functionality of the XPlaneConnect class."""
@@ -117,6 +117,37 @@ class XPCTests(unittest.TestCase):
         value = 0
         do_test()
 
+    def test_sendDREFs(self):
+        drefs = [\
+            "sim/cockpit/switches/gear_handle_status",\
+            "sim/cockpit/autopilot/altitude"]
+        values = None
+        def do_test():
+            # Setup
+            client = xpc.XPlaneConnect()
+
+            # Execute
+            client.sendDREFs(drefs, values)
+            result = client.getDREFs(drefs)
+
+            # Cleanup
+            client.close()
+
+            # Tests
+            self.assertEqual(2, len(result))
+            self.assertEqual(1, len(result[0]))
+            self.assertEqual(values[0], result[0][0])
+            self.assertEqual(1, len(result[1]))
+            self.assertEqual(values[1], result[1][0])
+
+        # Test 1
+        values = [1, 2000]
+        do_test()
+
+        # Test 2
+        values = [0, 4000]
+        do_test()
+
     def test_sendDATA(self):
         # Setup
         dref = "sim/aircraft/parts/acf_gear_deploy"
@@ -169,6 +200,29 @@ class XPCTests(unittest.TestCase):
         # Test 4
         value = 2
         expected = 0.0
+        do_test()
+
+    def test_getCTRL(self):
+        values = None
+        ac = 0
+        expected = None
+        def do_test():
+            with xpc.XPlaneConnect() as client:
+                # Execute
+                client.sendCTRL(values, ac)
+                result = client.getCTRL(ac)
+
+                # Test
+                self.assertEqual(len(result), len(expected))
+                for a, e in zip(result, expected):
+                    self.assertAlmostEqual(a, e, 4)
+                    
+        values = [0.0, 0.0, 0.0, 0.8, 1.0, 0.5, -1.5]
+        expected = values
+        ac = 0
+        do_test()
+
+        ac = 3
         do_test()
 
         
@@ -239,6 +293,31 @@ class XPCTests(unittest.TestCase):
         ctrl[6] = 0.0
         do_test()
 
+    def test_getPOSI(self):
+        values = None
+        ac = 0
+        expected = None
+        def do_test():
+            with xpc.XPlaneConnect() as client:
+                # Execute
+                client.pauseSim(True)
+                client.sendPOSI(values, ac)
+                result = client.getPOSI(ac)
+                client.pauseSim(False)
+
+                # Test
+                self.assertEqual(len(result), len(expected))
+                for a, e in zip(result, expected):
+                    self.assertAlmostEqual(a, e, 4)
+                    
+        values = [ 37.524, -122.06899, 2500, 45, -45, 15, 1 ]
+        expected = values
+        ac = 0
+        do_test()
+
+        ac = 3
+        do_test()
+
     def test_sendPOSI(self):
         # Setup
         drefs = ["sim/flightmodel/position/latitude",\
@@ -287,6 +366,22 @@ class XPCTests(unittest.TestCase):
 
         # Cleanup
         client.close()
+
+    def test_sendView(self):
+        # Setup
+        dref = "sim/graphics/view/view_type"
+        fwd = 1000
+        chase = 1017
+
+        #Execution
+        with xpc.XPlaneConnect() as client:
+            client.sendVIEW(xpc.ViewType.Forwards)
+            result = client.getDREF(dref)
+            self.assertAlmostEqual(fwd, result[0], 1e-4)
+            client.sendVIEW(xpc.ViewType.Chase)
+            result = client.getDREF(dref)
+            self.assertAlmostEqual(chase, result[0], 1e-4)
+             
 
     def test_sendWYPT(self):
         # Setup

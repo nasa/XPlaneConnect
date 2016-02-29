@@ -332,43 +332,111 @@ public class XPlaneConnect implements AutoCloseable
      */
     public void sendDREF(String dref, float[] value) throws IOException
     {
+        sendDREFs(new String[] {dref}, new float[][] {value});
+    }
+
+    /**
+     * Sends a command to X-Plane that sets the given DREF.
+     *
+     * @param drefs  The names of the X-Plane datarefs to set.
+     * @param values A sequence of arrays of floating point values whose structure depends on the drefs specified.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void sendDREFs(String[] drefs, float[][] values) throws IOException
+    {
         //Preconditions
-        if(dref == null)
+        if(drefs == null || drefs.length == 0)
         {
-            throw new IllegalArgumentException("dref must be a valid string.");
+            throw new IllegalArgumentException(("drefs must be non-empty."));
         }
-        if(value == null || value.length == 0)
+        if(values == null ||  values.length != drefs.length)
         {
-            throw new IllegalArgumentException("value must be non-null and should contain at least one value.");
-        }
-
-        //Convert drefs to bytes.
-        byte[] drefBytes = dref.getBytes(StandardCharsets.UTF_8);
-        if(drefBytes.length == 0)
-        {
-            throw new IllegalArgumentException("DREF is an empty string!");
-        }
-        if(drefBytes.length > 255)
-        {
-            throw new IllegalArgumentException("dref must be less than 255 bytes in UTF-8. Are you sure this is a valid dref?");
+            throw new IllegalArgumentException("values must be of the same size as drefs.");
         }
 
-        ByteBuffer bb = ByteBuffer.allocate(4 * value.length);
-        bb.order(ByteOrder.LITTLE_ENDIAN);
-        for(int i = 0; i < value.length; ++i)
-        {
-            bb.putFloat(i * 4, value[i]);
-        }
-
-        //Build and send message
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         os.write("DREF".getBytes(StandardCharsets.UTF_8));
         os.write(0xFF); //Placeholder for message length
-        os.write(drefBytes.length);
-        os.write(drefBytes, 0, drefBytes.length);
-        os.write(value.length);
-        os.write(bb.array());
+        for(int i = 0; i < drefs.length; ++i)
+        {
+            String dref = drefs[i];
+            float[] value = values[i];
+
+            if (dref == null)
+            {
+                throw new IllegalArgumentException("dref must be a valid string.");
+            }
+            if (value == null || value.length == 0)
+            {
+                throw new IllegalArgumentException("value must be non-null and should contain at least one value.");
+            }
+
+            //Convert drefs to bytes.
+            byte[] drefBytes = dref.getBytes(StandardCharsets.UTF_8);
+            if (drefBytes.length == 0)
+            {
+                throw new IllegalArgumentException("DREF is an empty string!");
+            }
+            if (drefBytes.length > 255)
+            {
+                throw new IllegalArgumentException("dref must be less than 255 bytes in UTF-8. Are you sure this is a valid dref?");
+            }
+
+            ByteBuffer bb = ByteBuffer.allocate(4 * value.length);
+            bb.order(ByteOrder.LITTLE_ENDIAN);
+            for (int j = 0; j < value.length; ++j)
+            {
+                bb.putFloat(j * 4, value[j]);
+            }
+
+            //Build and send message
+            os.write(drefBytes.length);
+            os.write(drefBytes, 0, drefBytes.length);
+            os.write(value.length);
+            os.write(bb.array());
+        }
         sendUDP(os.toByteArray());
+    }
+
+    /**
+     * Gets the control surface information for the specified airplane.
+     *
+     * @param ac The aircraft to get control surface information for.
+     * @return An array containing control surface data in the same format as {@code sendCTRL}.
+     * @throws IOException If the command cannot be sent or a response cannot be read.
+     */
+    public float[] getCTRL(int ac) throws IOException
+    {
+        // Send request
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write("GETC".getBytes(StandardCharsets.UTF_8));
+        os.write(0xFF); //Placeholder for message length
+        os.write(ac);
+        sendUDP(os.toByteArray());
+
+        // Read response
+        byte[] data = readUDP();
+        if(data.length == 0)
+        {
+            throw new IOException("No response received.");
+        }
+        if(data.length < 31)
+        {
+            throw new IOException("Response too short");
+        }
+
+        // Parse response
+        float[] result = new float[7];
+        ByteBuffer bb = ByteBuffer.wrap(data);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        result[0] = bb.getFloat(5);
+        result[1] = bb.getFloat(9);
+        result[2] = bb.getFloat(13);
+        result[3] = bb.getFloat(17);
+        result[4] = bb.get(21);
+        result[5] = bb.getFloat(22);
+        result[6] = bb.getFloat(27);
+        return result;
     }
 
     /**
@@ -382,6 +450,7 @@ public class XPlaneConnect implements AutoCloseable
      *                   <li>Throttle [-1, 1]</li>
      *                   <li>Gear (0=up, 1=down)</li>
      *                   <li>Flaps [0, 1]</li>
+     *                     <li>Speedbrakes [-0.5, 1.5]</li>
      *               </ol>
      *               <p>
      *                   If @{code ctrl} is less than 6 elements long, The missing elements will not be changed. To
@@ -406,6 +475,7 @@ public class XPlaneConnect implements AutoCloseable
      *                     <li>Throttle [-1, 1]</li>
      *                     <li>Gear (0=up, 1=down)</li>
      *                     <li>Flaps [0, 1]</li>
+     *                     <li>Speedbrakes [-0.5, 1.5]</li>
      *                 </ol>
      *                 <p>
      *                     If @{code ctrl} is less than 6 elements long, The missing elements will not be changed. To
@@ -440,7 +510,14 @@ public class XPlaneConnect implements AutoCloseable
         {
             if(i == 4)
             {
-                bb.put(cur, (byte) values[i]);
+                if(i >= values.length)
+                {
+                    bb.put(cur, (byte)-1);
+                }
+                else
+                {
+                    bb.put(cur, (byte)values[i]);
+                }
                 cur += 1;
             }
             else if (i >= values.length)
@@ -463,6 +540,44 @@ public class XPlaneConnect implements AutoCloseable
         os.write(0xFF); //Placeholder for message length
         os.write(bb.array());
         sendUDP(os.toByteArray());
+    }
+
+    /**
+     * Gets position information for the specified airplane.
+     *
+     * @param ac The aircraft to get position information for.
+     * @return An array containing control surface data in the same format as {@code sendPOSI}.
+     * @throws IOException If the command cannot be sent or a response cannot be read.
+     */
+    public float[] getPOSI(int ac) throws IOException
+    {
+        // Send request
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write("GETP".getBytes(StandardCharsets.UTF_8));
+        os.write(0xFF); //Placeholder for message length
+        os.write(ac);
+        sendUDP(os.toByteArray());
+
+        // Read response
+        byte[] data = readUDP();
+        if(data.length == 0)
+        {
+            throw new IOException("No response received.");
+        }
+        if(data.length < 34)
+        {
+            throw new IOException("Response too short");
+        }
+
+        // Parse response
+        float[] result = new float[7];
+        ByteBuffer bb = ByteBuffer.wrap(data);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        for(int i = 0; i < 7; ++i)
+        {
+            result[i] = bb.getFloat(6 + 4 * i);
+        }
+        return result;
     }
 
     /**
@@ -690,6 +805,26 @@ public class XPlaneConnect implements AutoCloseable
         os.write(bb.array());
         os.write(msgBytes.length);
         os.write(msgBytes);
+        sendUDP(os.toByteArray());
+    }
+
+    /**
+     * Sets the camera view in X-Plane.
+     *
+     * @param view The view to use.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void sendVIEW(ViewType view) throws IOException
+    {
+        ByteBuffer bb = ByteBuffer.allocate(4);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        bb.putInt(view.getValue());
+
+        //Build and send message
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write("VIEW".getBytes(StandardCharsets.UTF_8));
+        os.write(0xFF); //Placeholder for message length
+        os.write(bb.array());
         sendUDP(os.toByteArray());
     }
 

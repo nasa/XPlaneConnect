@@ -1,7 +1,7 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
-//National Aeronautics and Space Administration. All Rights Reserved.
-#ifndef XPC_DATAMANAGER_H
-#define XPC_DATAMANAGER_H
+// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
+#ifndef XPCPLUGIN_DATAMANAGER_H_
+#define XPCPLUGIN_DATAMANAGER_H_
 
 #include <string>
 
@@ -62,7 +62,7 @@ namespace XPC
 		DREF_L,
 		DREF_N,
 
-		//PQR (Angular Velocities)
+		// PQR (Angular Velocities)
 		DREF_QRad = 1600,
 		DREF_PRad,
 		DREF_RRad,
@@ -139,13 +139,13 @@ namespace XPC
 	/// Maps X-Plane dataref lines to XPC DREF values.
 	extern DREF XPData[134][8];
 
-	/// Marshals data between the plugin and X-Plane.
+	/// Contains methods to martial data between the plugin and X-Plane.
 	///
 	/// \author Jason Watkins
-	/// \version 1.0.1
+	/// \version 1.1
 	/// \since 1.0.0
 	/// \date Intial Version: 2015-04-13
-	/// \date Last Updated: 2015-04-29
+	/// \date Last Updated: 2015-05-14
 	class DataManager
 	{
 	public:
@@ -165,7 +165,7 @@ namespace XPC
 		/// \remarks The first time this method is called for a given dataref, it must
 		///          perform a relatively expensive lookup operation to translate the
 		///          given string into an X-Plane internal pointer. This value is cached,
-		///          so subsequent calls will incure minimal extra overhead compared to
+		///          so subsequent calls will incur minimal extra overhead compared to
 		///          the other methods in this class.
 		///
 		/// \remarks For simplicity, this method is provided with only one output type.
@@ -174,7 +174,7 @@ namespace XPC
 		///          doubles where high precision is required, using this method may result
 		///          in a loss of precision. In that case, consider using one of the
 		///          strongly typed methods instead.
-		static int Get(std::string dref, float values[], int size);
+		static int Get(const std::string& dref, float values[], int size);
 
 		/// Gets the value of a double dataref.
 		///
@@ -294,7 +294,7 @@ namespace XPC
 		///          doubles where high precision is required, using this method may result
 		///          in a loss of precision. In that case, consider using one of the
 		///          strongly typed methods instead.
-		static void Set(std::string dref, float values[], int size);
+		static void Set(const std::string& dref, float values[], int size);
 
 		/// Sets the value of a double dataref.
 		///
@@ -409,6 +409,15 @@ namespace XPC
 		///
 		/// \param value The flaps settings. Should be between 0.0 (no flaps) and 1.0 (full flaps).
 		static void SetFlaps(float value);
+
+		/// Gets a default value that indicates that a dataref should not be changed.
+		static float GetDefaultValue();
+
+		/// Checks whether the given value should be treated as a default value.
+		///
+		/// \param value The value to check.
+		/// \returns     true if value is a default value; otherwise false.
+		static bool IsDefault(float value);
 	};
 }
 #endif

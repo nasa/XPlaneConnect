@@ -1,19 +1,19 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
-//National Aeronautics and Space Administration. All Rights Reserved.
+// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
 //
-//X-Plane API
-//Copyright(c) 2008, Sandy Barbour and Ben Supnik All rights reserved.
-//Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-//associated documentation files(the "Software"), to deal in the Software without restriction,
-//including without limitation the rights to use, copy, modify, merge, publish, distribute,
-//sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is
-//furnished to do so, subject to the following conditions :
-//  * Redistributions of source code must retain the above copyright notice,
-//    this list of conditions and the following disclaimer.
-//  * Neither the names of the authors nor that of X - Plane or Laminar Research
-//    may be used to endorse or promote products derived from this software
-//    without specific prior written permission from the authors or
-//    Laminar Research, respectively.
+// X-Plane API
+// Copyright(c) 2008, Sandy Barbour and Ben Supnik All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+// associated documentation files(the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute,
+// sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//   * Redistributions of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//   * Neither the names of the authors nor that of X - Plane or Laminar Research
+//     may be used to endorse or promote products derived from this software
+//     without specific prior written permission from the authors or
+//     Laminar Research, respectively.
 #include "Drawing.h"
 
 #include "XPLMDisplay.h"
@@ -23,7 +23,7 @@
 #include <cmath>
 #include <string>
 #include <cstring>
-//OpenGL includes
+// OpenGL includes
 #if IBM
 #include <windows.h>
 #endif
@@ -31,11 +31,11 @@
 #  include <OpenGL/gl.h>
 #else
 #  include <GL/gl.h>
-#endif/*__APPLE__*/
+#endif
 
 namespace XPC
 {
-	//Internal Structures
+	// Internal Structures
 	typedef struct
 	{
 		double x;
@@ -43,7 +43,7 @@ namespace XPC
 		double z;
 	} LocalPoint;
 
-	//Internal Memory
+	// Internal Memory
 	static const size_t MSG_MAX = 1024;
 	static const size_t MSG_LINE_MAX = MSG_MAX / 16;
 	static bool msgEnabled = false;
@@ -64,7 +64,9 @@ namespace XPC
 	XPLMDataRef	planeYref;
 	XPLMDataRef	planeZref;
 
-	//Internal Functions
+	// Internal Functions
+
+	/// Comparse two size_t integers. Used by qsort in RemoveWaypoints.
 	static int cmp(const void * a, const void * b)
 	{
 		std::size_t sa = *(size_t*)a;
@@ -80,36 +82,42 @@ namespace XPC
 		return 0;
 	}
 
+	/// Draws a cube centered at the specified OpenGL world coordinates.
+	///
+	/// \param x The X coordinate.
+	/// \param y The Y coordinate.
+	/// \param z The Z coordinate.
+	/// \param d The distance from the player airplane to the center of the cube.
 	static void gl_drawCube(float x, float y, float z, float d)
 	{
-		//tan(0.25) degrees. Should scale all markers to appear about the same size
+		// tan(0.25) degrees. Should scale all markers to appear about the same size
 		const float TAN = 0.00436335F;
 		float h = d * TAN;
 
 		glBegin(GL_QUAD_STRIP);
-		//Top
+		// Top
 		glVertex3f(x - h, y + h, z - h);
 		glVertex3f(x + h, y + h, z - h);
 		glVertex3f(x - h, y + h, z + h);
 		glVertex3f(x + h, y + h, z + h);
-		//Front
+		// Front
 		glVertex3f(x - h, y - h, z + h);
 		glVertex3f(x + h, y - h, z + h);
-		//Bottom
+		// Bottom
 		glVertex3f(x - h, y - h, z - h);
 		glVertex3f(x + h, y - h, z - h);
-		//Back
+		// Back
 		glVertex3f(x - h, y + h, z - h);
 		glVertex3f(x + h, y + h, z - h);
 
 		glEnd();
 		glBegin(GL_QUADS);
-		//Left
+		// Left
 		glVertex3f(x - h, y + h, z - h);
 		glVertex3f(x - h, y + h, z + h);
 		glVertex3f(x - h, y - h, z + h);
 		glVertex3f(x - h, y - h, z - h);
-		//Right
+		// Right
 		glVertex3f(x + h, y + h, z + h);
 		glVertex3f(x + h, y + h, z - h);
 		glVertex3f(x + h, y - h, z - h);
@@ -118,25 +126,28 @@ namespace XPC
 		glEnd();
 	}
 
+	/// Draws the string set by the TEXT command.
 	static int MessageDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void * inRefcon)
 	{
+		const int LINE_HEIGHT = 16;
 		XPLMDrawString(rgb, msgX, msgY, msgVal, NULL, xplmFont_Basic);
-		int y = msgY - 16;
+		int y = msgY - LINE_HEIGHT;
 		for (size_t i = 0; i < newLineCount; ++i)
 		{
 			XPLMDrawString(rgb, msgX, y, msgVal + newLines[i], NULL, xplmFont_Basic);
-			y -= 16;
+			y -= LINE_HEIGHT;
 		}
 		return 1;
 	}
 
+	/// Draws waypoints.
 	static int RouteDrawCallback(XPLMDrawingPhase inPhase, int inIsBefore, void * inRefcon)
 	{
 		float px = XPLMGetDataf(planeXref);
 		float py = XPLMGetDataf(planeYref);
 		float pz = XPLMGetDataf(planeZref);
 
-		//Convert to local
+		// Convert to local
 		for (size_t i = 0; i < numWaypoints; ++i)
 		{
 			Waypoint* g = &waypoints[i];
@@ -146,7 +157,7 @@ namespace XPC
 		}
 
 
-		//Draw posts
+		// Draw posts
 		glColor3f(1.0F, 1.0F, 1.0F);
 		glBegin(GL_LINES);
 		for (size_t i = 0; i < numWaypoints; ++i)
@@ -157,7 +168,7 @@ namespace XPC
 		}
 		glEnd();
 
-		//Draw route
+		// Draw route
 		glColor3f(1.0F, 0.0F, 0.0F);
 		glBegin(GL_LINE_STRIP);
 		for (size_t i = 0; i < numWaypoints; ++i)
@@ -167,7 +178,7 @@ namespace XPC
 		}
 		glEnd();
 
-		//Draw markers
+		// Draw markers
 		glColor3f(1.0F, 1.0F, 1.0F);
 		for (size_t i = 0; i < numWaypoints; ++i)
 		{
@@ -181,7 +192,7 @@ namespace XPC
 		return 1;
 	}
 
-	//Public Functions
+	// Public Functions
 	void Drawing::ClearMessage()
 	{
 		XPLMUnregisterDrawCallback(MessageDrawCallback, xplm_Phase_Window, 0, NULL);
@@ -190,8 +201,7 @@ namespace XPC
 
 	void Drawing::SetMessage(int x, int y, char* msg)
 	{
-		//Determine size of message and clear instead if the message string
-		//is empty.
+		// Determine the size of the message and clear it if it is empty.
 		size_t len = strnlen(msg, MSG_MAX - 1);
 		if (len == 0)
 		{
@@ -199,7 +209,7 @@ namespace XPC
 			return;
 		}
 
-		//Set the message, location, and mark new lines.
+		// Set the message, location, and mark new lines.
 		strncpy(msgVal, msg, len + 1);
 		newLineCount = 0;
 		for (size_t i = 0; i < len && newLineCount < MSG_LINE_MAX; ++i)
@@ -213,7 +223,7 @@ namespace XPC
 		msgX = x < 0 ? 10 : x;
 		msgY = y < 0 ? 600 : y;
 
-		//Enable drawing if necessary
+		// Enable drawing if necessary
 		if (!msgEnabled)
 		{
             XPLMRegisterDrawCallback(MessageDrawCallback, xplm_Phase_Window, 0, NULL);
@@ -258,7 +268,7 @@ namespace XPC
 
 	void Drawing::RemoveWaypoints(Waypoint points[], size_t numPoints)
 	{
-		//Build a list of indices of waypoints we should delete.
+		// Build a list of indices of waypoints we should delete.
 		size_t delPoints[WAYPOINT_MAX];
 		size_t delPointsCur = 0;
 		for (size_t i = 0; i < numPoints; ++i)
@@ -276,10 +286,10 @@ namespace XPC
 				}
 			}
 		}
-		//Sort the indices so that we only have to iterate them once
+		// Sort the indices so that we only have to iterate them once
 		qsort(delPoints, delPointsCur, sizeof(size_t), cmp);
 
-		//Copy the new array on top of the old array
+		// Copy the new array on top of the old array
 		size_t copyCur = 0;
 		size_t count = delPointsCur;
 		delPointsCur = 0;

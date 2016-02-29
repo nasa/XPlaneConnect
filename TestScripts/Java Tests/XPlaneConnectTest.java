@@ -1,5 +1,6 @@
 package gov.nasa.xpc.test;
 
+import gov.nasa.xpc.ViewType;
 import gov.nasa.xpc.WaypointOp;
 import gov.nasa.xpc.XPlaneConnect;
 
@@ -333,6 +334,33 @@ public class XPlaneConnectTest
         }
     }
 
+    @Test
+    public void testSendDREFs() throws IOException
+    {
+        String[] drefs =
+        {
+            "sim/cockpit/switches/gear_handle_status",
+            "sim/cockpit/autopilot/altitude"
+        };
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            float[][] values = {{1}, {2000}};
+            xpc.sendDREFs(drefs, values);
+
+            float[][] result = xpc.getDREFs(drefs);
+            assertEquals(values[0][0], result[0][0], 1e-4);
+            assertEquals(values[1][0], result[1][0], 1e-4);
+
+            values[0][0] = 0;
+            values[1][0] = 4000;
+            xpc.sendDREFs(drefs, values);
+
+            result = xpc.getDREFs(drefs);
+            assertEquals(values[0][0], result[0][0], 1e-4);
+            assertEquals(values[1][0], result[1][0], 1e-4);
+        }
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testSendDREF_NullDREF() throws IOException
     {
@@ -648,6 +676,53 @@ public class XPlaneConnectTest
         {
             xpc.setCONN(65536);
             fail();
+        }
+    }
+
+    @Test
+    public void testSendView() throws IOException
+    {
+        String dref = "sim/graphics/view/view_type";
+        float fwd = 1000;
+        float chase = 1017;
+
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.sendVIEW(ViewType.Forwards);
+            float result = xpc.getDREF(dref)[0];
+            assertEquals(fwd, result, 1e-4);
+
+            xpc.sendVIEW(ViewType.Chase);
+            result = xpc.getDREF(dref)[0];
+            assertEquals(chase, result, 1e-4);
+        }
+
+    }
+
+    @Test
+    public void testGetPOSI() throws IOException
+    {
+        float[] values = { 37.524F, -122.06899F, 2500.0F, 45.0F, -45.0F, 15.0F, 1.0F };
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.pauseSim(true);
+            xpc.sendPOSI(values);
+            float[] actual = xpc.getPOSI(0);
+
+            assertArrayEquals(values, actual, 1e-4F);
+        }
+    }
+
+    @Test
+    public void testGetCTRL() throws IOException
+    {
+        float[] values = { 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.5F, -1.5F };
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.sendCTRL(values);
+            float[] actual = xpc.getCTRL(0);
+
+            assertArrayEquals(values, actual, 1e-4F);
         }
     }
 }

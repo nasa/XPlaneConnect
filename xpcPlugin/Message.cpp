@@ -1,7 +1,9 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
-//National Aeronautics and Space Administration. All Rights Reserved.
+// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
 #include "Message.h"
 #include "Log.h"
+
+#include <cstring>
 
 #include <iomanip>
 #include <sstream>
@@ -11,79 +13,62 @@ namespace XPC
 {
     Message::Message() {}
 
-	Message Message::ReadFrom(UDPSocket& sock)
+	Message Message::ReadFrom(const UDPSocket& sock)
 	{
 		Message m;
 		int len = sock.Read(m.buffer, bufferSize, &m.source);
 		m.size = len < 0 ? 0 : len;
+		if (len > 0)
+		{
+			Log::FormatLine(LOG_TRACE, "MESG", "Read message with length %i", len);
+		}
 		return m;
 	}
-	
-	unsigned long Message::GetMagicNumber()
+
+	std::string Message::GetHead() const
 	{
-		if (size < 4)
-		{
-			return 0;
-		}
-		return *((unsigned long*)buffer);
+		std::string val = size < 4 ? "" : std::string((char*)buffer, 4);
+		return val;
 	}
 
-	std::string Message::GetHead()
+	const unsigned char* Message::GetBuffer() const
 	{
-		if (size < 4)
-		{
-			return "";
-		}
-		return std::string((char*)buffer, 4);
+		const unsigned char* val = size == 0 ? NULL : buffer;
+		return val;
 	}
 
-	const unsigned char* Message::GetBuffer()
-	{
-		if (size == 0)
-		{
-			return NULL;
-		}
-		return buffer;
-	}
-
-	std::size_t Message::GetSize()
+	std::size_t Message::GetSize() const
 	{
 		return size;
 	}
 
-	struct sockaddr Message::GetSource()
+	struct sockaddr Message::GetSource() const
 	{
 		return source;
 	}
 
-	void Message::PrintToLog()
+	void Message::PrintToLog() const
 	{
-#if LOG_VERBOSITY > 4
-		std::stringstream ss;
-		ss << "[DEBUG]";
+		using namespace std;
+		stringstream ss;
 
 		// Dump raw bytes to string
-		ss << std::hex << std::setfill('0');
+		ss << std::hex << setfill('0');
 		for (int i = 0; i < size; ++i)
 		{
-			ss << ' ' << std::setw(2) << static_cast<unsigned>(buffer[i]);
+			ss << ' ' << setw(2) << static_cast<unsigned>(buffer[i]);
 		}
-		Log::WriteLine(ss.str());
+		Log::WriteLine(LOG_TRACE, "DBUG", ss.str());
 
-		ss << std::dec;
+		std::string head = GetHead();
 		ss.str("");
-		ss << "[" << GetHead() << "-DEBUG] (" << GetSize() << ")";
-		switch (GetMagicNumber()) // Binary version of head
+		ss << "Head: " << head << std::dec << " Size: " << GetSize();
+		if (head == "CONN" || head == "WYPT" || head == "TEXT")
 		{
-		case 0x4E4EF443: // CONN
-        case 0x54505957: // WYPT
-        case 0x54584554: // TEXT
-        {
-            Log::WriteLine(ss.str());
-            break;
-        }
-        case 0x4C525443: // CTRL
-        {
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
+		}
+		else if (head == "CTRL")
+		{
 			// Parse message data
 			float pitch = *((float*)(buffer + 5));
 			float roll = *((float*)(buffer + 9));
@@ -96,89 +81,91 @@ namespace XPC
 			{
 				aircraft = buffer[26];
 			}
-            ss << " Attitude:(" << pitch << " " << roll << " " << yaw << ")";
-            ss << " Thr:" << thr << " Gear:" << (int)gear << " Flaps:" << flaps;
-            Log::WriteLine(ss.str());
-            break;
-        }
-        case 0x41544144: // DATA
+			ss << " Attitude:(" << pitch << " " << roll << " " << yaw << ")";
+			ss << " Thr:" << thr << " Gear:" << (int)gear << " Flaps:" << flaps;
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
+		}
+		else if (head == "DATA")
 		{
-			std::size_t numCols = (size - 5) / 36;
+			size_t numCols = (size - 5) / 36;
 			float values[32][9];
 			for (int i = 0; i < numCols; ++i)
 			{
 				values[i][0] = buffer[5 + 36 * i];
-				std::memcpy(values[i] + 1, buffer + 9 + 36 * i, 9 * sizeof(float));
+				memcpy(values[i] + 1, buffer + 9 + 36 * i, 9 * sizeof(float));
 			}
-            ss << " (" << numCols << " lines)";
-            Log::WriteLine(ss.str());
-            for (int i = 0; i < numCols; ++i)
-            {
-                ss.str("");
-				ss << "\t#" << values[i][0];
-                for (int j = 1; j < 9; ++j)
-                {
+			ss << " (" << numCols << " lines)";
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
+			for (int i = 0; i < numCols; ++i)
+			{
+				ss.str("");
+				ss << "    #" << values[i][0];
+				for (int j = 1; j < 9; ++j)
+				{
 					ss << " " << values[i][j];
-                }
-                Log::WriteLine(ss.str());
-            }
-            break;
-        }
-        case 0x46455244: // DREF
-        {
-            Log::WriteLine(ss.str());
-            std::string dref((char*)buffer + 6, buffer[5]);
-            Log::FormatLine("-\tDREF  (size %i) = %s", dref.length(), dref.c_str());
+				}
+				Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
+			}
+		}
+		else if (head == "DREF")
+		{
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
+            string dref((char*)buffer + 6, buffer[5]);
+            Log::FormatLine(LOG_DEBUG, "DBUG", "    DREF (size %i) = %s", dref.length(), dref.c_str());
             ss.str("");
             int values = buffer[6 + buffer[5]];
-            ss << "\tValues(size " << values << ") =";
+            ss << "    Values(size " << values << ") =";
             for (int i = 0; i < values; ++i)
             {
                 ss << " " << *((float*)(buffer + values + 1 + sizeof(float) * i));
-            }
-            Log::WriteLine(ss.str());
-            break;
+			}
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
         }
-        case 0x44544547: // GETD
-        {
-            Log::WriteLine(ss.str());
+		else if (head == "GETC" || head == "GETP")
+		{
+			ss << " Aircraft:" << (int)buffer[5];
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
+		}
+		else if (head == "GETD")
+		{
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
             int cur = 6;
             for (int i = 0; i < buffer[5]; ++i)
             {
-                std::string dref((char*)buffer + cur + 1, buffer[cur]);
-                Log::FormatLine("\t#%i/%i (size:%i) %s", i + 1, buffer[5], dref.length(), dref.c_str());
+                string dref((char*)buffer + cur + 1, buffer[cur]);
+                Log::FormatLine(LOG_DEBUG, "DBUG", "    #%i/%i (size:%i) %s",
+					i + 1, buffer[5], dref.length(), dref.c_str());
                 cur += 1 + buffer[cur];
             }
-            break;
         }
-        case 0x49534F50: // POSI
+		else if (head == "POSI")
 		{
 			char aircraft = buffer[5];
 			float gear = *((float*)(buffer + 30));
 			float pos[3];
 			float orient[3];
-			std::memcpy(pos, buffer + 6, 12);
-			std::memcpy(orient, buffer + 18, 12);
+			memcpy(pos, buffer + 6, 12);
+			memcpy(orient, buffer + 18, 12);
             ss << " AC:" << (int)aircraft;
 			ss << " Pos:(" << pos[0] << ' ' << pos[1] << ' ' << pos[2] << ") Orient:(";
 			ss << orient[3] << ' ' << orient[4] << ' ' << orient[5] << ") Gear:";
-            ss << gear;
-            Log::WriteLine(ss.str());
-            break;
+			ss << gear;
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
         }
-        case 0x554D4953: // SIMU
+		else if (head == "SIMU")
         {
-            ss << ' ' << (int)buffer[5];
-            Log::WriteLine(ss.str());
-            break;
-        }
-        default:
-        {
-            ss << " UNKNOWN HEADER ";
-            Log::WriteLine(ss.str());
-            break;
-        }
+			ss << ' ' << (int)buffer[5];
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
 		}
-#endif
+		else if (head == "VIEW")
+		{
+			ss << "Type:" << *((unsigned long*)(buffer + 5));
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
+		}
+		else
+        {
+			ss << " UNKNOWN HEADER ";
+			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
+        }
 	}
 }

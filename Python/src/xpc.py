@@ -79,8 +79,20 @@ class XPlaneConnect(object):
         if port < 0 or port > 65535:
             raise ValueError("The specified port is not a valid port number.")
 
+        #Send command
         buffer = struct.pack("<4sxH", "CONN", port)
         self.sendUDP(buffer)
+        
+        #Rebind socket
+        clientAddr = ("0.0.0.0", port)
+        timeout = self.socket.gettimeout();
+        self.socket.close();
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        self.socket.bind(clientAddr)
+        self.socket.settimeout(timeout)
+
+        #Read response
+        buffer = self.socket.recv(1024)
 
     def pauseSim(self, pause):
         '''Pauses or un-pauses the physics simulation engine in X-Plane.
@@ -131,7 +143,29 @@ class XPlaneConnect(object):
             buffer += struct.pack("<I8f", *row)
         self.sendUDP(buffer)
 
-    # Position
+    # Position    
+    def getPOSI(self, ac = 0):
+        '''Gets position information for the specified aircraft.
+
+        Args:
+          ac: The aircraft to set the control surfaces of. 0 is the main/player aircraft.
+        '''
+        # Send request
+        buffer = struct.pack("<4sxB", "GETP", ac)
+        self.sendUDP(buffer)
+
+        # Read response
+        resultBuf = self.readUDP()
+        if len(resultBuf) != 34:
+            raise ValueError("Unexpected response length.")
+
+        result = struct.unpack("<4sxBfffffff", resultBuf)
+        if result[0] != "POSI":
+            raise ValueError("Unexpected header: " + result[0])
+
+        # Drop the header & ac from the return value
+        return result[2:]
+
     def sendPOSI(self, values, ac = 0):
         '''Sets position information on the specified aircraft.
 
@@ -143,8 +177,8 @@ class XPlaneConnect(object):
                   * Latitude (deg)
                   * Longitude (deg)
                   * Altitude (m above MSL)
-                  * Roll (deg)
                   * Pitch (deg)
+                  * Roll (deg)
                   * True Heading (deg)
                   * Gear (0=up, 1=down)
               ac: The aircraft to set the control surfaces of. 0 is the main/player aircraft.
@@ -167,6 +201,29 @@ class XPlaneConnect(object):
         self.sendUDP(buffer)
 
     # Controls
+    def getCTRL(self, ac = 0):
+        '''Gets the control surface information for the specified aircraft.
+
+        Args:
+          ac: The aircraft to set the control surfaces of. 0 is the main/player aircraft.
+        '''
+        # Send request
+        buffer = struct.pack("<4sxB", "GETC", ac)
+        self.sendUDP(buffer)
+
+        # Read response
+        resultBuf = self.readUDP()
+        if len(resultBuf) != 31:
+            raise ValueError("Unexpected response length.")
+
+        result = struct.unpack("<4sxffffbfBf", resultBuf)
+        if result[0] != "CTRL":
+            raise ValueError("Unexpected header: " + result[0])
+
+        # Drop the header from the return value
+        result =result[1:7] + result[8:]
+        return result
+
     def sendCTRL(self, values, ac = 0):
         '''Sets control surface information on the specified aircraft.
 
@@ -208,31 +265,45 @@ class XPlaneConnect(object):
         # Send
         self.sendUDP(buffer)
         
-    # DREF Manipulation
+    # DREF Manipulation    
     def sendDREF(self, dref, values):
         '''Sets the specified dataref to the specified value.
 
             Args:
-              dref: The name of the dataref to set.
+              dref: The name of the datarefs to set.
               values: Either a scalar value or a sequence of values.
         '''
-        # Preconditions
-        if len(dref) == 0 or len(dref) > 255:
-            raise ValueError("dref must be a non-empty string less than 256 characters.")
-        if values == None:
-            raise ValueError("values must be a scalar or sequence of floats.")
+        self.sendDREFs([dref], [values])
+
+    def sendDREFs(self, drefs, values):
+        '''Sets the specified datarefs to the specified values.
+
+            Args:
+              drefs: A list of names of the datarefs to set.
+              values: A list of scalar or vector values to set.
+        '''
+        if len(drefs) != len(values):
+            raise ValueError("drefs and values must have the same number of elements.")
+
+        buffer = struct.pack("<4sx", "DREF")
+        for i in range(len(drefs)):
+            dref = drefs[i]
+            value = values[i]
+            # Preconditions
+            if len(dref) == 0 or len(dref) > 255:
+                raise ValueError("dref must be a non-empty string less than 256 characters.")
+            if value == None:
+                raise ValueError("value must be a scalar or sequence of floats.")
         
-        # Pack message
-        fmt = ""
-        buffer = None
-        if hasattr(values, "__len__"):
-            if len(values) > 255:
-                raise ValueError("values must have less than 256 items.")
-            fmt = "<4sxB{0:d}sB{1:d}f".format(len(dref), len(values))
-            buffer = struct.pack(fmt, "DREF", len(dref), dref, len(values), values)
-        else:
-            fmt = "<4sxB{0:d}sBf".format(len(dref))
-            buffer = struct.pack(fmt, "DREF", len(dref), dref, 1, values)
+            # Pack message
+            if hasattr(value, "__len__"):
+                if len(value) > 255:
+                    raise ValueError("value must have less than 256 items.")
+                fmt = "<B{0:d}sB{1:d}f".format(len(dref), len(value))
+                buffer += struct.pack(fmt, len(dref), dref, len(value), value)
+            else:
+                fmt = "<B{0:d}sBf".format(len(dref))
+                buffer += struct.pack(fmt, len(dref), dref, 1, value)
 
         # Send
         self.sendUDP(buffer)
@@ -300,6 +371,23 @@ class XPlaneConnect(object):
         buffer = struct.pack("<4sxiiB" + str(msgLen) + "s", "TEXT", x, y, msgLen, msg)
         self.sendUDP(buffer)
 
+    def sendVIEW(self, view):
+        '''Sets the camera view in X-Plane
+
+            Args:
+              view: The view to use. The ViewType class provides named constants
+                    for known views.
+        '''
+        # Preconditions
+        if view < ViewType.Forwards or view > ViewType.FullscreenNoHud:
+            raise ValueError("Unknown view command.")
+
+        # Pack buffer
+        buffer = struct.pack("<4sxi", "VIEW", view)
+
+        # Send message
+        self.sendUDP(buffer)
+
     def sendWYPT(self, op, points):
         '''Adds, removes, or clears waypoints. Waypoints are three dimensional points on or
            above the Earth's surface that are represented visually in the simulator. Each
@@ -324,3 +412,18 @@ class XPlaneConnect(object):
         else:
             buffer = struct.pack("<4sxBB" + str(len(points)) + "f", "WYPT", op, len(points), *points)
         self.sendUDP(buffer)
+
+class ViewType(object):
+    Forwards = 73
+    Down = 74
+    Left = 75
+    Right = 76
+    Back = 77
+    Tower = 78
+    Runway = 79
+    Chase = 80
+    Follow = 81
+    FollowWithPanel = 82
+    Spot = 83
+    FullscreenWithHud = 84
+    FullscreenNoHud = 85

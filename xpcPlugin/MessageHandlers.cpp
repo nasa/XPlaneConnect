@@ -1,9 +1,25 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
-//National Aeronautics and Space Administration. All Rights Reserved.
+// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
+//
+// X-Plane API
+// Copyright(c) 2008, Sandy Barbour and Ben Supnik All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+// associated documentation files(the "Software"), to deal in the Software without restriction,
+// including without limitation the rights to use, copy, modify, merge, publish, distribute,
+// sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//   * Redistributions of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//   * Neither the names of the authors nor that of X - Plane or Laminar Research
+//     may be used to endorse or promote products derived from this software
+//     without specific prior written permission from the authors or
+//     Laminar Research, respectively.
 #include "MessageHandlers.h"
 #include "DataManager.h"
 #include "Drawing.h"
 #include "Log.h"
+
+#include "XPLMUtilities.h"
 
 #include <cmath>
 #include <cstring>
@@ -19,6 +35,7 @@ namespace XPC
 
 	void MessageHandlers::SetSocket(UDPSocket* socket)
 	{
+		Log::WriteLine(LOG_TRACE, "MSGH", "Setting socket");
 		MessageHandlers::sock = socket;
 	}
 
@@ -26,6 +43,7 @@ namespace XPC
 	{
 		if (handlers.size() == 0)
 		{
+			Log::WriteLine(LOG_TRACE, "MSGH", "Initializing handlers");
 			// Common messages
 			handlers.insert(std::make_pair("CONN", MessageHandlers::HandleConn));
 			handlers.insert(std::make_pair("CTRL", MessageHandlers::HandleCtrl));
@@ -36,8 +54,9 @@ namespace XPC
 			handlers.insert(std::make_pair("SIMU", MessageHandlers::HandleSimu));
 			handlers.insert(std::make_pair("TEXT", MessageHandlers::HandleText));
 			handlers.insert(std::make_pair("WYPT", MessageHandlers::HandleWypt));
-			// Not implemented messages
-			handlers.insert(std::make_pair("VIEW", MessageHandlers::HandleUnknown));
+			handlers.insert(std::make_pair("VIEW", MessageHandlers::HandleView));
+			handlers.insert(std::make_pair("GETC", MessageHandlers::HandleGetC));
+			handlers.insert(std::make_pair("GETP", MessageHandlers::HandleGetP));
 			// X-Plane data messages
 			handlers.insert(std::make_pair("DSEL", MessageHandlers::HandleXPlaneData));
 			handlers.insert(std::make_pair("USEL", MessageHandlers::HandleXPlaneData));
@@ -65,16 +84,14 @@ namespace XPC
 		std::string head = msg.GetHead();
 		if (head == "")
 		{
+			Log::WriteLine(LOG_WARN, "MSGH", "Warning: HandleMessage called with empty message.");
 			return; // No Message to handle
 		}
-		msg.PrintToLog();
 
 		// Set current connection
 		sockaddr sourceaddr = msg.GetSource();
 		connectionKey = UDPSocket::GetHost(&sourceaddr);
-#if LOG_VERBOSITY > 4
-		Log::FormatLine("[MSGH] Handling message from %s", connectionKey.c_str());
-#endif
+		Log::FormatLine(LOG_INFO, "MSGH", "Handling message from %s", connectionKey.c_str());
 		std::map<std::string, ConnectionInfo>::iterator conn = connections.find(connectionKey);
 		if (conn == connections.end()) // New connection
 		{
@@ -86,19 +103,17 @@ namespace XPC
 			connection.addr = sourceaddr;
 			connection.getdCount = 0;
 			connections[connectionKey] = connection;
-#if LOG_VERBOSITY > 2
-			Log::FormatLine("[MSGH] New connection. ID=%u, Remote=%s", connection.id, connectionKey.c_str());
-#endif
+			Log::FormatLine(LOG_DEBUG, "MSGH", "New connection. ID=%u, Remote=%s",
+				connection.id, connectionKey.c_str());
 		}
 		else
 		{
 			connection = (*conn).second;
-#if LOG_VERBOSITY > 3
-			Log::FormatLine("[MSGH] Existing connection. ID=%u, Remote=%s",
+			Log::FormatLine(LOG_DEBUG, "MSGH", "Existing connection. ID=%u, Remote=%s",
 				connection.id, connectionKey.c_str());
-#endif
 		}
-		
+
+		msg.PrintToLog();
 		// Check if there is a handler for this message type. If so, execute
 		// that handler. Otherwise, execute the unknown message handler.
 		std::map<std::string, MessageHandler>::iterator iter = handlers.find(head);
@@ -113,7 +128,7 @@ namespace XPC
 		}
 	}
 
-	void MessageHandlers::HandleConn(Message& msg)
+	void MessageHandlers::HandleConn(const Message& msg)
 	{
 		const unsigned char* buffer = msg.GetBuffer();
 
@@ -122,23 +137,21 @@ namespace XPC
 		sockaddr* sa = &connection.addr;
 		switch (sa->sa_family)
 		{
-		case AF_INET:
+		case AF_INET: // IPV4 address
 		{
 			sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(sa);
 			(*sin).sin_port = htons(port);
 			break;
 		}
-		case AF_INET6:
+		case AF_INET6: // IPV6 addres
 		{
 			sockaddr_in6* sin = reinterpret_cast<sockaddr_in6*>(sa);
 			(*sin).sin6_port = htons(port);
 			break;
 		}
 		default:
-#if LOG_VERBOSITY > 0
-			Log::WriteLine("[CONN] ERROR: Unknown address type.");
+			Log::WriteLine(LOG_ERROR, "CONN", "ERROR: Unknown address type.");
 			return;
-#endif
 		}
 		connections.erase(connectionKey);
 		connectionKey = UDPSocket::GetHost(&connection.addr);
@@ -149,31 +162,26 @@ namespace XPC
 		response[5] = connection.id;
 
 		// Update log
-#if LOG_VERBOSITY > 1
-		Log::FormatLine("[CONN] ID: %u New destination port: %u",
+		Log::FormatLine(LOG_TRACE, "CONN", "ID: %u New destination port: %u",
 			connection.id, port);
-#endif
 
 		// Send response
 		sock->SendTo(response, 6, &connection.addr);
 	}
 
-	void MessageHandlers::HandleCtrl(Message& msg)
+	void MessageHandlers::HandleCtrl(const Message& msg)
 	{
 		// Update Log
-#if LOG_VERBOSITY > 2
-		Log::FormatLine("[CTRL] Message Received (Conn %i)", connection.id);
-#endif
+		Log::FormatLine(LOG_TRACE, "CTRL", "Message Received (Conn %i)", connection.id);
 
 		const unsigned char* buffer = msg.GetBuffer();
 		std::size_t size = msg.GetSize();
-		//Legacy packets that don't specify an aircraft number should be 26 bytes long.
-		//Packets specifying an A/C num should be 27 bytes.
+		// Legacy packets that don't specify an aircraft number should be 26 bytes long.
+		// Packets specifying an A/C num should be 27 bytes. Packets specifying a speedbrake
+		// should be 31 bytes.
 		if (size != 26 && size != 27 && size != 31)
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[CTRL] ERROR: Unexpected message length (%i)", size);
-#endif
+			Log::FormatLine(LOG_ERROR, "CTRL", "ERROR: Unexpected message length (%i)", size);
 			return;
 		}
 
@@ -181,63 +189,63 @@ namespace XPC
 		float pitch = *((float*)(buffer + 5));
 		float roll = *((float*)(buffer + 9));
 		float yaw = *((float*)(buffer + 13));
-		float thr = *((float*)(buffer + 17));
+		float throttle = *((float*)(buffer + 17));
 		char gear = buffer[21];
 		float flaps = *((float*)(buffer + 22));
-		unsigned char aircraft = 0;
+		unsigned char aircraftNumber = 0;
 		if (size >= 27)
 		{
-			aircraft = buffer[26];
+			aircraftNumber = buffer[26];
 		}
-		float spdbrk = -998;
+		float spdbrk = DataManager::GetDefaultValue();
 		if (size >= 31)
 		{
 			spdbrk = *((float*)(buffer + 27));
 		}
 
 
-		if (pitch < -999.5 || pitch > -997.5)
+		if (!DataManager::IsDefault(pitch))
 		{
-			DataManager::Set(DREF_YokePitch, pitch, aircraft);
+			DataManager::Set(DREF_YokePitch, pitch, aircraftNumber);
 		}
-		if (roll < -999.5 || roll > -997.5)
+		if (!DataManager::IsDefault(roll))
 		{
-			DataManager::Set(DREF_YokeRoll, roll, aircraft);
+			DataManager::Set(DREF_YokeRoll, roll, aircraftNumber);
 		}
-		if (yaw < -999.5 || yaw > -997.5)
+		if (!DataManager::IsDefault(yaw))
 		{
-			DataManager::Set(DREF_YokeHeading, yaw, aircraft);
+			DataManager::Set(DREF_YokeHeading, yaw, aircraftNumber);
 		}
-		if (thr < -999.5 || thr > -997.5)
+		if (!DataManager::IsDefault(throttle))
 		{
 
-			float thrArray[8];
+			float throttleArray[8];
 			for (int i = 0; i < 8; ++i)
 			{
-				thrArray[i] = thr;
+				throttleArray[i] = throttle;
 			}
-			DataManager::Set(DREF_ThrottleSet, thrArray, 8, aircraft);
-			DataManager::Set(DREF_ThrottleActual, thrArray, 8, aircraft);
-			if (aircraft == 0)
+			DataManager::Set(DREF_ThrottleSet, throttleArray, 8, aircraftNumber);
+			DataManager::Set(DREF_ThrottleActual, throttleArray, 8, aircraftNumber);
+			if (aircraftNumber == 0)
 			{
-				DataManager::Set("sim/flightmodel/engine/ENGN_thro_override", thrArray, 1);
+				DataManager::Set("sim/flightmodel/engine/ENGN_thro_override", throttleArray, 1);
 			}
 		}
 		if (gear != -1)
 		{
-			DataManager::SetGear(gear, false, aircraft);
+			DataManager::SetGear(gear, false, aircraftNumber);
 		}
-		if (flaps < -999.5 || flaps > -997.5)
+		if (!DataManager::IsDefault(flaps))
 		{
-			DataManager::Set(DREF_FlapSetting, flaps, aircraft);
+			DataManager::Set(DREF_FlapSetting, flaps, aircraftNumber);
 		}
-		if (spdbrk < -999.5 || spdbrk > -997.5)
+		if (!DataManager::IsDefault(spdbrk))
 		{
-			DataManager::Set(DREF_SpeedBrakeSet, spdbrk, aircraft);
+			DataManager::Set(DREF_SpeedBrakeSet, spdbrk, aircraftNumber);
 		}
 	}
 
-	void MessageHandlers::HandleData(Message& msg)
+	void MessageHandlers::HandleData(const Message& msg)
 	{
 		// Parse data
 		const unsigned char* buffer = msg.GetBuffer();
@@ -245,59 +253,51 @@ namespace XPC
 		std::size_t numCols = (size - 5) / 36;
 		if (numCols > 0)
 		{
-#if LOG_VERBOSITY > 1
-			Log::FormatLine("[DATA] Message Received (Conn %i)", connection.id);
-#endif
+			Log::FormatLine(LOG_TRACE, "DATA", "Message Received (Conn %i)", connection.id);
 		}
 		else
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[DATA] WARNING: Empty data packet received (Conn %i)", connection.id);
-#endif
+			Log::FormatLine(LOG_WARN, "DATA", "WARNING: Empty data packet received (Conn %i)", connection.id);
 			return;
 		}
 
 		if (numCols > 134) // Error. Will overflow values
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[DATA] ERROR: numCols to large.");
-#endif
+			Log::FormatLine(LOG_ERROR, "DATA", "ERROR: numCols to large.");
 			return;
 		}
 		float values[134][9];
 		for (int i = 0; i < numCols; ++i)
 		{
+			// 5 byte header + (9 * 4 = 36) bytes per row
 			values[i][0] = buffer[5 + 36 * i];
 			memcpy(values[i] + 1, buffer + 9 + 36 * i, 9 * sizeof(float));
 		}
 
 		// Update log
 
-		float savedAlpha = -998;
-		float savedHPath = -998;
+		float savedAlpha = DataManager::GetDefaultValue();
+		float savedHPath = DataManager::GetDefaultValue();
 		for (int i = 0; i < numCols; ++i)
 		{
 			unsigned char dataRef = (unsigned char)values[i][0];
 			if (dataRef >= 134)
 			{
-#if LOG_VERBOSITY > 0
-				Log::FormatLine("[DATA] ERROR: DataRef # must be between 0 - 134 (Received: %hi)", (int)dataRef);
-#endif
+				Log::FormatLine(LOG_ERROR, "DATA", "ERROR: DataRef # must be between 0 - 134 (Received: %hi)", (int)dataRef);
 				continue;
 			}
 
 			switch (dataRef)
 			{
+			// TODO(jason-watkins): This currently overwrites the velocity several times. Should look into making this case smarter somehow.
 			case 3: // Velocity
 			{
 				float theta = DataManager::GetFloat(DREF_Pitch);
-				float alpha = savedAlpha != -998 ? savedAlpha : DataManager::GetFloat(DREF_AngleOfAttack);
-				float hpath = savedHPath != -998 ? savedHPath : DataManager::GetFloat(DREF_HPath);
+				float alpha = DataManager::IsDefault(savedAlpha) ? savedAlpha : DataManager::GetFloat(DREF_AngleOfAttack);
+				float hpath = DataManager::IsDefault(savedHPath) ? savedHPath : DataManager::GetFloat(DREF_HPath);
 				if (alpha != alpha || hpath != hpath)
 				{
-#if LOG_VERBOSITY > 0
-					Log::WriteLine("[DATA] ERROR: Value must be a number (NaN received)");
-#endif
+					Log::WriteLine(LOG_ERROR, "DATA", "ERROR: Value must be a number (NaN received)");
 					break;
 				}
 				const float deg2rad = 0.0174532925F;
@@ -305,7 +305,7 @@ namespace XPC
 				for (int j = 0; j < 3; ++j)
 				{
 					float v = values[i][ind[j]];
-					if (v != -998)
+					if (!DataManager::IsDefault(v))
 					{
 						DataManager::Set(DREF_LocalVX, v*cos((theta - alpha)*deg2rad)*sin(hpath*deg2rad));
 						DataManager::Set(DREF_LocalVY, v*sin((theta - alpha)*deg2rad));
@@ -316,27 +316,25 @@ namespace XPC
 			}
 			case 17: // Orientation
 			{
-				float orient[3];
-				orient[0] = values[i][1];
-				orient[1] = values[i][2];
-				orient[2] = values[i][3];
-				DataManager::SetOrientation(orient);
+				float orientation[3];
+				orientation[0] = values[i][1];
+				orientation[1] = values[i][2];
+				orientation[2] = values[i][3];
+				DataManager::SetOrientation(orientation);
 				break;
 			}
 			case 18: // Alpha, hpath etc.
 			{
 				if (values[i][1] != values[i][1] || values[i][3] != values[i][3])
 				{
-#if LOG_VERBOSITY > 0
-					Log::WriteLine("[DATA] ERROR: Value must be a number (NaN received)");
-#endif
+					Log::WriteLine(LOG_ERROR, "DATA", "ERROR: Value must be a number (NaN received)");
 					break;
 				}
-				if (values[i][1] != -998)
+				if (!DataManager::IsDefault(values[i][1]))
 				{
 					savedAlpha = values[i][1];
 				}
-				if (values[i][3] != -998)
+				if (DataManager::IsDefault(values[i][3]))
 				{
 					savedHPath = values[i][3];
 				}
@@ -355,17 +353,15 @@ namespace XPC
 			{
 				if (values[i][1] != values[i][1])
 				{
-#if LOG_VERBOSITY > 0
-					Log::WriteLine("[DATA] ERROR: Value must be a number (NaN received)");
-#endif
+					Log::WriteLine(LOG_ERROR, "DATA", "ERROR: Value must be a number (NaN received)");
 					break;
 				}
-				float thr[8];
+				float throttle[8];
 				for (int j = 0; j < 8; ++j)
 				{
-					thr[j] = values[i][1];
+					throttle[j] = values[i][1];
 				}
-				DataManager::Set(DREF_ThrottleSet, thr, 8);
+				DataManager::Set(DREF_ThrottleSet, throttle, 8);
 				break;
 			}
 			default: // Non-Special dataRefs
@@ -374,10 +370,8 @@ namespace XPC
 				memcpy(line, values[i] + 1, 8 * sizeof(float));
 				for (int j = 0; j < 8; ++j)
 				{
-#if LOG_VERBOSITY > 1
-					Log::FormatLine("[DATA] Setting Dataref %i.%i to %f", dataRef, j, line[j]);
-#endif
-
+					Log::FormatLine(LOG_ERROR, "DATA", "Setting Dataref %i.%i to %f", dataRef, j, line[j]);
+					// TODO(jason-watkins): Why is this a special case?
 					if (dataRef == 14 && j == 0)
 					{
 						DataManager::SetGear(line[0], true);
@@ -387,7 +381,7 @@ namespace XPC
 					DREF dref = XPData[dataRef][j];
 					if (dref == DREF_None)
 					{
-						// TODO: Send single line instead!
+						// TODO(jason): Send single line instead!
 						HandleXPlaneData(msg);
 					}
 					else
@@ -400,46 +394,96 @@ namespace XPC
 		}
 	}
 
-	void MessageHandlers::HandleDref(Message& msg)
+	void MessageHandlers::HandleDref(const Message& msg)
 	{
+		Log::FormatLine(LOG_TRACE, "DREF", "Request to set DREF value received (Conn %i)", connection.id);
 		const unsigned char* buffer = msg.GetBuffer();
-		unsigned char len = buffer[5];
-		std::string dref = std::string((char*)buffer + 6, len);
+		std::size_t size = msg.GetSize();
+		std::size_t pos = 5;
+		while (pos < size)
+		{
+			unsigned char len = buffer[pos++];
+			if (pos + len > size)
+			{
+				break;
+			}
+			std::string dref = std::string((char*)buffer + pos, len);
+			pos += len;
 
-		unsigned char valueCount = buffer[6 + len];
-		float* values = (float*)(buffer + 7 + len);
+			unsigned char valueCount = buffer[pos++];
+			if (pos + 4 * valueCount > size)
+			{
+				break;
+			}
+			float* values = (float*)(buffer + pos);
+			pos += 4 * valueCount;
 
-#if LOG_VERBOSITY > 1
-		Log::FormatLine("[DREF] Request to set DREF value received (Conn %i): %s", connection.id, dref.c_str());
-#endif
-
-		DataManager::Set(dref, values, valueCount);
+			DataManager::Set(dref, values, valueCount);
+			Log::FormatLine(LOG_DEBUG, "DREF", "Set %d values for %s", valueCount, dref.c_str());
+		}
+		if (pos != size)
+		{
+			Log::WriteLine(LOG_ERROR, "DREF", "ERROR: Command did not terminate at the expected position.");
+		}
 	}
 
-	void MessageHandlers::HandleGetD(Message& msg)
+	void MessageHandlers::HandleGetC(const Message& msg)
+	{
+		const unsigned char* buffer = msg.GetBuffer();
+		std::size_t size = msg.GetSize();
+		if (size != 6)
+		{
+			Log::FormatLine(LOG_ERROR, "GCTL", "Unexpected message length: %u", size);
+			return;
+		}
+		unsigned char aircraft = buffer[5];
+		// TODO(jason-watkins): Get proper printf specifier for unsigned char
+		Log::FormatLine(LOG_TRACE, "GCTL", "Getting control information for aircraft %u", aircraft);
+		
+		float throttle[8];
+		unsigned char response[31] = "CTRL";
+		*((float*)(response + 5)) = DataManager::GetFloat(DREF_Elevator, aircraft);
+		*((float*)(response + 9)) = DataManager::GetFloat(DREF_Aileron, aircraft);
+		*((float*)(response + 13)) = DataManager::GetFloat(DREF_Rudder, aircraft);
+		DataManager::GetFloatArray(DREF_ThrottleSet, throttle, 8, aircraft);
+		*((float*)(response + 17)) = throttle[0];
+		if (aircraft == 0)
+		{
+			response[21] = (char)DataManager::GetInt(DREF_GearHandle, aircraft);
+		}
+		else
+		{
+			float mpGear[10];
+			DataManager::GetFloatArray(DREF_GearDeploy, mpGear, 10, aircraft);
+			response[21] = mpGear[0] > 0.5 ? 1 : 0;
+		}
+		*((float*)(response + 22)) = DataManager::GetFloat(DREF_FlapSetting, aircraft);
+		response[26] = aircraft;
+		*((float*)(response + 27)) = DataManager::GetFloat(DREF_SpeedBrakeSet, aircraft);
+
+		sock->SendTo(response, 31, &connection.addr);
+	}
+
+	void MessageHandlers::HandleGetD(const Message& msg)
 	{
 		const unsigned char* buffer = msg.GetBuffer();
 		unsigned char drefCount = buffer[5];
 		if (drefCount == 0) // Use last request
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[GETD] DATA Requested: Repeat last request from connection %i (%i data refs)",
+			Log::FormatLine(LOG_TRACE, "GETD",
+				"DATA Requested: Repeat last request from connection %i (%i data refs)",
 				connection.id, connection.getdCount);
-#endif
 			if (connection.getdCount == 0) // No previous request to use
 			{
-#if LOG_VERBOSITY > 1
-				Log::FormatLine("[GETD] ERROR: No previous requests from connection %i.", connection.id);
-#endif
+				Log::FormatLine(LOG_ERROR, "GETD", "ERROR: No previous requests from connection %i.",
+					connection.id);
 				return;
 			}
 		}
 		else // New request
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[GETD] DATA Requested: New Request for connection %i (%i data refs)",
+			Log::FormatLine(LOG_TRACE, "GETD", "DATA Requested: New Request for connection %i (%i data refs)",
 				connection.id, drefCount);
-#endif
 			std::size_t ptr = 6;
 			for (int i = 0; i < drefCount; ++i)
 			{
@@ -466,64 +510,84 @@ namespace XPC
 		sock->SendTo(response, cur, &connection.addr);
 	}
 
-	void MessageHandlers::HandlePosi(Message& msg)
+	void MessageHandlers::HandleGetP(const Message& msg)
+	{
+		const unsigned char* buffer = msg.GetBuffer();
+		std::size_t size = msg.GetSize();
+		if (size != 6)
+		{
+			Log::FormatLine(LOG_ERROR, "GPOS", "Unexpected message length: %u", size);
+			return;
+		}
+		unsigned char aircraft = buffer[5];
+		Log::FormatLine(LOG_TRACE, "GPOS", "Getting position information for aircraft %u", aircraft);
+
+		unsigned char response[34] = "POSI";
+		response[5] = (char)DataManager::GetInt(DREF_GearHandle, aircraft);
+		*((float*)(response + 6)) = (float)DataManager::GetDouble(DREF_Latitude, aircraft);
+		*((float*)(response + 10)) = (float)DataManager::GetDouble(DREF_Longitude, aircraft);
+		*((float*)(response + 14)) = (float)DataManager::GetDouble(DREF_Elevation, aircraft);
+		*((float*)(response + 18)) = DataManager::GetFloat(DREF_Pitch, aircraft);
+		*((float*)(response + 22)) = DataManager::GetFloat(DREF_Roll, aircraft);
+		*((float*)(response + 26)) = DataManager::GetFloat(DREF_HeadingTrue, aircraft);
+		
+		float gear[10];
+		DataManager::GetFloatArray(DREF_GearDeploy, gear, 10, aircraft);
+		*((float*)(response + 30)) = gear[0];
+
+		sock->SendTo(response, 34, &connection.addr);
+	}
+
+	void MessageHandlers::HandlePosi(const Message& msg)
 	{
 		// Update log
-#if LOG_VERBOSITY > 0
-		Log::FormatLine("[POSI] Message Received (Conn %i)", connection.id);
-#endif
+		Log::FormatLine(LOG_TRACE, "POSI", "Message Received (Conn %i)", connection.id);
 
 		const unsigned char* buffer = msg.GetBuffer();
 		const std::size_t size = msg.GetSize();
 		if (size < 34)
 		{
-#if LOG_VERBOSITY > 1
-			Log::FormatLine("[POSI] ERROR: Unexpected size: %i (Expected at least 34)", size);
-#endif
+			Log::FormatLine(LOG_ERROR, "POSI", "ERROR: Unexpected size: %i (Expected at least 34)", size);
 			return;
 		}
 
-		char aircraft = buffer[5];
+		char aircraftNumber = buffer[5];
 		float gear = *((float*)(buffer + 30));
 		float pos[3];
 		float orient[3];
 		memcpy(pos, buffer + 6, 12);
 		memcpy(orient, buffer + 18, 12);
 
-		if (aircraft > 0)
+		if (aircraftNumber > 0)
 		{
-			// Enable AI for the aircraft we are setting
+			// Enable AI for the aircraftNumber we are setting
 			float ai[20];
 			std::size_t result = DataManager::GetFloatArray(DREF_PauseAI, ai, 20);
 			if (result == 20) // Only set values if they were retrieved successfully.
 			{
-				ai[aircraft] = 1;
+				ai[aircraftNumber] = 1;
 				DataManager::Set(DREF_PauseAI, ai, 0, 20);
 			}
 		}
 
-		DataManager::SetPosition(pos, aircraft);
-		DataManager::SetOrientation(orient, aircraft);
+		DataManager::SetPosition(pos, aircraftNumber);
+		DataManager::SetOrientation(orient, aircraftNumber);
 		if (gear != -1)
 		{
-			DataManager::SetGear(gear, true, aircraft);
+			DataManager::SetGear(gear, true, aircraftNumber);
 		}
 	}
 
-	void MessageHandlers::HandleSimu(Message& msg)
+	void MessageHandlers::HandleSimu(const Message& msg)
 	{
 		// Update log
-#if LOG_VERBOSITY > 1
-		Log::FormatLine("[SIMU] Message Received (Conn %i)", connection.id);
-#endif
+		Log::FormatLine(LOG_TRACE, "SIMU", "Message Received (Conn %i)", connection.id);
 
 		char v = msg.GetBuffer()[5];
 		if (v < 0 || v > 2)
 		{
-#if LOG_VERBOSITY > 0
-			Log::FormatLine("[SIMU] ERROR: Invalid argument: %i", v);
+			Log::FormatLine(LOG_ERROR, "SIMU", "ERROR: Invalid argument: %i", v);
 			return;
-#endif
 		}
 		
 		int value[20];
@@ -546,28 +610,24 @@ namespace XPC
 		// Set DREF
 		DataManager::Set(DREF_Pause, value, 20);
 
-#if LOG_VERBOSITY > 2
 		switch (v)
 		{
 		case 0:
-			Log::WriteLine("[SIMU] Simulation Resumed");
+			Log::WriteLine(LOG_INFO, "SIMU", "Simulation resumed");
 			break;
 		case 1:
-			Log::WriteLine("[SIMU] Simulation Paused");
+			Log::WriteLine(LOG_INFO, "SIMU", "Simulation paused");
 			break;
 		case 2:
-			Log::WriteLine("[SIMU] Simulation switched.");
+			Log::FormatLine(LOG_INFO, "SIMU", "Simulation switched to %i", value[0]);
 			break;
 		}
-#endif
 	}
 
-	void MessageHandlers::HandleText(Message& msg)
+	void MessageHandlers::HandleText(const Message& msg)
 	{
 		// Update Log
-#if LOG_VERBOSITY > 0
-		Log::FormatLine("[TEXT] Message Received (Conn %i)", connection.id);
-#endif
+		Log::FormatLine(LOG_TRACE, "TEXT", "Message Received (Conn %i)", connection.id);
 
 		std::size_t len = msg.GetSize();
 		const unsigned char*  buffer = msg.GetBuffer();
@@ -575,18 +635,14 @@ namespace XPC
 		char text[256] = { 0 };
 		if (len < 14)
 		{
-#if LOG_VERBOSITY > 1
-			Log::WriteLine("[TEXT] ERROR: Length less than 14 bytes");
-#endif
+			Log::WriteLine(LOG_ERROR, "TEXT", "ERROR: Length less than 14 bytes");
 			return;
 		}
 		size_t msgLen = (unsigned char)buffer[13];
 		if (msgLen == 0)
 		{
 			Drawing::ClearMessage();
-#if LOG_VERBOSITY > 2
-			Log::WriteLine("[TEXT] Text cleared");
-#endif
+			Log::WriteLine(LOG_INFO, "TEXT", "[TEXT] Text cleared");
 		}
 		else
 		{
@@ -594,18 +650,30 @@ namespace XPC
 			int y = *((int*)(buffer + 9));
 			strncpy(text, (char*)buffer + 14, msgLen);
 			Drawing::SetMessage(x, y, text);
-#if LOG_VERBOSITY > 2
-			Log::WriteLine("[TEXT] Text set");
-#endif
+			Log::WriteLine(LOG_INFO, "TEXT", "[TEXT] Text set");
 		}
 	}
 
-	void MessageHandlers::HandleWypt(Message& msg)
+	void MessageHandlers::HandleView(const Message& msg)
 	{
 		// Update Log
-#if LOG_VERBOSITY > 0
-		Log::FormatLine("[WYPT] Message Received (Conn %i)", connection.id);
-#endif
+		Log::FormatLine(LOG_TRACE, "VIEW", "Message Received(Conn %i)", connection.id);
+
+		const std::size_t size = msg.GetSize();
+		if (size != 9)
+		{
+			Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 9.", size);
+			return;
+		}
+		const unsigned char* buffer = msg.GetBuffer();
+		int type = *((int*)(buffer + 5));
+		XPLMCommandKeyStroke(type);
+	}
+
+	void MessageHandlers::HandleWypt(const Message& msg)
+	{
+		// Update Log
+		Log::FormatLine(LOG_TRACE, "WYPT", "Message Received (Conn %i)", connection.id);
 
 		// Parse data
 		const unsigned char* buffer = msg.GetBuffer();
@@ -622,9 +690,7 @@ namespace XPC
 		}
 
 		// Perform operation
-#if LOG_VERBOSITY > 2
-		Log::FormatLine("[WYPT] Performing operation %i", op);
-#endif
+		Log::FormatLine(LOG_INFO, "WYPT", "Performing operation %i", op);
 		switch (op)
 		{
 		case 1:
@@ -637,18 +703,14 @@ namespace XPC
 			Drawing::ClearWaypoints();
 			break;
 		default:
-#if LOG_VERBOSITY > 1
-			Log::FormatLine("[WYPT] ERROR: %i is not a valid operation.", op);
-#endif
+			Log::FormatLine(LOG_ERROR, "WYPT", "ERROR: %i is not a valid operation.", op);
 			break;
 		}
 	}
 
-	void MessageHandlers::HandleXPlaneData(Message& msg)
+	void MessageHandlers::HandleXPlaneData(const Message& msg)
 	{
-#if LOG_VERBOSITY > 1
-		Log::WriteLine("[MSGH] Sending raw data to X-Plane");
-#endif
+		Log::WriteLine(LOG_TRACE, "MSGH", "Sending raw data to X - Plane");
 		sockaddr_in loopback;
 		loopback.sin_family = AF_INET;
 		loopback.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
@@ -656,11 +718,8 @@ namespace XPC
 		sock->SendTo(msg.GetBuffer(), msg.GetSize(), (sockaddr*)&loopback);
 	}
 
-	void MessageHandlers::HandleUnknown(Message& msg)
+	void MessageHandlers::HandleUnknown(const Message& msg)
 	{
-		// UPDATE LOG
-#if LOG_VERBOSITY > 0
-		Log::FormatLine("[EXEC] ERROR: Unknown packet type %s", msg.GetHead().c_str());
-#endif
+		Log::FormatLine(LOG_ERROR, "MSGH", "ERROR: Unknown packet type %s", msg.GetHead().c_str());
 	}
 }
