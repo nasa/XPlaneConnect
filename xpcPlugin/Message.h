@@ -26,9 +26,6 @@ namespace XPC
 		///             with the size set to 0.
 		static Message ReadFrom(const UDPSocket& sock);
 
-		/// Gets the message header in binary form.
-		unsigned long GetMagicNumber() const;
-
 		/// Gets the message header.
 		std::string GetHead() const;
 
