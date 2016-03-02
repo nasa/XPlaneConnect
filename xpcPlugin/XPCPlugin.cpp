@@ -79,8 +79,6 @@ double start;
 double lap;
 static double timeConvert = 0.0;
 int benchmarkingSwitch = 0; // 1 = time for operations, 2 = time for op + cycle;
-int cyclesToClear = -1; // Clear message bus every n cycles. -1 == dont clear
-int counter = 0;
 
 PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc);
 PLUGIN_API void	XPluginStop(void);
@@ -170,13 +168,13 @@ float XPCFlightLoopCallback(float inElapsedSinceLastCall,
 	double diff_t;
 #endif
 
-	counter++;
 	if (benchmarkingSwitch > 1)
 	{
 		XPC::Log::FormatLine(LOG_DEBUG, "EXEC", "Cycle time %.6f", inElapsedSinceLastCall);
 	}
 
-	for (int i = 0; i < OPS_PER_CYCLE; i++)
+	int ops;
+	for (ops = 0; ops < OPS_PER_CYCLE; ops++)
 	{
 		if (benchmarkingSwitch > 0)
 		{
@@ -202,9 +200,15 @@ float XPCFlightLoopCallback(float inElapsedSinceLastCall,
 		}
 	}
 
-	if (cyclesToClear != -1 && counter%cyclesToClear == 0)
+	// If we have processed the maximum number of requests in a single frame,
+	// the socket is probably overloaded. Hopefully this is caused by a
+	// transitory event like a long load inside X-Plane that caused us to stop
+	// responding to requests for a while. We drop the current socket and
+	// re-create it to drop any old packets that have probably already timed
+	// out on the client side.
+	if (ops == OPS_PER_CYCLE)
 	{
-		XPC::Log::WriteLine(LOG_DEBUG, "EXEC", "Cleared UDP Buffer");
+		XPC::Log::WriteLine(LOG_WARN, "EXEC", "Cleared UDP Buffer");
 		delete sock;
 		sock = new XPC::UDPSocket(RECVPORT);
 	}
