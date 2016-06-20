@@ -329,7 +329,7 @@ int readDATA(XPCSocket sock, float data[][9], int rows)
 	// shouldn't be trying to read nearly this much data at once anyway.
 	if (rows > 134)
 	{
-		printError("sendDATA", "Too many rows.");
+		printError("readDATA", "Too many rows.");
 		// Read as much as we can anyway
 		rows = 134;
 	}
