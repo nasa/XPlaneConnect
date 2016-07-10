@@ -336,7 +336,7 @@ int readDATA(XPCSocket sock, float data[][9], int rows)
 
 	// Read data
 	char buffer[4829] = { 0 };
-	int result = readUDP(sock, buffer, 5120);
+	int result = readUDP(sock, buffer, 4829);
 	if (result <= 0)
 	{
 		printError("readDATA", "Failed to read from socket.");
@@ -347,7 +347,11 @@ int readDATA(XPCSocket sock, float data[][9], int rows)
 	if (readRows > rows)
 	{
 		printError("readDATA", "Read more rows than will fit in dataRef.");
-		// Copy as much data as we can anyway
+	}
+	else if (readRows < rows)
+	{
+		printError("readDATA", "Read fewer rows than expected.");
+		// Copy as much data as we read anyway
 		rows = readRows;
 	}
 
