@@ -61,7 +61,7 @@ XPC has been tested with the following software versions:
 
 ###Contributing
 All contributions are welcome! If you are having problems with the plugin, please
-open an issue on GitHub or email [Chris Teubert](mailto:christopher.a.teuber@nasa.gov).
+open an issue on GitHub or email [Chris Teubert](mailto:christopher.a.teubert@nasa.gov).
 If you would like to contribute directly, please feel free to open a pull request
 against the "develop" branch. Pull requests will be evaluated and integrated into
 the next official release.
