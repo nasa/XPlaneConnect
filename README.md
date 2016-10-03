@@ -55,7 +55,7 @@ physics simulation engine.
 ###Compatibility
 XPC has been tested with the following software versions:
 * Windows: Vista, 7, & 8
-* Mac OSX: 10.8-10.10
+* Mac OSX: 10.8-10.11
 * Linux: Tested on Red Hat Enterprise Linux Workstation release 6.6
 * X-Plane: 9 & 10
 
