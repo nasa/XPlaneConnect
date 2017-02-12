@@ -55,6 +55,8 @@ namespace XPC
 			handlers.insert(std::make_pair("TEXT", MessageHandlers::HandleText));
 			handlers.insert(std::make_pair("WYPT", MessageHandlers::HandleWypt));
 			handlers.insert(std::make_pair("VIEW", MessageHandlers::HandleView));
+			handlers.insert(std::make_pair("GETC", MessageHandlers::HandleGetC));
+			handlers.insert(std::make_pair("GETP", MessageHandlers::HandleGetP));
 			// X-Plane data messages
 			handlers.insert(std::make_pair("DSEL", MessageHandlers::HandleXPlaneData));
 			handlers.insert(std::make_pair("USEL", MessageHandlers::HandleXPlaneData));
@@ -425,6 +427,43 @@ namespace XPC
 		}
 	}
 
+	void MessageHandlers::HandleGetC(const Message& msg)
+	{
+		const unsigned char* buffer = msg.GetBuffer();
+		std::size_t size = msg.GetSize();
+		if (size != 6)
+		{
+			Log::FormatLine(LOG_ERROR, "GCTL", "Unexpected message length: %u", size);
+			return;
+		}
+		unsigned char aircraft = buffer[5];
+		// TODO(jason-watkins): Get proper printf specifier for unsigned char
+		Log::FormatLine(LOG_TRACE, "GCTL", "Getting control information for aircraft %u", aircraft);
+		
+		float throttle[8];
+		unsigned char response[31] = "CTRL";
+		*((float*)(response + 5)) = DataManager::GetFloat(DREF_Elevator, aircraft);
+		*((float*)(response + 9)) = DataManager::GetFloat(DREF_Aileron, aircraft);
+		*((float*)(response + 13)) = DataManager::GetFloat(DREF_Rudder, aircraft);
+		DataManager::GetFloatArray(DREF_ThrottleSet, throttle, 8, aircraft);
+		*((float*)(response + 17)) = throttle[0];
+		if (aircraft == 0)
+		{
+			response[21] = (char)DataManager::GetInt(DREF_GearHandle, aircraft);
+		}
+		else
+		{
+			float mpGear[10];
+			DataManager::GetFloatArray(DREF_GearDeploy, mpGear, 10, aircraft);
+			response[21] = mpGear[0] > 0.5 ? 1 : 0;
+		}
+		*((float*)(response + 22)) = DataManager::GetFloat(DREF_FlapSetting, aircraft);
+		response[26] = aircraft;
+		*((float*)(response + 27)) = DataManager::GetFloat(DREF_SpeedBrakeSet, aircraft);
+
+		sock->SendTo(response, 31, &connection.addr);
+	}
+
 	void MessageHandlers::HandleGetD(const Message& msg)
 	{
 		const unsigned char* buffer = msg.GetBuffer();
@@ -469,6 +508,34 @@ namespace XPC
 		}
 
 		sock->SendTo(response, cur, &connection.addr);
+	}
+
+	void MessageHandlers::HandleGetP(const Message& msg)
+	{
+		const unsigned char* buffer = msg.GetBuffer();
+		std::size_t size = msg.GetSize();
+		if (size != 6)
+		{
+			Log::FormatLine(LOG_ERROR, "GPOS", "Unexpected message length: %u", size);
+			return;
+		}
+		unsigned char aircraft = buffer[5];
+		Log::FormatLine(LOG_TRACE, "GPOS", "Getting position information for aircraft %u", aircraft);
+
+		unsigned char response[34] = "POSI";
+		response[5] = (char)DataManager::GetInt(DREF_GearHandle, aircraft);
+		*((float*)(response + 6)) = (float)DataManager::GetDouble(DREF_Latitude, aircraft);
+		*((float*)(response + 10)) = (float)DataManager::GetDouble(DREF_Longitude, aircraft);
+		*((float*)(response + 14)) = (float)DataManager::GetDouble(DREF_Elevation, aircraft);
+		*((float*)(response + 18)) = DataManager::GetFloat(DREF_Pitch, aircraft);
+		*((float*)(response + 22)) = DataManager::GetFloat(DREF_Roll, aircraft);
+		*((float*)(response + 26)) = DataManager::GetFloat(DREF_HeadingTrue, aircraft);
+		
+		float gear[10];
+		DataManager::GetFloatArray(DREF_GearDeploy, gear, 10, aircraft);
+		*((float*)(response + 30)) = gear[0];
+
+		sock->SendTo(response, 34, &connection.addr);
 	}
 
 	void MessageHandlers::HandlePosi(const Message& msg)

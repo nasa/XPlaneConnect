@@ -55,13 +55,13 @@ physics simulation engine.
 ###Compatibility
 XPC has been tested with the following software versions:
 * Windows: Vista, 7, & 8
-* Mac OSX: 10.8-10.10
+* Mac OSX: 10.8-10.11
 * Linux: Tested on Red Hat Enterprise Linux Workstation release 6.6
 * X-Plane: 9 & 10
 
 ###Contributing
 All contributions are welcome! If you are having problems with the plugin, please
-open an issue on GitHub or email [Chris Teubert](mailto:christopher.a.teuber@nasa.gov).
+open an issue on GitHub or email [Chris Teubert](mailto:christopher.a.teubert@nasa.gov).
 If you would like to contribute directly, please feel free to open a pull request
 against the "develop" branch. Pull requests will be evaluated and integrated into
 the next official release.

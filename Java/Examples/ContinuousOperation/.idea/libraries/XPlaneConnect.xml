@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="XPlaneConnect">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/XPlaneConnect.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

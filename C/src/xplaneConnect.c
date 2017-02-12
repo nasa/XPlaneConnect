@@ -116,7 +116,7 @@ XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
 #else
 	struct timeval timeout;
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 100000;
+	timeout.tv_usec = 250000;
 #endif
 	if (setsockopt(sock.sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0)
 	{
@@ -521,6 +521,38 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
 /*****************************************************************************/
 /****                          POSI functions                             ****/
 /*****************************************************************************/
+int getPOSI(XPCSocket sock, float values[7], char ac)
+{
+	// Setup send command
+	unsigned char buffer[6] = "GETP";
+	buffer[5] = ac;
+
+	// Send command
+	if (sendUDP(sock, buffer, 6) < 0)
+	{
+		printError("getPOSI", "Failed to send command.");
+		return -1;
+	}
+
+	// Get response
+	unsigned char readBuffer[34];
+	int readResult = readUDP(sock, readBuffer, 34);
+	if (readResult < 0)
+	{
+		printError("getPOSI", "Failed to read response.");
+		return -2;
+	}
+	if (readResult != 34)
+	{
+		printError("getPOSI", "Unexpected response length.");
+		return -3;
+	}
+
+	// Copy response into values
+	memcpy(values, readBuffer + 6, 7 * sizeof(float));
+	return 0;
+}
+
 int sendPOSI(XPCSocket sock, float values[], int size, char ac)
 {
 	// Validate input
@@ -565,6 +597,41 @@ int sendPOSI(XPCSocket sock, float values[], int size, char ac)
 /*****************************************************************************/
 /****                          CTRL functions                             ****/
 /*****************************************************************************/
+int getCTRL(XPCSocket sock, float values[7], char ac)
+{
+	// Setup send command
+	unsigned char buffer[6] = "GETC";
+	buffer[5] = ac;
+
+	// Send command
+	if (sendUDP(sock, buffer, 6) < 0)
+	{
+		printError("getCTRL", "Failed to send command.");
+		return -1;
+	}
+
+	// Get response
+	unsigned char readBuffer[31];
+	int readResult = readUDP(sock, readBuffer, 31);
+	if (readResult < 0)
+	{
+		printError("getCTRL", "Failed to read response.");
+		return -2;
+	}
+	if (readResult != 31)
+	{
+		printError("getCTRL", "Unexpected response length.");
+		return -3;
+	}
+
+	// Copy response into values
+	memcpy(values, readBuffer + 5, 4 * sizeof(float));
+	values[4] = readBuffer[21];
+	values[5] = *((float*)(readBuffer + 22));
+	values[6] = *((float*)(readBuffer + 27));
+	return 0;
+}
+
 int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 {
 	// Validate input

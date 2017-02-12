@@ -57,7 +57,7 @@ namespace XPC
 
 	static void WriteLevel(FILE* fd, int level)
 	{
-		char* str;
+		const char* str;
 		switch (level)
 		{
 		case LOG_OFF:

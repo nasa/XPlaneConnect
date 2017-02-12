@@ -196,6 +196,14 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
         
 // Position
 
+/// Gets the position and orientation of the specified aircraft.
+///
+/// \param sock   The socket used to send the command and receive the response.
+/// \param values An array to store the position information returned by the
+///               plugin. The format of values is [Lat, Lon, Alt, Pitch, Roll, Yaw, Gear]
+/// \returns      0 if successful, otherwise a negative value.
+int getPOSI(XPCSocket sock, float values[7], char ac);
+
 /// Sets the position and orientation of the specified aircraft.
 ///
 /// \param sock   The socket to use to send the command.
@@ -208,6 +216,16 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
 int sendPOSI(XPCSocket sock, float values[], int size, char ac);
 
 // Controls
+
+/// Gets the control surface information for the specified aircraft.
+///
+/// \param sock   The socket used to send the command and receive the response.
+/// \param values An array to store the position information returned by the
+///               plugin. The format of values is [Elevator, Aileron, Rudder,
+///               Throttle, Gear, Flaps, Speed Brakes]
+/// \param ac     The aircraft to set the control surfaces of. 0 is the main/player aircraft.
+/// \returns      0 if successful, otherwise a negative value.
+int getCTRL(XPCSocket sock, float values[7], char ac);
 
 /// Sets the control surfaces of the specified aircraft.
 ///
