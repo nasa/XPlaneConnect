@@ -38,6 +38,7 @@
 //	CONTRIBUTORS
 //		CT: Christopher Teubert (christopher.a.teubert@nasa.gov)
 //		JW: Jason Watkins (jason.w.watkins@nasa.gov)
+
 #include "xplaneConnect.h"
 
 #include <math.h>
@@ -46,7 +47,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+
+#ifdef _WIN32
 #include <time.h>
+#else
+#include <sys/time.h>
+#endif
 
 int sendUDP(XPCSocket sock, char buffer[], int len);
 int readUDP(XPCSocket sock, char buffer[], int len);
