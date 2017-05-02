@@ -21,6 +21,14 @@ void runTest(int(*test)(), char* name)
 	}
 }
 
+void crossPlatformUSleep(int uSleep) {
+#ifdef _WIN32
+    Sleep(uSleep/1000);
+#else
+    usleep(uSleep);
+#endif
+}
+
 int compareFloat(float expected, float actual)
 {
 	return feq(expected, actual) || isnan(expected) ? 0 : -1;

@@ -6,7 +6,7 @@
 #include "Test.h"
 #include "xplaneConnect.h"
 
-int doCTRLTest(char* drefs[7], float values[], int size, int ac, float expected[7])
+int doCTRLTest(XPCSocket *sock, char* drefs[7], float values[], int size, int ac, float expected[7])
 {
 	float* data[7];
 	int sizes[7];
@@ -17,13 +17,13 @@ int doCTRLTest(char* drefs[7], float values[], int size, int ac, float expected[
 	}
 
 	// Execute command
-	XPCSocket sock = openUDP(IP);
-	int result = sendCTRL(sock, values, size, ac);
+	int result = sendCTRL(*sock, values, size, ac);
+    int d = 0.0f;
 	if (result >= 0)
 	{
-		result = getDREFs(sock, drefs, data, 7, sizes);
+		result = getDREFs(*sock, drefs, data, 7, sizes);
 	}
-	closeUDP(sock);
+    
 	if (result < 0)
 	{
 		return -1;
@@ -35,6 +35,7 @@ int doCTRLTest(char* drefs[7], float values[], int size, int ac, float expected[
 	{
 		actual[i] = data[i][0];
 	}
+
 	return compareArray(expected, actual, 7);
 }
 
@@ -70,11 +71,14 @@ int basicCTRLTest(char** drefs, int ac)
 	// Set control surfaces to known state.
 	float CTRL[6] = { 0.0F, 0.0F, 0.0F, 0.8F, 1.0F, 0.5F };
 	float expected[7] = { 0.0F, 0.0F, 0.0F, NAN, NAN, NAN, NAN };
-	int result = doCTRLTest(drefs, CTRL, 3, ac, expected);
+    XPCSocket sock = openUDP(IP);
+    pauseSim(sock, 1); // Pause so the controls wont change between 2 and 3
+	int result = doCTRLTest(&sock, drefs, CTRL, 3, ac, expected);
 	if (result < 0)
 	{
 		return -10000 + result;
 	}
+    crossPlatformUSleep(SLEEP_AMOUNT);
 
 	// Test control surfaces and set other values to known state.
 	expected[0] = CTRL[0] = 0.2F;
@@ -83,22 +87,29 @@ int basicCTRLTest(char** drefs, int ac)
 	expected[3] = 0.8F;
 	expected[4] = 1.0F;
 	expected[5] = 0.5F;
-	result = doCTRLTest(drefs, CTRL, 6, ac, expected);
+	result = doCTRLTest(&sock, drefs, CTRL, 6, ac, expected);
 	if (result < 0)
 	{
 		return -20000 + result;
 	}
+    crossPlatformUSleep(SLEEP_AMOUNT);
 
 	// Test other values and verify control surfaces unchanged.
-	CTRL[0] = -998;
-	CTRL[1] = -998;
-	CTRL[2] = -998;
+	expected[0] = CTRL[0] = 0.15F;
+	expected[1] = CTRL[1] = 0.15F;
+	expected[2] = CTRL[2] = 0.15F;
 	expected[3] = CTRL[3] = 0.9F;
-	expected[4] = CTRL[4] = 0.0F;
-	expected[5] = CTRL[5] = 0.75F;
-	result = doCTRLTest(drefs, CTRL, 6, ac, expected);
+    CTRL[4] = -998;
+	CTRL[5] = -998;
+	result = doCTRLTest(&sock, drefs, CTRL, 6, ac, expected);
+    
+    pauseSim(sock, 0);
+    closeUDP(sock);
 	if (result < 0)
 	{
+        if (result == -1004) {
+            printf("GEAR FAILURE... ARE YOU USING AN AIRCRAFT WITH FIXED GEARS?   ");
+        }
 		return -30000 + result;
 	}
     return 0;
@@ -129,7 +140,7 @@ int testCTRL_NonPlayer()
 		"sim/multiplayer/position/plane1_throttle",
 		"sim/multiplayer/position/plane1_gear_deploy",
 		"sim/multiplayer/position/plane1_flap_ratio",
-		"sim/multiplayer/position/plane1_sbrkrqst"
+		"sim/multiplayer/position/plane1_speedbrake_ratio"
 	};
 	return basicCTRLTest(drefs, 1);
 }
@@ -150,7 +161,9 @@ int testCTRL_Speedbrakes()
 	// Arm
 	float CTRL[7] = { -998, -998, -998, -998, -998, -998, -0.5F };
 	float expected[7] = { NAN, NAN, NAN, NAN, NAN, NAN, -0.5F };
-	int result = doCTRLTest(drefs, CTRL, 7, 0, expected);
+    XPCSocket sock = openUDP(IP);
+    pauseSim(sock, 1); // Pause so the controls wont change between 2 and 3
+	int result = doCTRLTest(&sock, drefs, CTRL, 7, 0, expected);
 	if (result < 0)
 	{
 		return -10000 + result;
@@ -158,7 +171,7 @@ int testCTRL_Speedbrakes()
 
 	// Set to full
 	expected[6] = CTRL[6] = 1.5F;
-	result = doCTRLTest(drefs, CTRL, 7, 0, expected);
+	result = doCTRLTest(&sock, drefs, CTRL, 7, 0, expected);
 	if (result < 0)
 	{
 		return -20000 + result;
@@ -166,7 +179,9 @@ int testCTRL_Speedbrakes()
 
 	// Retract
 	expected[6] = CTRL[6] = 0.0F;
-	result = doCTRLTest(drefs, CTRL, 7, 0, expected);
+	result = doCTRLTest(&sock, drefs, CTRL, 7, 0, expected);
+    pauseSim(sock, 0);
+    closeUDP(sock);
 	if (result < 0)
 	{
 		return -30000 + result;
