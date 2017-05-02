@@ -211,6 +211,7 @@ float XPCFlightLoopCallback(float inElapsedSinceLastCall,
 		XPC::Log::WriteLine(LOG_WARN, "EXEC", "Cleared UDP Buffer");
 		delete sock;
 		sock = new XPC::UDPSocket(RECVPORT);
+		XPC::MessageHandlers::SetSocket(sock);
 	}
 	return -1;
 }
