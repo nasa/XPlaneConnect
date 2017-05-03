@@ -67,7 +67,7 @@ against the "develop" branch. Pull requests will be evaluated and integrated int
 the next official release.
 
 ###Notices
-Copyright ©2013-2015 United States Government as represented by the Administrator
+Copyright ©2013-2016 United States Government as represented by the Administrator
 of the National Aeronautics and Space Administration.  All Rights Reserved.
 
 No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY
