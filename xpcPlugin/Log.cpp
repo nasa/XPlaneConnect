@@ -111,7 +111,7 @@ namespace XPC
 
 			std::fprintf(fd, "X-Plane Connect [Version %s]\n", version.c_str());
 			std::fprintf(fd, "Compiled %s %s\n", __DATE__, __TIME__);
-			std::fprintf(fd, "Copyright (c) 2013-2015 United States Government as represented by the\n");
+			std::fprintf(fd, "Copyright (c) 2013-2017 United States Government as represented by the\n");
 			std::fprintf(fd, "Administrator of the National Aeronautics and Space Administration.\n");
 			std::fprintf(fd, "All Rights Reserved.\n\n");
 
