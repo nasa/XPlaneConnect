@@ -1,4 +1,4 @@
-#X-Plane Connect
+# X-Plane Connect
 The X-Plane Connect (XPC) Toolbox is an open source research tool used to
 interact with the commercial flight simulator software X-Plane. XPC allows users
 to control aircraft and receive state information from aircraft simulated in
@@ -9,22 +9,22 @@ in-house flight simulation software. Possible applications include active contro
 of an XPlane simulation, flight visualization, recording states during a flight,
 or interacting with a mission over UDP.
 
-###Migrating to 1.0
+### Migrating to 1.0
 For existing users, several important breaking changes have been made in version
 1.0. For detailed information, see the 1.0 release changelog. For client-specific
 guidlines on migrating to 1.0, refer to the follwing guides:
 
-####[C](https://github.com/nasa/XPlaneConnect/wiki/Migrating-to-1.0-C)
+#### [C](https://github.com/nasa/XPlaneConnect/wiki/Migrating-to-1.0-C)
 
-####[MATLAB](https://github.com/nasa/XPlaneConnect/wiki/Migrating-to-1.0-MATLAB)
+#### [MATLAB](https://github.com/nasa/XPlaneConnect/wiki/Migrating-to-1.0-MATLAB)
 
-####[Java](https://github.com/nasa/XPlaneConnect/wiki/Migrating-to-1.0-Java)
+#### [Java](https://github.com/nasa/XPlaneConnect/wiki/Migrating-to-1.0-Java)
 
-###Architecture
+### Architecture
 XPC includes an X-Plane plugin (xpcPlugin) and clients written in several
 languages that interact with the plugin.
 
-####Quick Start
+#### Quick Start
 To get started using X-Plane Connect, do the following.
 
 1. Purchase and install X-Plane 9 or 10.
@@ -37,11 +37,11 @@ client's language. The client directories generally include a 'src' folder
 containing the client source code, and an 'Examples' folder containing sample
 code demonstrating how to use the client.
 
-####Additional Information
+#### Additional Information
 For detailed information about XPC and how to use the XPC clients, refer to the
 [XPC Wiki](https://github.com/nasa/XPlaneConnect/wiki).
 
-####Capabilities
+#### Capabilities
 The XPC Toolbox allows the user to manipulate the internal state of X-Plane by
 reading and setting DataRefs, a complete list of which can be found on the
 [X-Plane SDK wiki](http://www.xsquawkbox.net/xpsdk/docs/DataRefs.html).
@@ -52,21 +52,21 @@ the position and control surfaces of both player and multiplayer aircraft. In
 addition, the pause function allows users to easily pause and un-pause X-Plane's
 physics simulation engine.
 
-###Compatibility
+### Compatibility
 XPC has been tested with the following software versions:
 * Windows: Vista, 7, & 8
 * Mac OSX: 10.8-10.10
 * Linux: Tested on Red Hat Enterprise Linux Workstation release 6.6
 * X-Plane: 9 & 10
 
-###Contributing
+### Contributing
 All contributions are welcome! If you are having problems with the plugin, please
 open an issue on GitHub or email [Chris Teubert](mailto:christopher.a.teuber@nasa.gov).
 If you would like to contribute directly, please feel free to open a pull request
 against the "develop" branch. Pull requests will be evaluated and integrated into
 the next official release.
 
-###Notices
+### Notices
 Copyright ©2013-2015 United States Government as represented by the Administrator
 of the National Aeronautics and Space Administration.  All Rights Reserved.
 
@@ -93,7 +93,7 @@ STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY PRIOR
 RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE REMEDY FOR ANY SUCH
 MATTER SHALL BE THE IMMEDIATE, UNILATERAL TERMINATION OF THIS AGREEMENT.
 
-####X-Plane API
+#### X-Plane API
 Copyright (c) 2008, Sandy Barbour and Ben Supnik  All rights reserved.
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in the
@@ -103,11 +103,11 @@ Software, and to permit persons to whom the Software is furnished to do so,
 subject to the following conditions:
  
 * Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimer.
+  list of conditions and the following disclaimer.
 * Neither the names of the authors nor that of X-Plane or Laminar Research may
-be used to endorse or promote products derived from this software without
-specific prior written permission from the authors or Laminar Research,
-respectively.
+  be used to endorse or promote products derived from this software without
+  specific prior written permission from the authors or Laminar Research,
+  respectively.
  
 X-Plane API SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
