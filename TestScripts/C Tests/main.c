@@ -11,8 +11,7 @@
 #include "ViewTests.h"
 #include "WyptTests.h"
 
-int main(int argc, const char * argv[])
-{
+int main(int argc, const char * argv[]) {
     printf("XPC Tests-c ");
     
 #ifdef _WIN32
@@ -27,36 +26,58 @@ int main(int argc, const char * argv[])
     
 	// Basic Networking
 	runTest(testOpen, "open");
+    crossPlatformUSleep(SLEEP_AMOUNT);
 	runTest(testClose, "close");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+
 	// Datarefs
 	runTest(testGETD_Basic, "GETD");
+    crossPlatformUSleep(SLEEP_AMOUNT);
 	runTest(testGETD_Types, "GETD (types)");
+    crossPlatformUSleep(SLEEP_AMOUNT);
 	runTest(testGETD_TestFloat, "GETD (test float)");
+    crossPlatformUSleep(SLEEP_AMOUNT);
 	runTest(testDREF, "DREF");
 	// Pause
-	runTest(testSIMU_Basic, "SIMU");
-	runTest(testSIMU_Toggle, "SIMU (toggle)");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testSIMU_Basic, "SIMU");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testSIMU_Toggle, "SIMU (toggle)");
 	// CTRL
-	runTest(testCTRL_Player, "CTRL (player)");
-	runTest(testCTRL_NonPlayer, "CTRL (non-player)");
-	runTest(testCTRL_Speedbrakes, "CTRL (speedbrakes)");
-	runTest(testGETC, "GETC (player)");
-	runTest(testGETC_NonPlayer, "GETC (Non-player)");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testCTRL_Player, "CTRL (player)");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testCTRL_NonPlayer, "CTRL (non-player)");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testCTRL_Speedbrakes, "CTRL (speedbrakes)");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testGETC, "GETC (player)");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testGETC_NonPlayer, "GETC (Non-player)");
 	// POSI
-	runTest(testPOSI_Player, "POSI (player)");
-	runTest(testPOSI_NonPlayer, "POSI (non-player)");
-	runTest(testGetPOSI_Player, "GETP (player)");
-	runTest(testGetPOSI_NonPlayer, "GETP (non-player)");	
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testPOSI_Player, "POSI (player)");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testPOSI_NonPlayer, "POSI (non-player)");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testGetPOSI_Player, "GETP (player)");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testGetPOSI_NonPlayer, "GETP (non-player)");
 	// Data
-	runTest(testDATA, "DATA");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testDATA, "DATA");
 	// Text
-	runTest(testTEXT, "TEXT");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testTEXT, "TEXT");
 	// Waypoints
-	runTest(testWYPT, "WYPT");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testWYPT, "WYPT");
 	// View
-	runTest(testView, "VIEW");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testView, "VIEW");
 	// setConn
-	runTest(testCONN, "CONN");
+    crossPlatformUSleep(SLEEP_AMOUNT);
+    runTest(testCONN, "CONN");
     
     printf( "----------------\nTest Summary\n\tFailed: %i\n\tPassed: %i\n", testFailed, testPassed );
 	printf("Press any key to exit.");

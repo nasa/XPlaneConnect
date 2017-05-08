@@ -9,9 +9,20 @@
 #include <string.h>
 #include <math.h>
 
+#ifdef LINUX
+#include <unistd.h>
+#endif
+#ifdef WINDOWS
+#include <windows.h>
+#endif
+
+#define SLEEP_AMOUNT 100000
+
 #define feq(x, y) (fabs(x - y) < 1e-4)
 
 #define IP "127.0.0.1"
+
+void crossPlatformUSleep(int uSleep);
 
 extern int testFailed;
 extern int testPassed;

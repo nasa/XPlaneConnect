@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+// Copyright (c) 2013-2017 United States Government as represented by the Administrator of the
 // National Aeronautics and Space Administration. All Rights Reserved.
 #ifndef XPCPLUGIN_MESSAGE_H_
 #define XPCPLUGIN_MESSAGE_H_
@@ -25,9 +25,6 @@ namespace XPC
 		///             data was read or an error occurs, returns a message
 		///             with the size set to 0.
 		static Message ReadFrom(const UDPSocket& sock);
-
-		/// Gets the message header in binary form.
-		unsigned long GetMagicNumber() const;
 
 		/// Gets the message header.
 		std::string GetHead() const;

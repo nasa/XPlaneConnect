@@ -1,4 +1,4 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+//Copyright (c) 2013-2016 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
 //
 //DISCLAIMERS
@@ -38,6 +38,7 @@
 //	CONTRIBUTORS
 //		CT: Christopher Teubert (christopher.a.teubert@nasa.gov)
 //		JW: Jason Watkins (jason.w.watkins@nasa.gov)
+
 #include "xplaneConnect.h"
 
 #include <math.h>
@@ -46,12 +47,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+
+#ifdef _WIN32
 #include <time.h>
+#else
+#include <sys/time.h>
+#endif
 
 int sendUDP(XPCSocket sock, char buffer[], int len);
 int readUDP(XPCSocket sock, char buffer[], int len);
 int sendDREFRequest(XPCSocket sock, const char* drefs[], unsigned char count);
 int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int sizes[]);
+
 void printError(char *functionName, char *format, ...)
 {
 	va_list args;
@@ -306,8 +313,9 @@ int sendDATA(XPCSocket sock, float data[][9], int rows)
 	// 5 byte header + 134 rows * 9 values * 4 bytes per value => 4829 byte max length.
 	char buffer[4829] = "DATA"; 
 	int len = 5 + rows * 9 * sizeof(float);
-	unsigned short step = 9 * sizeof(float);	
-	for (int i=0;i<rows;i++)
+	unsigned short step = 9 * sizeof(float);
+    int i; // iterator
+	for (i = 0; i < rows; i++)
 	{
 		buffer[5 + i * step] = (char)data[i][0];
 		memcpy(&buffer[9 + i*step], &data[i][1], 8 * sizeof(float));
@@ -328,14 +336,14 @@ int readDATA(XPCSocket sock, float data[][9], int rows)
 	// shouldn't be trying to read nearly this much data at once anyway.
 	if (rows > 134)
 	{
-		printError("sendDATA", "Too many rows.");
+		printError("readDATA", "Too many rows.");
 		// Read as much as we can anyway
 		rows = 134;
 	}
 
 	// Read data
 	char buffer[4829] = { 0 };
-	int result = readUDP(sock, buffer, 5120);
+	int result = readUDP(sock, buffer, 4829);
 	if (result <= 0)
 	{
 		printError("readDATA", "Failed to read from socket.");
@@ -346,12 +354,17 @@ int readDATA(XPCSocket sock, float data[][9], int rows)
 	if (readRows > rows)
 	{
 		printError("readDATA", "Read more rows than will fit in dataRef.");
-		// Copy as much data as we can anyway
+	}
+	else if (readRows < rows)
+	{
+		printError("readDATA", "Read fewer rows than expected.");
+		// Copy as much data as we read anyway
 		rows = readRows;
 	}
 
 	// Parse data
-	for (int i = 0; i < rows; ++i)
+    int i; // iterator
+	for (i = 0; i < rows; ++i)
 	{
 		data[i][0] = buffer[5 + i * 36];
 		memcpy(&data[i][1], &buffer[9 + i * 36], 8 * sizeof(float));
@@ -376,7 +389,8 @@ int sendDREFs(XPCSocket sock, const char* drefs[], float* values[], int sizes[],
 	// Max size is technically unlimited.
 	unsigned char buffer[65536] = "DREF";
 	int pos = 5;
-	for (int i = 0; i < count; ++i)
+    int i; // Iterator
+	for (i = 0; i < count; ++i)
 	{
 		int drefLen = strnlen(drefs[i], 256);
 		if (pos + drefLen + sizes[i] * 4 + 2 > 65536)
@@ -422,7 +436,8 @@ int sendDREFRequest(XPCSocket sock, const char* drefs[], unsigned char count)
 	unsigned char buffer[65536] = "GETD";
 	buffer[5] = count;
 	int len = 6;
-	for (int i = 0; i < count; ++i)
+    int i; // iterator
+	for (i = 0; i < count; ++i)
 	{
 		size_t drefLen = strnlen(drefs[i], 256);
 		if (drefLen > 255)
@@ -470,7 +485,8 @@ int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int si
 	}
 
 	int cur = 6;
-	for (int i = 0; i < count; ++i)
+    int i; // Iterator
+	for (i = 0; i < count; ++i)
 	{
 		int l = buffer[cur++];
 		if (l > sizes[i])
@@ -571,7 +587,8 @@ int sendPOSI(XPCSocket sock, float values[], int size, char ac)
 	// 5 byte header + up to 7 values * 5 bytes each
 	unsigned char buffer[40] = "POSI";
 	buffer[5] = ac;
-	for (int i = 0; i < 7; i++)
+    int i; // iterator
+	for (i = 0; i < 7; i++)
 	{
 		float val = -998;
 
@@ -650,7 +667,8 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 	// 5 byte header + 5 float values * 4 + 2 byte values
 	unsigned char buffer[31] = "CTRL";
 	int cur = 5;
-	for (int i = 0; i < 6; i++)
+    int i; // iterator
+	for (i = 0; i < 6; i++)
 	{
 		float val = -998;
 

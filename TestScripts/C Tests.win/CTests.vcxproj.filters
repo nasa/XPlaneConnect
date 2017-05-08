@@ -56,5 +56,8 @@
     <ClInclude Include="..\C Tests\Test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\C Tests\ViewTests.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
