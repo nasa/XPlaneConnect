@@ -104,7 +104,7 @@ namespace XPC
 		drefs.insert(make_pair(DREF_HPath, XPLMFindDataRef("sim/flightmodel/position/hpath")));
 		drefs.insert(make_pair(DREF_VPath, XPLMFindDataRef("sim/flightmodel/position/vpath")));
 
-		drefs.insert(make_pair(DREF_VPath, XPLMFindDataRef("sim/flightmodel/position/magnetic_variation")));
+		drefs.insert(make_pair(DREF_MagneticVariation, XPLMFindDataRef("sim/flightmodel/position/magnetic_variation")));
 
 		drefs.insert(make_pair(DREF_Latitude, XPLMFindDataRef("sim/flightmodel/position/latitude")));
 		drefs.insert(make_pair(DREF_Longitude, XPLMFindDataRef("sim/flightmodel/position/longitude")));
