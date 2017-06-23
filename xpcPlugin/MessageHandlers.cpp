@@ -572,7 +572,7 @@ namespace XPC
 
 		DataManager::SetPosition(pos, aircraftNumber);
 		DataManager::SetOrientation(orient, aircraftNumber);
-		if (gear != -1)
+		if (gear >= 0)
 		{
 			DataManager::SetGear(gear, true, aircraftNumber);
 		}
