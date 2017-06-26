@@ -396,7 +396,7 @@ namespace XPC
 		/// \param pos      An array containing latitude, longitude and altitude in
 		///                 fractional degrees and meters above sea level.
 		/// \param aircraft The aircraft to set the position of.
-		static void SetPosition(float pos[3], char aircraft = 0);
+		static void SetPosition(double pos[3], char aircraft = 0);
 
 		/// Sets the orientation of the specified aircraft.
 		///

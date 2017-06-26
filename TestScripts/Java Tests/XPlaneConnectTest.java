@@ -573,6 +573,41 @@ public class XPlaneConnectTest
         }
     }
 
+    @Test
+    public void testSendPOSD() throws IOException
+    {
+        String[] drefs = {
+                "sim/flightmodel/position/latitude",
+                "sim/flightmodel/position/longitude",
+                "sim/flightmodel/position/y_agl",
+                "sim/flightmodel/position/phi",
+                "sim/flightmodel/position/theta",
+                "sim/flightmodel/position/psi",
+                "sim/cockpit/switches/gear_handle_status"
+        };
+        double[] posi = new double[] {37.524, -122.06899, 2500, 0, 0, 0, 1};
+        try(XPlaneConnect xpc = new XPlaneConnect())
+        {
+            xpc.pauseSim(true);
+            xpc.sendPOSD(posi);
+            //TODO: It seems that these calls are a bit too fast. The dref request often gets stale data, causing the test to fail incorrectly.
+            try {Thread.sleep(100);}catch(InterruptedException ex){}
+            float[][] result = xpc.getDREFs(drefs);
+            xpc.pauseSim(false);
+            if(result.length < posi.length)
+            {
+                fail();
+            }
+            assertEquals(posi[0], result[0][0], 1e-4);
+            assertEquals(posi[1], result[1][0], 1e-4);
+            assertEquals(posi[2], result[2][0], 10);
+            assertEquals(posi[3], result[3][0], 1e-4);
+            assertEquals(posi[4], result[4][0], 1e-4);
+            assertEquals(posi[5], result[5][0], 1e-4);
+            assertEquals(posi[6], result[6][0], 1e-4);
+        }
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testSendPOSI_NullCtrl() throws IOException
     {

@@ -665,6 +665,97 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
+     * Sets the position of the player ac.
+     *
+     * @param values   <p>An array containing position elements as follows:</p>
+     *                 <ol>
+     *                     <li>Latitude (deg)</li>
+     *                     <li>Longitude (deg)</li>
+     *                     <li>Altitude (m above MSL)</li>
+     *                     <li>Roll (deg)</li>
+     *                     <li>Pitch (deg)</li>
+     *                     <li>True Heading (deg)</li>
+     *                     <li>Gear (0=up, 1=down)</li>
+     *                 </ol>
+     *                 <p>
+     *                     If @{code ctrl} is less than 6 elements long, The missing elements will not be changed. To
+     *                     change values in the middle of the array without affecting the preceding values, set the
+     *                     preceding values to -998.
+     *                 </p>
+     * @throws IOException If the command can not be sent.
+     */
+    public void sendPOSD(double[] values) throws IOException
+    {
+        sendPOSD(values, 0);
+    }
+
+    /**
+     * Sets the position of the specified ac with double precision coordinates.
+     *
+     * @param values   <p>An array containing position elements as follows:</p>
+     *                 <ol>
+     *                     <li>Latitude (deg)</li>
+     *                     <li>Longitude (deg)</li>
+     *                     <li>Altitude (m above MSL)</li>
+     *                     <li>Roll (deg)</li>
+     *                     <li>Pitch (deg)</li>
+     *                     <li>True Heading (deg)</li>
+     *                     <li>Gear (0=up, 1=down)</li>
+     *                 </ol>
+     *                 <p>
+     *                     If @{code ctrl} is less than 6 elements long, The missing elements will not be changed. To
+     *                     change values in the middle of the array without affecting the preceding values, set the
+     *                     preceding values to -998.
+     *                 </p>
+     * @param ac The ac to set. 0 for the player ac.
+     * @throws IOException If the command can not be sent.
+     */
+    public void sendPOSD(double[] values, int ac) throws IOException
+    {
+        //Preconditions
+        if(values == null)
+        {
+            throw new IllegalArgumentException("posi must no be null.");
+        }
+        if(values.length > 7)
+        {
+            throw new IllegalArgumentException("posi must have 7 or fewer elements.");
+        }
+        if(ac < 0 || ac > 255)
+        {
+            throw new IllegalArgumentException("ac must be between 0 and 255.");
+        }
+
+        //Pad command values and convert to bytes
+        int i;
+        ByteBuffer bb = ByteBuffer.allocate(46);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
+        for(i = 0; i < values.length; ++i)
+        {
+            if(i<3) /* lat/lon/height as double */
+            {
+                bb.putDouble(values[i]);
+            }
+            else
+            {
+                bb.putFloat((float)values[i]);
+            }
+        }
+        for(; i < 7; ++i)
+        {
+            bb.putFloat(-998);
+        }
+
+        //Build and send message
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write("POSD".getBytes(StandardCharsets.UTF_8));
+        os.write(0xFF); //Placeholder for message length
+        os.write(ac);
+        os.write(bb.array());
+        sendUDP(os.toByteArray());
+    }
+
+    /**
      * Reads X-Plane data
      *
      * @return The data read.

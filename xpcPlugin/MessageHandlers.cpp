@@ -51,6 +51,7 @@ namespace XPC
 			handlers.insert(std::make_pair("DREF", MessageHandlers::HandleDref));
 			handlers.insert(std::make_pair("GETD", MessageHandlers::HandleGetD));
 			handlers.insert(std::make_pair("POSI", MessageHandlers::HandlePosi));
+			handlers.insert(std::make_pair("POSD", MessageHandlers::HandlePosd));
 			handlers.insert(std::make_pair("SIMU", MessageHandlers::HandleSimu));
 			handlers.insert(std::make_pair("TEXT", MessageHandlers::HandleText));
 			handlers.insert(std::make_pair("WYPT", MessageHandlers::HandleWypt));
@@ -342,10 +343,10 @@ namespace XPC
 			}
 			case 20: // Position
 			{
-				float pos[3];
-				pos[0] = values[i][2];
-				pos[1] = values[i][3];
-				pos[2] = values[i][4];
+				double pos[3];
+				pos[0] = (double)values[i][2];
+				pos[1] = (double)values[i][3];
+				pos[2] = (double)values[i][4];
 				DataManager::SetPosition(pos);
 				break;
 			}
@@ -553,9 +554,9 @@ namespace XPC
 
 		char aircraftNumber = buffer[5];
 		float gear = *((float*)(buffer + 30));
-		float pos[3];
+		float posf[3];
 		float orient[3];
-		memcpy(pos, buffer + 6, 12);
+		memcpy(posf, buffer + 6, 12);
 		memcpy(orient, buffer + 18, 12);
 
 		if (aircraftNumber > 0)
@@ -570,7 +571,51 @@ namespace XPC
 			}
 		}
 
-		DataManager::SetPosition(pos, aircraftNumber);
+		/* convert float to double */
+		double posd[3];
+		posd[0] = posf[0]; posd[1] = posf[1]; posd[2] = posf[2];
+		DataManager::SetPosition(posd, aircraftNumber);
+		DataManager::SetOrientation(orient, aircraftNumber);
+		if (gear >= 0)
+		{
+			DataManager::SetGear(gear, true, aircraftNumber);
+		}
+	}
+
+	void MessageHandlers::HandlePosd(const Message& msg)
+	{
+		// Update log
+		Log::FormatLine(LOG_TRACE, "POSD", "Message Received (Conn %i)", connection.id);
+
+		const unsigned char* buffer = msg.GetBuffer();
+		const std::size_t size = msg.GetSize();
+		if (size < 46)
+		{
+			Log::FormatLine(LOG_ERROR, "POSD", "ERROR: Unexpected size: %i (Expected at least 46)", size);
+			return;
+		}
+
+		char aircraftNumber = buffer[5];
+		float gear = *((float*)(buffer + 42));
+		double posd[3];
+		float orient[3];
+		memcpy(posd, buffer + 6, 3*8);
+		memcpy(orient, buffer + 30, 12);
+
+		if (aircraftNumber > 0)
+		{
+			// Enable AI for the aircraftNumber we are setting
+			float ai[20];
+			std::size_t result = DataManager::GetFloatArray(DREF_PauseAI, ai, 20);
+			if (result == 20) // Only set values if they were retrieved successfully.
+			{
+				ai[aircraftNumber] = 1;
+				DataManager::Set(DREF_PauseAI, ai, 0, 20);
+			}
+		}
+
+		/* convert float to double */
+		DataManager::SetPosition(posd, aircraftNumber);
 		DataManager::SetOrientation(orient, aircraftNumber);
 		if (gear >= 0)
 		{
