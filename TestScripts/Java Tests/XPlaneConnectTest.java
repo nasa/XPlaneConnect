@@ -542,41 +542,6 @@ public class XPlaneConnectTest
     public void testSendPOSI() throws IOException
     {
         String[] drefs = {
-            "sim/flightmodel/position/latitude",
-            "sim/flightmodel/position/longitude",
-            "sim/flightmodel/position/y_agl",
-            "sim/flightmodel/position/phi",
-            "sim/flightmodel/position/theta",
-            "sim/flightmodel/position/psi",
-            "sim/cockpit/switches/gear_handle_status"
-        };
-        float[] posi = new float[] {37.524F, -122.06899F, 2500, 0, 0, 0, 1};
-        try(XPlaneConnect xpc = new XPlaneConnect())
-        {
-            xpc.pauseSim(true);
-            xpc.sendPOSI(posi);
-            //TODO: It seems that these calls are a bit too fast. The dref request often gets stale data, causing the test to fail incorrectly.
-            try {Thread.sleep(100);}catch(InterruptedException ex){}
-            float[][] result = xpc.getDREFs(drefs);
-            xpc.pauseSim(false);
-            if(result.length < posi.length)
-            {
-                fail();
-            }
-            assertEquals(posi[0], result[0][0], 1e-4);
-            assertEquals(posi[1], result[1][0], 1e-4);
-            assertEquals(posi[2], result[2][0], 10);
-            assertEquals(posi[3], result[3][0], 1e-4);
-            assertEquals(posi[4], result[4][0], 1e-4);
-            assertEquals(posi[5], result[5][0], 1e-4);
-            assertEquals(posi[6], result[6][0], 1e-4);
-        }
-    }
-
-    @Test
-    public void testSendPOSD() throws IOException
-    {
-        String[] drefs = {
                 "sim/flightmodel/position/latitude",
                 "sim/flightmodel/position/longitude",
                 "sim/flightmodel/position/y_agl",
@@ -589,7 +554,7 @@ public class XPlaneConnectTest
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.pauseSim(true);
-            xpc.sendPOSD(posi);
+            xpc.sendPOSI(posi);
             //TODO: It seems that these calls are a bit too fast. The dref request often gets stale data, causing the test to fail incorrectly.
             try {Thread.sleep(100);}catch(InterruptedException ex){}
             float[][] result = xpc.getDREFs(drefs);
@@ -620,7 +585,7 @@ public class XPlaneConnectTest
     @Test(expected = IllegalArgumentException.class)
     public void testSendPOSI_LongCtrl() throws IOException
     {
-        float[] posi = new float[] {37.524F, -122.06899F, 2500, 0, 0, 0, 1, -998};
+        double[] posi = new double[] {37.524, -122.06899, 2500, 0, 0, 0, 1, -998};
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendPOSI(posi);
@@ -630,7 +595,7 @@ public class XPlaneConnectTest
     @Test(expected = IllegalArgumentException.class)
     public void testSendPOSI_NegativeAircraftNum() throws IOException
     {
-        float[] posi = new float[] {37.524F, -122.06899F, 2500, 0, 0, 0, 1, -998};
+        double[] posi = new double[] {37.524, -122.06899, 2500, 0, 0, 0, 1, -998};
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendPOSI(posi, -1);
@@ -640,7 +605,7 @@ public class XPlaneConnectTest
     @Test(expected = IllegalArgumentException.class)
     public void testSendPOSI_LargeAircraftNum() throws IOException
     {
-        float[] posi = new float[] {37.524F, -122.06899F, 2500, 0, 0, 0, 1, -998};
+        double[] posi = new double[] {37.524, -122.06899, 2500, 0, 0, 0, 1, -998};
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendPOSI(posi, 300);
@@ -737,12 +702,12 @@ public class XPlaneConnectTest
     @Test
     public void testGetPOSI() throws IOException
     {
-        float[] values = { 37.524F, -122.06899F, 2500.0F, 45.0F, -45.0F, 15.0F, 1.0F };
+        double[] values = { 37.524, -122.06899, 2500.0, 45.0, -45.0, 15.0, 1.0 };
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.pauseSim(true);
             xpc.sendPOSI(values);
-            float[] actual = xpc.getPOSI(0);
+            double[] actual = xpc.getPOSI(0);
 
             assertArrayEquals(values, actual, 1e-4F);
         }
