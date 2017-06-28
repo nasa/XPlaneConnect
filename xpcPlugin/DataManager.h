@@ -417,7 +417,7 @@ namespace XPC
 		///
 		/// \param value The value to check.
 		/// \returns     true if value is a default value; otherwise false.
-		static bool IsDefault(float value);
+		static bool IsDefault(double value);
 	};
 }
 #endif

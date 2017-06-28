@@ -668,15 +668,15 @@ namespace XPC
 			return;
 		}
 
-		if (IsDefault((float)pos[0]))
+		if (IsDefault(pos[0]))
 		{
 			pos[0] = GetDouble(DREF_Latitude, aircraft);
 		}
-		if (IsDefault((float)pos[1]))
+		if (IsDefault(pos[1]))
 		{
 			pos[1] = GetDouble(DREF_Longitude, aircraft);
 		}
-		if (IsDefault((float)pos[2]))
+		if (IsDefault(pos[2]))
 		{
 			pos[2] = GetDouble(DREF_Elevation, aircraft);
 		}
@@ -785,7 +785,7 @@ namespace XPC
 		return -998.0F;
 	}
 
-	bool DataManager::IsDefault(float value)
+	bool DataManager::IsDefault(double value)
 	{
 		return value < -997.9 && value > -999.1;
 	}

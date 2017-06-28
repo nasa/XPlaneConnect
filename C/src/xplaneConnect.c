@@ -600,11 +600,12 @@ int sendPOSI(XPCSocket sock, double values[], int size, char ac)
 		}
 		if (i < 3) /* lat/lon/h */
 		{
-			*((double*)(buffer + 6 + i * 8)) = val;
+			memcpy(&buffer[6 + i*8], &val, sizeof(double));
 		}
 		else /* attitude and gear */
 		{
-			*((float*)(buffer + 18 + i * 4)) = (float)val;
+            float f = (float)val;
+            memcpy(&buffer[18 + i*4], &f, sizeof(float));
 		}
 	}
 
@@ -744,7 +745,7 @@ int sendTEXT(XPCSocket sock, char* msg, int x, int y)
 	size_t len = 14 + msgLen;
 	memcpy(buffer + 5, &x, sizeof(int));
 	memcpy(buffer + 9, &y, sizeof(int));
-	buffer[13] = (unsigned char)(msgLen & 0xff);
+	buffer[13] = (unsigned char)msgLen;
 	strncpy(buffer + 14, msg, msgLen);
 
 	// Send Command
