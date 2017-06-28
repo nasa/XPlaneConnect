@@ -70,7 +70,7 @@ int main(void)
     tv.tv_usec = 100 * 1000;
 	while (1)
 	{
-		float posi[7];
+		float posi[7]; // FIXME: change this to the 64-bit lat/lon/h
 		int result = getPOSI(client, posi, aircraftNum);
 		if (result < 0) // Error in getPOSI
 		{
