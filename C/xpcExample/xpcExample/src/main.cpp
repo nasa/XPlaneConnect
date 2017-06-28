@@ -33,7 +33,7 @@ int main()
 
 	// Set Location/Orientation (sendPOSI)
 	// Set Up Position Array
-	float POSI[9] = { 0.0 };
+	double POSI[9] = { 0.0 };
 	POSI[0] = 37.524;     // Lat
 	POSI[1] = -122.06899; // Lon
 	POSI[2] = 2500;       // Alt

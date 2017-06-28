@@ -549,7 +549,7 @@ public class XPlaneConnect implements AutoCloseable
      * @return An array containing control surface data in the same format as {@code sendPOSI}.
      * @throws IOException If the command cannot be sent or a response cannot be read.
      */
-    public float[] getPOSI(int ac) throws IOException
+    public double[] getPOSI(int ac) throws IOException
     {
         // Send request
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -570,7 +570,7 @@ public class XPlaneConnect implements AutoCloseable
         }
 
         // Parse response
-        float[] result = new float[7];
+        double[] result = new double[7];
         ByteBuffer bb = ByteBuffer.wrap(data);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         for(int i = 0; i < 7; ++i)
@@ -600,13 +600,13 @@ public class XPlaneConnect implements AutoCloseable
      *                 </p>
      * @throws IOException If the command can not be sent.
      */
-    public void sendPOSI(float[] values) throws IOException
+    public void sendPOSI(double[] values) throws IOException
     {
         sendPOSI(values, 0);
     }
 
     /**
-     * Sets the position of the specified ac.
+     * Sets the position of the specified ac with double precision coordinates.
      *
      * @param values   <p>An array containing position elements as follows:</p>
      *                 <ol>
@@ -626,7 +626,7 @@ public class XPlaneConnect implements AutoCloseable
      * @param ac The ac to set. 0 for the player ac.
      * @throws IOException If the command can not be sent.
      */
-    public void sendPOSI(float[] values, int ac) throws IOException
+    public void sendPOSI(double[] values, int ac) throws IOException
     {
         //Preconditions
         if(values == null)
@@ -644,15 +644,22 @@ public class XPlaneConnect implements AutoCloseable
 
         //Pad command values and convert to bytes
         int i;
-        ByteBuffer bb = ByteBuffer.allocate(28);
+        ByteBuffer bb = ByteBuffer.allocate(40);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         for(i = 0; i < values.length; ++i)
         {
-            bb.putFloat(i * 4, values[i]);
+            if(i<3) /* lat/lon/height as double */
+            {
+                bb.putDouble(values[i]);
+            }
+            else
+            {
+                bb.putFloat((float)values[i]);
+            }
         }
         for(; i < 7; ++i)
         {
-            bb.putFloat(i * 4, -998);
+            bb.putFloat(-998);
         }
 
         //Build and send message

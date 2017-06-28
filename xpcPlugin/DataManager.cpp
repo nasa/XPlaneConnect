@@ -658,7 +658,7 @@ namespace XPC
 		}
 	}
 
-	void DataManager::SetPosition(float pos[3], char aircraft)
+	void DataManager::SetPosition(double pos[3], char aircraft)
 	{
 		Log::FormatLine(LOG_INFO, "DMAN", "Setting position (%f, %f, %f) for aircraft %i",
 			pos[0], pos[1], pos[2], aircraft);
@@ -670,15 +670,15 @@ namespace XPC
 
 		if (IsDefault(pos[0]))
 		{
-			pos[0] = (float)GetDouble(DREF_Latitude, aircraft);
+			pos[0] = GetDouble(DREF_Latitude, aircraft);
 		}
 		if (IsDefault(pos[1]))
 		{
-			pos[1] = (float)GetDouble(DREF_Longitude, aircraft);
+			pos[1] = GetDouble(DREF_Longitude, aircraft);
 		}
 		if (IsDefault(pos[2]))
 		{
-			pos[2] = (float)GetDouble(DREF_Elevation, aircraft);
+			pos[2] = GetDouble(DREF_Elevation, aircraft);
 		}
 
 		// See: http://www.xsquawkbox.net/xpsdk/mediawiki/MovingThePlane
@@ -700,9 +700,9 @@ namespace XPC
 		Set(DREF_LocalY, local[1], aircraft);
 		Set(DREF_LocalZ, local[2], aircraft);
 		// If the sim is unpaused, this will override the above settings.
-		Set(DREF_Latitude, (double)pos[0], aircraft);
-		Set(DREF_Longitude, (double)pos[1], aircraft);
-		Set(DREF_Elevation, (double)pos[2], aircraft);
+		Set(DREF_Latitude,  pos[0], aircraft);
+		Set(DREF_Longitude, pos[1], aircraft);
+		Set(DREF_Elevation, pos[2], aircraft);
 
 		// Now reset orientation to update q
 		SetOrientation(orient, aircraft);
@@ -785,7 +785,7 @@ namespace XPC
 		return -998.0F;
 	}
 
-	bool DataManager::IsDefault(float value)
+	bool DataManager::IsDefault(double value)
 	{
 		return value < -997.9 && value > -999.1;
 	}

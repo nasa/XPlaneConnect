@@ -342,10 +342,11 @@ namespace XPC
 			}
 			case 20: // Position
 			{
-				float pos[3];
-				pos[0] = values[i][2];
-				pos[1] = values[i][3];
-				pos[2] = values[i][4];
+                // TODO: loss of precision here
+				double pos[3];
+				pos[0] = (double)values[i][2];
+				pos[1] = (double)values[i][3];
+				pos[2] = (double)values[i][4];
 				DataManager::SetPosition(pos);
 				break;
 			}
@@ -439,7 +440,7 @@ namespace XPC
 		unsigned char aircraft = buffer[5];
 		// TODO(jason-watkins): Get proper printf specifier for unsigned char
 		Log::FormatLine(LOG_TRACE, "GCTL", "Getting control information for aircraft %u", aircraft);
-		
+
 		float throttle[8];
 		unsigned char response[31] = "CTRL";
 		*((float*)(response + 5)) = DataManager::GetFloat(DREF_Elevator, aircraft);
@@ -524,13 +525,14 @@ namespace XPC
 
 		unsigned char response[34] = "POSI";
 		response[5] = (char)DataManager::GetInt(DREF_GearHandle, aircraft);
+        // TODO change lat/lon/h to double?
 		*((float*)(response + 6)) = (float)DataManager::GetDouble(DREF_Latitude, aircraft);
 		*((float*)(response + 10)) = (float)DataManager::GetDouble(DREF_Longitude, aircraft);
 		*((float*)(response + 14)) = (float)DataManager::GetDouble(DREF_Elevation, aircraft);
 		*((float*)(response + 18)) = DataManager::GetFloat(DREF_Pitch, aircraft);
 		*((float*)(response + 22)) = DataManager::GetFloat(DREF_Roll, aircraft);
 		*((float*)(response + 26)) = DataManager::GetFloat(DREF_HeadingTrue, aircraft);
-		
+
 		float gear[10];
 		DataManager::GetFloatArray(DREF_GearDeploy, gear, 10, aircraft);
 		*((float*)(response + 30)) = gear[0];
@@ -545,18 +547,29 @@ namespace XPC
 
 		const unsigned char* buffer = msg.GetBuffer();
 		const std::size_t size = msg.GetSize();
-		if (size < 34)
-		{
-			Log::FormatLine(LOG_ERROR, "POSI", "ERROR: Unexpected size: %i (Expected at least 34)", size);
-			return;
-		}
 
 		char aircraftNumber = buffer[5];
-		float gear = *((float*)(buffer + 30));
-		float pos[3];
+		float gear = *((float*)(buffer + 42));
+		double posd[3];
 		float orient[3];
-		memcpy(pos, buffer + 6, 12);
-		memcpy(orient, buffer + 18, 12);
+
+		if (size == 34) /* lat/lon/h as 32-bit float */
+        {
+            posd[0] = *((float*)&buffer[6]);
+            posd[1] = *((float*)&buffer[10]);
+            posd[2] = *((float*)&buffer[14]);
+            memcpy(orient, buffer + 18, 12);
+        }
+        else if (size == 46) /* lat/lon/h as 64-bit double */
+		{
+            memcpy(posd, buffer + 6, 3*8);
+            memcpy(orient, buffer + 30, 12);
+		}
+        else
+        {
+			Log::FormatLine(LOG_ERROR, "POSI", "ERROR: Unexpected size: %i (Expected 34 or 46)", size);
+			return;
+        }
 
 		if (aircraftNumber > 0)
 		{
@@ -570,7 +583,8 @@ namespace XPC
 			}
 		}
 
-		DataManager::SetPosition(pos, aircraftNumber);
+		/* convert float to double */
+		DataManager::SetPosition(posd, aircraftNumber);
 		DataManager::SetOrientation(orient, aircraftNumber);
 		if (gear >= 0)
 		{
@@ -589,7 +603,7 @@ namespace XPC
 			Log::FormatLine(LOG_ERROR, "SIMU", "ERROR: Invalid argument: %i", v);
 			return;
 		}
-		
+
 		int value[20];
 		if (v == 2)
 		{
