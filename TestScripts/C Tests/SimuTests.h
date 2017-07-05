@@ -16,7 +16,7 @@ int doSIMUTest(int value, float expected)
 	int result = pauseSim(sock, value);
 	if (result >= 0)
 	{
-		result = getDREF(sock, dref, &actual, &size);
+		result = getDREF(sock, dref, actual, &size);
 	}
 	closeUDP(sock);
 	if (result < 0)

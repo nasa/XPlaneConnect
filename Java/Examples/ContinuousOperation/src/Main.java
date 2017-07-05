@@ -20,7 +20,7 @@ public class Main
             int aircraft = 0;
             while(true)
             {
-                float[] posi = xpc.getPOSI(aircraft);
+                float[] posi = xpc.getPOSI(aircraft); // FIXME: change this to 64-bit double
                 float[] ctrl = xpc.getCTRL(aircraft);
 
                 System.out.format("Loc: (%4f, %4f, %4f) Aileron:%2f Elevator:%2f Rudder:%2f\n",
