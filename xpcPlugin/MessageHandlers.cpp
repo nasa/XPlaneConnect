@@ -573,7 +573,7 @@ namespace XPC
 
 		if (aircraftNumber > 0)
 		{
-			// Enable AI for the aircraftNumber we are setting: MRT COMMENT: ENABLE, OR DISABLE?
+			// Enable AI for the aircraftNumber we are setting
 			float ai[20];
 			std::size_t result = DataManager::GetFloatArray(DREF_PauseAI, ai, 20);
 			if (result == 20) // Only set values if they were retrieved successfully.
@@ -618,17 +618,17 @@ namespace XPC
 			DataManager::GetIntArray(DREF_Pause, value, 20);
 			value[v - 100] = 1;
 		}
-		else if ((v >= 200) && (v < 120))
+		else if ((v >= 200) && (v < 220))
 		{
 			DataManager::GetIntArray(DREF_Pause, value, 20);
-			value[v - 100] = 0;			
+			value[v - 200] = 0;			
 		}
 		else
 		{
 			for (int i = 0; i < 20; ++i)
 			{
 				value[i] = v;
-			}			
+			}
 		}
 
 		// Set DREF
