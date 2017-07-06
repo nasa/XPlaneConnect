@@ -190,8 +190,6 @@ namespace XPC
 			mdrefs[i][DREF_YokeRoll] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_yaw", i);
 			mdrefs[i][DREF_YokeHeading] = XPLMFindDataRef(multi);
-			
-			// NOTE: Explore adding another DREF here
 		}
 
 		// Row 0: Frame Rates
