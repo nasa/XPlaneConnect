@@ -613,13 +613,6 @@ namespace XPC
 				value[i] = value[i] ? 0 : 1;
 			}
 		}
-		else if (v == 1)
-		{
-			for (int i = 0; i < 20; ++i)
-			{
-				value[i] = v;
-			}
-		}
 		else if ((v >= 100) && (v < 120))
 		{
 			DataManager::GetIntArray(DREF_Pause, value, 20);
@@ -629,6 +622,13 @@ namespace XPC
 		{
 			DataManager::GetIntArray(DREF_Pause, value, 20);
 			value[v - 100] = 0;			
+		}
+		else
+		{
+			for (int i = 0; i < 20; ++i)
+			{
+				value[i] = v;
+			}			
 		}
 
 		// Set DREF
