@@ -223,9 +223,9 @@ public class XPlaneConnect implements AutoCloseable
      */
     public void pauseSim(int pause) throws IOException
     {
-        if(pause < 0 || pause > 2)
+        if(pause < 0 || (pause > 2 && pause < 100) || (pause > 119 && pause < 200) || pause > 219)
         {
-            throw new IllegalArgumentException("pause must be a value in the range [0, 2].");
+            throw new IllegalArgumentException("pause must be a value in the range [0, 2], [100, 119], or [200, 219].");
         }
 
         //            S     I     M     U     LEN   VAL
