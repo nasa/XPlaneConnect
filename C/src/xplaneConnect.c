@@ -273,7 +273,7 @@ int setCONN(XPCSocket* sock, unsigned short port)
 int pauseSim(XPCSocket sock, char pause)
 {
 	// Validte input
-	if (pause < 0 || pause > 2)
+	if (pause < 0 || (pause > 2 && pause < 100) || (pause > 119 && pause < 200) || pause > 219)
 	{
 		printError("pauseSim", "Invalid argument: %i", pause);
 		return -2;
