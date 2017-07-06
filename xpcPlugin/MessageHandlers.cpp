@@ -598,7 +598,7 @@ namespace XPC
 		Log::FormatLine(LOG_TRACE, "SIMU", "Message Received (Conn %i)", connection.id);
 
 		char v = msg.GetBuffer()[5];
-		if (v < 0 || v > 2)
+		if (v < 0 || (v > 2 && v <10) || v > 20) //Start here
 		{
 			Log::FormatLine(LOG_ERROR, "SIMU", "ERROR: Invalid argument: %i", v);
 			return;
