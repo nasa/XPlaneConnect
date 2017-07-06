@@ -573,7 +573,7 @@ namespace XPC
 
 		if (aircraftNumber > 0)
 		{
-			// Enable AI for the aircraftNumber we are setting
+			// Enable AI for the aircraftNumber we are setting: MRT COMMENT: ENABLE, OR DISABLE?
 			float ai[20];
 			std::size_t result = DataManager::GetFloatArray(DREF_PauseAI, ai, 20);
 			if (result == 20) // Only set values if they were retrieved successfully.
@@ -598,7 +598,7 @@ namespace XPC
 		Log::FormatLine(LOG_TRACE, "SIMU", "Message Received (Conn %i)", connection.id);
 
 		char v = msg.GetBuffer()[5];
-		if (v < 0 || (v > 2 && v <10) || v > 20) //Start here
+		if (v < 0 || (v > 2 && v < 100) || (v > 119 && v < 200) || v > 219)
 		{
 			Log::FormatLine(LOG_ERROR, "SIMU", "ERROR: Invalid argument: %i", v);
 			return;
@@ -613,29 +613,48 @@ namespace XPC
 				value[i] = value[i] ? 0 : 1;
 			}
 		}
-		else
+		else if (v == 1)
 		{
 			for (int i = 0; i < 20; ++i)
 			{
 				value[i] = v;
 			}
 		}
+		else if ((v >= 100) && (v < 120))
+		{
+			DataManager::GetIntArray(DREF_Pause, value, 20);
+			value[v - 100] = 1;
+		}
+		else if ((v >= 200) && (v < 120))
+		{
+			DataManager::GetIntArray(DREF_Pause, value, 20);
+			value[v - 100] = 0;			
+		}
 
 		// Set DREF
 		DataManager::Set(DREF_Pause, value, 20);
-
-		switch (v)
+		
+		if (v == 0)
 		{
-		case 0:
-			Log::WriteLine(LOG_INFO, "SIMU", "Simulation resumed");
-			break;
-		case 1:
-			Log::WriteLine(LOG_INFO, "SIMU", "Simulation paused");
-			break;
-		case 2:
-			Log::FormatLine(LOG_INFO, "SIMU", "Simulation switched to %i", value[0]);
-			break;
+			Log::WriteLine(LOG_INFO, "SIMU", "Simulation resumed for all a/c");
 		}
+		else if (v == 1)
+		{
+			Log::WriteLine(LOG_INFO, "SIMU", "Simulation paused for all a/c");
+		}
+		else if (v == 2)
+		{
+			Log::FormatLine(LOG_INFO, "SIMU", "Simulation switched to %i for all a/c", value[0]);
+		}
+		else if ((v >= 100) && (v < 120))
+		{
+			Log::FormatLine(LOG_INFO, "SIMU", "Simulation paused for a/c %i", (v-100));
+		}
+		else if ((v >= 200) && (v < 220))
+		{
+			Log::FormatLine(LOG_INFO, "SIMU", "Simulation resumed for a/c %i", (v-100));
+		}
+
 	}
 
 	void MessageHandlers::HandleText(const Message& msg)
