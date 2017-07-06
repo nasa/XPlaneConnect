@@ -112,7 +112,7 @@ int setCONN(XPCSocket* sock, unsigned short port);
 /// Pause or unpause the simulation.
 ///
 /// \param sock  The socket to use to send the command.
-/// \param pause 0 to unpause the sim; any other value to pause.
+/// \param pause 0 to unpause the sim; 1 to pause, 100:119 to pause a/c 0:19, 200:219 to unpause a/c 0:19.
 /// \returns    0 if successful, otherwise a negative value.
 int pauseSim(XPCSocket sock, char pause);
 
