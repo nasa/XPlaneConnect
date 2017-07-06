@@ -98,10 +98,12 @@ class XPlaneConnect(object):
         '''Pauses or un-pauses the physics simulation engine in X-Plane.
 
             Args:
-              pause: True to pause the simulation; False to resume.
+              pause: True to pause the simulation for all a/c; False to resume for all a/c.
+                2 to switch the status for all a/c. 100:119 to pause a/c 0:19. 200:219 to 
+                resume a/c 0:19
         '''
         pause = int(pause)
-        if pause < 0 or pause > 2:
+        if pause < 0 or (pause > 2 and pause < 100) or (pause > 119 and pause < 200) or pause > 219 :
             raise ValueError("Invalid argument for pause command.")
 
         buffer = struct.pack("<4sxB", "SIMU", pause)
