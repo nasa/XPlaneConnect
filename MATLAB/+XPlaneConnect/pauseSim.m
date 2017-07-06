@@ -2,7 +2,7 @@ function pauseSim( pause, socket )
 %pauseSim Pauses or unpauses X-Plane.
 %
 %Inputs
-%     pause: binary value 0=run, 1=pause
+%     pause: int 0= unpause all, 1= pause all, 2= switch all, 100:119= pause a/c 0:19, 200:219= unpause a/c 0:19
 %     socket (optional): The client to use when sending the command.
 %
 %Use
