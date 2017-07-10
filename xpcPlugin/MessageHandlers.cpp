@@ -571,6 +571,14 @@ namespace XPC
 			return;
         }
 
+		/* convert float to double */
+		DataManager::SetPosition(posd, aircraftNumber);
+		DataManager::SetOrientation(orient, aircraftNumber);
+		if (gear >= 0)
+		{
+			DataManager::SetGear(gear, true, aircraftNumber);
+		}
+		
 		if (aircraftNumber > 0)
 		{
 			// Enable AI for the aircraftNumber we are setting
@@ -581,15 +589,7 @@ namespace XPC
 				ai[aircraftNumber] = 1;
 				DataManager::Set(DREF_PauseAI, ai, 0, 20);
 			}
-		}
-
-		/* convert float to double */
-		DataManager::SetPosition(posd, aircraftNumber);
-		DataManager::SetOrientation(orient, aircraftNumber);
-		if (gear >= 0)
-		{
-			DataManager::SetGear(gear, true, aircraftNumber);
-		}
+		}		
 	}
 
 	void MessageHandlers::HandleSimu(const Message& msg)
