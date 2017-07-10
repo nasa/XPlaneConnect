@@ -19,7 +19,7 @@ add_library(xpc64 SHARED XPCPlugin.cpp
 	MessageHandlers.cpp
 	UDPSocket.cpp)
 set_target_properties(xpc64 PROPERTIES PREFIX "" SUFFIX ".xpl")
-set_target_properties(xpc64 PROPERTIES COMPILE_FLAGS "-m64" LINK_FLAGS "-shared -rdynamic -nodefaultlibs -undefined_warning -m64")
+set_target_properties(xpc64 PROPERTIES COMPILE_FLAGS "-m64 -fno-stack-protector" LINK_FLAGS "-shared -rdynamic -nodefaultlibs -undefined_warning -m64 -fno-stack-protector")
 
 add_library(xpc32 SHARED XPCPlugin.cpp
 	DataManager.cpp
@@ -29,7 +29,7 @@ add_library(xpc32 SHARED XPCPlugin.cpp
 	MessageHandlers.cpp
 	UDPSocket.cpp)
 set_target_properties(xpc32 PROPERTIES PREFIX "" SUFFIX ".xpl")
-set_target_properties(xpc32 PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-shared -rdynamic -nodefaultlibs -undefined_warning -m32")
+set_target_properties(xpc32 PROPERTIES COMPILE_FLAGS "-m32 -fno-stack-protector" LINK_FLAGS "-shared -rdynamic -nodefaultlibs -undefined_warning -m32 -fno-stack-protector")
 	
 # Switch install targets when uncommenting the 32 bit line above.
 install(TARGETS xpc64 DESTINATION XPlaneConnect/64 RENAME lin.xpl)
