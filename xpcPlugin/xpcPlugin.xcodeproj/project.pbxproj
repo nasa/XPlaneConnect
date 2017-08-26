@@ -213,6 +213,7 @@
 					"APL=1",
 					"IBM=0",
 					"LIN=0",
+					XPLM200,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";
@@ -262,6 +263,7 @@
 					"APL=1",
 					"IBM=0",
 					"LIN=0",
+					XPLM200,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";
@@ -365,9 +367,7 @@
 					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/xplaneConnect-asdjuezcjkhojuewbyxhyhabxfwc/Build/Products/Debug",
 				);
 				MACH_O_TYPE = mh_bundle;
-
 				ONLY_ACTIVE_ARCH = NO;
-
 				PRODUCT_NAME = mac;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;

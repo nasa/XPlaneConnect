@@ -19,6 +19,7 @@
 
 #include "XPLMDataAccess.h"
 #include "XPLMGraphics.h"
+#include "XPLMUtilities.h"
 
 #include <algorithm>
 #include <cmath>
