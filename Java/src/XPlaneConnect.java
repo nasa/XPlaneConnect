@@ -875,6 +875,41 @@ public class XPlaneConnect implements AutoCloseable
     }
 
     /**
+     * Send a command to X-Plane.
+     *
+     * @param comm The name of the X-Plane command to send.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void sendCOMM(String comm) throws IOException
+    {
+        //Preconditions
+        if(comm == null || comm.length() == 0)
+        {
+            throw new IllegalArgumentException(("comm must be non-empty."));
+        }
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write("COMM".getBytes(StandardCharsets.UTF_8));
+        os.write(0xFF); //Placeholder for message length
+
+        //Convert comm to bytes.
+        byte[] commBytes = comm.getBytes(StandardCharsets.UTF_8);
+        if (commBytes.length == 0)
+        {
+            throw new IllegalArgumentException("COMM is an empty string!");
+        }
+        if (commBytes.length > 255)
+        {
+            throw new IllegalArgumentException("comm must be less than 255 bytes in UTF-8. Are you sure this is a valid comm?");
+        }
+
+        //Build and send message
+        os.write(commBytes.length);
+        os.write(commBytes);
+        sendUDP(os.toByteArray());
+    }
+
+    /**
      * Sets the port on which the client will receive data from X-Plane.
      *
      * @param port The new incoming port number.
