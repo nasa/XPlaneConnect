@@ -818,3 +818,40 @@ int sendVIEW(XPCSocket sock, VIEW_TYPE view)
 /*****************************************************************************/
 /****                        End View functions                           ****/
 /*****************************************************************************/
+
+/*****************************************************************************/
+/****                          Comm functions                             ****/
+/*****************************************************************************/
+int sendCOMM(XPCSocket sock, const char* comm) {
+	// Setup command
+	// Max size is technically unlimited.
+	unsigned char buffer[65536] = "COMM";
+	int pos = 5;
+
+	int commLen = strnlen(comm, 256);
+	if (pos + commLen + 2 > 65536)
+	{
+		printError("sendCOMM", "About to overrun the send buffer!");
+		return -4;
+	}
+	if (commLen > 255)
+	{
+		printError("sendCOMM", "comm is too long. Must be less than 256 characters.");
+		return -1;
+	}
+	// Copy comm to buffer
+	buffer[pos++] = (unsigned char)commLen;
+	memcpy(buffer + pos, comm, commLen);
+	pos += commLen;
+
+	// Send command
+	if (sendUDP(sock, buffer, pos) < 0)
+	{
+		printError("setDREF", "Failed to send command");
+		return -3;
+	}
+	return 0;
+}
+/*****************************************************************************/
+/****                        End Comm functions                           ****/
+/*****************************************************************************/

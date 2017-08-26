@@ -89,6 +89,11 @@ extern "C" {
 typedef void * XPLMDataRef;
 
 /*
+ * XPLMCommandRef
+ */
+typedef void * XPLMCommandRef;
+
+/*
  * XPLMDataTypeID
  * 
  * This is an enumeration that defines the type of the data behind a data 
@@ -699,6 +704,18 @@ XPLM_API int                  XPLMUnshareData(
                                    XPLMDataTypeID       inDataType,    
                                    XPLMDataChanged_f    inNotificationFunc,    
                                    void *               inNotificationRefcon);    
+
+/*
+ * XPLMFindCommand
+ */
+XPLM_API XPLMCommandRef       XPLMFindCommand(
+                                   const char *         inName);
+
+/*
+ * XPLMCommandOnce
+ */
+XPLM_API void                 XPLMCommandOnce(
+                                   XPLMCommandRef       inCommand);
 
 #ifdef __cplusplus
 }

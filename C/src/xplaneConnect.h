@@ -267,6 +267,13 @@ int sendVIEW(XPCSocket sock, VIEW_TYPE view);
 /// \returns      0 if successful, otherwise a negative value.
 int sendWYPT(XPCSocket sock, WYPT_OP op, float points[], int count);
 
+/// Sends commands.
+///
+/// \param sock The socket to use to send the command.
+/// \param comm The command string.
+/// \returns    0 if successful, otherwise a negative value.
+int sendCOMM(XPCSocket sock, const char* comm);
+
 #ifdef __cplusplus
     }
 #endif
