@@ -42,7 +42,7 @@ void		XPCBroadcaster::RemoveListener(
 }				
 
 void		XPCBroadcaster::BroadcastMessage(
-				long		inMessage,
+				int			inMessage,
 				void *		inParam)
 {
 	ListenerVector::iterator iter;

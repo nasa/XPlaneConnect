@@ -18,8 +18,8 @@ public:
 								XPCWidget *		inObject,
 								XPWidgetMessage	inMessage,
 								XPWidgetID		inWidget,
-								long			inParam1,
-								long			inParam2);
+								intptr_t		inParam1,
+								intptr_t		inParam2);
 
 private:
 
@@ -34,7 +34,7 @@ public:
 
 					XPCKeyMessageAttachment(
 								char			inKey,
-								long			inMessage,
+								int				inMessage,
 								void *			inParam,
 								bool			inConsume,
 								bool			inVkey,
@@ -45,14 +45,14 @@ public:
 								XPCWidget *		inObject,
 								XPWidgetMessage	inMessage,
 								XPWidgetID		inWidget,
-								long			inParam1,
-								long			inParam2);
+								intptr_t		inParam1,
+								intptr_t		inParam2);
 
 private:
 
 		char	mKey;
 		bool	mVkey;
-		long	mMsg;
+		int		mMsg;
 		void *	mParam;
 		bool	mConsume;
 	
@@ -63,7 +63,7 @@ public:
 
 					XPCPushButtonMessageAttachment(
 								XPWidgetID		inWidget,
-								long			inMessage,
+								int				inMessage,
 								void *			inParam,
 								XPCListener *	inListener);
 	virtual			~XPCPushButtonMessageAttachment();
@@ -72,12 +72,12 @@ public:
 								XPCWidget *		inObject,
 								XPWidgetMessage	inMessage,
 								XPWidgetID		inWidget,
-								long			inParam1,
-								long			inParam2);
+								intptr_t		inParam1,
+								intptr_t		inParam2);
 
 private:
 		XPWidgetID	mWidget;
-		long		mMsg;
+		int			mMsg;
 		void *		mParam;
 };
 
@@ -86,7 +86,7 @@ public:
 
 					XPCSliderMessageAttachment(
 								XPWidgetID		inWidget,
-								long			inMessage,
+								int				inMessage,
 								void *			inParam,
 								XPCListener *	inListener);
 	virtual			~XPCSliderMessageAttachment();
@@ -95,12 +95,12 @@ public:
 								XPCWidget *		inObject,
 								XPWidgetMessage	inMessage,
 								XPWidgetID		inWidget,
-								long			inParam1,
-								long			inParam2);
+								intptr_t		inParam1,
+								intptr_t		inParam2);
 
 private:
 		XPWidgetID	mWidget;
-		long		mMsg;
+		int			mMsg;
 		void *		mParam;
 };
 
@@ -110,7 +110,7 @@ public:
 
 					XPCCloseButtonMessageAttachment(
 								XPWidgetID		inWidget,
-								long			inMessage,
+								int				inMessage,
 								void *			inParam,
 								XPCListener *	inListener);
 	virtual			~XPCCloseButtonMessageAttachment();
@@ -119,12 +119,12 @@ public:
 								XPCWidget *		inObject,
 								XPWidgetMessage	inMessage,
 								XPWidgetID		inWidget,
-								long			inParam1,
-								long			inParam2);
+								intptr_t		inParam1,
+								intptr_t		inParam2);
 
 private:
 		XPWidgetID	mWidget;
-		long		mMsg;
+		int			mMsg;
 		void *		mParam;
 };
 
@@ -138,8 +138,8 @@ public:
 								XPCWidget *		inObject,
 								XPWidgetMessage	inMessage,
 								XPWidgetID		inWidget,
-								long			inParam1,
-								long			inParam2);
+								intptr_t		inParam1,
+								intptr_t		inParam2);
 
 };
 

@@ -21,7 +21,7 @@ void		XPCProcess::StartProcessTime(float	inSeconds)
 			FlightLoopCB, mCallbackTime, 1/*relative to now*/, reinterpret_cast<void *>(this));
 }
 
-void		XPCProcess::StartProcessCycles(long	inCycles)
+void		XPCProcess::StartProcessCycles(int	inCycles)
 {
 	mCallbackTime = -inCycles;
 	if (!mInCallback)

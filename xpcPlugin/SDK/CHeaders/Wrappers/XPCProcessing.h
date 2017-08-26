@@ -10,7 +10,7 @@ public:
 	virtual				~XPCProcess();
 	
 			void		StartProcessTime(float	inSeconds);
-			void		StartProcessCycles(long	inCycles);
+			void		StartProcessCycles(int	inCycles);
 			void		StopProcess(void);
 
 	virtual	void		DoProcessing(

@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#ifdef  _WIN32
+#if IBM
 #include <windows.h>
 #else
 #include <stdint.h>
@@ -49,7 +49,7 @@ extern "C" {
 
 
 #ifdef __cplusplus
-	#ifdef APL
+	#if APL
         #if __GNUC__ >= 4
             #define PLUGIN_API extern "C" __attribute__((visibility("default")))
         #elif __MACH__
@@ -57,16 +57,16 @@ extern "C" {
 		#else		
 			#define PLUGIN_API extern "C" __declspec(dllexport)
 		#endif
-	#endif
-	#ifdef _WIN32
+	#elif IBM
 		#define PLUGIN_API extern "C" __declspec(dllexport)
-	#endif
-	#ifdef LIN
+	#elif LIN
 		#if __GNUC__ >= 4
 			#define PLUGIN_API extern "C" __attribute__((visibility("default")))
 		#else
 			#define PLUGIN_API extern "C"
 		#endif
+	#else
+		#error "Platform not defined!"
 	#endif
 #else
 	#if APL
@@ -90,7 +90,7 @@ extern "C" {
 	#endif
 #endif
 
-#ifdef APL
+#if APL
 	#if XPLM
         #if __GNUC__ >= 4
             #define XPLM_API __attribute__((visibility("default")))
@@ -102,15 +102,13 @@ extern "C" {
 	#else
 		#define XPLM_API 
 	#endif
-#endif
-#ifdef _WIN32
+#elif IBM
 	#if XPLM
 		#define XPLM_API __declspec(dllexport)
 	#else
 		#define XPLM_API __declspec(dllimport)
 	#endif
-#endif
-#ifdef LIN
+#elif LIN
 	#if XPLM
 		#if __GNUC__ >= 4
             #define XPLM_API __attribute__((visibility("default")))
@@ -120,6 +118,8 @@ extern "C" {
 	#else
 		#define XPLM_API
 	#endif	
+#else
+	#error "Platform not defined!"
 #endif
 
 /***************************************************************************
