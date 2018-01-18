@@ -65,6 +65,7 @@
 #include "XPLMProcessing.h"
 
 // System Includes
+#include <cstdlib>
 #include <cstring>
 #ifdef __APPLE__
 #include <mach/mach_time.h>
@@ -94,7 +95,8 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 	strcpy(outDesc, "X Plane Communications Toolbox\nCopyright (c) 2013-2017 United States Government as represented by the Administrator of the National Aeronautics and Space Administration. All Rights Reserved.");
 
 #if (__APPLE__)
-	if ( abs(timeConvert) <= 1e-9 ) // is about 0
+	int (*_abs)( int ) = & std::abs; // Needed to resolve ambiguity for OS X compilation
+	if ( _abs(timeConvert) <= 1e-9 ) // is about 0
 	{
 		mach_timebase_info_data_t timeBase;
 		(void)mach_timebase_info(&timeBase);
