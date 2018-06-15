@@ -12,7 +12,7 @@ or interacting with a mission over UDP.
 ### Migrating to 1.0
 For existing users, several important breaking changes have been made in version
 1.0. For detailed information, see the 1.0 release changelog. For client-specific
-guidlines on migrating to 1.0, refer to the follwing guides:
+guidelines on migrating to 1.0, refer to the follwing guides:
 
 #### [C](https://github.com/nasa/XPlaneConnect/wiki/Migrating-to-1.0-C)
 
@@ -28,13 +28,13 @@ languages that interact with the plugin.
 To get started using X-Plane Connect, do the following.
 
 1. Purchase and install X-Plane 9 or 10.
-2. Copy the X-Plane Plugin folder (xpcPlugin/XPlaneConnect) to the plugin
-directory ([X-Plane Directory]/Resources/plugins/)
+2. Copy the X-Plane Plugin folder (`xpcPlugin/XPlaneConnect`) to the plugin
+directory (`[X-Plane Directory]/Resources/plugins/`)
 3. Write some code using one of the clients to manipulate X-Plane data.
 
 Each client is located in a top-level directory of the repository named for the
-client's language. The client directories generally include a 'src' folder
-containing the client source code, and an 'Examples' folder containing sample
+client's language. The client directories generally include a `src` folder
+containing the client source code, and an `Examples` folder containing sample
 code demonstrating how to use the client.
 
 #### Additional Information
