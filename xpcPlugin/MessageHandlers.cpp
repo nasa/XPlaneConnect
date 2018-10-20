@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2017 United States Government as represented by the Administrator of the
+// Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 // National Aeronautics and Space Administration. All Rights Reserved.
 //
 // X-Plane API
@@ -578,7 +578,7 @@ namespace XPC
 		{
 			DataManager::SetGear(gear, true, aircraftNumber);
 		}
-		
+
 		if (aircraftNumber > 0)
 		{
 			// Enable AI for the aircraftNumber we are setting
@@ -589,7 +589,7 @@ namespace XPC
 				ai[aircraftNumber] = 1;
 				DataManager::Set(DREF_PauseAI, ai, 0, 20);
 			}
-		}		
+		}
 	}
 
 	void MessageHandlers::HandleSimu(const Message& msg)
@@ -621,7 +621,7 @@ namespace XPC
 		else if ((v >= 200) && (v < 220))
 		{
 			DataManager::GetIntArray(DREF_Pause, value, 20);
-			value[v - 200] = 0;			
+			value[v - 200] = 0;
 		}
 		else
 		{
@@ -633,7 +633,7 @@ namespace XPC
 
 		// Set DREF
 		DataManager::Set(DREF_Pause, value, 20);
-		
+
 		if (v == 0)
 		{
 			Log::WriteLine(LOG_INFO, "SIMU", "Simulation resumed for all a/c");

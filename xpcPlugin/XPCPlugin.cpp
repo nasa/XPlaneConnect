@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2017 United States Government as represented by the Administrator of the
+// Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 // National Aeronautics and Space Administration. All Rights Reserved.
 //
 // DISCLAIMERS
@@ -92,7 +92,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 {
 	strcpy(outName, "X-Plane Connect [Version 1.2.1]");
 	strcpy(outSig, "NASA.XPlaneConnect");
-	strcpy(outDesc, "X Plane Communications Toolbox\nCopyright (c) 2013-2017 United States Government as represented by the Administrator of the National Aeronautics and Space Administration. All Rights Reserved.");
+	strcpy(outDesc, "X Plane Communications Toolbox\nCopyright (c) 2013-2018 United States Government as represented by the Administrator of the National Aeronautics and Space Administration. All Rights Reserved.");
 
 #if (__APPLE__)
 	int (*_abs)( int ) = & std::abs; // Needed to resolve ambiguity for OS X compilation
@@ -147,7 +147,7 @@ PLUGIN_API int XPluginEnable(void)
 		XPC::Log::FormatLine(LOG_INFO, "EXEC", "Benchmarking Enabled (Verbosity: %i)", benchmarkingSwitch);
 	}
 	XPC::Log::FormatLine(LOG_INFO, "EXEC", "Debug Logging Enabled (Verbosity: %i)", LOG_LEVEL);
-	
+
 	float interval = -1; // Call every frame
 	void* refcon = NULL; // Don't pass anything to the callback directly
 	XPLMRegisterFlightLoopCallback(XPCFlightLoopCallback, interval, refcon);
