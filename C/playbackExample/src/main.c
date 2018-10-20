@@ -35,7 +35,7 @@ int main(void)
 	};
 	char path[256] = { 0 };
 
-	displayStart("1.2.0.0");
+	displayStart("1.3-rc.1");
 	while (1)
 	{
 		switch (displayMenu("What would you like to do?", mainOpts, 3))

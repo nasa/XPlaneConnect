@@ -12,7 +12,7 @@ public class Main
     {
         String[] mainOpts = new String[] { "Record X-Plane", "Playback File", "Exit" };
 
-        System.out.println("X-Plane Connect Playback Example  [Version 1.2.0.0]");
+        System.out.println("X-Plane Connect Playback Example  [Version 1.3-rc.1]");
         System.out.println("(c) 2013-2015 United States Government as represented by the Administrator");
         System.out.println("of the National Aeronautics and Space Administration. All Rights Reserved.");
         while(true)
