@@ -69,6 +69,7 @@ build/
 xcuserdata
 *.moved-aside
 *.xccheckout
+xcshareddata
 
 # IntelliJ Files #
 ##################
