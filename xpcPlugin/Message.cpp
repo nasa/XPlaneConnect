@@ -148,7 +148,7 @@ namespace XPC
 			memcpy(orient, buffer + 18, 12);
             ss << " AC:" << (int)aircraft;
 			ss << " Pos:(" << pos[0] << ' ' << pos[1] << ' ' << pos[2] << ") Orient:(";
-			ss << orient[3] << ' ' << orient[4] << ' ' << orient[5] << ") Gear:";
+			ss << orient[0] << ' ' << orient[1] << ' ' << orient[2] << ") Gear:";
 			ss << gear;
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
         }
