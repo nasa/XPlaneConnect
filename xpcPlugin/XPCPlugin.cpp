@@ -66,6 +66,7 @@
 
 // System Includes
 #include <cstring>
+#include <cmath>
 #ifdef __APPLE__
 #include <mach/mach_time.h>
 #endif
