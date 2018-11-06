@@ -695,17 +695,28 @@ namespace XPC
 		// Update Log
 		Log::FormatLine(LOG_TRACE, "VIEW", "Message Received(Conn %i)", connection.id);
 
+        int enable_camera_location = 0;
+        
 		const std::size_t size = msg.GetSize();
-		if (size != 37)
+		if (size == 9)
+        {
+            // default view switcher as before
+        }
+        else if (size == 37)
 		{
-			Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 37.", size);
-			return;
+            // Allow camera location control
+            enable_camera_location = 1;
 		}
+        else
+        {
+            Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 9 or 37.", size);
+            return;
+        }
         const unsigned char* buffer = msg.GetBuffer();
         int type = *((int*)(buffer + 5));
         XPLMCommandKeyStroke(type);
         
-        if(type == 79) // fixed camera view
+        if(type == 79 && enable_camera_location == 1) // runway camera view
         {
             static struct camera_properties campos;
         
