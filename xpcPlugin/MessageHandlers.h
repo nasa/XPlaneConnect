@@ -7,6 +7,9 @@
 #include <string>
 #include <map>
 
+#include "XPLMCamera.h"
+
+
 namespace XPC
 {
 	/// A function that handles a message.
@@ -54,6 +57,14 @@ namespace XPC
 
 		static void HandleXPlaneData(const Message& msg);
 		static void HandleUnknown(const Message& msg);
+        
+        static int CamFunc( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon);
+        
+        struct camera_properties{
+            double loc[3];
+            float direction[3];
+            float zoom;
+        };
 
 		typedef struct
 		{

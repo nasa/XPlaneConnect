@@ -20,9 +20,12 @@
 #include "Log.h"
 
 #include "XPLMUtilities.h"
+#include "XPLMGraphics.h"
+
 
 #include <cmath>
 #include <cstring>
+
 
 namespace XPC
 {
@@ -597,7 +600,7 @@ namespace XPC
 		// Update log
 		Log::FormatLine(LOG_TRACE, "SIMU", "Message Received (Conn %i)", connection.id);
 
-		char v = msg.GetBuffer()[5];
+		unsigned char v = msg.GetBuffer()[5];
 		if (v < 0 || (v > 2 && v < 100) || (v > 119 && v < 200) || v > 219)
 		{
 			Log::FormatLine(LOG_ERROR, "SIMU", "ERROR: Invalid argument: %i", v);
@@ -686,7 +689,7 @@ namespace XPC
 			Log::WriteLine(LOG_INFO, "TEXT", "[TEXT] Text set");
 		}
 	}
-
+    
 	void MessageHandlers::HandleView(const Message& msg)
 	{
 		// Update Log
@@ -698,10 +701,73 @@ namespace XPC
 			Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 9.", size);
 			return;
 		}
-		const unsigned char* buffer = msg.GetBuffer();
-		int type = *((int*)(buffer + 5));
-		XPLMCommandKeyStroke(type);
+        const unsigned char* buffer = msg.GetBuffer();
+        int type = *((int*)(buffer + 5));
+        XPLMCommandKeyStroke(type);
+        
+        if(type == 79) // fixed camera view
+        {
+            static struct camera_properties campos;
+        
+            campos.loc[0] = 48.0741;
+            campos.loc[1] = 11.2731;
+            campos.loc[2] = 1.8;
+            campos.zoom = 1.0;
+        
+            XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamFunc, &campos);
+        }
 	}
+    
+    int MessageHandlers::CamFunc( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon)
+    {
+        if (outCameraPosition && !inIsLosingControl)
+        {
+            struct camera_properties* campos = (struct camera_properties*)inRefcon;
+            
+            // camera position
+            double clat = campos->loc[0];
+            double clon = campos->loc[1];
+            double calt = campos->loc[2];
+            
+            double cX, cY, cZ;
+            XPLMWorldToLocal(clat, clon, calt, &cX, &cY, &cZ);
+            
+            outCameraPosition->x = cX;
+            outCameraPosition->y = cY;
+            outCameraPosition->z = cZ;
+            
+//            Log::FormatLine(LOG_TRACE, "CAM", "Cam pos %f %f %f", clat, clon, calt);
+            
+            // aircraft position
+            double x = XPC::DataManager::GetDouble(XPC::DREF_LocalX, 0);
+            double y = XPC::DataManager::GetDouble(XPC::DREF_LocalY, 0);
+            double z = XPC::DataManager::GetDouble(XPC::DREF_LocalZ, 0);
+            
+            // relative position vector cam to plane
+            double dx = x - cX;
+            double dy = y - cY;
+            double dz = z - cZ;
+            
+//            Log::FormatLine(LOG_TRACE, "CAM", "Cam vect %f %f %f", dx, dy, dz);
+            
+            double pi = 3.141592653589793;
+            
+            // horizontal distance
+            double dist = sqrt(dx*dx + dz*dz);
+            
+            outCameraPosition->pitch = atan2(dy, dist) * 180.0/pi;
+            
+            double angle = atan2(dz, dx) * 180.0/pi; // rel to pos right (pos X)
+            outCameraPosition->heading = 90 + angle; // rel to north
+            
+//            Log::FormatLine(LOG_TRACE, "CAM", "Cam p %f hdg %f ", outCameraPosition->pitch, outCameraPosition->heading);
+            
+            outCameraPosition->roll = 0;
+            outCameraPosition->zoom = campos->zoom;
+        }
+        
+        return 1;
+    }
 
 	void MessageHandlers::HandleWypt(const Message& msg)
 	{
