@@ -713,6 +713,8 @@ namespace XPC
             campos.loc[1] = *(double*)(buffer+17);
             campos.loc[2] = *(double*)(buffer+25);
             campos.zoom   = *(float*)(buffer+33);
+            
+            Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2],campos.zoom);
         
             XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamFunc, &campos);
         }
@@ -758,6 +760,7 @@ namespace XPC
             outCameraPosition->pitch = atan2(dy, dist) * 180.0/pi;
             
             double angle = atan2(dz, dx) * 180.0/pi; // rel to pos right (pos X)
+            
             outCameraPosition->heading = 90 + angle; // rel to north
             
 //            Log::FormatLine(LOG_TRACE, "CAM", "Cam p %f hdg %f ", outCameraPosition->pitch, outCameraPosition->heading);
