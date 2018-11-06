@@ -696,9 +696,9 @@ namespace XPC
 		Log::FormatLine(LOG_TRACE, "VIEW", "Message Received(Conn %i)", connection.id);
 
 		const std::size_t size = msg.GetSize();
-		if (size != 9)
+		if (size != 37)
 		{
-			Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 9.", size);
+			Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 37.", size);
 			return;
 		}
         const unsigned char* buffer = msg.GetBuffer();
@@ -709,10 +709,10 @@ namespace XPC
         {
             static struct camera_properties campos;
         
-            campos.loc[0] = 48.0741;
-            campos.loc[1] = 11.2731;
-            campos.loc[2] = 1.8;
-            campos.zoom = 1.0;
+            campos.loc[0] = *(double*)(buffer+9);
+            campos.loc[1] = *(double*)(buffer+17);
+            campos.loc[2] = *(double*)(buffer+25);
+            campos.zoom   = *(float*)(buffer+33);
         
             XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamFunc, &campos);
         }
