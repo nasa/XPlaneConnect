@@ -723,6 +723,9 @@ namespace XPC
 			campos.loc[0] = *(double*)(buffer+9);
 			campos.loc[1] = *(double*)(buffer+17);
 			campos.loc[2] = *(double*)(buffer+25);
+            campos.direction[0] = -998;
+            campos.direction[1] = -998;
+            campos.direction[2] = -998;
 			campos.zoom	  = *(float*)(buffer+33);
 			
 			Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2],campos.zoom);
@@ -751,32 +754,42 @@ namespace XPC
 			
 //			  Log::FormatLine(LOG_TRACE, "CAM", "Cam pos %f %f %f", clat, clon, calt);
 			
-			// aircraft position
-			double x = XPC::DataManager::GetDouble(XPC::DREF_LocalX, 0);
-			double y = XPC::DataManager::GetDouble(XPC::DREF_LocalY, 0);
-			double z = XPC::DataManager::GetDouble(XPC::DREF_LocalZ, 0);
+            if(campos->direction[0] == -998) // calculate camera direction
+            {
+                // aircraft position
+                double x = XPC::DataManager::GetDouble(XPC::DREF_LocalX, 0);
+                double y = XPC::DataManager::GetDouble(XPC::DREF_LocalY, 0);
+                double z = XPC::DataManager::GetDouble(XPC::DREF_LocalZ, 0);
 			
-			// relative position vector cam to plane
-			double dx = x - cX;
-			double dy = y - cY;
-			double dz = z - cZ;
+                // relative position vector cam to plane
+                double dx = x - cX;
+                double dy = y - cY;
+                double dz = z - cZ;
 			
-//			  Log::FormatLine(LOG_TRACE, "CAM", "Cam vect %f %f %f", dx, dy, dz);
+//			    Log::FormatLine(LOG_TRACE, "CAM", "Cam vect %f %f %f", dx, dy, dz);
 			
-			double pi = 3.141592653589793;
+                double pi = 3.141592653589793;
 			
-			// horizontal distance
-			double dist = sqrt(dx*dx + dz*dz);
+                // horizontal distance
+                double dist = sqrt(dx*dx + dz*dz);
 			
-			outCameraPosition->pitch = atan2(dy, dist) * 180.0/pi;
+                outCameraPosition->pitch = atan2(dy, dist) * 180.0/pi;
 			
-			double angle = atan2(dz, dx) * 180.0/pi; // rel to pos right (pos X)
+                double angle = atan2(dz, dx) * 180.0/pi; // rel to pos right (pos X)
 			
-			outCameraPosition->heading = 90 + angle; // rel to north
+                outCameraPosition->heading = 90 + angle; // rel to north
 			
-//			  Log::FormatLine(LOG_TRACE, "CAM", "Cam p %f hdg %f ", outCameraPosition->pitch, outCameraPosition->heading);
+//			    Log::FormatLine(LOG_TRACE, "CAM", "Cam p %f hdg %f ", outCameraPosition->pitch, outCameraPosition->heading);
 			
-			outCameraPosition->roll = 0;
+                outCameraPosition->roll = 0;
+            }
+            else
+            {
+                outCameraPosition->roll     = campos->direction[0];
+                outCameraPosition->pitch    = campos->direction[1];
+                outCameraPosition->heading  = campos->direction[2];
+            }
+            
 			outCameraPosition->zoom = campos->zoom;
 		}
 		
