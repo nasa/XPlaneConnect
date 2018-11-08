@@ -718,7 +718,7 @@ namespace XPC
 		
 		if(type == 79 && enable_camera_location == 1) // runway camera view
 		{
-			static struct camera_properties campos;
+			static struct CameraProperties campos;
 		
 			campos.loc[0] = *(double*)(buffer+9);
 			campos.loc[1] = *(double*)(buffer+17);
@@ -735,7 +735,7 @@ namespace XPC
 	{
 		if (outCameraPosition && !inIsLosingControl)
 		{
-			struct camera_properties* campos = (struct camera_properties*)inRefcon;
+			struct CameraProperties* campos = (struct CameraProperties*)inRefcon;
 			
 			// camera position
 			double clat = campos->loc[0];

@@ -60,7 +60,7 @@ namespace XPC
 		
 		static int CamFunc( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon);
 		
-		struct camera_properties{
+		struct CameraProperties{
 			double loc[3];
 			float direction[3];
 			float zoom;
