@@ -7,6 +7,9 @@
 #include <string>
 #include <map>
 
+#include "XPLMCamera.h"
+
+
 namespace XPC
 {
 	/// A function that handles a message.
@@ -26,10 +29,10 @@ namespace XPC
 		/// socket.
 		///
 		/// \details After a message is read, HandleMessage analyzes the sender's network address
-		///          to determine whether the sender is a new client. It then either loads
-		///          connection details for an existing client, or creates a new connection record
-		///          for new clients. Finally, the message handler checks the message type and
-		///          dispatches the message to the appropriate handler.
+		///			 to determine whether the sender is a new client. It then either loads
+		///			 connection details for an existing client, or creates a new connection record
+		///			 for new clients. Finally, the message handler checks the message type and
+		///			 dispatches the message to the appropriate handler.
 		/// \param msg The message to be processed.
 		static void HandleMessage(Message& msg);
 
@@ -54,6 +57,14 @@ namespace XPC
 
 		static void HandleXPlaneData(const Message& msg);
 		static void HandleUnknown(const Message& msg);
+		
+		static int CamFunc( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon);
+		
+		struct CameraProperties{
+			double loc[3];
+			float direction[3];
+			float zoom;
+		};
 
 		typedef struct
 		{
