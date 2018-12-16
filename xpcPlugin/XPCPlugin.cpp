@@ -60,6 +60,7 @@
 #include "Log.h"
 #include "MessageHandlers.h"
 #include "UDPSocket.h"
+#include "Timer.h"
 
 // XPLM Includes
 #include "XPLMProcessing.h"
@@ -76,6 +77,8 @@
 #define OPS_PER_CYCLE 20 // Max Number of operations per cycle
 
 XPC::UDPSocket* sock = NULL;
+
+Timer timer;
 
 double start;
 double lap;
@@ -96,7 +99,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 	strcpy(outDesc, "X Plane Communications Toolbox\nCopyright (c) 2013-2018 United States Government as represented by the Administrator of the National Aeronautics and Space Administration. All Rights Reserved.");
 
 #if (__APPLE__)
-	if ( abs(timeConvert) <= 1e-9 ) // is about 0
+	if ( timeConvert <= 1e-9 ) // is about 0
 	{
 		mach_timebase_info_data_t timeBase;
 		(void)mach_timebase_info(&timeBase);
@@ -151,6 +154,12 @@ PLUGIN_API int XPluginEnable(void)
 	float interval = -1; // Call every frame
 	void* refcon = NULL; // Don't pass anything to the callback directly
 	XPLMRegisterFlightLoopCallback(XPCFlightLoopCallback, interval, refcon);
+	
+	
+	timer.start(chrono::milliseconds(1000), []{
+		cout << "Send UDP" << endl;
+		XPC::MessageHandlers::SendBeacon();
+	});
 
 	return 1;
 }
