@@ -77,8 +77,7 @@
 #define OPS_PER_CYCLE 20 // Max Number of operations per cycle
 
 XPC::UDPSocket* sock = NULL;
-
-Timer timer;
+XPC::Timer* timer = NULL;
 
 double start;
 double lap;
@@ -136,12 +135,18 @@ PLUGIN_API void XPluginDisable(void)
 	XPC::Drawing::ClearWaypoints();
 
 	XPC::Log::WriteLine(LOG_INFO, "EXEC", "Plugin Disabled, sockets closed");
+	
+	timer->stop();
+	delete timer;
+	timer = NULL;
 }
 
 PLUGIN_API int XPluginEnable(void)
 {
 	// Open sockets
 	sock = new XPC::UDPSocket(RECVPORT);
+	timer = new XPC::Timer();
+	
 	XPC::MessageHandlers::SetSocket(sock);
 
 	XPC::Log::WriteLine(LOG_INFO, "EXEC", "Plugin Enabled, sockets opened");
@@ -154,12 +159,9 @@ PLUGIN_API int XPluginEnable(void)
 	float interval = -1; // Call every frame
 	void* refcon = NULL; // Don't pass anything to the callback directly
 	XPLMRegisterFlightLoopCallback(XPCFlightLoopCallback, interval, refcon);
+
 	
-	
-	timer.start(chrono::milliseconds(1000), []{
-		cout << "Send UDP" << endl;
-		XPC::MessageHandlers::SendBeacon();
-	});
+	timer->start(chrono::milliseconds(1000), XPC::MessageHandlers::SendBeacon);
 
 	return 1;
 }
