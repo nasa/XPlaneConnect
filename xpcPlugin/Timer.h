@@ -16,18 +16,20 @@
 
 using namespace std;
 
-class Timer
-{
-    
-    bool running = false;
-
-public:
-    thread th;
-    typedef std::function<void(void)> Callback;
-
-    void start(const chrono::milliseconds, const Callback &callback);
-
-    void stop();
-};
+namespace XPC {
+    class Timer
+    {
+        
+        bool running = false;
+        
+    public:
+        thread th;
+        typedef std::function<void(void)> Callback;
+        
+        void start(const chrono::milliseconds, const Callback &callback);
+        
+        void stop();
+    };
+}
 
 #endif /* Timer_hpp */

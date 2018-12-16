@@ -8,19 +8,22 @@
 
 #include "Timer.h"
 
-void Timer::start(const chrono::milliseconds interval, const Callback &callback) {
-    {
-        running = true;
-        th = thread([=]()
-                    {
-                        while (running == true) {
-                            this_thread::sleep_for(interval);
-                            callback();
-                        }
-                    });
+namespace XPC {
+    void Timer::start(const chrono::milliseconds interval, const Callback &callback) {
+        {
+            running = true;
+            th = thread([=]()
+                        {
+                            while (running == true) {
+                                this_thread::sleep_for(interval);
+                                callback();
+                            }
+                        });
+        }
     }
-}
-
-void Timer::stop() {
-    running = false;
+    
+    void Timer::stop() {
+        running = false;
+        th.join();
+    }
 }
