@@ -38,6 +38,8 @@ namespace XPC
 
 		/// Sets the socket that message handlers use to send responses.
 		static void SetSocket(UDPSocket* socket);
+        
+        static void SendBeacon();
 
 	private:
 		// One handler per message type. Message types are descripbed on the

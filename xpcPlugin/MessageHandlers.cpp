@@ -130,6 +130,15 @@ namespace XPC
 			MessageHandlers::HandleUnknown(msg);
 		}
 	}
+    
+    void MessageHandlers::SendBeacon() {
+        // todo add host ip, plugin version ...
+        unsigned char response[4] = "BCN";
+        
+        // todo define multicast group
+        sockaddr* sa = sock->GetAddr("239.255.1.1", 49710);
+        sock->SendTo(response, 4, sa);
+    }
 
 	void MessageHandlers::HandleConn(const Message& msg)
 	{
