@@ -139,7 +139,7 @@ namespace XPC
 		}
 	}
     
-    sockaddr* UDPSocket::GetAddr(std::string address, uint port)
+    sockaddr* UDPSocket::GetAddr(std::string address, unsigned short port)
     {
         struct sockaddr_in sa;
         inet_pton(AF_INET, address.c_str(), &(sa.sin_addr));
