@@ -64,6 +64,7 @@
 
 // XPLM Includes
 #include "XPLMProcessing.h"
+#include "XPLMUtilities.h"
 
 // System Includes
 #include <cstdlib>
@@ -75,6 +76,8 @@
 
 #define RECVPORT 49009 // Port that the plugin receives commands on
 #define OPS_PER_CYCLE 20 // Max Number of operations per cycle
+
+#define XPC_PLUGIN_VERSION "1.3-rc.1"
 
 XPC::UDPSocket* sock = NULL;
 XPC::Timer* timer = NULL;
@@ -107,7 +110,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 		1000000000.0;
 	}
 #endif
-	XPC::Log::Initialize("1.3-rc.1");
+	XPC::Log::Initialize(XPC_PLUGIN_VERSION);
 	XPC::Log::WriteLine(LOG_INFO, "EXEC", "Plugin Start");
 	XPC::DataManager::Initialize();
 
@@ -161,7 +164,13 @@ PLUGIN_API int XPluginEnable(void)
 	XPLMRegisterFlightLoopCallback(XPCFlightLoopCallback, interval, refcon);
 
 	
-	timer->start(chrono::milliseconds(1000), XPC::MessageHandlers::SendBeacon);
+	int xpVer;
+	XPLMGetVersions(&xpVer, NULL, NULL);
+	
+	timer->start(chrono::milliseconds(1000), [=]{
+		XPC::MessageHandlers::SendBeacon(XPC_PLUGIN_VERSION, xpVer);
+	});
+	
 
 	return 1;
 }

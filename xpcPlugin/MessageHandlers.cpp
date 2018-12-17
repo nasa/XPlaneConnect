@@ -136,27 +136,20 @@ namespace XPC
 		}
 	}
     
-    void MessageHandlers::SendBeacon() {
+    void MessageHandlers::SendBeacon(std::string pluginVersion, int xplaneVersion) {
         
         unsigned char response[128] = "BECN";
         
         std::size_t cur = 5;
         
         // 4 bytes xplane version
-        int xpVer;
-        int xplmVer;
-        XPLMHostApplicationID hostID;
-        XPLMGetVersions(&xpVer, &xplmVer, &hostID);
-        
-        *((uint32_t*)(response + cur)) = xpVer;
+        *((uint32_t*)(response + cur)) = xplaneVersion;
         cur += sizeof(uint32_t);
         
         // plugin version
-        const char * pluginVersion = "1.3-rc.1";
-        int len = strlen(pluginVersion) + 1;
-        memcpy(response + cur, pluginVersion, len);
-        
-        cur += strlen(pluginVersion) + len;
+        int len = pluginVersion.length();
+        memcpy(response + cur, pluginVersion.c_str(), len);
+        cur += strlen(pluginVersion.c_str()) + len;
         
         sock->SendTo(response, cur, &multicast_address);
     }
