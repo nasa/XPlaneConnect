@@ -26,6 +26,9 @@
 #include <cmath>
 #include <cstring>
 
+#define MULTICAST_GROUP "239.255.1.1"
+#define MULITCAST_PORT 49710
+
 
 namespace XPC
 {
@@ -35,6 +38,8 @@ namespace XPC
 	std::string MessageHandlers::connectionKey;
 	MessageHandlers::ConnectionInfo MessageHandlers::connection;
 	UDPSocket* MessageHandlers::sock;
+    
+    static sockaddr multicast_address = UDPSocket::GetAddr(MULTICAST_GROUP, MULITCAST_PORT);
 
 	void MessageHandlers::SetSocket(UDPSocket* socket)
 	{
@@ -132,12 +137,28 @@ namespace XPC
 	}
     
     void MessageHandlers::SendBeacon() {
-        // todo add host ip, plugin version ...
-        unsigned char response[4] = "BCN";
         
-        // todo define multicast group
-        sockaddr* sa = sock->GetAddr("239.255.1.1", 49710);
-        sock->SendTo(response, 4, sa);
+        unsigned char response[128] = "BECN";
+        
+        std::size_t cur = 5;
+        
+        // 4 bytes xplane version
+        int xpVer;
+        int xplmVer;
+        XPLMHostApplicationID hostID;
+        XPLMGetVersions(&xpVer, &xplmVer, &hostID);
+        
+        *((uint32_t*)(response + cur)) = xpVer;
+        cur += sizeof(uint32_t);
+        
+        // plugin version
+        const char * pluginVersion = "1.3-rc.1";
+        int len = strlen(pluginVersion) + 1;
+        memcpy(response + cur, pluginVersion, len);
+        
+        cur += strlen(pluginVersion) + len;
+        
+        sock->SendTo(response, cur, &multicast_address);
     }
 
 	void MessageHandlers::HandleConn(const Message& msg)
