@@ -63,7 +63,7 @@ namespace XPC
 		/// \returns    A string representation of the socket address.
 		static std::string GetHost(sockaddr* addr);
         
-        sockaddr* GetAddr(std::string address, unsigned short port);
+        static sockaddr GetAddr(std::string address, unsigned short port);
 	private:
 #ifdef _WIN32
 		SOCKET sock;
