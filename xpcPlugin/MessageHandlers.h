@@ -57,16 +57,8 @@ namespace XPC
 
 		static void HandleXPlaneData(const Message& msg);
 		static void HandleUnknown(const Message& msg);
-		
-		static int CamFunc( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon);
-		
-		struct CameraProperties{
-			double loc[3];
-			float direction[3];
-			float zoom;
-		};
-
-		typedef struct
+        
+        typedef struct
 		{
 			unsigned char id;
 			sockaddr addr;
@@ -79,6 +71,17 @@ namespace XPC
 		static std::string connectionKey; // The current connection ip:port string
 		static ConnectionInfo connection; // The current connection record
 		static UDPSocket* sock; // Outgoing network socket
+        
+        // Definitions for camera control
+        struct CameraProperties
+        {
+            double loc[3];      // Location in LLA coordinates
+            float direction[3]; // Direction (Roll, Pitch, Yaw)
+            float zoom;         // Zoom level
+        };
+        
+        static int CamCallback_RunwayCam( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon);
+        static int CamCallback_ChaseCam( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon);
 	};
 }
 #endif

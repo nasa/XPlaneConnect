@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5B7C127C21EB6AFC00D7B4E4 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B7C127A21EB6AFC00D7B4E4 /* Camera.cpp */; };
+		5B63CB4C21EC7D8F00129D6D /* support.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B63CB4B21EC7D8F00129D6D /* support.cpp */; };
 		BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */; };
 		BE8361EF18C5591C00E9C923 /* mac.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* mac.xpl */; };
 		BEABAD371AE041A3007BA7DA /* DataManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */; };
@@ -37,8 +37,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		5B7C127A21EB6AFC00D7B4E4 /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
-		5B7C127B21EB6AFC00D7B4E4 /* Camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
+		5B63CB4B21EC7D8F00129D6D /* support.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = support.cpp; sourceTree = "<group>"; };
 		BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XPCPlugin.cpp; sourceTree = SOURCE_ROOT; usesTabs = 1; };
 		BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataManager.cpp; sourceTree = "<group>"; };
 		BEABAD2C1AE041A3007BA7DA /* DataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataManager.h; sourceTree = "<group>"; };
@@ -79,7 +78,6 @@
 		AC4E46B809C2E0B3006B7E1B /* src */ = {
 			isa = PBXGroup;
 			children = (
-				5B7C127A21EB6AFC00D7B4E4 /* Camera.cpp */,
 				BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */,
 				BEDC620218EDF1A7005DB364 /* xplaneConnect.c */,
 				BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */,
@@ -88,6 +86,7 @@
 				BEABAD331AE041A3007BA7DA /* Message.cpp */,
 				BEABAD351AE041A3007BA7DA /* MessageHandlers.cpp */,
 				BEABAD3D1AE0498D007BA7DA /* UDPSocket.cpp */,
+				5B63CB4B21EC7D8F00129D6D /* support.cpp */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -95,7 +94,6 @@
 		BE953E0B1AEB183400CE4A8C /* inc */ = {
 			isa = PBXGroup;
 			children = (
-				5B7C127B21EB6AFC00D7B4E4 /* Camera.h */,
 				BEDC620318EDF1A7005DB364 /* xplaneConnect.h */,
 				BEABAD2C1AE041A3007BA7DA /* DataManager.h */,
 				BEABAD301AE041A3007BA7DA /* Drawing.h */,
@@ -193,7 +191,7 @@
 				BEABAD3B1AE041A3007BA7DA /* Message.cpp in Sources */,
 				BEABAD3C1AE041A3007BA7DA /* MessageHandlers.cpp in Sources */,
 				BEDC620418EDF1A7005DB364 /* xplaneConnect.c in Sources */,
-				5B7C127C21EB6AFC00D7B4E4 /* Camera.cpp in Sources */,
+				5B63CB4C21EC7D8F00129D6D /* support.cpp in Sources */,
 				BEABAD371AE041A3007BA7DA /* DataManager.cpp in Sources */,
 				BEABAD391AE041A3007BA7DA /* Drawing.cpp in Sources */,
 				BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */,
@@ -371,9 +369,7 @@
 					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/xplaneConnect-asdjuezcjkhojuewbyxhyhabxfwc/Build/Products/Debug",
 				);
 				MACH_O_TYPE = mh_bundle;
-
 				ONLY_ACTIVE_ARCH = NO;
-
 				PRODUCT_NAME = mac;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;

@@ -14,6 +14,8 @@
 //     may be used to endorse or promote products derived from this software
 //     without specific prior written permission from the authors or
 //     Laminar Research, respectively.
+
+#include "xplaneConnect.h"
 #include "MessageHandlers.h"
 #include "DataManager.h"
 #include "Drawing.h"
@@ -695,107 +697,58 @@ namespace XPC
 		// Update Log
 		Log::FormatLine(LOG_TRACE, "VIEW", "Message Received(Conn %i)", connection.id);
 
-		int enable_camera_location = 0;
+		bool enable_advanced_camera = false;
 		
 		const std::size_t size = msg.GetSize();
 		if (size == 9)
 		{
 			// default view switcher as before
 		}
-		else if (size == 37)
+		else if (size == 49)
 		{
 			// Allow camera location control
-			enable_camera_location = 1;
+			enable_advanced_camera = true;
 		}
 		else
 		{
-			Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 9 or 37.", size);
+			Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 9 or 49.", size);
 			return;
 		}
+        
+        // get msg data
 		const unsigned char* buffer = msg.GetBuffer();
-		int type = *((int*)(buffer + 5));
-		XPLMCommandKeyStroke(type);
+        
+        // get view type
+        int view_type;
+        memcpy(&view_type, buffer + 5, 4);
+        
+        // set view by calling the corresponding key stroke
+		XPLMCommandKeyStroke(view_type);
 		
-		if(type == 79 && enable_camera_location == 1) // runway camera view
+        // advanced runway camera view
+		if(view_type == XPC_VIEW_RUNWAY && enable_advanced_camera == true)
 		{
-			static struct CameraProperties campos;
+			static struct CameraProperties campos; // static variable for continuous callback access
 		
-			campos.loc[0] = *(double*)(buffer+9);
-			campos.loc[1] = *(double*)(buffer+17);
-			campos.loc[2] = *(double*)(buffer+25);
-            campos.direction[0] = -998;
-            campos.direction[1] = -998;
-            campos.direction[2] = -998;
-			campos.zoom	  = *(float*)(buffer+33);
+            memcpy(&campos, buffer+9 , sizeof(struct CameraProperties));
 			
-			Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2],campos.zoom);
+			Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2], campos.zoom);
 		
-			XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamFunc, &campos);
+			XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamCallback_RunwayCam, &campos);
 		}
+        // advanced chase camera view
+        else if(view_type == XPC_VIEW_CHASE && enable_advanced_camera == true)
+        {
+            static struct CameraProperties campos;  // static variable for continuous callback access
+            
+            memcpy(&campos, buffer+9 , sizeof(struct CameraProperties));
+            
+            Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2], campos.zoom);
+            
+            XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamCallback_ChaseCam, &campos);
+        }
 	}
 	
-	int MessageHandlers::CamFunc( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon)
-	{
-		if (outCameraPosition && !inIsLosingControl)
-		{
-			struct CameraProperties* campos = (struct CameraProperties*)inRefcon;
-			
-			// camera position
-			double clat = campos->loc[0];
-			double clon = campos->loc[1];
-			double calt = campos->loc[2];
-			
-			double cX, cY, cZ;
-			XPLMWorldToLocal(clat, clon, calt, &cX, &cY, &cZ);
-			
-			outCameraPosition->x = cX;
-			outCameraPosition->y = cY;
-			outCameraPosition->z = cZ;
-			
-//			  Log::FormatLine(LOG_TRACE, "CAM", "Cam pos %f %f %f", clat, clon, calt);
-			
-            if(campos->direction[0] == -998) // calculate camera direction
-            {
-                // aircraft position
-                double x = XPC::DataManager::GetDouble(XPC::DREF_LocalX, 0);
-                double y = XPC::DataManager::GetDouble(XPC::DREF_LocalY, 0);
-                double z = XPC::DataManager::GetDouble(XPC::DREF_LocalZ, 0);
-			
-                // relative position vector cam to plane
-                double dx = x - cX;
-                double dy = y - cY;
-                double dz = z - cZ;
-			
-//			    Log::FormatLine(LOG_TRACE, "CAM", "Cam vect %f %f %f", dx, dy, dz);
-			
-                double pi = 3.141592653589793;
-			
-                // horizontal distance
-                double dist = sqrt(dx*dx + dz*dz);
-			
-                outCameraPosition->pitch = atan2(dy, dist) * 180.0/pi;
-			
-                double angle = atan2(dz, dx) * 180.0/pi; // rel to pos right (pos X)
-			
-                outCameraPosition->heading = 90 + angle; // rel to north
-			
-//			    Log::FormatLine(LOG_TRACE, "CAM", "Cam p %f hdg %f ", outCameraPosition->pitch, outCameraPosition->heading);
-			
-                outCameraPosition->roll = 0;
-            }
-            else
-            {
-                outCameraPosition->roll     = campos->direction[0];
-                outCameraPosition->pitch    = campos->direction[1];
-                outCameraPosition->heading  = campos->direction[2];
-            }
-            
-			outCameraPosition->zoom = campos->zoom;
-		}
-		
-		return 1;
-	}
-
 	void MessageHandlers::HandleWypt(const Message& msg)
 	{
 		// Update Log
