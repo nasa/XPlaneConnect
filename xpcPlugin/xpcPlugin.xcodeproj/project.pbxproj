@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5B63CB4C21EC7D8F00129D6D /* support.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B63CB4B21EC7D8F00129D6D /* support.cpp */; };
+		5B63CB4C21EC7D8F00129D6D /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B63CB4B21EC7D8F00129D6D /* Camera.cpp */; };
 		BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */; };
 		BE8361EF18C5591C00E9C923 /* mac.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* mac.xpl */; };
 		BEABAD371AE041A3007BA7DA /* DataManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */; };
@@ -37,7 +37,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		5B63CB4B21EC7D8F00129D6D /* support.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = support.cpp; sourceTree = "<group>"; };
+		5B63CB4B21EC7D8F00129D6D /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XPCPlugin.cpp; sourceTree = SOURCE_ROOT; usesTabs = 1; };
 		BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataManager.cpp; sourceTree = "<group>"; };
 		BEABAD2C1AE041A3007BA7DA /* DataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataManager.h; sourceTree = "<group>"; };
@@ -86,7 +86,7 @@
 				BEABAD331AE041A3007BA7DA /* Message.cpp */,
 				BEABAD351AE041A3007BA7DA /* MessageHandlers.cpp */,
 				BEABAD3D1AE0498D007BA7DA /* UDPSocket.cpp */,
-				5B63CB4B21EC7D8F00129D6D /* support.cpp */,
+				5B63CB4B21EC7D8F00129D6D /* Camera.cpp */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -191,7 +191,7 @@
 				BEABAD3B1AE041A3007BA7DA /* Message.cpp in Sources */,
 				BEABAD3C1AE041A3007BA7DA /* MessageHandlers.cpp in Sources */,
 				BEDC620418EDF1A7005DB364 /* xplaneConnect.c in Sources */,
-				5B63CB4C21EC7D8F00129D6D /* support.cpp in Sources */,
+				5B63CB4C21EC7D8F00129D6D /* Camera.cpp in Sources */,
 				BEABAD371AE041A3007BA7DA /* DataManager.cpp in Sources */,
 				BEABAD391AE041A3007BA7DA /* Drawing.cpp in Sources */,
 				BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */,
