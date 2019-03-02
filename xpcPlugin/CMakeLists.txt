@@ -10,7 +10,7 @@ add_definitions(-DXPLM200 -DLIN=1)
 
 SET(CMAKE_C_COMPILER gcc)
 SET(CMAKE_CXX_COMPILER g++)
-set (CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_STANDARD 11)
 
 add_library(xpc64 SHARED XPCPlugin.cpp
 	DataManager.cpp

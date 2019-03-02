@@ -1,10 +1,5 @@
-//
-//  Timer.hpp
-//  Thread
-//
-//  Created by Jan Chaloupecky on 16.12.18.
-//  Copyright © 2018 Jan Chaloupecky. All rights reserved.
-//
+// Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
+// National Aeronautics and Space Administration. All Rights Reserved.
 
 #ifndef Timer_hpp
 #define Timer_hpp
