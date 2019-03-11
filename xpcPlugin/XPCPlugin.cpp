@@ -170,7 +170,7 @@ PLUGIN_API int XPluginEnable(void)
 	XPLMGetVersions(&xpVer, NULL, NULL);
 	
 	timer->start(chrono::milliseconds(1000), [=]{
-		XPC::MessageHandlers::SendBeacon(XPC_PLUGIN_VERSION, xpVer);
+		XPC::MessageHandlers::SendBeacon(XPC_PLUGIN_VERSION, RECVPORT, xpVer);
 	});
 	
 

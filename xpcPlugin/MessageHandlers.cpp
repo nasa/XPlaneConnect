@@ -136,12 +136,16 @@ namespace XPC
 		}
 	}
     
-    void MessageHandlers::SendBeacon(const std::string& pluginVersion, int xplaneVersion) {
+    void MessageHandlers::SendBeacon(const std::string& pluginVersion, unsigned short  pluginReceivePort, int xplaneVersion) {
         
         unsigned char response[128] = "BECN";
         
         std::size_t cur = 5;
-        
+
+        // 2 bytes plugin port
+        *((uint16_t *)(response + cur)) = pluginReceivePort;
+        cur += sizeof(uint16_t);
+
         // 4 bytes xplane version
         *((uint32_t*)(response + cur)) = xplaneVersion;
         cur += sizeof(uint32_t);
