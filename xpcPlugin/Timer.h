@@ -10,8 +10,6 @@
 #include <chrono>
 #include <functional>
 
-using namespace std;
-
 namespace XPC {
     class Timer
     {
@@ -19,10 +17,10 @@ namespace XPC {
         bool running = false;
         
     public:
-        thread th;
+        std::thread th;
         typedef std::function<void(void)> Callback;
         
-        void start(const chrono::milliseconds, const Callback &callback);
+        void start(const std::chrono::milliseconds, const Callback &callback);
         
         void stop();
     };

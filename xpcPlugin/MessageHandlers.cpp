@@ -136,7 +136,7 @@ namespace XPC
 		}
 	}
     
-    void MessageHandlers::SendBeacon(std::string pluginVersion, int xplaneVersion) {
+    void MessageHandlers::SendBeacon(const std::string& pluginVersion, int xplaneVersion) {
         
         unsigned char response[128] = "BECN";
         

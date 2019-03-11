@@ -79,6 +79,8 @@
 
 #define XPC_PLUGIN_VERSION "1.3-rc.1"
 
+using namespace std;
+
 XPC::UDPSocket* sock = NULL;
 XPC::Timer* timer = NULL;
 

@@ -2,6 +2,7 @@
 // National Aeronautics and Space Administration. All Rights Reserved.
 
 #include "Timer.h"
+using namespace std;
 
 namespace XPC {
     void Timer::start(const chrono::milliseconds interval, const Callback &callback) {
@@ -19,6 +20,8 @@ namespace XPC {
     
     void Timer::stop() {
         running = false;
-        th.join();
+        if(th.joinable()) {
+            th.join();
+        }
     }
 }
