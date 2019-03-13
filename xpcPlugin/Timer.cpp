@@ -7,10 +7,10 @@ using namespace std;
 namespace XPC {
     void Timer::start(const chrono::milliseconds interval, const Callback &callback) {
         {
-            running = true;
+            running.test_and_set();
             th = thread([=]()
                         {
-                            while (running == true) {
+                            while (running.test_and_set()) {
                                 this_thread::sleep_for(interval);
                                 callback();
                             }
@@ -19,7 +19,7 @@ namespace XPC {
     }
     
     void Timer::stop() {
-        running = false;
+        running.clear();
         if(th.joinable()) {
             th.join();
         }

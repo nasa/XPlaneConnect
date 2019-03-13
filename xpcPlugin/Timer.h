@@ -1,8 +1,8 @@
 // Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 // National Aeronautics and Space Administration. All Rights Reserved.
 
-#ifndef Timer_hpp
-#define Timer_hpp
+#ifndef XPCPLUGIN_TIMER_H_
+#define XPCPLUGIN_TIMER_H_
 
 #include <stdio.h>
 #include <iostream>
@@ -12,13 +12,13 @@
 
 namespace XPC {
     class Timer
-    {
-        
-        bool running = false;
+    {        
+        std::atomic_flag running;
+        std::thread th;
         
     public:
-        std::thread th;
-        typedef std::function<void(void)> Callback;
+
+        using Callback = std::function<void(void)>;
         
         void start(const std::chrono::milliseconds, const Callback &callback);
         
