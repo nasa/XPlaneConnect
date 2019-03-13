@@ -38,8 +38,8 @@ namespace XPC
 	std::string MessageHandlers::connectionKey;
 	MessageHandlers::ConnectionInfo MessageHandlers::connection;
 	UDPSocket* MessageHandlers::sock;
-    
-    static sockaddr multicast_address = UDPSocket::GetAddr(MULTICAST_GROUP, MULITCAST_PORT);
+	
+	static sockaddr multicast_address = UDPSocket::GetAddr(MULTICAST_GROUP, MULITCAST_PORT);
 
 	void MessageHandlers::SetSocket(UDPSocket* socket)
 	{
@@ -135,28 +135,28 @@ namespace XPC
 			MessageHandlers::HandleUnknown(msg);
 		}
 	}
-    
-    void MessageHandlers::SendBeacon(const std::string& pluginVersion, unsigned short  pluginReceivePort, int xplaneVersion) {
-        
-        unsigned char response[128] = "BECN";
-        
-        std::size_t cur = 5;
+	
+	void MessageHandlers::SendBeacon(const std::string& pluginVersion, unsigned short  pluginReceivePort, int xplaneVersion) {
+		
+		unsigned char response[128] = "BECN";
+		
+		std::size_t cur = 5;
 
-        // 2 bytes plugin port
-        *((uint16_t *)(response + cur)) = pluginReceivePort;
-        cur += sizeof(uint16_t);
+		// 2 bytes plugin port
+		*((uint16_t *)(response + cur)) = pluginReceivePort;
+		cur += sizeof(uint16_t);
 
-        // 4 bytes xplane version
-        *((uint32_t*)(response + cur)) = xplaneVersion;
-        cur += sizeof(uint32_t);
-        
-        // plugin version
-        int len = pluginVersion.length();
-        memcpy(response + cur, pluginVersion.c_str(), len);
-        cur += strlen(pluginVersion.c_str()) + len;
-        
-        sock->SendTo(response, cur, &multicast_address);
-    }
+		// 4 bytes xplane version
+		*((uint32_t*)(response + cur)) = xplaneVersion;
+		cur += sizeof(uint32_t);
+		
+		// plugin version
+		int len = pluginVersion.length();
+		memcpy(response + cur, pluginVersion.c_str(), len);
+		cur += strlen(pluginVersion.c_str()) + len;
+		
+		sock->SendTo(response, cur, &multicast_address);
+	}
 
 	void MessageHandlers::HandleConn(const Message& msg)
 	{
@@ -372,7 +372,7 @@ namespace XPC
 			}
 			case 20: // Position
 			{
-                // TODO: loss of precision here
+				// TODO: loss of precision here
 				double pos[3];
 				pos[0] = (double)values[i][2];
 				pos[1] = (double)values[i][3];
@@ -555,7 +555,7 @@ namespace XPC
 
 		unsigned char response[34] = "POSI";
 		response[5] = (char)DataManager::GetInt(DREF_GearHandle, aircraft);
-        // TODO change lat/lon/h to double?
+		// TODO change lat/lon/h to double?
 		*((float*)(response + 6)) = (float)DataManager::GetDouble(DREF_Latitude, aircraft);
 		*((float*)(response + 10)) = (float)DataManager::GetDouble(DREF_Longitude, aircraft);
 		*((float*)(response + 14)) = (float)DataManager::GetDouble(DREF_Elevation, aircraft);
@@ -584,22 +584,22 @@ namespace XPC
 		float orient[3];
 
 		if (size == 34) /* lat/lon/h as 32-bit float */
-        {
-            posd[0] = *((float*)&buffer[6]);
-            posd[1] = *((float*)&buffer[10]);
-            posd[2] = *((float*)&buffer[14]);
-            memcpy(orient, buffer + 18, 12);
-        }
-        else if (size == 46) /* lat/lon/h as 64-bit double */
 		{
-            memcpy(posd, buffer + 6, 3*8);
-            memcpy(orient, buffer + 30, 12);
+			posd[0] = *((float*)&buffer[6]);
+			posd[1] = *((float*)&buffer[10]);
+			posd[2] = *((float*)&buffer[14]);
+			memcpy(orient, buffer + 18, 12);
 		}
-        else
-        {
+		else if (size == 46) /* lat/lon/h as 64-bit double */
+		{
+			memcpy(posd, buffer + 6, 3*8);
+			memcpy(orient, buffer + 30, 12);
+		}
+		else
+		{
 			Log::FormatLine(LOG_ERROR, "POSI", "ERROR: Unexpected size: %i (Expected 34 or 46)", size);
 			return;
-        }
+		}
 
 		/* convert float to double */
 		DataManager::SetPosition(posd, aircraftNumber);
@@ -716,7 +716,7 @@ namespace XPC
 			Log::WriteLine(LOG_INFO, "TEXT", "[TEXT] Text set");
 		}
 	}
-    
+	
 	void MessageHandlers::HandleView(const Message& msg)
 	{
 		// Update Log
@@ -750,9 +750,9 @@ namespace XPC
 			campos.loc[0] = *(double*)(buffer+9);
 			campos.loc[1] = *(double*)(buffer+17);
 			campos.loc[2] = *(double*)(buffer+25);
-            campos.direction[0] = -998;
-            campos.direction[1] = -998;
-            campos.direction[2] = -998;
+			campos.direction[0] = -998;
+			campos.direction[1] = -998;
+			campos.direction[2] = -998;
 			campos.zoom	  = *(float*)(buffer+33);
 			
 			Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2],campos.zoom);
@@ -781,42 +781,42 @@ namespace XPC
 			
 //			  Log::FormatLine(LOG_TRACE, "CAM", "Cam pos %f %f %f", clat, clon, calt);
 			
-            if(campos->direction[0] == -998) // calculate camera direction
-            {
-                // aircraft position
-                double x = XPC::DataManager::GetDouble(XPC::DREF_LocalX, 0);
-                double y = XPC::DataManager::GetDouble(XPC::DREF_LocalY, 0);
-                double z = XPC::DataManager::GetDouble(XPC::DREF_LocalZ, 0);
+			if(campos->direction[0] == -998) // calculate camera direction
+			{
+				// aircraft position
+				double x = XPC::DataManager::GetDouble(XPC::DREF_LocalX, 0);
+				double y = XPC::DataManager::GetDouble(XPC::DREF_LocalY, 0);
+				double z = XPC::DataManager::GetDouble(XPC::DREF_LocalZ, 0);
 			
-                // relative position vector cam to plane
-                double dx = x - cX;
-                double dy = y - cY;
-                double dz = z - cZ;
+				// relative position vector cam to plane
+				double dx = x - cX;
+				double dy = y - cY;
+				double dz = z - cZ;
 			
 //			    Log::FormatLine(LOG_TRACE, "CAM", "Cam vect %f %f %f", dx, dy, dz);
 			
-                double pi = 3.141592653589793;
+				double pi = 3.141592653589793;
 			
-                // horizontal distance
-                double dist = sqrt(dx*dx + dz*dz);
+				// horizontal distance
+				double dist = sqrt(dx*dx + dz*dz);
 			
-                outCameraPosition->pitch = atan2(dy, dist) * 180.0/pi;
+				outCameraPosition->pitch = atan2(dy, dist) * 180.0/pi;
 			
-                double angle = atan2(dz, dx) * 180.0/pi; // rel to pos right (pos X)
+				double angle = atan2(dz, dx) * 180.0/pi; // rel to pos right (pos X)
 			
-                outCameraPosition->heading = 90 + angle; // rel to north
+				outCameraPosition->heading = 90 + angle; // rel to north
 			
 //			    Log::FormatLine(LOG_TRACE, "CAM", "Cam p %f hdg %f ", outCameraPosition->pitch, outCameraPosition->heading);
 			
-                outCameraPosition->roll = 0;
-            }
-            else
-            {
-                outCameraPosition->roll     = campos->direction[0];
-                outCameraPosition->pitch    = campos->direction[1];
-                outCameraPosition->heading  = campos->direction[2];
-            }
-            
+				outCameraPosition->roll = 0;
+			}
+			else
+			{
+				outCameraPosition->roll     = campos->direction[0];
+				outCameraPosition->pitch    = campos->direction[1];
+				outCameraPosition->heading  = campos->direction[2];
+			}
+			
 			outCameraPosition->zoom = campos->zoom;
 		}
 		

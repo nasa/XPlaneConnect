@@ -11,19 +11,19 @@
 #include <functional>
 
 namespace XPC {
-    class Timer
-    {        
-        std::atomic_flag running;
-        std::thread th;
-        
-    public:
+	class Timer
+	{        
+		std::atomic_flag running;
+		std::thread th;
+		
+	public:
 
-        using Callback = std::function<void(void)>;
-        
-        void start(const std::chrono::milliseconds, const Callback &callback);
-        
-        void stop();
-    };
+		using Callback = std::function<void(void)>;
+		
+		void start(const std::chrono::milliseconds, const Callback &callback);
+		
+		void stop();
+	};
 }
 
 #endif /* Timer_hpp */
