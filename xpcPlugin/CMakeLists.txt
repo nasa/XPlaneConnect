@@ -10,6 +10,7 @@ add_definitions(-DXPLM200 -DLIN=1)
 
 SET(CMAKE_C_COMPILER gcc)
 SET(CMAKE_CXX_COMPILER g++)
+SET(CMAKE_CXX_STANDARD 11)
 
 add_library(xpc64 SHARED XPCPlugin.cpp
 	DataManager.cpp
@@ -17,6 +18,7 @@ add_library(xpc64 SHARED XPCPlugin.cpp
 	Log.cpp
 	Message.cpp
 	MessageHandlers.cpp
+	Timer.cpp
 	UDPSocket.cpp)
 set_target_properties(xpc64 PROPERTIES PREFIX "" SUFFIX ".xpl")
 set_target_properties(xpc64 PROPERTIES COMPILE_FLAGS "-m64 -fno-stack-protector" LINK_FLAGS "-shared -rdynamic -nodefaultlibs -undefined_warning -m64 -fno-stack-protector")
@@ -27,6 +29,7 @@ add_library(xpc32 SHARED XPCPlugin.cpp
 	Log.cpp
 	Message.cpp
 	MessageHandlers.cpp
+	Timer.cpp
 	UDPSocket.cpp)
 set_target_properties(xpc32 PROPERTIES PREFIX "" SUFFIX ".xpl")
 set_target_properties(xpc32 PROPERTIES COMPILE_FLAGS "-m32 -fno-stack-protector" LINK_FLAGS "-shared -rdynamic -nodefaultlibs -undefined_warning -m32 -fno-stack-protector")

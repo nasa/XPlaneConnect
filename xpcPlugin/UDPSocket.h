@@ -56,12 +56,14 @@ namespace XPC
 		/// \param len    The number of bytes to send.
 		/// \param remote The destination socket.
 		void SendTo(const unsigned char* buffer, std::size_t len, sockaddr* remote) const;
-
+        
 		/// Gets a string containing the IP address and port contained in the given sockaddr.
 		///
 		/// \param addr The socket address to parse.
 		/// \returns    A string representation of the socket address.
 		static std::string GetHost(sockaddr* addr);
+        
+        static sockaddr GetAddr(std::string address, unsigned short port);
 	private:
 #ifdef _WIN32
 		SOCKET sock;

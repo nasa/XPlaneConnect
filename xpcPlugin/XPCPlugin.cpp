@@ -60,9 +60,11 @@
 #include "Log.h"
 #include "MessageHandlers.h"
 #include "UDPSocket.h"
+#include "Timer.h"
 
 // XPLM Includes
 #include "XPLMProcessing.h"
+#include "XPLMUtilities.h"
 
 // System Includes
 #include <cstdlib>
@@ -75,7 +77,12 @@
 #define RECVPORT 49009 // Port that the plugin receives commands on
 #define OPS_PER_CYCLE 20 // Max Number of operations per cycle
 
+#define XPC_PLUGIN_VERSION "1.3-rc.1"
+
+using namespace std;
+
 XPC::UDPSocket* sock = NULL;
+XPC::Timer* timer = NULL;
 
 double start;
 double lap;
@@ -96,7 +103,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 	strcpy(outDesc, "X Plane Communications Toolbox\nCopyright (c) 2013-2018 United States Government as represented by the Administrator of the National Aeronautics and Space Administration. All Rights Reserved.");
 
 #if (__APPLE__)
-	if ( abs(timeConvert) <= 1e-9 ) // is about 0
+	if ( timeConvert <= 1e-9 ) // is about 0
 	{
 		mach_timebase_info_data_t timeBase;
 		(void)mach_timebase_info(&timeBase);
@@ -105,7 +112,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 		1000000000.0;
 	}
 #endif
-	XPC::Log::Initialize("1.3-rc.1");
+	XPC::Log::Initialize(XPC_PLUGIN_VERSION);
 	XPC::Log::WriteLine(LOG_INFO, "EXEC", "Plugin Start");
 	XPC::DataManager::Initialize();
 
@@ -133,12 +140,18 @@ PLUGIN_API void XPluginDisable(void)
 	XPC::Drawing::ClearWaypoints();
 
 	XPC::Log::WriteLine(LOG_INFO, "EXEC", "Plugin Disabled, sockets closed");
+	
+	timer->stop();
+	delete timer;
+	timer = NULL;
 }
 
 PLUGIN_API int XPluginEnable(void)
 {
 	// Open sockets
 	sock = new XPC::UDPSocket(RECVPORT);
+	timer = new XPC::Timer();
+	
 	XPC::MessageHandlers::SetSocket(sock);
 
 	XPC::Log::WriteLine(LOG_INFO, "EXEC", "Plugin Enabled, sockets opened");
@@ -151,6 +164,15 @@ PLUGIN_API int XPluginEnable(void)
 	float interval = -1; // Call every frame
 	void* refcon = NULL; // Don't pass anything to the callback directly
 	XPLMRegisterFlightLoopCallback(XPCFlightLoopCallback, interval, refcon);
+
+	
+	int xpVer;
+	XPLMGetVersions(&xpVer, NULL, NULL);
+	
+	timer->start(chrono::milliseconds(1000), [=]{
+		XPC::MessageHandlers::SendBeacon(XPC_PLUGIN_VERSION, RECVPORT, xpVer);
+	});
+	
 
 	return 1;
 }

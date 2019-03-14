@@ -138,6 +138,18 @@ namespace XPC
 			Log::FormatLine(LOG_INFO, tag, "Send succeeded. (remote: %s)", GetHost(remote).c_str());
 		}
 	}
+    
+    sockaddr UDPSocket::GetAddr(std::string address, unsigned short port)
+    {
+        struct sockaddr_in addr;
+        memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_addr.s_addr = inet_addr(address.c_str());
+        addr.sin_port = htons(port);
+
+        sockaddr* sa = reinterpret_cast<sockaddr*>(&addr);
+        return *sa;
+    }
 
 	std::string UDPSocket::GetHost(sockaddr* sa)
 	{
