@@ -25,6 +25,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <cstdint>
 
 #define MULTICAST_GROUP "239.255.1.1"
 #define MULITCAST_PORT 49710
