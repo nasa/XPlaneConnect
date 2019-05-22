@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		3D0F44CE21C6D3E7008A0655 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3D0F44CD21C6D3E7008A0655 /* Timer.cpp */; };
 		BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */; };
-		BE8361EF18C5591C00E9C923 /* mac.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* mac.xpl */; };
 		BEABAD371AE041A3007BA7DA /* DataManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */; };
 		BEABAD391AE041A3007BA7DA /* Drawing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD2F1AE041A3007BA7DA /* Drawing.cpp */; };
 		BEABAD3A1AE041A3007BA7DA /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD311AE041A3007BA7DA /* Log.cpp */; };
@@ -22,19 +21,6 @@
 		D6A7BDF116A1DED200D1426A /* XPLM.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDF016A1DED200D1426A /* XPLM.framework */; };
 		D6A7BDF316A1DED200D1426A /* XPWidgets.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A7BDF216A1DED200D1426A /* XPWidgets.framework */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		BE8361EE18C5591600E9C923 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = "/Applications/X-Plane 10/Resources/plugins/XPlaneConnect";
-			dstSubfolderSpec = 0;
-			files = (
-				BE8361EF18C5591C00E9C923 /* mac.xpl in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		3D0F44CC21C6D3E7008A0655 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
@@ -145,7 +131,6 @@
 			buildPhases = (
 				D607B19609A556E400699BC3 /* Sources */,
 				D607B19709A556E400699BC3 /* Frameworks */,
-				BE8361EE18C5591600E9C923 /* CopyFiles */,
 			);
 			buildRules = (
 			);
