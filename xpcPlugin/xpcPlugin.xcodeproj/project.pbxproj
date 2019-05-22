@@ -376,7 +376,7 @@
 				);
 				MACH_O_TYPE = mh_bundle;
 				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_NAME = mac;
+				PRODUCT_NAME = "xpc-osx-64";
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
