@@ -1,0 +1,95 @@
+# Xcode
+# Build, test, and archive an Xcode workspace on macOS.
+# Add steps that install certificates, test, sign, and distribute an app, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/xcode
+
+trigger:
+- ms-*
+
+jobs:
+# - job: Build_macOS
+#   pool:
+#     vmImage: 'macos-latest'
+
+#   steps:
+#   - task: Xcode@5
+#     inputs:
+#       actions: 'build'
+#       scheme: ''
+#       sdk: 'macosx10.14'
+#       configuration: 'Release'
+#       xcWorkspacePath: 'xpcPlugin/xpcPlugin.xcodeproj'
+#       xcodeVersion: 'default' # Options: 8, 9, 10, default, specifyPath
+#   - task: PublishPipelineArtifact@0
+#     inputs:
+#       artifactName: 'xpc-osx-64.xpl'
+#       targetPath: 'xpcPlugin/XPlaneConnect/xpc-osx-64.xpl'
+
+# - job: Build_linux
+#   pool:
+#     vmImage: 'ubuntu-latest'
+
+#   steps:
+#   - script: |
+#       sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+#       sudo apt-get update
+#       sudo apt-get install -y g++-5 mesa-common-dev g++-multilib g++-5-multilib
+#     displayName: 'apt install'
+    
+#   - script: |
+#       cd xpcPlugin && cmake . && make
+#     displayName: 'make'
+
+#   - task: PublishPipelineArtifact@0
+#     inputs:
+#       artifactName: 'xpc-linux-32.xpl'
+#       targetPath: 'xpcPlugin/xpc-linux-32.xpl'
+
+#   - task: PublishPipelineArtifact@0
+#     inputs:
+#       artifactName: 'xpc-linux-64.xpl'
+#       targetPath: 'xpcPlugin/xpc-linux-64.xpl'
+
+- job: Build_windows
+  pool:
+    vmImage: 'vs2017-win2016'
+
+  variables:
+    solution: 'xpcPlugin/xpcPlugin/xpcPlugin.sln'
+    buildPlatform: 'Win32|x64'
+    buildConfiguration: 'Release'
+    appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
+
+  steps:
+  - task: NuGetToolInstaller@0
+
+  - task: NuGetCommand@2
+    inputs:
+      restoreSolution: '$(solution)'
+
+  - task: VSBuild@1
+    inputs:
+      platform: 'Win32'
+      solution: '$(solution)'
+      configuration: '$(buildConfiguration)'
+      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
+
+  - task: VSBuild@1
+    inputs:
+      platform: 'x64'
+      solution: '$(solution)'
+      configuration: '$(buildConfiguration)'
+      msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
+
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: 'xpcPlugin'
+      contents: 'xpc-windows-*.xpl'
+      targetFolder: $(Build.ArtifactStagingDirectory)
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: xpc-windows
+  
+    
