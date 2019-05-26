@@ -12,11 +12,25 @@ trigger:
     - '*'
   # pr:
   #   - '*'
+variables:
+  xpcBuildOutputPath: xpcPlugin/output/
+  xpcArtifactNameLinux: xpc-linux
+  xpcArtifactNameMac: xpc-macos
+  xpcArtifactNameWindows: xpc-windows
+  xpcPackageName: XPlaneConnect
+
+  # The Github Release tasks requires a GH 'service connection' to be setup in the MS Azure Account
+  # This connection must be setup in with a GH token in the MS Azure Project Settings
+  # 
+  # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/github-release?view=azure-devops
+  # https://docs.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml#sep-github
+  xpcGitHubConnection: janc_gh
+
 
 stages:
   - stage: Build
     jobs:
-    - job: Build_macOS
+    - job: macOS
       pool:
         vmImage: 'macos-latest'
 
@@ -31,10 +45,10 @@ stages:
           xcodeVersion: 'default' # Options: 8, 9, 10, default, specifyPath
       - task: PublishPipelineArtifact@0
         inputs:
-          artifactName: 'xpc-macos'
-          targetPath: 'xpcPlugin/output/'
+          artifactName: '$(xpcArtifactNameMac)'
+          targetPath: '$(xpcBuildOutputPath)'
 
-    - job: Build_linux
+    - job: Linux
       pool:
         vmImage: 'ubuntu-latest'
 
@@ -46,15 +60,17 @@ stages:
         displayName: 'apt install'
         
       - script: |
-          cd xpcPlugin && cmake . && make
+          cd xpcPlugin 
+          cmake .
+          make
         displayName: 'make'
 
       - task: PublishPipelineArtifact@0
         inputs:
           artifactName: 'xpc-linux'
-          targetPath: 'xpcPlugin/output/'
+          targetPath: '$(xpcBuildOutputPath)'
 
-    - job: Build_windows
+    - job: Windows
       pool:
         vmImage: 'vs2017-win2016'
 
@@ -87,61 +103,51 @@ stages:
 
       - task: PublishPipelineArtifact@0
         inputs:
-          artifactName: 'xpc-windows'
-          targetPath: 'xpcPlugin/output/'
+          artifactName: '$(xpcArtifactNameWindows)'
+          targetPath: '$(xpcBuildOutputPath)'
   
   - stage: Deploy
     jobs:
     - job: Package_Binaries
+      displayName: 'Package Binaries'
       pool:
         vmImage: 'ubuntu-latest'
 
       steps:
       - task: DownloadPipelineArtifact@0
         inputs:
-          artifactName: 'xpc-macos'
-          targetPath: $(System.DefaultWorkingDirectory)/XPlaneConnect
+          artifactName: '$(xpcArtifactNameMac)'
+          targetPath: $(System.DefaultWorkingDirectory)/$(xpcPackageName)
       - task: DownloadPipelineArtifact@0
         inputs:
-          artifactName: 'xpc-linux'
-          targetPath: $(System.DefaultWorkingDirectory)/XPlaneConnect
+          artifactName: '$(xpcArtifactNameLinux)'
+          targetPath: $(System.DefaultWorkingDirectory)/$(xpcPackageName)
       
       - task: DownloadPipelineArtifact@0
         inputs:
-          artifactName: 'xpc-windows'
-          targetPath: $(System.DefaultWorkingDirectory)/XPlaneConnect
+          artifactName: '$(xpcArtifactNameWindows)'
+          targetPath: $(System.DefaultWorkingDirectory)/$(xpcPackageName)
 
       - task: PublishPipelineArtifact@0
         inputs:
-          artifactName: 'XPlaneConnect'
-          targetPath: $(System.DefaultWorkingDirectory)/XPlaneConnect
+          artifactName: '$(xpcPackageName)'
+          targetPath: $(System.DefaultWorkingDirectory)/$(xpcPackageName)
 
       # Archive Files 
       - task: ArchiveFiles@2
         inputs:
-          rootFolderOrFile: '$(System.DefaultWorkingDirectory)/XPlaneConnect' 
+          rootFolderOrFile: '$(System.DefaultWorkingDirectory)/$(xpcPackageName)' 
           includeRootFolder: true 
           archiveType: 'zip'
-          archiveFile: '$(Build.ArtifactStagingDirectory)/XPlaneConnect.zip' 
+          archiveFile: '$(Build.ArtifactStagingDirectory)/$(xpcPackageName).zip' 
 
       - task: GitHubRelease@0
         inputs:
-          gitHubConnection: 'janc_gh'
+          gitHubConnection: '$(xpcGitHubConnection)'
           repositoryName: '$(Build.Repository.Name)' 
-          action: 'create' # Options: create, edit, delete
-          target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
-          tagSource: 'auto' # Required when action == Create# Options: auto, manual
-          tag: $(tagName) # Required when action == Edit || Action == Delete || TagSource == Manual
-          #title: # Optional
-          #releaseNotesSource: 'file' # Optional. Options: file, input
-          #releaseNotesFile: # Optional
-          #releaseNotes: # Optional
-          assets: '$(Build.ArtifactStagingDirectory)/XPlaneConnect.zip' 
-          #assetUploadMode: 'delete' # Optional. Options: delete, replace
-          # isDraft: false # Optional
-          isPreRelease: true # Optional
-          #addChangeLog: true # Optional
-
-
-  
-    
+          action: 'create'
+          target: '$(Build.SourceVersion)'
+          tagSource: 'auto'
+          tag: $(tagName)
+          assets: '$(Build.ArtifactStagingDirectory)/$(xpcPackageName).zip' 
+          isPreRelease: true 
