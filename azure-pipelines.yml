@@ -6,6 +6,7 @@
 trigger:
   branches:
     include:
+    # Build all branches starting with 'ms-' This is useful when making and testing chanes made to this file
     - ms-*
   tags:
     include:
@@ -13,7 +14,7 @@ trigger:
   # pr:
   #   - '*'
 variables:
-  xpcBuildOutputPath: xpcPlugin/output/
+  xpcBuildOutputPath: xpcPlugin/XPlaneConnect/
   xpcArtifactNameLinux: xpc-linux
   xpcArtifactNameMac: xpc-macos
   xpcArtifactNameWindows: xpc-windows
@@ -100,6 +101,15 @@ stages:
           solution: '$(solution)'
           configuration: '$(buildConfiguration)'
           msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
+
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: |
+              rm $(xpcBuildOutputPath)/win.exp
+              rm $(xpcBuildOutputPath)/win.lib
+              rm $(xpcBuildOutputPath)/64/win.exp
+              rm $(xpcBuildOutputPath)/64/win.lib
 
       - task: PublishPipelineArtifact@0
         inputs:
