@@ -25,6 +25,8 @@
 
 package gov.nasa.xpc;
 
+import gov.nasa.xpc.discovery.Beacon;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.AutoCloseable;
@@ -134,6 +136,19 @@ public class XPlaneConnect implements AutoCloseable
             throws java.net.SocketException, java.net.UnknownHostException
     {
         this(xpHost, xpPort, port, 100);
+    }
+
+
+    /**
+     * Initializes a new instance of the {@code XPlaneConnect} class from a received discovery Beacon
+     * @param beacon The beacon received from {@code XPlaneConnectDiscovery}
+     * @throws SocketException If this instance is unable to bind to the specified port.
+     */
+    public XPlaneConnect(Beacon beacon) throws SocketException {
+        this.socket = new DatagramSocket(0);
+        this.xplaneAddr = beacon.getXplaneAddress();
+        this.xplanePort = beacon.getPluginPort();
+        this.socket.setSoTimeout(100);
     }
 
     /**
