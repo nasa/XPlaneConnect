@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <thread>
+#include <atomic>
 #include <chrono>
 #include <functional>
 

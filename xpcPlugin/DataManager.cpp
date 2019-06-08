@@ -522,7 +522,7 @@ namespace XPC
 			Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: invalid DREF %s", dref.c_str());
 			return;
 		}
-		if (isnan(values[0]))
+        if (std::isnan(values[0]))
 		{
 			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Value must be a number (NaN received)");
 			return;
@@ -632,7 +632,7 @@ namespace XPC
 			Log::WriteLine(LOG_INFO, "DMAN", "Not actually setting gear because of default value");
 			return;
 		}
-		if (isnan(gear) || gear < 0 || gear > 1)
+		if (std::isnan(gear) || gear < 0 || gear > 1)
 		{
 			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Gear value must be between 0 and 1");
 			return;
@@ -662,7 +662,7 @@ namespace XPC
 	{
 		Log::FormatLine(LOG_INFO, "DMAN", "Setting position (%f, %f, %f) for aircraft %i",
 			pos[0], pos[1], pos[2], aircraft);
-		if (isnan(pos[0] + pos[1] + pos[2]))
+		if (std::isnan(pos[0] + pos[1] + pos[2]))
 		{
 			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Position must be a number (NaN received)");
 			return;
@@ -712,7 +712,7 @@ namespace XPC
 	{
 		Log::FormatLine(LOG_INFO, "DMAN", "Setting orientation (%f, %f, %f) for aircraft %i",
 			orient[0], orient[1], orient[2], aircraft);
-		if (isnan(orient[0] + orient[1] + orient[2]))
+		if (std::isnan(orient[0] + orient[1] + orient[2]))
 		{
 			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Orientation must be a number (NaN received)");
 			return;
@@ -763,7 +763,7 @@ namespace XPC
 	{
 		Log::FormatLine(LOG_INFO, "DMAN", "Setting flaps (value:%f)", value);
 
-		if (isnan(value))
+		if (std::isnan(value))
 		{
 			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Flap value must be a number (NaN received)");
 			return;
