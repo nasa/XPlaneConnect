@@ -22,10 +22,10 @@ variables:
 
   # The Github Release tasks requires a GH 'service connection' to be setup in the MS Azure Account
   # This connection must be setup in with a GH token in the MS Azure Project Settings
-  # 
+  #
   # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/github-release?view=azure-devops
   # https://docs.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml#sep-github
-  xpcGitHubConnection: xpc_gh
+  xpcGitHubConnection: jason-watkins
 
 
 stages:
@@ -59,9 +59,9 @@ stages:
           sudo apt-get update
           sudo apt-get install -y g++-5 mesa-common-dev g++-multilib g++-5-multilib
         displayName: 'apt install'
-        
+
       - script: |
-          cd xpcPlugin 
+          cd xpcPlugin
           cmake .
           make
         displayName: 'make'
@@ -115,7 +115,7 @@ stages:
         inputs:
           artifactName: '$(xpcArtifactNameWindows)'
           targetPath: '$(xpcBuildOutputPath)'
-  
+
   - stage: Deploy
     jobs:
     - job: Package_Binaries
@@ -132,7 +132,7 @@ stages:
         inputs:
           artifactName: '$(xpcArtifactNameLinux)'
           targetPath: $(System.DefaultWorkingDirectory)/$(xpcPackageName)
-      
+
       - task: DownloadPipelineArtifact@0
         inputs:
           artifactName: '$(xpcArtifactNameWindows)'
@@ -143,23 +143,23 @@ stages:
           artifactName: '$(xpcPackageName)'
           targetPath: $(System.DefaultWorkingDirectory)/$(xpcPackageName)
 
-      # Archive Files 
+      # Archive Files
       - task: ArchiveFiles@2
         inputs:
-          rootFolderOrFile: '$(System.DefaultWorkingDirectory)/$(xpcPackageName)' 
-          includeRootFolder: true 
+          rootFolderOrFile: '$(System.DefaultWorkingDirectory)/$(xpcPackageName)'
+          includeRootFolder: true
           archiveType: 'zip'
-          archiveFile: '$(Build.ArtifactStagingDirectory)/$(xpcPackageName).zip' 
+          archiveFile: '$(Build.ArtifactStagingDirectory)/$(xpcPackageName).zip'
 
-      # Uploads the .zip to GitHub and creates a new "Release" with the commit tag 
+      # Uploads the .zip to GitHub and creates a new "Release" with the commit tag
       # This tasks runs only on pushed tags
       - task: GitHubRelease@0
         inputs:
           gitHubConnection: '$(xpcGitHubConnection)'
-          repositoryName: '$(Build.Repository.Name)' 
+          repositoryName: '$(Build.Repository.Name)'
           action: 'create'
           target: '$(Build.SourceVersion)'
           tagSource: 'auto'
           tag: $(tagName)
-          assets: '$(Build.ArtifactStagingDirectory)/$(xpcPackageName).zip' 
-          isPreRelease: true 
+          assets: '$(Build.ArtifactStagingDirectory)/$(xpcPackageName).zip'
+          isPreRelease: true
