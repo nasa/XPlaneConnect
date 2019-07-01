@@ -27,7 +27,7 @@ languages that interact with the plugin.
 #### Quick Start
 To get started using X-Plane Connect, do the following.
 
-1. Purchase and install X-Plane 9 or 10.
+1. Purchase and install X-Plane 9, 10 or 11.
 2. Copy the X-Plane Plugin folder (`xpcPlugin/XPlaneConnect`) to the plugin
 directory (`[X-Plane Directory]/Resources/plugins/`)
 3. Write some code using one of the clients to manipulate X-Plane data.
@@ -55,7 +55,7 @@ physics simulation engine.
 ### Compatibility
 XPC has been tested with the following software versions:
 * Windows: Vista, 7, & 8
-* Mac OSX: 10.8-10.11
+* Mac OSX: 10.8-10.14
 * Linux: Tested on Red Hat Enterprise Linux Workstation release 6.6
 * X-Plane: 9, 10 & 11
 
