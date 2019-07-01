@@ -57,7 +57,7 @@ XPC has been tested with the following software versions:
 * Windows: Vista, 7, & 8
 * Mac OSX: 10.8-10.11
 * Linux: Tested on Red Hat Enterprise Linux Workstation release 6.6
-* X-Plane: 9 & 10
+* X-Plane: 9, 10 & 11
 
 ### Contributing
 All contributions are welcome! If you are having problems with the plugin, please
@@ -102,14 +102,14 @@ Software without restriction, including without limitation the rights to use,
 copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
 Software, and to permit persons to whom the Software is furnished to do so,
 subject to the following conditions:
- 
+
 * Redistributions of source code must retain the above copyright notice, this
   list of conditions and the following disclaimer.
 * Neither the names of the authors nor that of X-Plane or Laminar Research may
   be used to endorse or promote products derived from this software without
   specific prior written permission from the authors or Laminar Research,
   respectively.
- 
+
 X-Plane API SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
