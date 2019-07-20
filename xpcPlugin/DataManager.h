@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2017 United States Government as represented by the Administrator of the
+// Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 // National Aeronautics and Space Administration. All Rights Reserved.
 #ifndef XPCPLUGIN_DATAMANAGER_H_
 #define XPCPLUGIN_DATAMANAGER_H_
@@ -396,7 +396,7 @@ namespace XPC
 		/// \param pos      An array containing latitude, longitude and altitude in
 		///                 fractional degrees and meters above sea level.
 		/// \param aircraft The aircraft to set the position of.
-		static void SetPosition(float pos[3], char aircraft = 0);
+		static void SetPosition(double pos[3], char aircraft = 0);
 
 		/// Sets the orientation of the specified aircraft.
 		///
@@ -417,7 +417,7 @@ namespace XPC
 		///
 		/// \param value The value to check.
 		/// \returns     true if value is a default value; otherwise false.
-		static bool IsDefault(float value);
+		static bool IsDefault(double value);
 	};
 }
 #endif

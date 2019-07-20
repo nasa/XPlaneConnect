@@ -1,8 +1,8 @@
-//Copyright (c) 2013-2016 United States Government as represented by the Administrator of the
+//Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
 //
 //DISCLAIMERS
-//    No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND, 
+//    No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND,
 //    EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT
 //    THE SUBJECT SOFTWARE WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
 //    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM INFRINGEMENT, ANY WARRANTY
@@ -82,13 +82,13 @@ XPCSocket openUDP(const char *xpIP)
 XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
 {
 	XPCSocket sock;
-	
+
 	// Setup Port
 	struct sockaddr_in recvaddr;
 	recvaddr.sin_family = AF_INET;
 	recvaddr.sin_addr.s_addr = INADDR_ANY;
 	recvaddr.sin_port = htons(port);
-	
+
 	// Set X-Plane Port and IP
 	if (strcmp(xpIP, "localhost") == 0)
 	{
@@ -96,7 +96,7 @@ XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
 	}
 	strncpy(sock.xpIP, xpIP, 16);
 	sock.xpPort = xpPort == 0 ? 49009 : xpPort;
-	
+
 #ifdef _WIN32
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
@@ -105,7 +105,7 @@ XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
 		exit(EXIT_FAILURE);
 	}
 #endif
-	
+
 	if ((sock.sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
 	{
 		printError("OpenUDP", "Socket creation failed");
@@ -128,7 +128,7 @@ XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
 	if (setsockopt(sock.sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0)
 	{
 		printError("OpenUDP", "Failed to set timeout");
-	}	
+	}
 	return sock;
 }
 
@@ -160,7 +160,7 @@ int sendUDP(XPCSocket sock, char buffer[], int len)
 		printError("sendUDP", "Message length must be positive.");
 		return -1;
 	}
-	
+
 	// Set up destination address
 	struct sockaddr_in dst;
 	dst.sin_family = AF_INET;
@@ -273,7 +273,7 @@ int setCONN(XPCSocket* sock, unsigned short port)
 int pauseSim(XPCSocket sock, char pause)
 {
 	// Validte input
-	if (pause < 0 || pause > 2)
+	if (pause < 0 || (pause > 2 && pause < 100) || (pause > 119 && pause < 200) || pause > 219)
 	{
 		printError("pauseSim", "Invalid argument: %i", pause);
 		return -2;
@@ -311,7 +311,7 @@ int sendDATA(XPCSocket sock, float data[][9], int rows)
 
 	// Setup command
 	// 5 byte header + 134 rows * 9 values * 4 bytes per value => 4829 byte max length.
-	char buffer[4829] = "DATA"; 
+	char buffer[4829] = "DATA";
 	int len = 5 + rows * 9 * sizeof(float);
 	unsigned short step = 9 * sizeof(float);
     int i; // iterator
@@ -462,7 +462,7 @@ int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int si
 {
 	unsigned char buffer[65536];
 	int result = readUDP(sock, buffer, 65536);
-    
+
     if (result < 0)
     {
 #ifdef _WIN32
@@ -563,13 +563,14 @@ int getPOSI(XPCSocket sock, float values[7], char ac)
 		printError("getPOSI", "Unexpected response length.");
 		return -3;
 	}
+    // TODO: change this to the 64-bit lat/lon/h
 
 	// Copy response into values
 	memcpy(values, readBuffer + 6, 7 * sizeof(float));
 	return 0;
 }
 
-int sendPOSI(XPCSocket sock, float values[], int size, char ac)
+int sendPOSI(XPCSocket sock, double values[], int size, char ac)
 {
 	// Validate input
 	if (ac < 0 || ac > 20)
@@ -584,23 +585,32 @@ int sendPOSI(XPCSocket sock, float values[], int size, char ac)
 	}
 
 	// Setup command
-	// 5 byte header + up to 7 values * 5 bytes each
-	unsigned char buffer[40] = "POSI";
+	unsigned char buffer[46] = "POSI";
+	buffer[4] = 0xff; //Placeholder for message length
 	buffer[5] = ac;
     int i; // iterator
-	for (i = 0; i < 7; i++)
+
+	for (i = 0; i < 7; i++) // double for lat/lon/h
 	{
-		float val = -998;
+		double val = -998;
 
 		if (i < size)
 		{
 			val = values[i];
 		}
-		*((float*)(buffer + 6 + i * 4)) = val;
+		if (i < 3) /* lat/lon/h */
+		{
+			memcpy(&buffer[6 + i*8], &val, sizeof(double));
+		}
+		else /* attitude and gear */
+		{
+            float f = (float)val;
+            memcpy(&buffer[18 + i*4], &f, sizeof(float));
+		}
 	}
 
 	// Send Command
-	if (sendUDP(sock, buffer, 40) < 0)
+	if (sendUDP(sock, buffer, 46) < 0)
 	{
 		printError("sendPOSI", "Failed to send command");
 		return -3;
@@ -735,9 +745,9 @@ int sendTEXT(XPCSocket sock, char* msg, int x, int y)
 	size_t len = 14 + msgLen;
 	memcpy(buffer + 5, &x, sizeof(int));
 	memcpy(buffer + 9, &y, sizeof(int));
-	buffer[13] = msgLen;
+	buffer[13] = (unsigned char)msgLen;
 	strncpy(buffer + 14, msg, msgLen);
-	
+
 	// Send Command
 	if (sendUDP(sock, buffer, len) < 0)
 	{

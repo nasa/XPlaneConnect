@@ -1,0 +1,165 @@
+# Xcode
+# Build, test, and archive an Xcode workspace on macOS.
+# Add steps that install certificates, test, sign, and distribute an app, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/xcode
+
+trigger:
+  branches:
+    include:
+    # Build all branches starting with 'ms-' This is useful when making and testing chanes made to this file
+    - ms-*
+  tags:
+    include:
+    - '*'
+  # pr:
+  #   - '*'
+variables:
+  xpcBuildOutputPath: xpcPlugin/XPlaneConnect/
+  xpcArtifactNameLinux: xpc-linux
+  xpcArtifactNameMac: xpc-macos
+  xpcArtifactNameWindows: xpc-windows
+  xpcPackageName: XPlaneConnect
+
+  # The Github Release tasks requires a GH 'service connection' to be setup in the MS Azure Account
+  # This connection must be setup in with a GH token in the MS Azure Project Settings
+  #
+  # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/github-release?view=azure-devops
+  # https://docs.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml#sep-github
+  xpcGitHubConnection: XPC-Azure
+
+
+stages:
+  - stage: Build
+    jobs:
+    - job: macOS
+      pool:
+        vmImage: 'macos-latest'
+
+      steps:
+      - task: Xcode@5
+        inputs:
+          actions: 'build'
+          scheme: ''
+          sdk: 'macosx10.14'
+          configuration: 'Release'
+          xcWorkspacePath: 'xpcPlugin/xpcPlugin.xcodeproj'
+          xcodeVersion: 'default' # Options: 8, 9, 10, default, specifyPath
+      - task: PublishPipelineArtifact@0
+        inputs:
+          artifactName: '$(xpcArtifactNameMac)'
+          targetPath: '$(xpcBuildOutputPath)'
+
+    - job: Linux
+      pool:
+        vmImage: 'ubuntu-latest'
+
+      steps:
+      - script: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y g++-5 mesa-common-dev g++-multilib g++-5-multilib
+        displayName: 'apt install'
+
+      - script: |
+          cd xpcPlugin
+          cmake .
+          make
+        displayName: 'make'
+
+      - task: PublishPipelineArtifact@0
+        inputs:
+          artifactName: 'xpc-linux'
+          targetPath: '$(xpcBuildOutputPath)'
+
+    - job: Windows
+      pool:
+        vmImage: 'vs2017-win2016'
+
+      variables:
+        solution: 'xpcPlugin/xpcPlugin/xpcPlugin.sln'
+        buildPlatform: 'Win32|x64'
+        buildConfiguration: 'Release'
+        appxPackageDir: '$(build.artifactStagingDirectory)\AppxPackages\\'
+
+      steps:
+      - task: NuGetToolInstaller@0
+
+      - task: NuGetCommand@2
+        inputs:
+          restoreSolution: '$(solution)'
+
+      - task: VSBuild@1
+        inputs:
+          platform: 'Win32'
+          solution: '$(solution)'
+          configuration: '$(buildConfiguration)'
+          msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
+
+      - task: VSBuild@1
+        inputs:
+          platform: 'x64'
+          solution: '$(solution)'
+          configuration: '$(buildConfiguration)'
+          msbuildArgs: '/p:AppxBundlePlatforms="$(buildPlatform)" /p:AppxPackageDir="$(appxPackageDir)" /p:AppxBundle=Always /p:UapAppxPackageBuildMode=StoreUpload'
+
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: |
+              rm $(xpcBuildOutputPath)/win.exp
+              rm $(xpcBuildOutputPath)/win.lib
+              rm $(xpcBuildOutputPath)/64/win.exp
+              rm $(xpcBuildOutputPath)/64/win.lib
+
+      - task: PublishPipelineArtifact@0
+        inputs:
+          artifactName: '$(xpcArtifactNameWindows)'
+          targetPath: '$(xpcBuildOutputPath)'
+
+  - stage: Deploy
+    jobs:
+    - job: Package_Binaries
+      displayName: 'Package Binaries'
+      pool:
+        vmImage: 'ubuntu-latest'
+
+      steps:
+      - task: DownloadPipelineArtifact@0
+        inputs:
+          artifactName: '$(xpcArtifactNameMac)'
+          targetPath: $(System.DefaultWorkingDirectory)/$(xpcPackageName)
+      - task: DownloadPipelineArtifact@0
+        inputs:
+          artifactName: '$(xpcArtifactNameLinux)'
+          targetPath: $(System.DefaultWorkingDirectory)/$(xpcPackageName)
+
+      - task: DownloadPipelineArtifact@0
+        inputs:
+          artifactName: '$(xpcArtifactNameWindows)'
+          targetPath: $(System.DefaultWorkingDirectory)/$(xpcPackageName)
+
+      - task: PublishPipelineArtifact@0
+        inputs:
+          artifactName: '$(xpcPackageName)'
+          targetPath: $(System.DefaultWorkingDirectory)/$(xpcPackageName)
+
+      # Archive Files
+      - task: ArchiveFiles@2
+        inputs:
+          rootFolderOrFile: '$(System.DefaultWorkingDirectory)/$(xpcPackageName)'
+          includeRootFolder: true
+          archiveType: 'zip'
+          archiveFile: '$(Build.ArtifactStagingDirectory)/$(xpcPackageName).zip'
+
+      # Uploads the .zip to GitHub and creates a new "Release" with the commit tag
+      # This tasks runs only on pushed tags
+      - task: GitHubRelease@0
+        inputs:
+          gitHubConnection: '$(xpcGitHubConnection)'
+          repositoryName: '$(Build.Repository.Name)'
+          action: 'create'
+          target: '$(Build.SourceVersion)'
+          tagSource: 'auto'
+          tag: $(tagName)
+          assets: '$(Build.ArtifactStagingDirectory)/$(xpcPackageName).zip'
+          isPreRelease: true

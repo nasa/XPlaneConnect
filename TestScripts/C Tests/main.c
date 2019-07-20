@@ -1,4 +1,4 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+//Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
 #include "Test.h"
 #include "UDPTests.h"
@@ -13,7 +13,7 @@
 
 int main(int argc, const char * argv[]) {
     printf("XPC Tests-c ");
-    
+
 #ifdef _WIN32
     printf("(Windows)\n");
 #elif (__APPLE__)
@@ -23,7 +23,7 @@ int main(int argc, const char * argv[]) {
 #else
 	printf("(Unable to determine operating system) \n")
 #endif
-    
+
 	// Basic Networking
 	runTest(testOpen, "open");
     crossPlatformUSleep(SLEEP_AMOUNT);
@@ -78,11 +78,10 @@ int main(int argc, const char * argv[]) {
 	// setConn
     crossPlatformUSleep(SLEEP_AMOUNT);
     runTest(testCONN, "CONN");
-    
+
     printf( "----------------\nTest Summary\n\tFailed: %i\n\tPassed: %i\n", testFailed, testPassed );
 	printf("Press any key to exit.");
 	getchar();
-    
+
     return 0;
 }
-

@@ -1,4 +1,4 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+//Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
 #include "Test.h"
 
@@ -40,6 +40,30 @@ int compareArray(float expected[], float actual[], int size)
 }
 
 int compareArrays(float* expected[], int esizes[], float* actual[], int asizes[], int count)
+{
+	for (int i = 0; i < count; ++i)
+	{
+		if (esizes[i] != asizes[i])
+		{
+			return -100 - i;
+		}
+		for (int j = 0; j < esizes[i]; ++j)
+		{
+			if (!feq(actual[i][j], expected[i][j]) && !isnan(expected[i][j]))
+			{
+				return -1000 - i * 100 - j;
+			}
+		}
+	}
+	return 0;
+}
+
+int compareDoubleArray(double expected[], double actual[], int size)
+{
+	return compareDoubleArrays(&expected, &size, &actual, &size, 1);
+}
+
+int compareDoubleArrays(double* expected[], int esizes[], double* actual[], int asizes[], int count)
 {
 	for (int i = 0; i < count; ++i)
 	{

@@ -22,8 +22,8 @@ int		XPCKeyFilterAttachment::HandleWidgetMessage(
 								XPCWidget *		inObject,
 								XPWidgetMessage	inMessage,
 								XPWidgetID		inWidget,
-								long			inParam1,
-								long			inParam2)
+								intptr_t		inParam1,
+								intptr_t		inParam2)
 {
 	if (inMessage == xpMsg_KeyPress)
 	{
@@ -42,7 +42,7 @@ int		XPCKeyFilterAttachment::HandleWidgetMessage(
 
 XPCKeyMessageAttachment::XPCKeyMessageAttachment(
 								char			inKey,
-								long			inMessage,
+								int				inMessage,
 								void *			inParam,
 								bool			inConsume,
 								bool			inVkey,
@@ -62,8 +62,8 @@ int		XPCKeyMessageAttachment::HandleWidgetMessage(
 								XPCWidget *		inObject,
 								XPWidgetMessage	inMessage,
 								XPWidgetID		inWidget,
-								long			inParam1,
-								long			inParam2)
+								intptr_t		inParam1,
+								intptr_t		inParam2)
 {
 	if (inMessage == xpMsg_KeyPress)
 	{
@@ -81,7 +81,7 @@ int		XPCKeyMessageAttachment::HandleWidgetMessage(
 
 XPCPushButtonMessageAttachment::XPCPushButtonMessageAttachment(
 									XPWidgetID		inWidget,
-									long			inMessage,
+									int				inMessage,
 									void *			inParam,
 									XPCListener *	inListener) :
 	mMsg(inMessage), mParam(inParam), mWidget(inWidget)
@@ -98,8 +98,8 @@ int		XPCPushButtonMessageAttachment::HandleWidgetMessage(
 								XPCWidget *		inObject,
 								XPWidgetMessage	inMessage,
 								XPWidgetID		inWidget,
-								long			inParam1,
-								long			inParam2)
+								intptr_t		inParam1,
+								intptr_t		inParam2)
 {
 	if ((inMessage == xpMsg_PushButtonPressed) && ((XPWidgetID) inParam1 == mWidget))
 	{
@@ -117,7 +117,7 @@ int		XPCPushButtonMessageAttachment::HandleWidgetMessage(
 
 XPCSliderMessageAttachment::XPCSliderMessageAttachment(
 									XPWidgetID		inWidget,
-									long			inMessage,
+									int				inMessage,
 									void *			inParam,
 									XPCListener *	inListener) :
 	mMsg(inMessage), mParam(inParam), mWidget(inWidget)
@@ -134,8 +134,8 @@ int		XPCSliderMessageAttachment::HandleWidgetMessage(
 								XPCWidget *		inObject,
 								XPWidgetMessage	inMessage,
 								XPWidgetID		inWidget,
-								long			inParam1,
-								long			inParam2)
+								intptr_t		inParam1,
+								intptr_t		inParam2)
 {
 	if ((inMessage == xpMsg_ScrollBarSliderPositionChanged) && ((XPWidgetID) inParam1 == mWidget))
 	{
@@ -149,7 +149,7 @@ int		XPCSliderMessageAttachment::HandleWidgetMessage(
 
 XPCCloseButtonMessageAttachment::XPCCloseButtonMessageAttachment(
 									XPWidgetID		inWidget,
-									long			inMessage,
+									int				inMessage,
 									void *			inParam,
 									XPCListener *	inListener) :
 	mMsg(inMessage), mParam(inParam), mWidget(inWidget)
@@ -166,8 +166,8 @@ int		XPCCloseButtonMessageAttachment::HandleWidgetMessage(
 								XPCWidget *		inObject,
 								XPWidgetMessage	inMessage,
 								XPWidgetID		inWidget,
-								long			inParam1,
-								long			inParam2)
+								intptr_t		inParam1,
+								intptr_t		inParam2)
 {
 	if ((inMessage == xpMessage_CloseButtonPushed) && ((XPWidgetID) inParam1 == mWidget))
 	{
@@ -190,8 +190,8 @@ int		XPCTabGroupAttachment::HandleWidgetMessage(
 								XPCWidget *		inObject,
 								XPWidgetMessage	inMessage,
 								XPWidgetID		inWidget,
-								long			inParam1,
-								long			inParam2)
+								intptr_t		inParam1,
+								intptr_t		inParam2)
 {
 	if ((inMessage == xpMsg_KeyPress) && (KEY_CHAR(inParam1) == XPLM_KEY_TAB) &&
 		((KEY_FLAGS(inParam1) & xplm_UpFlag) == 0))
@@ -199,7 +199,7 @@ int		XPCTabGroupAttachment::HandleWidgetMessage(
 		bool backwards = (KEY_FLAGS(inParam1) & xplm_ShiftFlag) != 0;
 		std::vector<XPWidgetID>	widgets;
 		XPCGetOrderedSubWidgets(inWidget, widgets);
-		long	n, index = 0;
+		int	n, index = 0;
 		XPWidgetID	focusWidget = XPGetWidgetWithFocus();
 		std::vector<XPWidgetID>::iterator iter = std::find(widgets.begin(), widgets.end(), focusWidget);
 		if (iter != widgets.end())
@@ -254,8 +254,8 @@ static	void	XPCGetOrderedSubWidgets(
 							std::vector<XPWidgetID>&		outChildren)
 {
 	outChildren.clear();
-	long	count = XPCountChildWidgets(inWidget);
-	for (long n = 0; n < count; ++n)
+	int	count = XPCountChildWidgets(inWidget);
+	for (int n = 0; n < count; ++n)
 	{
 		XPWidgetID	child = XPGetNthChildWidget(inWidget, n);
 		outChildren.push_back(child);

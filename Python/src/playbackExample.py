@@ -33,7 +33,7 @@ def playback(path, interval):
         print "Unable to open file."
         return
 
-    with xpc.XPlaneConnect("localhost", 49009, 0, 1000) as client: 
+    with xpc.XPlaneConnect("localhost", 49009, 0, 1000) as client:
         print "Starting Playback..."
         for line in fd:
             try:
@@ -56,7 +56,7 @@ def printMenu(title, opts):
     return int(raw_input("Please select and option: "))
 
 def ex():
-    print "X-Plane Connect Playback Example  [Version 1.2.0]"
+    print "X-Plane Connect Playback Example  [Version 1.3-rc.1]"
     print "(c) 2013-2015 United States Government as represented by the Administrator"
     print "of the National Aeronautics and Space Administration. All Rights Reserved."
 

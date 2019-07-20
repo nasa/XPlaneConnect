@@ -22,7 +22,7 @@ XPCWidget::XPCWidget(
 		inIsRoot ? NULL : inParent,
 		inClass);
 
-	XPSetWidgetProperty(mWidget, xpProperty_Object, reinterpret_cast<long>(this));		
+	XPSetWidgetProperty(mWidget, xpProperty_Object, reinterpret_cast<intptr_t>(this));		
 	XPAddWidgetCallback(mWidget, WidgetCallback);
 }								
 						
@@ -33,7 +33,7 @@ XPCWidget::XPCWidget(
 	mOwnsChildren(false),
 	mOwnsWidget(inOwnsWidget)
 {
-	XPSetWidgetProperty(mWidget, xpProperty_Object, reinterpret_cast<long>(this));		
+	XPSetWidgetProperty(mWidget, xpProperty_Object, reinterpret_cast<intptr_t>(this));		
 	XPAddWidgetCallback(mWidget, WidgetCallback);
 }
 
@@ -95,8 +95,8 @@ void		XPCWidget::RemoveAttachment(
 int			XPCWidget::HandleWidgetMessage(
 								XPWidgetMessage			inMessage,
 								XPWidgetID				inWidget,
-								long					inParam1,
-								long					inParam2)
+								intptr_t				inParam1,
+								intptr_t				inParam2)
 {
 	return 0;
 }								
@@ -104,8 +104,8 @@ int			XPCWidget::HandleWidgetMessage(
 int			XPCWidget::WidgetCallback(
 								XPWidgetMessage			inMessage,
 								XPWidgetID				inWidget,
-								long					inParam1,
-								long					inParam2)
+								intptr_t				inParam1,
+								intptr_t				inParam2)
 {
 	XPCWidget * me = reinterpret_cast<XPCWidget *>(XPGetWidgetProperty(inWidget, xpProperty_Object, NULL));
 	if (me == NULL)

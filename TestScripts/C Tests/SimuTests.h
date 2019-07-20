@@ -1,4 +1,4 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+//Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
 #ifndef SIMUTESTS_H
 #define SIMIUTESTS_H
@@ -16,7 +16,7 @@ int doSIMUTest(int value, float expected)
 	int result = pauseSim(sock, value);
 	if (result >= 0)
 	{
-		result = getDREF(sock, dref, &actual, &size);
+		result = getDREF(sock, dref, actual, &size);
 	}
 	closeUDP(sock);
 	if (result < 0)

@@ -542,15 +542,15 @@ public class XPlaneConnectTest
     public void testSendPOSI() throws IOException
     {
         String[] drefs = {
-            "sim/flightmodel/position/latitude",
-            "sim/flightmodel/position/longitude",
-            "sim/flightmodel/position/y_agl",
-            "sim/flightmodel/position/phi",
-            "sim/flightmodel/position/theta",
-            "sim/flightmodel/position/psi",
-            "sim/cockpit/switches/gear_handle_status"
+                "sim/flightmodel/position/latitude",
+                "sim/flightmodel/position/longitude",
+                "sim/flightmodel/position/y_agl",
+                "sim/flightmodel/position/phi",
+                "sim/flightmodel/position/theta",
+                "sim/flightmodel/position/psi",
+                "sim/cockpit/switches/gear_handle_status"
         };
-        float[] posi = new float[] {37.524F, -122.06899F, 2500, 0, 0, 0, 1};
+        double[] posi = new double[] {37.524, -122.06899, 2500, 0, 0, 0, 1};
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.pauseSim(true);
@@ -585,7 +585,7 @@ public class XPlaneConnectTest
     @Test(expected = IllegalArgumentException.class)
     public void testSendPOSI_LongCtrl() throws IOException
     {
-        float[] posi = new float[] {37.524F, -122.06899F, 2500, 0, 0, 0, 1, -998};
+        double[] posi = new double[] {37.524, -122.06899, 2500, 0, 0, 0, 1, -998};
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendPOSI(posi);
@@ -595,7 +595,7 @@ public class XPlaneConnectTest
     @Test(expected = IllegalArgumentException.class)
     public void testSendPOSI_NegativeAircraftNum() throws IOException
     {
-        float[] posi = new float[] {37.524F, -122.06899F, 2500, 0, 0, 0, 1, -998};
+        double[] posi = new double[] {37.524, -122.06899, 2500, 0, 0, 0, 1, -998};
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendPOSI(posi, -1);
@@ -605,7 +605,7 @@ public class XPlaneConnectTest
     @Test(expected = IllegalArgumentException.class)
     public void testSendPOSI_LargeAircraftNum() throws IOException
     {
-        float[] posi = new float[] {37.524F, -122.06899F, 2500, 0, 0, 0, 1, -998};
+        double[] posi = new double[] {37.524, -122.06899, 2500, 0, 0, 0, 1, -998};
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.sendPOSI(posi, 300);
@@ -702,12 +702,12 @@ public class XPlaneConnectTest
     @Test
     public void testGetPOSI() throws IOException
     {
-        float[] values = { 37.524F, -122.06899F, 2500.0F, 45.0F, -45.0F, 15.0F, 1.0F };
+        double[] values = { 37.524, -122.06899, 2500.0, 45.0, -45.0, 15.0, 1.0 };
         try(XPlaneConnect xpc = new XPlaneConnect())
         {
             xpc.pauseSim(true);
             xpc.sendPOSI(values);
-            float[] actual = xpc.getPOSI(0);
+            double[] actual = xpc.getPOSI(0);
 
             assertArrayEquals(values, actual, 1e-4F);
         }

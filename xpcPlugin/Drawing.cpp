@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2017 United States Government as represented by the Administrator of the
+// Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 // National Aeronautics and Space Administration. All Rights Reserved.
 //
 // X-Plane API
@@ -173,7 +173,7 @@ namespace XPC
 		glBegin(GL_LINE_STRIP);
 		for (size_t i = 0; i < numWaypoints; ++i)
 		{
-            LocalPoint* l = &localPoints[i];
+			LocalPoint* l = &localPoints[i];
 			glVertex3f((float)l->x, (float)l->y, (float)l->z);
 		}
 		glEnd();
@@ -226,7 +226,7 @@ namespace XPC
 		// Enable drawing if necessary
 		if (!msgEnabled)
 		{
-            XPLMRegisterDrawCallback(MessageDrawCallback, xplm_Phase_Window, 0, NULL);
+			XPLMRegisterDrawCallback(MessageDrawCallback, xplm_Phase_Window, 0, NULL);
 			msgEnabled = true;
 		}
 	}

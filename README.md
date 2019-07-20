@@ -68,7 +68,7 @@ the next official release.
 
 
 ### Notices
-Copyright ©2013-2017 United States Government as represented by the Administrator
+Copyright ©2013-2018 United States Government as represented by the Administrator
 of the National Aeronautics and Space Administration.  All Rights Reserved.
 
 No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY

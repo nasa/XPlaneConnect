@@ -1,7 +1,6 @@
 package gov.nasa.xpc.ex;
 
 import gov.nasa.xpc.XPlaneConnect;
-
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.Arrays;
@@ -25,11 +24,11 @@ public class Main
             xpc.getDREF("sim/test/test_float");
 
             System.out.println("Setting player aircraft position");
-            float[] posi = new float[] {37.524F, -122.06899F, 2500, 0, 0, 0, 1};
+            double[] posi = new double[] {37.524, -122.06899, 2500, 0, 0, 0, 1};
             xpc.sendPOSI(posi);
 
             System.out.println("Setting another aircraft position");
-            posi[0] = 37.52465F;
+            posi[0] = 37.52465;
             posi[4] = 20;
             xpc.sendPOSI(posi, 1);
 

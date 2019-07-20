@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2017 United States Government as represented by the Administrator of the
+// Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 // National Aeronautics and Space Administration. All Rights Reserved.
 #include "Message.h"
 #include "Log.h"
@@ -11,7 +11,7 @@
 
 namespace XPC
 {
-    Message::Message() {}
+	Message::Message() {}
 
 	Message Message::ReadFrom(const UDPSocket& sock)
 	{
@@ -110,17 +110,17 @@ namespace XPC
 		else if (head == "DREF")
 		{
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-            string dref((char*)buffer + 6, buffer[5]);
-            Log::FormatLine(LOG_DEBUG, "DBUG", "    DREF (size %i) = %s", dref.length(), dref.c_str());
-            ss.str("");
-            int values = buffer[6 + buffer[5]];
-            ss << "    Values(size " << values << ") =";
-            for (int i = 0; i < values; ++i)
-            {
-                ss << " " << *((float*)(buffer + values + 1 + sizeof(float) * i));
+			string dref((char*)buffer + 6, buffer[5]);
+			Log::FormatLine(LOG_DEBUG, "DBUG", "    DREF (size %i) = %s", dref.length(), dref.c_str());
+			ss.str("");
+			int values = buffer[6 + buffer[5]];
+			ss << "    Values(size " << values << ") =";
+			for (int i = 0; i < values; ++i)
+			{
+				ss << " " << *((float*)(buffer + values + 1 + sizeof(float) * i));
 			}
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-        }
+		}
 		else if (head == "GETC" || head == "GETP")
 		{
 			ss << " Aircraft:" << (int)buffer[5];
@@ -129,15 +129,15 @@ namespace XPC
 		else if (head == "GETD")
 		{
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-            int cur = 6;
-            for (int i = 0; i < buffer[5]; ++i)
-            {
-                string dref((char*)buffer + cur + 1, buffer[cur]);
-                Log::FormatLine(LOG_DEBUG, "DBUG", "    #%i/%i (size:%i) %s",
+			int cur = 6;
+			for (int i = 0; i < buffer[5]; ++i)
+			{
+				string dref((char*)buffer + cur + 1, buffer[cur]);
+				Log::FormatLine(LOG_DEBUG, "DBUG", "    #%i/%i (size:%i) %s",
 					i + 1, buffer[5], dref.length(), dref.c_str());
-                cur += 1 + buffer[cur];
-            }
-        }
+				cur += 1 + buffer[cur];
+			}
+		}
 		else if (head == "POSI")
 		{
 			char aircraft = buffer[5];
@@ -146,14 +146,14 @@ namespace XPC
 			float orient[3];
 			memcpy(pos, buffer + 6, 12);
 			memcpy(orient, buffer + 18, 12);
-            ss << " AC:" << (int)aircraft;
+			ss << " AC:" << (int)aircraft;
 			ss << " Pos:(" << pos[0] << ' ' << pos[1] << ' ' << pos[2] << ") Orient:(";
-			ss << orient[3] << ' ' << orient[4] << ' ' << orient[5] << ") Gear:";
+			ss << orient[0] << ' ' << orient[1] << ' ' << orient[2] << ") Gear:";
 			ss << gear;
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-        }
+		}
 		else if (head == "SIMU")
-        {
+		{
 			ss << ' ' << (int)buffer[5];
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
 		}
@@ -163,9 +163,9 @@ namespace XPC
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
 		}
 		else
-        {
+		{
 			ss << " UNKNOWN HEADER ";
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
-        }
+		}
 	}
 }

@@ -20,7 +20,7 @@ public:
 protected:
 
 			void		BroadcastMessage(
-							long		inMessage,
+							int			inMessage,
 							void *		inParam=0);
 
 private:

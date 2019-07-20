@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2017 United States Government as represented by the Administrator of the
+// Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 // National Aeronautics and Space Administration. All Rights Reserved.
 #ifndef XPCPLUGIN_LOG_H_
 #define XPCPLUGIN_LOG_H_
@@ -27,7 +27,7 @@
 namespace XPC
 {
 	/// Handles logging for the plugin.
-	/// 
+	///
 	/// \details Provides functions to write lines to the XPC log file.
 	/// \author Jason Watkins
 	/// \version 1.1

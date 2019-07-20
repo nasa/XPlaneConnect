@@ -8,7 +8,7 @@ class XPlaneConnect(object):
     # Basic Functions
     def __init__(self, xpHost = 'localhost', xpPort = 49009, port = 0, timeout = 100):
         '''Sets up a new connection to an X-Plane Connect plugin running in X-Plane.
-        
+
             Args:
               xpHost: The hostname of the machine running X-Plane.
               xpPort: The port on which the XPC plugin is listening. Usually 49007.
@@ -33,7 +33,7 @@ class XPlaneConnect(object):
         # Setup XPlane IP and port
         self.xpDst = (xpIP, xpPort)
 
-        # Create and bind socket        
+        # Create and bind socket
         clientAddr = ("0.0.0.0", port)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         self.socket.bind(clientAddr)
@@ -71,18 +71,18 @@ class XPlaneConnect(object):
     # Configuration
     def setCONN(self, port):
         '''Sets the port on which the client sends and receives data.
-        
+
             Args:
               port: The new port to use.
         '''
-        #Validate parameters        
+        #Validate parameters
         if port < 0 or port > 65535:
             raise ValueError("The specified port is not a valid port number.")
 
         #Send command
         buffer = struct.pack("<4sxH", "CONN", port)
         self.sendUDP(buffer)
-        
+
         #Rebind socket
         clientAddr = ("0.0.0.0", port)
         timeout = self.socket.gettimeout();
@@ -96,12 +96,14 @@ class XPlaneConnect(object):
 
     def pauseSim(self, pause):
         '''Pauses or un-pauses the physics simulation engine in X-Plane.
-        
+
             Args:
-              pause: True to pause the simulation; False to resume.
+              pause: True to pause the simulation for all a/c; False to resume for all a/c.
+                2 to switch the status for all a/c. 100:119 to pause a/c 0:19. 200:219 to 
+                resume a/c 0:19
         '''
         pause = int(pause)
-        if pause < 0 or pause > 2:
+        if pause < 0 or (pause > 2 and pause < 100) or (pause > 119 and pause < 200) or pause > 219 :
             raise ValueError("Invalid argument for pause command.")
 
         buffer = struct.pack("<4sxB", "SIMU", pause)
@@ -110,7 +112,7 @@ class XPlaneConnect(object):
     # X-Plane UDP Data
     def readDATA(self):
         '''Reads X-Plane data.
-        
+
             Returns: A 2 dimensional array containing 0 or more rows of data. Each array
               in the result will have 9 elements, the first of which is the row number which
               that array represents data for, and the rest of which are the data elements in
@@ -127,7 +129,7 @@ class XPlaneConnect(object):
 
     def sendDATA(self, data):
         '''Sends X-Plane data over the underlying UDP socket.
-        
+
             Args:
               data: An array of values representing data rows to be set. Each array in `data`
                 should have 9 elements, the first of which is a row number in the range (0-134),
@@ -143,7 +145,7 @@ class XPlaneConnect(object):
             buffer += struct.pack("<I8f", *row)
         self.sendUDP(buffer)
 
-    # Position    
+    # Position
     def getPOSI(self, ac = 0):
         '''Gets position information for the specified aircraft.
 
@@ -189,6 +191,7 @@ class XPlaneConnect(object):
         if ac < 0 or ac > 20:
             raise ValueError("Aircraft number must be between 0 and 20.")
 
+        # FIXME update this to the 64-bit double lat/lon/h
         # Pack message
         buffer = struct.pack("<4sxB", "POSI", ac)
         for i in range(7):
@@ -264,8 +267,8 @@ class XPlaneConnect(object):
 
         # Send
         self.sendUDP(buffer)
-        
-    # DREF Manipulation    
+
+    # DREF Manipulation
     def sendDREF(self, dref, values):
         '''Sets the specified dataref to the specified value.
 
@@ -294,7 +297,7 @@ class XPlaneConnect(object):
                 raise ValueError("dref must be a non-empty string less than 256 characters.")
             if value == None:
                 raise ValueError("value must be a scalar or sequence of floats.")
-        
+
             # Pack message
             if hasattr(value, "__len__"):
                 if len(value) > 255:
@@ -310,7 +313,7 @@ class XPlaneConnect(object):
 
     def getDREF(self, dref):
         '''Gets the value of an X-Plane dataref.
-            
+
             Args:
               dref: The name of the dataref to get.
 

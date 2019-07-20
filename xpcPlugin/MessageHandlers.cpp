@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2017 United States Government as represented by the Administrator of the
+// Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 // National Aeronautics and Space Administration. All Rights Reserved.
 //
 // X-Plane API
@@ -20,9 +20,16 @@
 #include "Log.h"
 
 #include "XPLMUtilities.h"
+#include "XPLMGraphics.h"
+
 
 #include <cmath>
 #include <cstring>
+#include <cstdint>
+
+#define MULTICAST_GROUP "239.255.1.1"
+#define MULITCAST_PORT 49710
+
 
 namespace XPC
 {
@@ -32,6 +39,8 @@ namespace XPC
 	std::string MessageHandlers::connectionKey;
 	MessageHandlers::ConnectionInfo MessageHandlers::connection;
 	UDPSocket* MessageHandlers::sock;
+	
+	static sockaddr multicast_address = UDPSocket::GetAddr(MULTICAST_GROUP, MULITCAST_PORT);
 
 	void MessageHandlers::SetSocket(UDPSocket* socket)
 	{
@@ -126,6 +135,28 @@ namespace XPC
 		{
 			MessageHandlers::HandleUnknown(msg);
 		}
+	}
+	
+	void MessageHandlers::SendBeacon(const std::string& pluginVersion, unsigned short  pluginReceivePort, int xplaneVersion) {
+		
+		unsigned char response[128] = "BECN";
+		
+		std::size_t cur = 5;
+
+		// 2 bytes plugin port
+		*((uint16_t *)(response + cur)) = pluginReceivePort;
+		cur += sizeof(uint16_t);
+
+		// 4 bytes xplane version
+		*((uint32_t*)(response + cur)) = xplaneVersion;
+		cur += sizeof(uint32_t);
+		
+		// plugin version
+		int len = pluginVersion.length();
+		memcpy(response + cur, pluginVersion.c_str(), len);
+		cur += strlen(pluginVersion.c_str()) + len;
+		
+		sock->SendTo(response, cur, &multicast_address);
 	}
 
 	void MessageHandlers::HandleConn(const Message& msg)
@@ -342,10 +373,11 @@ namespace XPC
 			}
 			case 20: // Position
 			{
-				float pos[3];
-				pos[0] = values[i][2];
-				pos[1] = values[i][3];
-				pos[2] = values[i][4];
+				// TODO: loss of precision here
+				double pos[3];
+				pos[0] = (double)values[i][2];
+				pos[1] = (double)values[i][3];
+				pos[2] = (double)values[i][4];
 				DataManager::SetPosition(pos);
 				break;
 			}
@@ -439,7 +471,7 @@ namespace XPC
 		unsigned char aircraft = buffer[5];
 		// TODO(jason-watkins): Get proper printf specifier for unsigned char
 		Log::FormatLine(LOG_TRACE, "GCTL", "Getting control information for aircraft %u", aircraft);
-		
+
 		float throttle[8];
 		unsigned char response[31] = "CTRL";
 		*((float*)(response + 5)) = DataManager::GetFloat(DREF_Elevator, aircraft);
@@ -524,13 +556,14 @@ namespace XPC
 
 		unsigned char response[34] = "POSI";
 		response[5] = (char)DataManager::GetInt(DREF_GearHandle, aircraft);
+		// TODO change lat/lon/h to double?
 		*((float*)(response + 6)) = (float)DataManager::GetDouble(DREF_Latitude, aircraft);
 		*((float*)(response + 10)) = (float)DataManager::GetDouble(DREF_Longitude, aircraft);
 		*((float*)(response + 14)) = (float)DataManager::GetDouble(DREF_Elevation, aircraft);
 		*((float*)(response + 18)) = DataManager::GetFloat(DREF_Pitch, aircraft);
 		*((float*)(response + 22)) = DataManager::GetFloat(DREF_Roll, aircraft);
 		*((float*)(response + 26)) = DataManager::GetFloat(DREF_HeadingTrue, aircraft);
-		
+
 		float gear[10];
 		DataManager::GetFloatArray(DREF_GearDeploy, gear, 10, aircraft);
 		*((float*)(response + 30)) = gear[0];
@@ -545,18 +578,37 @@ namespace XPC
 
 		const unsigned char* buffer = msg.GetBuffer();
 		const std::size_t size = msg.GetSize();
-		if (size < 34)
+
+		char aircraftNumber = buffer[5];
+		float gear = *((float*)(buffer + 42));
+		double posd[3];
+		float orient[3];
+
+		if (size == 34) /* lat/lon/h as 32-bit float */
 		{
-			Log::FormatLine(LOG_ERROR, "POSI", "ERROR: Unexpected size: %i (Expected at least 34)", size);
+			posd[0] = *((float*)&buffer[6]);
+			posd[1] = *((float*)&buffer[10]);
+			posd[2] = *((float*)&buffer[14]);
+			memcpy(orient, buffer + 18, 12);
+		}
+		else if (size == 46) /* lat/lon/h as 64-bit double */
+		{
+			memcpy(posd, buffer + 6, 3*8);
+			memcpy(orient, buffer + 30, 12);
+		}
+		else
+		{
+			Log::FormatLine(LOG_ERROR, "POSI", "ERROR: Unexpected size: %i (Expected 34 or 46)", size);
 			return;
 		}
 
-		char aircraftNumber = buffer[5];
-		float gear = *((float*)(buffer + 30));
-		float pos[3];
-		float orient[3];
-		memcpy(pos, buffer + 6, 12);
-		memcpy(orient, buffer + 18, 12);
+		/* convert float to double */
+		DataManager::SetPosition(posd, aircraftNumber);
+		DataManager::SetOrientation(orient, aircraftNumber);
+		if (gear >= 0)
+		{
+			DataManager::SetGear(gear, true, aircraftNumber);
+		}
 
 		if (aircraftNumber > 0)
 		{
@@ -569,13 +621,6 @@ namespace XPC
 				DataManager::Set(DREF_PauseAI, ai, 0, 20);
 			}
 		}
-
-		DataManager::SetPosition(pos, aircraftNumber);
-		DataManager::SetOrientation(orient, aircraftNumber);
-		if (gear != -1)
-		{
-			DataManager::SetGear(gear, true, aircraftNumber);
-		}
 	}
 
 	void MessageHandlers::HandleSimu(const Message& msg)
@@ -583,13 +628,13 @@ namespace XPC
 		// Update log
 		Log::FormatLine(LOG_TRACE, "SIMU", "Message Received (Conn %i)", connection.id);
 
-		char v = msg.GetBuffer()[5];
-		if (v < 0 || v > 2)
+		unsigned char v = msg.GetBuffer()[5];
+		if (v < 0 || (v > 2 && v < 100) || (v > 119 && v < 200) || v > 219)
 		{
 			Log::FormatLine(LOG_ERROR, "SIMU", "ERROR: Invalid argument: %i", v);
 			return;
 		}
-		
+
 		int value[20];
 		if (v == 2)
 		{
@@ -598,6 +643,16 @@ namespace XPC
 			{
 				value[i] = value[i] ? 0 : 1;
 			}
+		}
+		else if ((v >= 100) && (v < 120))
+		{
+			DataManager::GetIntArray(DREF_Pause, value, 20);
+			value[v - 100] = 1;
+		}
+		else if ((v >= 200) && (v < 220))
+		{
+			DataManager::GetIntArray(DREF_Pause, value, 20);
+			value[v - 200] = 0;
 		}
 		else
 		{
@@ -610,18 +665,27 @@ namespace XPC
 		// Set DREF
 		DataManager::Set(DREF_Pause, value, 20);
 
-		switch (v)
+		if (v == 0)
 		{
-		case 0:
-			Log::WriteLine(LOG_INFO, "SIMU", "Simulation resumed");
-			break;
-		case 1:
-			Log::WriteLine(LOG_INFO, "SIMU", "Simulation paused");
-			break;
-		case 2:
-			Log::FormatLine(LOG_INFO, "SIMU", "Simulation switched to %i", value[0]);
-			break;
+			Log::WriteLine(LOG_INFO, "SIMU", "Simulation resumed for all a/c");
 		}
+		else if (v == 1)
+		{
+			Log::WriteLine(LOG_INFO, "SIMU", "Simulation paused for all a/c");
+		}
+		else if (v == 2)
+		{
+			Log::FormatLine(LOG_INFO, "SIMU", "Simulation switched to %i for all a/c", value[0]);
+		}
+		else if ((v >= 100) && (v < 120))
+		{
+			Log::FormatLine(LOG_INFO, "SIMU", "Simulation paused for a/c %i", (v-100));
+		}
+		else if ((v >= 200) && (v < 220))
+		{
+			Log::FormatLine(LOG_INFO, "SIMU", "Simulation resumed for a/c %i", (v-100));
+		}
+
 	}
 
 	void MessageHandlers::HandleText(const Message& msg)
@@ -653,21 +717,111 @@ namespace XPC
 			Log::WriteLine(LOG_INFO, "TEXT", "[TEXT] Text set");
 		}
 	}
-
+	
 	void MessageHandlers::HandleView(const Message& msg)
 	{
 		// Update Log
 		Log::FormatLine(LOG_TRACE, "VIEW", "Message Received(Conn %i)", connection.id);
 
+		int enable_camera_location = 0;
+		
 		const std::size_t size = msg.GetSize();
-		if (size != 9)
+		if (size == 9)
 		{
-			Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 9.", size);
+			// default view switcher as before
+		}
+		else if (size == 37)
+		{
+			// Allow camera location control
+			enable_camera_location = 1;
+		}
+		else
+		{
+			Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 9 or 37.", size);
 			return;
 		}
 		const unsigned char* buffer = msg.GetBuffer();
 		int type = *((int*)(buffer + 5));
 		XPLMCommandKeyStroke(type);
+		
+		if(type == 79 && enable_camera_location == 1) // runway camera view
+		{
+			static struct CameraProperties campos;
+		
+			campos.loc[0] = *(double*)(buffer+9);
+			campos.loc[1] = *(double*)(buffer+17);
+			campos.loc[2] = *(double*)(buffer+25);
+			campos.direction[0] = -998;
+			campos.direction[1] = -998;
+			campos.direction[2] = -998;
+			campos.zoom	  = *(float*)(buffer+33);
+			
+			Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2],campos.zoom);
+		
+			XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamFunc, &campos);
+		}
+	}
+	
+	int MessageHandlers::CamFunc( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon)
+	{
+		if (outCameraPosition && !inIsLosingControl)
+		{
+			struct CameraProperties* campos = (struct CameraProperties*)inRefcon;
+			
+			// camera position
+			double clat = campos->loc[0];
+			double clon = campos->loc[1];
+			double calt = campos->loc[2];
+			
+			double cX, cY, cZ;
+			XPLMWorldToLocal(clat, clon, calt, &cX, &cY, &cZ);
+			
+			outCameraPosition->x = cX;
+			outCameraPosition->y = cY;
+			outCameraPosition->z = cZ;
+			
+//			  Log::FormatLine(LOG_TRACE, "CAM", "Cam pos %f %f %f", clat, clon, calt);
+			
+			if(campos->direction[0] == -998) // calculate camera direction
+			{
+				// aircraft position
+				double x = XPC::DataManager::GetDouble(XPC::DREF_LocalX, 0);
+				double y = XPC::DataManager::GetDouble(XPC::DREF_LocalY, 0);
+				double z = XPC::DataManager::GetDouble(XPC::DREF_LocalZ, 0);
+			
+				// relative position vector cam to plane
+				double dx = x - cX;
+				double dy = y - cY;
+				double dz = z - cZ;
+			
+//			    Log::FormatLine(LOG_TRACE, "CAM", "Cam vect %f %f %f", dx, dy, dz);
+			
+				double pi = 3.141592653589793;
+			
+				// horizontal distance
+				double dist = sqrt(dx*dx + dz*dz);
+			
+				outCameraPosition->pitch = atan2(dy, dist) * 180.0/pi;
+			
+				double angle = atan2(dz, dx) * 180.0/pi; // rel to pos right (pos X)
+			
+				outCameraPosition->heading = 90 + angle; // rel to north
+			
+//			    Log::FormatLine(LOG_TRACE, "CAM", "Cam p %f hdg %f ", outCameraPosition->pitch, outCameraPosition->heading);
+			
+				outCameraPosition->roll = 0;
+			}
+			else
+			{
+				outCameraPosition->roll     = campos->direction[0];
+				outCameraPosition->pitch    = campos->direction[1];
+				outCameraPosition->heading  = campos->direction[2];
+			}
+			
+			outCameraPosition->zoom = campos->zoom;
+		}
+		
+		return 1;
 	}
 
 	void MessageHandlers::HandleWypt(const Message& msg)

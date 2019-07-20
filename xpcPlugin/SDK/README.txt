@@ -51,6 +51,11 @@ Mach-O if you want to use 2.0 features.
 
 This section contains per-release notes for the history of the X-Plane SDK.
 
+X-Plane SDK Release 2.1.3 11/14/13
+
+Fixed XPC Wrappers to use int and intptr_t instead of long.  This fixes
+crashes for plugins on 64-bit Windows.
+
 X-Plane SDK Release 2.1.2 RC2 1/15/13
 
 Removed headers from frameworks, as they don't work; updated README.

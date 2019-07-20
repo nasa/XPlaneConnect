@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2017 United States Government as represented by the Administrator of the
+// Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 // National Aeronautics and Space Administration. All Rights Reserved.
 #ifndef XPCPLUGIN_MESSAGEHANDLERS_H_
 #define XPCPLUGIN_MESSAGEHANDLERS_H_
@@ -6,6 +6,9 @@
 
 #include <string>
 #include <map>
+
+#include "XPLMCamera.h"
+
 
 namespace XPC
 {
@@ -26,15 +29,17 @@ namespace XPC
 		/// socket.
 		///
 		/// \details After a message is read, HandleMessage analyzes the sender's network address
-		///          to determine whether the sender is a new client. It then either loads
-		///          connection details for an existing client, or creates a new connection record
-		///          for new clients. Finally, the message handler checks the message type and
-		///          dispatches the message to the appropriate handler.
+		///			 to determine whether the sender is a new client. It then either loads
+		///			 connection details for an existing client, or creates a new connection record
+		///			 for new clients. Finally, the message handler checks the message type and
+		///			 dispatches the message to the appropriate handler.
 		/// \param msg The message to be processed.
 		static void HandleMessage(Message& msg);
 
 		/// Sets the socket that message handlers use to send responses.
 		static void SetSocket(UDPSocket* socket);
+		
+		static void SendBeacon(const std::string& pluginVersion, unsigned short pluginReceivePort, int xplaneVersion);
 
 	private:
 		// One handler per message type. Message types are descripbed on the
@@ -54,6 +59,14 @@ namespace XPC
 
 		static void HandleXPlaneData(const Message& msg);
 		static void HandleUnknown(const Message& msg);
+		
+		static int CamFunc( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon);
+		
+		struct CameraProperties{
+			double loc[3];
+			float direction[3];
+			float zoom;
+		};
 
 		typedef struct
 		{

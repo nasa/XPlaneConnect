@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3D0F44CE21C6D3E7008A0655 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3D0F44CD21C6D3E7008A0655 /* Timer.cpp */; };
 		BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */; };
 		BE8361EF18C5591C00E9C923 /* mac.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* mac.xpl */; };
 		BEABAD371AE041A3007BA7DA /* DataManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */; };
@@ -36,6 +37,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3D0F44CC21C6D3E7008A0655 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
+		3D0F44CD21C6D3E7008A0655 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
 		BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XPCPlugin.cpp; sourceTree = SOURCE_ROOT; usesTabs = 1; };
 		BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataManager.cpp; sourceTree = "<group>"; };
 		BEABAD2C1AE041A3007BA7DA /* DataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataManager.h; sourceTree = "<group>"; };
@@ -76,6 +79,7 @@
 		AC4E46B809C2E0B3006B7E1B /* src */ = {
 			isa = PBXGroup;
 			children = (
+				3D0F44CD21C6D3E7008A0655 /* Timer.cpp */,
 				BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */,
 				BEDC620218EDF1A7005DB364 /* xplaneConnect.c */,
 				BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */,
@@ -91,6 +95,7 @@
 		BE953E0B1AEB183400CE4A8C /* inc */ = {
 			isa = PBXGroup;
 			children = (
+				3D0F44CC21C6D3E7008A0655 /* Timer.h */,
 				BEDC620318EDF1A7005DB364 /* xplaneConnect.h */,
 				BEABAD2C1AE041A3007BA7DA /* DataManager.h */,
 				BEABAD301AE041A3007BA7DA /* Drawing.h */,
@@ -190,6 +195,7 @@
 				BEDC620418EDF1A7005DB364 /* xplaneConnect.c in Sources */,
 				BEABAD371AE041A3007BA7DA /* DataManager.cpp in Sources */,
 				BEABAD391AE041A3007BA7DA /* Drawing.cpp in Sources */,
+				3D0F44CE21C6D3E7008A0655 /* Timer.cpp in Sources */,
 				BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */,
 				BEABAD3F1AE0498D007BA7DA /* UDPSocket.cpp in Sources */,
 			);
@@ -298,11 +304,14 @@
 		D607B19C09A556E400699BC3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CLANG_WARN_CXX0X_EXTENSIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
+				CONFIGURATION_BUILD_DIR = ./XPlaneConnect/;
 				CURRENT_PROJECT_VERSION = 0.24;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = NO;
@@ -337,11 +346,14 @@
 		D607B19D09A556E400699BC3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CLANG_WARN_CXX0X_EXTENSIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
+				CONFIGURATION_BUILD_DIR = ./XPlaneConnect/;
 				CURRENT_PROJECT_VERSION = 0.24;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = NO;
@@ -365,9 +377,7 @@
 					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/xplaneConnect-asdjuezcjkhojuewbyxhyhabxfwc/Build/Products/Debug",
 				);
 				MACH_O_TYPE = mh_bundle;
-
 				ONLY_ACTIVE_ARCH = NO;
-
 				PRODUCT_NAME = mac;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = YES;

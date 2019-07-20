@@ -1,4 +1,4 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+//Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
 #ifndef POSITESTS_H
 #define POSITESTS_H
@@ -6,7 +6,7 @@
 #include "Test.h"
 #include "xplaneConnect.h"
 
-int doPOSITest(char* drefs[7], float values[], int size, int ac, float expected[7])
+int doPOSITest(char* drefs[7], double values[], int size, int ac, double expected[7])
 {
 	float* data[7];
 	int sizes[7];
@@ -32,15 +32,15 @@ int doPOSITest(char* drefs[7], float values[], int size, int ac, float expected[
 	}
 
 	// Test values
-	float actual[7];
+	double actual[7];
 	for (int i = 0; i < 7; ++i)
 	{
 		actual[i] = data[i][0];
 	}
-	return compareArray(expected, actual, 7);
+	return compareDoubleArray(expected, actual, 7);
 }
 
-int doGETPTest(float values[7], int ac, float expected[7])
+int doGETPTest(double values[7], int ac, double expected[7])
 {
 	// Execute Test
 	float actual[7];
@@ -70,8 +70,8 @@ int doGETPTest(float values[7], int ac, float expected[7])
 int basicPOSITest(char** drefs, int ac)
 {
 	// Set psoition and initial orientation
-	float POSI[7] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
-	float expected[7] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
+	double POSI[7] = { 37.524, -122.06899, 2500, 0, 0, 0, 1 };
+	double expected[7] = { 37.524, -122.06899, 2500, 0, 0, 0, 1 };
 	int result = doPOSITest(drefs, POSI, 7, ac, expected);
 	if (result < 0)
 	{
@@ -79,9 +79,9 @@ int basicPOSITest(char** drefs, int ac)
 	}
 
 	// Set orientation
-	POSI[0] = -998.0F;
-	POSI[1] = -998.0F;
-	POSI[2] = -998.0F;
+	POSI[0] = -998.0;
+	POSI[1] = -998.0;
+	POSI[2] = -998.0;
 	POSI[3] = 5.0F;
 	POSI[4] = -5.0F;
 	POSI[5] = 10.0F;
@@ -101,10 +101,10 @@ int basicPOSITest(char** drefs, int ac)
 	expected[0] = loc[0][0];
 	expected[1] = loc[1][0];
 	expected[2] = loc[2][0];
-	expected[3] = 5.0F;
-	expected[4] = -5.0F;
-	expected[5] = 10.0F;
-	expected[6] = 0.0F;
+	expected[3] = 5.0;
+	expected[4] = -5.0;
+	expected[5] = 10.0;
+	expected[6] = 0.0;
 	result = doPOSITest(drefs, POSI, 7, ac, expected);
 	if (result < 0)
 	{
@@ -145,13 +145,13 @@ int testPOSI_NonPlayer()
 
 int testGetPOSI_Player()
 {
-	float POSI[7] = { 37.524F, -122.06899F, 2500, 0, 0, 0, 1 };
+	double POSI[7] = { 37.524, -122.06899, 2500, 0, 0, 0, 1 };
 	return doGETPTest(POSI, 0, POSI);
 }
 
 int testGetPOSI_NonPlayer()
 {
-	float POSI[7] = { 37.624F, -122.06899F, 1500, 0, 0, 0, 1 };
+	double POSI[7] = { 37.624, -122.06899, 1500, 0, 0, 0, 1 };
 	return doGETPTest(POSI, 3, POSI);
 }
 

@@ -1,8 +1,8 @@
-//Copyright (c) 2013-2016 United States Government as represented by the Administrator of the
+//Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
 //
 //DISCLAIMERS
-//    No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND, 
+//    No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND,
 //    EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT
 //    THE SUBJECT SOFTWARE WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
 //    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM INFRINGEMENT, ANY WARRANTY
@@ -78,7 +78,7 @@ typedef enum
 	XPC_VIEW_FULLSCREENWITHHUD,
 	XPC_VIEW_FULLSCREENNOHUD,
 } VIEW_TYPE;
-        
+
 // Low Level UDP Functions
 
 /// Opens a new connection to XPC on an OS chosen port.
@@ -112,10 +112,10 @@ int setCONN(XPCSocket* sock, unsigned short port);
 /// Pause or unpause the simulation.
 ///
 /// \param sock  The socket to use to send the command.
-/// \param pause 0 to unpause the sim; any other value to pause.
+/// \param pause 0 to unpause the sim; 1 to pause, 100:119 to pause a/c 0:19, 200:219 to unpause a/c 0:19.
 /// \returns    0 if successful, otherwise a negative value.
 int pauseSim(XPCSocket sock, char pause);
-        
+
 // X-Plane UDP DATA
 
 /// Reads X-Plane data from the specified socket.
@@ -193,7 +193,7 @@ int getDREF(XPCSocket sock, const char* dref, float values[], int* size);
 ///               to the actual number of elements copied in for that row.
 /// \returns      0 if successful, otherwise a negative value.
 int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char count, int sizes[]);
-        
+
 // Position
 
 /// Gets the position and orientation of the specified aircraft.
@@ -213,7 +213,7 @@ int getPOSI(XPCSocket sock, float values[7], char ac);
 /// \param size   The number of elements in values.
 /// \param ac     The aircraft number to set the position of. 0 for the player aircraft.
 /// \returns      0 if successful, otherwise a negative value.
-int sendPOSI(XPCSocket sock, float values[], int size, char ac);
+int sendPOSI(XPCSocket sock, double values[], int size, char ac);
 
 // Controls
 

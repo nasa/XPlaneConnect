@@ -1,8 +1,8 @@
-//Copyright (c) 2013-2016 United States Government as represented by the Administrator of the
+//Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
 //
 //DISCLAIMERS
-//    No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND, 
+//    No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND,
 //    EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT
 //    THE SUBJECT SOFTWARE WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
 //    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM INFRINGEMENT, ANY WARRANTY
@@ -89,16 +89,16 @@ void playback(char* path, int interval)
 	displayMsg("Starting Playback...");
 
 	XPCSocket sock = openUDP("127.0.0.1");
-	float posi[7];
+	double posi[7];
 	while (!feof(fd) && !ferror(fd))
 	{
-		int result = fscanf(fd, "%f, %f, %f, %f, %f, %f, %f\n",
+		int result = fscanf(fd, "%lf, %lf, %lf, %lf, %lf, %lf, %lf\n",
 			&posi[0], &posi[1], &posi[2], &posi[3], &posi[4], &posi[5], &posi[6]);
 		playbackSleep(interval);
 		if (result != 7)
 		{
 			continue;
-		}		
+		}
 		sendPOSI(sock, posi, 7, 0);
 	}
 	closeUDP(sock);

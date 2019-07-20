@@ -14,7 +14,7 @@ public:
 	virtual				~XPCListener();
 	
 	virtual	void		ListenToMessage(
-							long			inMessage,
+							int				inMessage,
 							void *			inParam)=0;
 							
 private:

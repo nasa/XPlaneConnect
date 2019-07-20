@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2017 United States Government as represented by the Administrator of the
+// Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 // National Aeronautics and Space Administration. All Rights Reserved.
 //
 // X-Plane API
@@ -109,7 +109,7 @@ namespace XPC
 		drefs.insert(make_pair(DREF_Latitude, XPLMFindDataRef("sim/flightmodel/position/latitude")));
 		drefs.insert(make_pair(DREF_Longitude, XPLMFindDataRef("sim/flightmodel/position/longitude")));
 		drefs.insert(make_pair(DREF_AGL, XPLMFindDataRef("sim/flightmodel/position/y_agl")));
-        drefs.insert(make_pair(DREF_Elevation, XPLMFindDataRef("sim/flightmodel/position/elevation")));
+		drefs.insert(make_pair(DREF_Elevation, XPLMFindDataRef("sim/flightmodel/position/elevation")));
 
 		drefs.insert(make_pair(DREF_LocalX, XPLMFindDataRef("sim/flightmodel/position/local_x")));
 		drefs.insert(make_pair(DREF_LocalY, XPLMFindDataRef("sim/flightmodel/position/local_y")));
@@ -522,7 +522,7 @@ namespace XPC
 			Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: invalid DREF %s", dref.c_str());
 			return;
 		}
-		if (isnan(values[0]))
+        if (std::isnan(values[0]))
 		{
 			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Value must be a number (NaN received)");
 			return;
@@ -629,11 +629,12 @@ namespace XPC
 
 		if ((gear < -8.5 && gear > -9.5) || IsDefault(gear))
 		{
+			Log::WriteLine(LOG_INFO, "DMAN", "Not actually setting gear because of default value");
 			return;
 		}
-		if (isnan(gear) || gear < 0 || gear > 1)
+		if (std::isnan(gear) || gear < 0 || gear > 1)
 		{
-			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Gear value must be 0 or 1");
+			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Gear value must be between 0 and 1");
 			return;
 		}
 
@@ -657,11 +658,11 @@ namespace XPC
 		}
 	}
 
-	void DataManager::SetPosition(float pos[3], char aircraft)
+	void DataManager::SetPosition(double pos[3], char aircraft)
 	{
 		Log::FormatLine(LOG_INFO, "DMAN", "Setting position (%f, %f, %f) for aircraft %i",
 			pos[0], pos[1], pos[2], aircraft);
-		if (isnan(pos[0] + pos[1] + pos[2]))
+		if (std::isnan(pos[0] + pos[1] + pos[2]))
 		{
 			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Position must be a number (NaN received)");
 			return;
@@ -669,28 +670,28 @@ namespace XPC
 
 		if (IsDefault(pos[0]))
 		{
-			pos[0] = (float)GetDouble(DREF_Latitude, aircraft);
+			pos[0] = GetDouble(DREF_Latitude, aircraft);
 		}
 		if (IsDefault(pos[1]))
 		{
-			pos[1] = (float)GetDouble(DREF_Longitude, aircraft);
+			pos[1] = GetDouble(DREF_Longitude, aircraft);
 		}
 		if (IsDefault(pos[2]))
 		{
-			pos[2] = (float)GetDouble(DREF_Elevation, aircraft);
+			pos[2] = GetDouble(DREF_Elevation, aircraft);
 		}
 
-        // See: http://www.xsquawkbox.net/xpsdk/mediawiki/MovingThePlane
-        // Need to get the aircraft's current orientation before moving and
-        // reset the orientation after moving to update the quaternion
-        float orient[3];
-        orient[0] = GetFloat(DREF_Pitch, aircraft);
-        orient[1] = GetFloat(DREF_Roll, aircraft);
-        orient[2] = GetFloat(DREF_HeadingTrue, aircraft);
+		// See: http://www.xsquawkbox.net/xpsdk/mediawiki/MovingThePlane
+		// Need to get the aircraft's current orientation before moving and
+		// reset the orientation after moving to update the quaternion
+		float orient[3];
+		orient[0] = GetFloat(DREF_Pitch, aircraft);
+		orient[1] = GetFloat(DREF_Roll, aircraft);
+		orient[2] = GetFloat(DREF_HeadingTrue, aircraft);
 
-        // Now set the aircraft's position. Need to set world position for
-        // "long" moves, but since there isn't an easy way to calculate "long",
-        // we just set it every time.
+		// Now set the aircraft's position. Need to set world position for
+		// "long" moves, but since there isn't an easy way to calculate "long",
+		// we just set it every time.
 		double local[3];
 		XPLMWorldToLocal(pos[0], pos[1], pos[2], &local[0], &local[1], &local[2]);
 		// If the sim is paused, setting global position won't update the
@@ -699,19 +700,19 @@ namespace XPC
 		Set(DREF_LocalY, local[1], aircraft);
 		Set(DREF_LocalZ, local[2], aircraft);
 		// If the sim is unpaused, this will override the above settings.
-		Set(DREF_Latitude, (double)pos[0], aircraft);
-		Set(DREF_Longitude, (double)pos[1], aircraft);
-		Set(DREF_Elevation, (double)pos[2], aircraft);
+		Set(DREF_Latitude,  pos[0], aircraft);
+		Set(DREF_Longitude, pos[1], aircraft);
+		Set(DREF_Elevation, pos[2], aircraft);
 
-        // Now reset orientation to update q
-        SetOrientation(orient, aircraft);
+		// Now reset orientation to update q
+		SetOrientation(orient, aircraft);
 	}
 
 	void DataManager::SetOrientation(float orient[3], char aircraft)
 	{
 		Log::FormatLine(LOG_INFO, "DMAN", "Setting orientation (%f, %f, %f) for aircraft %i",
 			orient[0], orient[1], orient[2], aircraft);
-		if (isnan(orient[0] + orient[1] + orient[2]))
+		if (std::isnan(orient[0] + orient[1] + orient[2]))
 		{
 			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Orientation must be a number (NaN received)");
 			return;
@@ -762,7 +763,7 @@ namespace XPC
 	{
 		Log::FormatLine(LOG_INFO, "DMAN", "Setting flaps (value:%f)", value);
 
-		if (isnan(value))
+		if (std::isnan(value))
 		{
 			Log::WriteLine(LOG_ERROR, "DMAN", "ERROR: Flap value must be a number (NaN received)");
 			return;
@@ -784,7 +785,7 @@ namespace XPC
 		return -998.0F;
 	}
 
-	bool DataManager::IsDefault(float value)
+	bool DataManager::IsDefault(double value)
 	{
 		return value < -997.9 && value > -999.1;
 	}

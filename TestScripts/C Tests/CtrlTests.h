@@ -1,4 +1,4 @@
-//Copyright (c) 2013-2015 United States Government as represented by the Administrator of the
+//Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 //National Aeronautics and Space Administration. All Rights Reserved.
 #ifndef CTRLTESTS_H
 #define CTRLTESTS_H
@@ -23,7 +23,7 @@ int doCTRLTest(XPCSocket *sock, char* drefs[7], float values[], int size, int ac
 	{
 		result = getDREFs(*sock, drefs, data, 7, sizes);
 	}
-    
+
 	if (result < 0)
 	{
 		return -1;
@@ -102,7 +102,7 @@ int basicCTRLTest(char** drefs, int ac)
     CTRL[4] = -998;
 	CTRL[5] = -998;
 	result = doCTRLTest(&sock, drefs, CTRL, 6, ac, expected);
-    
+
     pauseSim(sock, 0);
     closeUDP(sock);
 	if (result < 0)

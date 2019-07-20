@@ -1,5 +1,5 @@
 //NOTICES:
-//    Copyright (c) 2013-2016 United States Government as represented by the Administrator of the
+//    Copyright (c) 2013-2018 United States Government as represented by the Administrator of the
 //    National Aeronautics and Space Administration.  All Rights Reserved.
 //
 //  DISCLAIMERS
@@ -24,6 +24,8 @@
 //    SHALL BE THE IMMEDIATE, UNILATERAL TERMINATION OF THIS AGREEMENT.
 
 package gov.nasa.xpc;
+
+import gov.nasa.xpc.discovery.Beacon;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -136,6 +138,19 @@ public class XPlaneConnect implements AutoCloseable
         this(xpHost, xpPort, port, 100);
     }
 
+
+    /**
+     * Initializes a new instance of the {@code XPlaneConnect} class from a received discovery Beacon
+     * @param beacon The beacon received from {@code XPlaneConnectDiscovery}
+     * @throws SocketException If this instance is unable to bind to the specified port.
+     */
+    public XPlaneConnect(Beacon beacon) throws SocketException {
+        this.socket = new DatagramSocket(0);
+        this.xplaneAddr = beacon.getXplaneAddress();
+        this.xplanePort = beacon.getPluginPort();
+        this.socket.setSoTimeout(100);
+    }
+
     /**
      * Initializes a new instance of the {@code XPlaneConnect} class using the specified ports, hostname, and timeout.
      *
@@ -223,9 +238,9 @@ public class XPlaneConnect implements AutoCloseable
      */
     public void pauseSim(int pause) throws IOException
     {
-        if(pause < 0 || pause > 2)
+        if(pause < 0 || (pause > 2 && pause < 100) || (pause > 119 && pause < 200) || pause > 219)
         {
-            throw new IllegalArgumentException("pause must be a value in the range [0, 2].");
+            throw new IllegalArgumentException("pause must be a value in the range [0, 2], [100, 119], or [200, 219].");
         }
 
         //            S     I     M     U     LEN   VAL
@@ -549,7 +564,7 @@ public class XPlaneConnect implements AutoCloseable
      * @return An array containing control surface data in the same format as {@code sendPOSI}.
      * @throws IOException If the command cannot be sent or a response cannot be read.
      */
-    public float[] getPOSI(int ac) throws IOException
+    public double[] getPOSI(int ac) throws IOException
     {
         // Send request
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -570,7 +585,7 @@ public class XPlaneConnect implements AutoCloseable
         }
 
         // Parse response
-        float[] result = new float[7];
+        double[] result = new double[7];
         ByteBuffer bb = ByteBuffer.wrap(data);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         for(int i = 0; i < 7; ++i)
@@ -600,13 +615,13 @@ public class XPlaneConnect implements AutoCloseable
      *                 </p>
      * @throws IOException If the command can not be sent.
      */
-    public void sendPOSI(float[] values) throws IOException
+    public void sendPOSI(double[] values) throws IOException
     {
         sendPOSI(values, 0);
     }
 
     /**
-     * Sets the position of the specified ac.
+     * Sets the position of the specified ac with double precision coordinates.
      *
      * @param values   <p>An array containing position elements as follows:</p>
      *                 <ol>
@@ -626,7 +641,7 @@ public class XPlaneConnect implements AutoCloseable
      * @param ac The ac to set. 0 for the player ac.
      * @throws IOException If the command can not be sent.
      */
-    public void sendPOSI(float[] values, int ac) throws IOException
+    public void sendPOSI(double[] values, int ac) throws IOException
     {
         //Preconditions
         if(values == null)
@@ -644,15 +659,22 @@ public class XPlaneConnect implements AutoCloseable
 
         //Pad command values and convert to bytes
         int i;
-        ByteBuffer bb = ByteBuffer.allocate(28);
+        ByteBuffer bb = ByteBuffer.allocate(40);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         for(i = 0; i < values.length; ++i)
         {
-            bb.putFloat(i * 4, values[i]);
+            if(i<3) /* lat/lon/height as double */
+            {
+                bb.putDouble(values[i]);
+            }
+            else
+            {
+                bb.putFloat((float)values[i]);
+            }
         }
         for(; i < 7; ++i)
         {
-            bb.putFloat(i * 4, -998);
+            bb.putFloat(-998);
         }
 
         //Build and send message
