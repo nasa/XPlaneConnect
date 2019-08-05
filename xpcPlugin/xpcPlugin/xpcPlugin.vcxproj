@@ -206,7 +206,7 @@
     <ClInclude Include="..\Log.h" />
     <ClInclude Include="..\Message.h" />
     <ClInclude Include="..\MessageHandlers.h" />
-    <ClCompile Include="..\Timer.h" />
+    <ClInclude Include="..\Timer.h" />
     <ClInclude Include="..\UDPSocket.h" />
   </ItemGroup>
   <ItemGroup>
