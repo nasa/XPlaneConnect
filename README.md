@@ -12,7 +12,7 @@ or interacting with a mission over UDP.
 ### Migrating to 1.0
 For existing users, several important breaking changes have been made in version
 1.0. For detailed information, see the 1.0 release changelog. For client-specific
-guidelines on migrating to 1.0, refer to the follwing guides:
+guidelines on migrating to 1.0, refer to the following guides:
 
 #### [C](https://github.com/nasa/XPlaneConnect/wiki/Migrating-to-1.0-C)
 
