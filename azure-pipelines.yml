@@ -163,3 +163,4 @@ stages:
           tag: $(tagName)
           assets: '$(Build.ArtifactStagingDirectory)/$(xpcPackageName).zip'
           isPreRelease: true
+          isDraft: true
