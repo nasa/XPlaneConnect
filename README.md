@@ -9,17 +9,6 @@ in-house flight simulation software. Possible applications include active contro
 of an XPlane simulation, flight visualization, recording states during a flight,
 or interacting with a mission over UDP.
 
-### Migrating to 1.0
-For existing users, several important breaking changes have been made in version
-1.0. For detailed information, see the 1.0 release changelog. For client-specific
-guidelines on migrating to 1.0, refer to the following guides:
-
-#### [C](https://github.com/nasa/XPlaneConnect/wiki/Migrating-to-1.0-C)
-
-#### [MATLAB](https://github.com/nasa/XPlaneConnect/wiki/Migrating-to-1.0-MATLAB)
-
-#### [Java](https://github.com/nasa/XPlaneConnect/wiki/Migrating-to-1.0-Java)
-
 ### Architecture
 XPC includes an X-Plane plugin (xpcPlugin) and clients written in several
 languages that interact with the plugin.
@@ -28,9 +17,9 @@ languages that interact with the plugin.
 To get started using X-Plane Connect, do the following.
 
 1. Purchase and install X-Plane 9, 10 or 11.
-2. Copy the X-Plane Plugin folder (`xpcPlugin/XPlaneConnect`) to the plugin
-directory (`[X-Plane Directory]/Resources/plugins/`)
-3. Write some code using one of the clients to manipulate X-Plane data.
+2. Download the `XPlaneConnect.zip` file from the latest release on the [releases](https://github.com/nasa/XPlaneConnect/releases) page.
+3. Copy the contents of the .zip archive to the plugin directory (`[X-Plane Directory]/Resources/plugins/`)
+4. Write some code using one of the clients to manipulate X-Plane data.
 
 Each client is located in a top-level directory of the repository named for the
 client's language. The client directories generally include a `src` folder
