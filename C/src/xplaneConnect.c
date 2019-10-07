@@ -537,7 +537,7 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
 /*****************************************************************************/
 /****                          POSI functions                             ****/
 /*****************************************************************************/
-int getPOSI(XPCSocket sock, float values[7], char ac)
+int getPOSI(XPCSocket sock, double values[7], char ac)
 {
 	// Setup send command
 	unsigned char buffer[6] = "GETP";
@@ -551,22 +551,38 @@ int getPOSI(XPCSocket sock, float values[7], char ac)
 	}
 
 	// Get response
-	unsigned char readBuffer[34];
-	int readResult = readUDP(sock, readBuffer, 34);
+	unsigned char readBuffer[46];
+	int readResult = readUDP(sock, readBuffer, 46);
 	if (readResult < 0)
 	{
 		printError("getPOSI", "Failed to read response.");
 		return -2;
 	}
-	if (readResult != 34)
+	if (readResult != 46)
 	{
 		printError("getPOSI", "Unexpected response length.");
 		return -3;
 	}
-    // TODO: change this to the 64-bit lat/lon/h
 
 	// Copy response into values
-	memcpy(values, readBuffer + 6, 7 * sizeof(float));
+	//memcpy(values, readBuffer + 6, 7 * sizeof(float));
+	float temp_val[4];
+
+	memcpy(values, readBuffer + 6, 3 * sizeof(double));
+	memcpy(&temp_val, readBuffer + 30, 4 * sizeof(float));
+
+	int i = 0;
+	for(i = 0; i < 4; i++)
+	{
+		values[i + 3] = (double)temp_val[i];
+		printf("float = %f || double = %lf \n", temp_val[i], values[i + 3]);
+	}
+
+	// memcpy(&values[3], readBuffer + 30, sizeof(float));
+	// memcpy(&values[4], readBuffer + 34, sizeof(float));
+	// memcpy(&values[5], readBuffer + 38, sizeof(float));
+	// memcpy(&values[6], readBuffer + 42, sizeof(float));
+
 	return 0;
 }
 

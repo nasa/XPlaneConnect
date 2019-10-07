@@ -161,7 +161,7 @@ class XPlaneConnect(object):
         if len(resultBuf) != 34:
             raise ValueError("Unexpected response length.")
 
-        result = struct.unpack(b"<4sxBfffffff", resultBuf)
+        result = struct.unpack(b"<4sxBdddffff", resultBuf)
         if result[0] != b"POSI":
             raise ValueError("Unexpected header: " + result[0])
 
@@ -194,10 +194,9 @@ class XPlaneConnect(object):
         # Pack message
         buffer = struct.pack(b"<4sxB", b"POSI", ac)
         for i in range(7):
-            val = -998
-            if i < len(values):
-                val = values[i]
-            buffer += struct.pack(b"<f", val)
+            val = values[i] if i < len(values) else -988
+            val_type = "d" if i < 3 else "f"
+            buffer += struct.pack(f"<{val_type}", val)
 
         # Send
         self.sendUDP(buffer)

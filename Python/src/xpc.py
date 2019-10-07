@@ -158,10 +158,10 @@ class XPlaneConnect(object):
 
         # Read response
         resultBuf = self.readUDP()
-        if len(resultBuf) != 34:
+        if len(resultBuf) != 46:
             raise ValueError("Unexpected response length.")
 
-        result = struct.unpack("<4sxBfffffff", resultBuf)
+        result = struct.unpack("<4sxBdddffff", resultBuf)
         if result[0] != "POSI":
             raise ValueError("Unexpected header: " + result[0])
 
@@ -191,14 +191,12 @@ class XPlaneConnect(object):
         if ac < 0 or ac > 20:
             raise ValueError("Aircraft number must be between 0 and 20.")
 
-        # FIXME update this to the 64-bit double lat/lon/h
         # Pack message
         buffer = struct.pack("<4sxB", "POSI", ac)
         for i in range(7):
-            val = -998
-            if i < len(values):
-                val = values[i]
-            buffer += struct.pack("<f", val)
+            val = values[i] if i < len(values) else -988
+            val_type = "d" if i < 3 else "f"
+            buffer += struct.pack("<{}".format(val_type), val)
 
         # Send
         self.sendUDP(buffer)
