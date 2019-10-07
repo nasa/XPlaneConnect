@@ -13,7 +13,7 @@ def record(path, interval = 0.1, duration = 60):
         print "duration is less than a single frame."
         return
 
-    with xpc.XPlaneConnect("localhost", 49009, 0, 1000) as client:
+    with xpc.XPlaneConnect("192.168.1.210", 49009, 0, 1000) as client:
         print "Recording..."
         for i in range(0, count):
             try:
@@ -33,7 +33,7 @@ def playback(path, interval):
         print "Unable to open file."
         return
 
-    with xpc.XPlaneConnect("localhost", 49009, 0, 1000) as client:
+    with xpc.XPlaneConnect("192.168.1.210", 49009, 0, 1000) as client:
         print "Starting Playback..."
         for line in fd:
             try:
