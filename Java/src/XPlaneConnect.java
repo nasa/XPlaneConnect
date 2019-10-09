@@ -579,7 +579,7 @@ public class XPlaneConnect implements AutoCloseable
         {
             throw new IOException("No response received.");
         }
-        if(data.length < 34)
+        if(data.length < 46)
         {
             throw new IOException("Response too short");
         }
@@ -588,9 +588,18 @@ public class XPlaneConnect implements AutoCloseable
         double[] result = new double[7];
         ByteBuffer bb = ByteBuffer.wrap(data);
         bb.order(ByteOrder.LITTLE_ENDIAN);
+        int j = 0;
         for(int i = 0; i < 7; ++i)
         {
-            result[i] = bb.getFloat(6 + 4 * i);
+            if(i < 3)
+            {
+                result[i] = bb.getDouble(6 + 8 * i);
+            }
+            else
+            {
+                result[i] = bb.getFloat(30 + 4 * j)
+                j = j + 1
+            }
         }
         return result;
     }

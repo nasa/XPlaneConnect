@@ -43,7 +43,7 @@ int doPOSITest(char* drefs[7], double values[], int size, int ac, double expecte
 int doGETPTest(double values[7], int ac, double expected[7])
 {
 	// Execute Test
-	float actual[7];
+	double actual[7];
 	XPCSocket sock = openUDP(IP);
 	int result = sendPOSI(sock, values, 7, ac);
 	if (result >= 0)

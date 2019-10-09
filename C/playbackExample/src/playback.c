@@ -62,7 +62,7 @@ void record(char* path, int interval, int duration)
 	}
 	displayMsg("Recording...");
 
-	XPCSocket sock = openUDP("192.168.1.210");
+	XPCSocket sock = openUDP("localhost");
 	for (int i = 0; i < count; ++i)
 	{
 		double posi[7];
@@ -72,7 +72,8 @@ void record(char* path, int interval, int duration)
 		{
 			continue;
 		}
-		fprintf(fd, "%.10lf, %.10lf, %.10lf, %lf, %lf, %lf, %lf\n", posi[0], posi[1], posi[2], posi[3], posi[4], posi[5], posi[6]);
+		fprintf(fd, "%.10lf, %.10lf, %.10lf, %lf, %lf, %lf, %lf\n",
+			posi[0], posi[1], posi[2], posi[3], posi[4], posi[5], posi[6]);
 	}
 	closeUDP(sock);
 	displayMsg("Recording Complete");
@@ -88,7 +89,7 @@ void playback(char* path, int interval)
 	}
 	displayMsg("Starting Playback...");
 
-	XPCSocket sock = openUDP("192.168.1.210");
+	XPCSocket sock = openUDP("localhost");
 	double posi[7];
 	pauseSim(sock, 1);
 	while (!feof(fd) && !ferror(fd))
