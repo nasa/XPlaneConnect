@@ -668,6 +668,11 @@ namespace XPC
 			return;
 		}
 
+		if (IsDefault(pos[0]) && IsDefault(pos[1]) && IsDefault(pos[2]))
+		{
+			Log::WriteLine(LOG_INFO, "DMAN", "Skipped SetPosition. All values were default");
+			return;
+		}
 		if (IsDefault(pos[0]))
 		{
 			pos[0] = GetDouble(DREF_Latitude, aircraft);
@@ -718,6 +723,12 @@ namespace XPC
 			return;
 		}
 
+
+		if (IsDefault(orient[0]) && IsDefault(orient[1]) && IsDefault(orient[2]))
+		{
+			Log::WriteLine(LOG_INFO, "DMAN", "Skipped SetPosition. All values were default");
+			return;
+		}
 		if (IsDefault(orient[0]))
 		{
 			orient[0] = GetFloat(DREF_Pitch, aircraft);
