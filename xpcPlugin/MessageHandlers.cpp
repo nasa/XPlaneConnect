@@ -39,7 +39,7 @@ namespace XPC
 	std::string MessageHandlers::connectionKey;
 	MessageHandlers::ConnectionInfo MessageHandlers::connection;
 	UDPSocket* MessageHandlers::sock;
-	
+
 	static sockaddr multicast_address = UDPSocket::GetAddr(MULTICAST_GROUP, MULITCAST_PORT);
 
 	void MessageHandlers::SetSocket(UDPSocket* socket)
@@ -136,11 +136,11 @@ namespace XPC
 			MessageHandlers::HandleUnknown(msg);
 		}
 	}
-	
+
 	void MessageHandlers::SendBeacon(const std::string& pluginVersion, unsigned short  pluginReceivePort, int xplaneVersion) {
-		
+
 		unsigned char response[128] = "BECN";
-		
+
 		std::size_t cur = 5;
 
 		// 2 bytes plugin port
@@ -150,12 +150,12 @@ namespace XPC
 		// 4 bytes xplane version
 		*((uint32_t*)(response + cur)) = xplaneVersion;
 		cur += sizeof(uint32_t);
-		
+
 		// plugin version
 		int len = pluginVersion.length();
 		memcpy(response + cur, pluginVersion.c_str(), len);
 		cur += strlen(pluginVersion.c_str()) + len;
-		
+
 		sock->SendTo(response, cur, &multicast_address);
 	}
 
@@ -580,21 +580,25 @@ namespace XPC
 		const std::size_t size = msg.GetSize();
 
 		char aircraftNumber = buffer[5];
-		float gear = *((float*)(buffer + 42));
+		float gear;
 		double posd[3];
 		float orient[3];
 
 		if (size == 34) /* lat/lon/h as 32-bit float */
 		{
-			posd[0] = *((float*)&buffer[6]);
-			posd[1] = *((float*)&buffer[10]);
-			posd[2] = *((float*)&buffer[14]);
+			float posd_32[3];
+			memcpy(posd_32, buffer + 6, 12);
+			posd[0] = posd_32[0];
+			posd[1] = posd_32[1];
+			posd[2] = posd_32[2];
 			memcpy(orient, buffer + 18, 12);
+			memcpy(&gear, buffer + 30, 4);
 		}
 		else if (size == 46) /* lat/lon/h as 64-bit double */
 		{
-			memcpy(posd, buffer + 6, 3*8);
+			memcpy(posd, buffer + 6, 24);
 			memcpy(orient, buffer + 30, 12);
+			memcpy(&gear, buffer + 42, 4);
 		}
 		else
 		{
@@ -717,14 +721,14 @@ namespace XPC
 			Log::WriteLine(LOG_INFO, "TEXT", "[TEXT] Text set");
 		}
 	}
-	
+
 	void MessageHandlers::HandleView(const Message& msg)
 	{
 		// Update Log
 		Log::FormatLine(LOG_TRACE, "VIEW", "Message Received(Conn %i)", connection.id);
 
 		int enable_camera_location = 0;
-		
+
 		const std::size_t size = msg.GetSize();
 		if (size == 9)
 		{
@@ -743,11 +747,11 @@ namespace XPC
 		const unsigned char* buffer = msg.GetBuffer();
 		int type = *((int*)(buffer + 5));
 		XPLMCommandKeyStroke(type);
-		
+
 		if(type == 79 && enable_camera_location == 1) // runway camera view
 		{
 			static struct CameraProperties campos;
-		
+
 			campos.loc[0] = *(double*)(buffer+9);
 			campos.loc[1] = *(double*)(buffer+17);
 			campos.loc[2] = *(double*)(buffer+25);
@@ -755,60 +759,60 @@ namespace XPC
 			campos.direction[1] = -998;
 			campos.direction[2] = -998;
 			campos.zoom	  = *(float*)(buffer+33);
-			
+
 			Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2],campos.zoom);
-		
+
 			XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamFunc, &campos);
 		}
 	}
-	
+
 	int MessageHandlers::CamFunc( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon)
 	{
 		if (outCameraPosition && !inIsLosingControl)
 		{
 			struct CameraProperties* campos = (struct CameraProperties*)inRefcon;
-			
+
 			// camera position
 			double clat = campos->loc[0];
 			double clon = campos->loc[1];
 			double calt = campos->loc[2];
-			
+
 			double cX, cY, cZ;
 			XPLMWorldToLocal(clat, clon, calt, &cX, &cY, &cZ);
-			
+
 			outCameraPosition->x = cX;
 			outCameraPosition->y = cY;
 			outCameraPosition->z = cZ;
-			
+
 //			  Log::FormatLine(LOG_TRACE, "CAM", "Cam pos %f %f %f", clat, clon, calt);
-			
+
 			if(campos->direction[0] == -998) // calculate camera direction
 			{
 				// aircraft position
 				double x = XPC::DataManager::GetDouble(XPC::DREF_LocalX, 0);
 				double y = XPC::DataManager::GetDouble(XPC::DREF_LocalY, 0);
 				double z = XPC::DataManager::GetDouble(XPC::DREF_LocalZ, 0);
-			
+
 				// relative position vector cam to plane
 				double dx = x - cX;
 				double dy = y - cY;
 				double dz = z - cZ;
-			
+
 //			    Log::FormatLine(LOG_TRACE, "CAM", "Cam vect %f %f %f", dx, dy, dz);
-			
+
 				double pi = 3.141592653589793;
-			
+
 				// horizontal distance
 				double dist = sqrt(dx*dx + dz*dz);
-			
+
 				outCameraPosition->pitch = atan2(dy, dist) * 180.0/pi;
-			
+
 				double angle = atan2(dz, dx) * 180.0/pi; // rel to pos right (pos X)
-			
+
 				outCameraPosition->heading = 90 + angle; // rel to north
-			
+
 //			    Log::FormatLine(LOG_TRACE, "CAM", "Cam p %f hdg %f ", outCameraPosition->pitch, outCameraPosition->heading);
-			
+
 				outCameraPosition->roll = 0;
 			}
 			else
@@ -817,10 +821,10 @@ namespace XPC
 				outCameraPosition->pitch    = campos->direction[1];
 				outCameraPosition->heading  = campos->direction[2];
 			}
-			
+
 			outCameraPosition->zoom = campos->zoom;
 		}
-		
+
 		return 1;
 	}
 
