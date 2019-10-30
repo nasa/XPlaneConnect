@@ -202,7 +202,7 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
 /// \param values An array to store the position information returned by the
 ///               plugin. The format of values is [Lat, Lon, Alt, Pitch, Roll, Yaw, Gear]
 /// \returns      0 if successful, otherwise a negative value.
-int getPOSI(XPCSocket sock, float values[7], char ac);
+int getPOSI(XPCSocket sock, double values[7], char ac);
 
 /// Sets the position and orientation of the specified aircraft.
 ///
