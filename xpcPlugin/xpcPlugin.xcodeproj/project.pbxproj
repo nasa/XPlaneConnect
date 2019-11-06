@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3D0F44CE21C6D3E7008A0655 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3D0F44CD21C6D3E7008A0655 /* Timer.cpp */; };
+		5B36040D23731E4A003ACE12 /* CameraCallbacks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5B36040C23731E4A003ACE12 /* CameraCallbacks.cpp */; };
 		BE37D960187C8B0F0033B082 /* XPCPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */; };
 		BE8361EF18C5591C00E9C923 /* mac.xpl in CopyFiles */ = {isa = PBXBuildFile; fileRef = D607B19909A556E400699BC3 /* mac.xpl */; };
 		BEABAD371AE041A3007BA7DA /* DataManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */; };
@@ -39,6 +40,7 @@
 /* Begin PBXFileReference section */
 		3D0F44CC21C6D3E7008A0655 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
 		3D0F44CD21C6D3E7008A0655 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
+		5B36040C23731E4A003ACE12 /* CameraCallbacks.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraCallbacks.cpp; sourceTree = "<group>"; };
 		BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XPCPlugin.cpp; sourceTree = SOURCE_ROOT; usesTabs = 1; };
 		BEABAD2B1AE041A3007BA7DA /* DataManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataManager.cpp; sourceTree = "<group>"; };
 		BEABAD2C1AE041A3007BA7DA /* DataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataManager.h; sourceTree = "<group>"; };
@@ -79,6 +81,7 @@
 		AC4E46B809C2E0B3006B7E1B /* src */ = {
 			isa = PBXGroup;
 			children = (
+				5B36040C23731E4A003ACE12 /* CameraCallbacks.cpp */,
 				3D0F44CD21C6D3E7008A0655 /* Timer.cpp */,
 				BE37D95E187C8B0F0033B082 /* XPCPlugin.cpp */,
 				BEDC620218EDF1A7005DB364 /* xplaneConnect.c */,
@@ -191,6 +194,7 @@
 			files = (
 				BEABAD3A1AE041A3007BA7DA /* Log.cpp in Sources */,
 				BEABAD3B1AE041A3007BA7DA /* Message.cpp in Sources */,
+				5B36040D23731E4A003ACE12 /* CameraCallbacks.cpp in Sources */,
 				BEABAD3C1AE041A3007BA7DA /* MessageHandlers.cpp in Sources */,
 				BEDC620418EDF1A7005DB364 /* xplaneConnect.c in Sources */,
 				BEABAD371AE041A3007BA7DA /* DataManager.cpp in Sources */,

@@ -61,7 +61,8 @@ namespace XPC
 		static void HandleXPlaneData(const Message& msg);
 		static void HandleUnknown(const Message& msg);
 		
-		static int CamFunc( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon);
+        static int CamCallback_RunwayCam( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon);
+        static int CamCallback_ChaseCam( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon);
 		
 		struct CameraProperties{
 			double loc[3];
