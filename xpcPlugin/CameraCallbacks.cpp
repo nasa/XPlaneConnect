@@ -33,7 +33,9 @@ namespace XPC
 			double clon = campos->loc[1];
 			double calt = campos->loc[2];
 			
-			double cX, cY, cZ;
+            double cX;
+            double cY;
+            double cZ;
 			XPLMWorldToLocal(clat, clon, calt, &cX, &cY, &cZ);
 			
 			outCameraPosition->x = cX;
