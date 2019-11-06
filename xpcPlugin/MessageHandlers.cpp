@@ -637,11 +637,11 @@ namespace XPC
 		std::size_t size = msg.GetSize();
 		if (size != 30)
 		{
-			Log::FormatLine(LOG_ERROR, "GTER", "Unexpected message length: %u", size);
+			Log::FormatLine(LOG_ERROR, "GETT", "Unexpected message length: %u", size);
 			return;
 		}
 		unsigned char aircraft = buffer[5];
-		Log::FormatLine(LOG_TRACE, "GTER", "Getting terrain information for aircraft %u", aircraft);
+		Log::FormatLine(LOG_TRACE, "GETT", "Getting terrain information for aircraft %u", aircraft);
 		
         double loc[3];
         double X;
@@ -669,7 +669,7 @@ namespace XPC
 		
 		if(Terrain_probe == nullptr)
 		{
-			Log::FormatLine(LOG_TRACE, "GTER", "Create terrain probe for aircraft %u", aircraft);
+			Log::FormatLine(LOG_TRACE, "GETT", "Create terrain probe for aircraft %u", aircraft);
 			Terrain_probe = XPLMCreateProbe(0);
 		}
 		
@@ -685,7 +685,7 @@ namespace XPC
 		{
 			XPLMLocalToWorld(probe_data.locationX, probe_data.locationY, probe_data.locationZ, &lat, &lon, &alt);
 			
-			Log::FormatLine(LOG_TRACE, "GTER", "Probe LLA %lf %lf %lf", lat, lon, alt);
+			Log::FormatLine(LOG_TRACE, "GETT", "Probe LLA %lf %lf %lf", lat, lon, alt);
 		}
 		else
 		{
@@ -693,7 +693,7 @@ namespace XPC
 			lon = -998;
 			alt = -998;
 			
-			Log::FormatLine(LOG_TRACE, "GTER", "Probe failed. Return Value %u", rc);
+			Log::FormatLine(LOG_TRACE, "GETT", "Probe failed. Return Value %u", rc);
 		}
 		
 		// keep probe for next query
