@@ -69,7 +69,7 @@ namespace XPC
 			handlers.insert(std::make_pair("VIEW", MessageHandlers::HandleView));
 			handlers.insert(std::make_pair("GETC", MessageHandlers::HandleGetC));
 			handlers.insert(std::make_pair("GETP", MessageHandlers::HandleGetP));
-			handlers.insert(std::make_pair("GETT", MessageHandlers::HandleGetT)); // terrain properties
+			handlers.insert(std::make_pair("GETT", MessageHandlers::HandleGetT));
 			// X-Plane data messages
 			handlers.insert(std::make_pair("DSEL", MessageHandlers::HandleXPlaneData));
 			handlers.insert(std::make_pair("USEL", MessageHandlers::HandleXPlaneData));
@@ -643,7 +643,10 @@ namespace XPC
 		unsigned char aircraft = buffer[5];
 		Log::FormatLine(LOG_TRACE, "GTER", "Getting terrain information for aircraft %u", aircraft);
 		
-		double loc[3], X, Y, Z;
+        double loc[3];
+        double X;
+        double Y;
+        double Z;
 		memcpy(loc, buffer + 6, 24);
 		
 		if(loc[0] == -998 || loc[1] == -998 || loc[2] == -998)
@@ -674,7 +677,9 @@ namespace XPC
 		int rc = XPLMProbeTerrainXYZ(Terrain_probe, X, Y, Z, &probe_data);
 		
 		// transform probe location to world coordinates
-		double lat, lon, alt;
+        double lat;
+        double lon;
+        double alt;
 		
 		if(rc == 0)
 		{
