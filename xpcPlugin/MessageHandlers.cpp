@@ -25,6 +25,7 @@
 #include "XPLMScenery.h"
 #include "XPLMGraphics.h"
 
+
 #include <cmath>
 #include <cstring>
 #include <cstdint>
@@ -71,7 +72,7 @@ namespace XPC
 			handlers.insert(std::make_pair("VIEW", MessageHandlers::HandleView));
 			handlers.insert(std::make_pair("GETC", MessageHandlers::HandleGetC));
 			handlers.insert(std::make_pair("GETP", MessageHandlers::HandleGetP));
-			handlers.insert(std::make_pair("GETT", MessageHandlers::HandleGetT)); // terrain properties
+			handlers.insert(std::make_pair("GETT", MessageHandlers::HandleGetT));
 			// X-Plane data messages
 			handlers.insert(std::make_pair("DSEL", MessageHandlers::HandleXPlaneData));
 			handlers.insert(std::make_pair("USEL", MessageHandlers::HandleXPlaneData));
@@ -639,13 +640,16 @@ namespace XPC
 		std::size_t size = msg.GetSize();
 		if (size != 30)
 		{
-			Log::FormatLine(LOG_ERROR, "GTER", "Unexpected message length: %u", size);
+			Log::FormatLine(LOG_ERROR, "GETT", "Unexpected message length: %u", size);
 			return;
 		}
 		unsigned char aircraft = buffer[5];
-		Log::FormatLine(LOG_TRACE, "GTER", "Getting terrain information for aircraft %u", aircraft);
+		Log::FormatLine(LOG_TRACE, "GETT", "Getting terrain information for aircraft %u", aircraft);
 		
-		double loc[3], X, Y, Z;
+        double loc[3];
+        double X;
+        double Y;
+        double Z;
 		memcpy(loc, buffer + 6, 24);
 		
 		if(loc[0] == -998 || loc[1] == -998 || loc[2] == -998)
@@ -668,7 +672,7 @@ namespace XPC
 		
 		if(Terrain_probe == nullptr)
 		{
-			Log::FormatLine(LOG_TRACE, "GTER", "Create terrain probe for aircraft %u", aircraft);
+			Log::FormatLine(LOG_TRACE, "GETT", "Create terrain probe for aircraft %u", aircraft);
 			Terrain_probe = XPLMCreateProbe(0);
 		}
 		
@@ -676,13 +680,15 @@ namespace XPC
 		int rc = XPLMProbeTerrainXYZ(Terrain_probe, X, Y, Z, &probe_data);
 		
 		// transform probe location to world coordinates
-		double lat, lon, alt;
+        double lat;
+        double lon;
+        double alt;
 		
 		if(rc == 0)
 		{
 			XPLMLocalToWorld(probe_data.locationX, probe_data.locationY, probe_data.locationZ, &lat, &lon, &alt);
 			
-			Log::FormatLine(LOG_TRACE, "GTER", "Probe LLA %lf %lf %lf", lat, lon, alt);
+			Log::FormatLine(LOG_TRACE, "GETT", "Probe LLA %lf %lf %lf", lat, lon, alt);
 		}
 		else
 		{
@@ -690,7 +696,7 @@ namespace XPC
 			lon = -998;
 			alt = -998;
 			
-			Log::FormatLine(LOG_TRACE, "GTER", "Probe failed. Return Value %u", rc);
+			Log::FormatLine(LOG_TRACE, "GETT", "Probe failed. Return Value %u", rc);
 		}
 		
 		// keep probe for next query
