@@ -121,7 +121,7 @@ namespace XPC
 			}
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
 		}
-		else if (head == "GETC" || head == "GETP")
+		else if (head == "GETC" || head == "GETP" || head == "GETT")
 		{
 			ss << " Aircraft:" << (int)buffer[5];
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());

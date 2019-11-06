@@ -8,20 +8,20 @@
 // including without limitation the rights to use, copy, modify, merge, publish, distribute,
 // sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-//   * Redistributions of source code must retain the above copyright notice,
-//     this list of conditions and the following disclaimer.
-//   * Neither the names of the authors nor that of X - Plane or Laminar Research
-//     may be used to endorse or promote products derived from this software
-//     without specific prior written permission from the authors or
-//     Laminar Research, respectively.
+//	 * Redistributions of source code must retain the above copyright notice,
+//	   this list of conditions and the following disclaimer.
+//	 * Neither the names of the authors nor that of X - Plane or Laminar Research
+//	   may be used to endorse or promote products derived from this software
+//	   without specific prior written permission from the authors or
+//	   Laminar Research, respectively.
 #include "MessageHandlers.h"
 #include "DataManager.h"
 #include "Drawing.h"
 #include "Log.h"
 
 #include "XPLMUtilities.h"
+#include "XPLMScenery.h"
 #include "XPLMGraphics.h"
-
 
 #include <cmath>
 #include <cstring>
@@ -41,6 +41,9 @@ namespace XPC
 	UDPSocket* MessageHandlers::sock;
 
 	static sockaddr multicast_address = UDPSocket::GetAddr(MULTICAST_GROUP, MULITCAST_PORT);
+	
+	// define a static terrain probe handler (do not re-create probe for each query)
+	XPLMProbeRef Terrain_probe = nullptr;
 
 	void MessageHandlers::SetSocket(UDPSocket* socket)
 	{
@@ -66,6 +69,7 @@ namespace XPC
 			handlers.insert(std::make_pair("VIEW", MessageHandlers::HandleView));
 			handlers.insert(std::make_pair("GETC", MessageHandlers::HandleGetC));
 			handlers.insert(std::make_pair("GETP", MessageHandlers::HandleGetP));
+			handlers.insert(std::make_pair("GETT", MessageHandlers::HandleGetT));
 			// X-Plane data messages
 			handlers.insert(std::make_pair("DSEL", MessageHandlers::HandleXPlaneData));
 			handlers.insert(std::make_pair("USEL", MessageHandlers::HandleXPlaneData));
@@ -626,6 +630,94 @@ namespace XPC
 			}
 		}
 	}
+	
+	void MessageHandlers::HandleGetT(const Message& msg)
+	{
+		const unsigned char* buffer = msg.GetBuffer();
+		std::size_t size = msg.GetSize();
+		if (size != 30)
+		{
+			Log::FormatLine(LOG_ERROR, "GETT", "Unexpected message length: %u", size);
+			return;
+		}
+		unsigned char aircraft = buffer[5];
+		Log::FormatLine(LOG_TRACE, "GETT", "Getting terrain information for aircraft %u", aircraft);
+		
+        double loc[3];
+        double X;
+        double Y;
+        double Z;
+		memcpy(loc, buffer + 6, 24);
+		
+		if(loc[0] == -998 || loc[1] == -998 || loc[2] == -998)
+		{
+			// get terrain properties at aircraft location
+			// probe needs to be below terrain to work...
+			X = DataManager::GetDouble(DREF_LocalX, aircraft);
+			Z = DataManager::GetDouble(DREF_LocalZ, aircraft);
+			Y = -100.0;
+		}
+		else
+		{
+			// terrain probe at specified location
+			XPLMWorldToLocal(loc[0], loc[1], loc[2], &X, &Y, &Z);
+		}
+		
+		// Init terrain probe (if required) and probe data struct
+		XPLMProbeInfo_t probe_data;
+		probe_data.structSize = sizeof(XPLMProbeInfo_t);
+		
+		if(Terrain_probe == nullptr)
+		{
+			Log::FormatLine(LOG_TRACE, "GETT", "Create terrain probe for aircraft %u", aircraft);
+			Terrain_probe = XPLMCreateProbe(0);
+		}
+		
+		// query probe
+		int rc = XPLMProbeTerrainXYZ(Terrain_probe, X, Y, Z, &probe_data);
+		
+		// transform probe location to world coordinates
+        double lat;
+        double lon;
+        double alt;
+		
+		if(rc == 0)
+		{
+			XPLMLocalToWorld(probe_data.locationX, probe_data.locationY, probe_data.locationZ, &lat, &lon, &alt);
+			
+			Log::FormatLine(LOG_TRACE, "GETT", "Probe LLA %lf %lf %lf", lat, lon, alt);
+		}
+		else
+		{
+			lat = -998;
+			lon = -998;
+			alt = -998;
+			
+			Log::FormatLine(LOG_TRACE, "GETT", "Probe failed. Return Value %u", rc);
+		}
+		
+		// keep probe for next query
+		// XPLMDestroyProbe(probe);
+		
+		// Assemble response message
+		unsigned char response[50] = "TERR";
+		response[5] = aircraft;
+		// terrain height over msl at lat/lon point
+		memcpy(response + 6,  &lat, 8);
+		memcpy(response + 14, &lon, 8);
+		memcpy(response + 22, &alt, 8);
+		// terrain incidence
+		memcpy(response + 30, &probe_data.normalX, 4);
+		memcpy(response + 34, &probe_data.normalY, 4);
+		memcpy(response + 38, &probe_data.normalZ, 4);
+		// terrain type
+		memcpy(response + 42, &probe_data.is_wet, 4);
+		// probe status
+		memcpy(response + 46, &rc, 4);
+		
+		sock->SendTo(response, 50, &connection.addr);
+	}
+
 
 	void MessageHandlers::HandleSimu(const Message& msg)
 	{
@@ -798,7 +890,7 @@ namespace XPC
 				double dy = y - cY;
 				double dz = z - cZ;
 
-//			    Log::FormatLine(LOG_TRACE, "CAM", "Cam vect %f %f %f", dx, dy, dz);
+//				Log::FormatLine(LOG_TRACE, "CAM", "Cam vect %f %f %f", dx, dy, dz);
 
 				double pi = 3.141592653589793;
 
@@ -811,15 +903,15 @@ namespace XPC
 
 				outCameraPosition->heading = 90 + angle; // rel to north
 
-//			    Log::FormatLine(LOG_TRACE, "CAM", "Cam p %f hdg %f ", outCameraPosition->pitch, outCameraPosition->heading);
+//				Log::FormatLine(LOG_TRACE, "CAM", "Cam p %f hdg %f ", outCameraPosition->pitch, outCameraPosition->heading);
 
 				outCameraPosition->roll = 0;
 			}
 			else
 			{
-				outCameraPosition->roll     = campos->direction[0];
-				outCameraPosition->pitch    = campos->direction[1];
-				outCameraPosition->heading  = campos->direction[2];
+				outCameraPosition->roll		= campos->direction[0];
+				outCameraPosition->pitch	= campos->direction[1];
+				outCameraPosition->heading	= campos->direction[2];
 			}
 
 			outCameraPosition->zoom = campos->zoom;
