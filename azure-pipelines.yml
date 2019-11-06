@@ -39,6 +39,7 @@ stages:
             inputs:
               actions: "build"
               scheme: ""
+              sdk: "macosx10.13"
               configuration: "Release"
               xcWorkspacePath: "xpcPlugin/xpcPlugin.xcodeproj"
               xcodeVersion: "default" # Options: 8, 9, 10, default, specifyPath
