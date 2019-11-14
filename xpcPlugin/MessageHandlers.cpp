@@ -846,6 +846,9 @@ namespace XPC
         int view_type;
         memcpy(&view_type, buffer + 5, 4);
         
+        // set view by calling the corresponding key stroke
+        XPLMCommandKeyStroke(view_type);
+        
         
         VIEW_TYPE viewRunway = VIEW_TYPE::XPC_VIEW_RUNWAY;
         VIEW_TYPE viewChase  = VIEW_TYPE::XPC_VIEW_CHASE;
@@ -871,12 +874,6 @@ namespace XPC
             Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2], campos.zoom);
             
             XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamCallback_ChaseCam, &campos);
-        }
-        // default view switcher as before
-        else
-        {
-            // set view by calling the corresponding key stroke
-            XPLMCommandKeyStroke(view_type);
         }
     }
 
