@@ -15,7 +15,6 @@
 //	   without specific prior written permission from the authors or
 //	   Laminar Research, respectively.
 
-#include "xplaneConnect.h"
 #include "MessageHandlers.h"
 #include "DataManager.h"
 #include "Drawing.h"
@@ -847,11 +846,12 @@ namespace XPC
         int view_type;
         memcpy(&view_type, buffer + 5, 4);
         
-        // set view by calling the corresponding key stroke
-        XPLMCommandKeyStroke(view_type);
+        
+        VIEW_TYPE viewRunway = VIEW_TYPE::XPC_VIEW_RUNWAY;
+        VIEW_TYPE viewChase  = VIEW_TYPE::XPC_VIEW_CHASE;
         
         // advanced runway camera view
-        if(view_type == XPC_VIEW_RUNWAY && enable_advanced_camera == true)
+        if(view_type == static_cast<int>(viewRunway) && enable_advanced_camera == true)
         {
             static struct CameraProperties campos; // static variable for continuous callback access
             
@@ -862,7 +862,7 @@ namespace XPC
             XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamCallback_RunwayCam, &campos);
         }
         // advanced chase camera view
-        else if(view_type == XPC_VIEW_CHASE && enable_advanced_camera == true)
+        else if(view_type == static_cast<int>(viewChase) && enable_advanced_camera == true)
         {
             static struct CameraProperties campos;  // static variable for continuous callback access
             
@@ -871,6 +871,12 @@ namespace XPC
             Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2], campos.zoom);
             
             XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamCallback_ChaseCam, &campos);
+        }
+        // default view switcher as before
+        else
+        {
+            // set view by calling the corresponding key stroke
+            XPLMCommandKeyStroke(view_type);
         }
     }
 
