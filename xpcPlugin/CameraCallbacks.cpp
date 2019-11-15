@@ -33,9 +33,9 @@ namespace XPC
 			double clon = campos->loc[1];
 			double calt = campos->loc[2];
 			
-            double cX;
-            double cY;
-            double cZ;
+			double cX;
+			double cY;
+			double cZ;
 			XPLMWorldToLocal(clat, clon, calt, &cX, &cY, &cZ);
 			
 			outCameraPosition->x = cX;
@@ -137,19 +137,31 @@ namespace XPC
 			
 			// set direction value to -998 to keep camera pointing straight along that axis
 			if(campos->direction[0] < -180)
+			{
 				outCameraPosition->roll		= 0;
+			}
 			else
+			{
 				outCameraPosition->roll		= phi + campos->direction[0];
-			
+			}
+            
 			if(campos->direction[1] < -180)
+			{
 				outCameraPosition->pitch	= 0;
+			}
 			else
+			{
 				outCameraPosition->pitch	= the + campos->direction[1];
-			
+			}
+            
 			if(campos->direction[2] < -180)
+			{
 				outCameraPosition->heading	= 0;
+			}
 			else
+			{
 				outCameraPosition->heading	= psi + campos->direction[2];
+			}
 			
 			outCameraPosition->zoom = campos->zoom;
 		}

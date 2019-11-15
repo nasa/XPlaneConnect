@@ -645,10 +645,10 @@ namespace XPC
 		unsigned char aircraft = buffer[5];
 		Log::FormatLine(LOG_TRACE, "GETT", "Getting terrain information for aircraft %u", aircraft);
 		
-        double loc[3];
-        double X;
-        double Y;
-        double Z;
+		double loc[3];
+		double X;
+		double Y;
+		double Z;
 		memcpy(loc, buffer + 6, 24);
 		
 		if(loc[0] == -998 || loc[1] == -998 || loc[2] == -998)
@@ -679,9 +679,9 @@ namespace XPC
 		int rc = XPLMProbeTerrainXYZ(Terrain_probe, X, Y, Z, &probe_data);
 		
 		// transform probe location to world coordinates
-        double lat;
-        double lon;
-        double alt;
+		double lat;
+		double lon;
+		double alt;
 		
 		if(rc == 0)
 		{
@@ -816,66 +816,66 @@ namespace XPC
 		}
 	}
 
-    void MessageHandlers::HandleView(const Message& msg)
-    {
-        // Update Log
-        Log::FormatLine(LOG_TRACE, "VIEW", "Message Received(Conn %i)", connection.id);
-        
-        bool enable_advanced_camera = false;
-        
-        const std::size_t size = msg.GetSize();
-        if (size == 9)
-        {
-            // default view switcher as before
-        }
-        else if (size == 49)
-        {
-            // Allow camera location control
-            enable_advanced_camera = true;
-        }
-        else
-        {
-            Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 9 or 49.", size);
-            return;
-        }
-        
-        // get msg data
-        const unsigned char* buffer = msg.GetBuffer();
-        
-        // get view type
-        int view_type;
-        memcpy(&view_type, buffer + 5, 4);
-        
-        // set view by calling the corresponding key stroke
-        XPLMCommandKeyStroke(view_type);
-        
-        
-        VIEW_TYPE viewRunway = VIEW_TYPE::XPC_VIEW_RUNWAY;
-        VIEW_TYPE viewChase  = VIEW_TYPE::XPC_VIEW_CHASE;
-        
-        // advanced runway camera view
-        if(view_type == static_cast<int>(viewRunway) && enable_advanced_camera == true)
-        {
-            static struct CameraProperties campos; // static variable for continuous callback access
-            
-            memcpy(&campos, buffer+9 , sizeof(struct CameraProperties));
-            
-            Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2], campos.zoom);
-            
-            XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamCallback_RunwayCam, &campos);
-        }
-        // advanced chase camera view
-        else if(view_type == static_cast<int>(viewChase) && enable_advanced_camera == true)
-        {
-            static struct CameraProperties campos;  // static variable for continuous callback access
-            
-            memcpy(&campos, buffer+9 , sizeof(struct CameraProperties));
-            
-            Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2], campos.zoom);
-            
-            XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamCallback_ChaseCam, &campos);
-        }
-    }
+	void MessageHandlers::HandleView(const Message& msg)
+	{
+		// Update Log
+		Log::FormatLine(LOG_TRACE, "VIEW", "Message Received(Conn %i)", connection.id);
+		
+		bool enable_advanced_camera = false;
+		
+		const std::size_t size = msg.GetSize();
+		if (size == 9)
+		{
+			// default view switcher as before
+		}
+		else if (size == 49)
+		{
+			// Allow camera location control
+			enable_advanced_camera = true;
+		}
+		else
+		{
+			Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 9 or 49.", size);
+			return;
+		}
+		
+		// get msg data
+		const unsigned char* buffer = msg.GetBuffer();
+		
+		// get view type
+		int view_type;
+		memcpy(&view_type, buffer + 5, 4);
+		
+		// set view by calling the corresponding key stroke
+		XPLMCommandKeyStroke(view_type);
+		
+		
+		VIEW_TYPE viewRunway = VIEW_TYPE::XPC_VIEW_RUNWAY;
+		VIEW_TYPE viewChase	 = VIEW_TYPE::XPC_VIEW_CHASE;
+		
+		// advanced runway camera view
+		if(view_type == static_cast<int>(viewRunway) && enable_advanced_camera == true)
+		{
+			static struct CameraProperties campos; // static variable for continuous callback access
+			
+			memcpy(&campos, buffer+9 , sizeof(struct CameraProperties));
+			
+			Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2], campos.zoom);
+			
+			XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamCallback_RunwayCam, &campos);
+		}
+		// advanced chase camera view
+		else if(view_type == static_cast<int>(viewChase) && enable_advanced_camera == true)
+		{
+			static struct CameraProperties campos;	// static variable for continuous callback access
+			
+			memcpy(&campos, buffer+9 , sizeof(struct CameraProperties));
+			
+			Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2], campos.zoom);
+			
+			XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamCallback_ChaseCam, &campos);
+		}
+	}
 
 	void MessageHandlers::HandleWypt(const Message& msg)
 	{
