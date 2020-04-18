@@ -387,7 +387,7 @@ int sendDREFs(XPCSocket sock, const char* drefs[], float* values[], int sizes[],
 {
 	// Setup command
 	// Max size is technically unlimited.
-	unsigned char buffer[65536] = "DREF";
+	char buffer[65536] = "DREF";
 	int pos = 5;
     int i; // Iterator
 	for (i = 0; i < count; ++i)
@@ -433,7 +433,7 @@ int sendDREFRequest(XPCSocket sock, const char* drefs[], unsigned char count)
 	// Setup command
 	// 6 byte header + potentially 255 drefs, each 256 chars long.
 	// Easiest to just round to an even 2^16.
-	unsigned char buffer[65536] = "GETD";
+	char buffer[65536] = "GETD";
 	buffer[5] = count;
 	int len = 6;
     int i; // iterator
@@ -460,7 +460,7 @@ int sendDREFRequest(XPCSocket sock, const char* drefs[], unsigned char count)
 
 int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int sizes[])
 {
-	unsigned char buffer[65536];
+	char buffer[65536];
 	int result = readUDP(sock, buffer, 65536);
 
     if (result < 0)
@@ -537,10 +537,10 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
 /*****************************************************************************/
 /****                          POSI functions                             ****/
 /*****************************************************************************/
-int getPOSI(XPCSocket sock, float values[7], char ac)
+int getPOSI(XPCSocket sock, double values[7], char ac)
 {
 	// Setup send command
-	unsigned char buffer[6] = "GETP";
+	char buffer[6] = "GETP";
 	buffer[5] = ac;
 
 	// Send command
@@ -551,22 +551,41 @@ int getPOSI(XPCSocket sock, float values[7], char ac)
 	}
 
 	// Get response
-	unsigned char readBuffer[34];
-	int readResult = readUDP(sock, readBuffer, 34);
+	char readBuffer[46];
+	float f[7];
+	int readResult = readUDP(sock, readBuffer, 46);
+
+	// Copy response into values
 	if (readResult < 0)
 	{
 		printError("getPOSI", "Failed to read response.");
 		return -2;
 	}
-	if (readResult != 34)
+	else if (readResult == 34) /* lat/lon/h as 32-bit float */
+	{
+		memcpy(f, readBuffer + 6, 7 * sizeof(float));
+		values[0] = (double)f[0];
+		values[1] = (double)f[1];
+		values[2] = (double)f[2];
+		values[3] = (double)f[3];
+		values[4] = (double)f[4];
+		values[5] = (double)f[5];
+		values[6] = (double)f[6];
+	}
+	else if (readResult == 46) /* lat/lon/h as 64-bit double */
+	{
+		memcpy(values, readBuffer + 6, 3 * sizeof(double));
+		memcpy(f, readBuffer + 30, 4 * sizeof(float));
+		values[3] = (double)f[0];
+		values[4] = (double)f[1];
+		values[5] = (double)f[2];
+		values[6] = (double)f[3];
+	}
+	else
 	{
 		printError("getPOSI", "Unexpected response length.");
 		return -3;
 	}
-    // TODO: change this to the 64-bit lat/lon/h
-
-	// Copy response into values
-	memcpy(values, readBuffer + 6, 7 * sizeof(float));
 	return 0;
 }
 
@@ -585,7 +604,7 @@ int sendPOSI(XPCSocket sock, double values[], int size, char ac)
 	}
 
 	// Setup command
-	unsigned char buffer[46] = "POSI";
+	char buffer[46] = "POSI";
 	buffer[4] = 0xff; //Placeholder for message length
 	buffer[5] = ac;
     int i; // iterator
@@ -627,7 +646,7 @@ int sendPOSI(XPCSocket sock, double values[], int size, char ac)
 int getCTRL(XPCSocket sock, float values[7], char ac)
 {
 	// Setup send command
-	unsigned char buffer[6] = "GETC";
+	char buffer[6] = "GETC";
 	buffer[5] = ac;
 
 	// Send command
@@ -638,7 +657,7 @@ int getCTRL(XPCSocket sock, float values[7], char ac)
 	}
 
 	// Get response
-	unsigned char readBuffer[31];
+	char readBuffer[31];
 	int readResult = readUDP(sock, readBuffer, 31);
 	if (readResult < 0)
 	{
@@ -675,7 +694,7 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 
 	// Setup Command
 	// 5 byte header + 5 float values * 4 + 2 byte values
-	unsigned char buffer[31] = "CTRL";
+	char buffer[31] = "CTRL";
 	int cur = 5;
     int i; // iterator
 	for (i = 0; i < 6; i++)
