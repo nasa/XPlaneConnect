@@ -201,8 +201,9 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
 /// \param sock   The socket used to send the command and receive the response.
 /// \param values An array to store the position information returned by the
 ///               plugin. The format of values is [Lat, Lon, Alt, Pitch, Roll, Yaw, Gear]
+/// \param ac     The aircraft number to get the position of. 0 for the main/user's aircraft.
 /// \returns      0 if successful, otherwise a negative value.
-int getPOSI(XPCSocket sock, float values[7], char ac);
+int getPOSI(XPCSocket sock, double values[7], char ac);
 
 /// Sets the position and orientation of the specified aircraft.
 ///
@@ -211,7 +212,7 @@ int getPOSI(XPCSocket sock, float values[7], char ac);
 ///               [Lat, Lon, Alt, Pitch, Roll, Yaw, Gear]. If less than 7 values are specified,
 ///               the unspecified values will be left unchanged.
 /// \param size   The number of elements in values.
-/// \param ac     The aircraft number to set the position of. 0 for the player aircraft.
+/// \param ac     The aircraft number to set the position of. 0 for the main/user's aircraft.
 /// \returns      0 if successful, otherwise a negative value.
 int sendPOSI(XPCSocket sock, double values[], int size, char ac);
 
@@ -223,7 +224,7 @@ int sendPOSI(XPCSocket sock, double values[], int size, char ac);
 /// \param values An array to store the position information returned by the
 ///               plugin. The format of values is [Elevator, Aileron, Rudder,
 ///               Throttle, Gear, Flaps, Speed Brakes]
-/// \param ac     The aircraft to set the control surfaces of. 0 is the main/player aircraft.
+/// \param ac     The aircraft to set the control surfaces of. 0 is the main/user's aircraft.
 /// \returns      0 if successful, otherwise a negative value.
 int getCTRL(XPCSocket sock, float values[7], char ac);
 
@@ -234,7 +235,7 @@ int getCTRL(XPCSocket sock, float values[7], char ac);
 ///               [Elevator, Aileron, Rudder, Throttle, Gear, Flaps, Speed Brakes]. If less than
 ///               6 values are specified, the unspecified values will be left unchanged.
 /// \param size   The number of elements in values.
-/// \param ac     The aircraft number to set the control surfaces of. 0 for the player aircraft.
+/// \param ac     The aircraft to set the control surfaces of. 0 for the main/user's aircraft.
 /// \returns      0 if successful, otherwise a negative value.
 int sendCTRL(XPCSocket sock, float values[], int size, char ac);
 
@@ -246,7 +247,7 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac);
 /// \param msg  The message to print of the screen.
 /// \param x    The distance in pixels from the left edge of the screen to print the text.
 /// \param y    The distance in pixels from the bottom edge of the screen to print the top line of text.
-/// \returns      0 if successful, otherwise a negative value.
+/// \returns    0 if successful, otherwise a negative value.
 int sendTEXT(XPCSocket sock, char* msg, int x, int y);
 
 /// Sets the camera view in X-Plane.
