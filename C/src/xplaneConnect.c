@@ -58,8 +58,6 @@ int sendUDP(XPCSocket sock, char buffer[], int len);
 int readUDP(XPCSocket sock, char buffer[], int len);
 int sendDREFRequest(XPCSocket sock, const char* drefs[], unsigned char count);
 int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int sizes[]);
-int sendTERRRequest(XPCSocket sock, double posi[3], char ac);
-int getTERRResponse(XPCSocket sock, double values[11], char ac);
 
 void printError(char *functionName, char *format, ...)
 {
@@ -316,7 +314,7 @@ int sendDATA(XPCSocket sock, float data[][9], int rows)
 	char buffer[4829] = "DATA";
 	int len = 5 + rows * 9 * sizeof(float);
 	unsigned short step = 9 * sizeof(float);
-	int i; // iterator
+    int i; // iterator
 	for (i = 0; i < rows; i++)
 	{
 		buffer[5 + i * step] = (char)data[i][0];
@@ -365,7 +363,7 @@ int readDATA(XPCSocket sock, float data[][9], int rows)
 	}
 
 	// Parse data
-	int i; // iterator
+    int i; // iterator
 	for (i = 0; i < rows; ++i)
 	{
 		data[i][0] = buffer[5 + i * 36];
@@ -391,7 +389,7 @@ int sendDREFs(XPCSocket sock, const char* drefs[], float* values[], int sizes[],
 	// Max size is technically unlimited.
 	char buffer[65536] = "DREF";
 	int pos = 5;
-	int i; // Iterator
+    int i; // Iterator
 	for (i = 0; i < count; ++i)
 	{
 		int drefLen = strnlen(drefs[i], 256);
@@ -438,7 +436,7 @@ int sendDREFRequest(XPCSocket sock, const char* drefs[], unsigned char count)
 	char buffer[65536] = "GETD";
 	buffer[5] = count;
 	int len = 6;
-	int i; // iterator
+    int i; // iterator
 	for (i = 0; i < count; ++i)
 	{
 		size_t drefLen = strnlen(drefs[i], 256);
@@ -465,15 +463,15 @@ int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int si
 	char buffer[65536];
 	int result = readUDP(sock, buffer, 65536);
 
-	if (result < 0)
-	{
+    if (result < 0)
+    {
 #ifdef _WIN32
-		printError("getDREFs", "Read operation failed. (%d)", WSAGetLastError());
+        printError("getDREFs", "Read operation failed. (%d)", WSAGetLastError());
 #else
-		printError("getDREFs", "Read operation failed.");
+        printError("getDREFs", "Read operation failed.");
 #endif
-		return -1;
-	}
+        return -1;
+    }
 
 	if (result < 6)
 	{
@@ -487,7 +485,7 @@ int getDREFResponse(XPCSocket sock, float* values[], unsigned char count, int si
 	}
 
 	int cur = 6;
-	int i; // Iterator
+    int i; // Iterator
 	for (i = 0; i < count; ++i)
 	{
 		int l = buffer[cur++];
@@ -609,8 +607,8 @@ int sendPOSI(XPCSocket sock, double values[], int size, char ac)
 	char buffer[46] = "POSI";
 	buffer[4] = 0xff; //Placeholder for message length
 	buffer[5] = ac;
-	
-	int i; // iterator
+    int i; // iterator
+
 	for (i = 0; i < 7; i++) // double for lat/lon/h
 	{
 		double val = -998;
@@ -625,8 +623,8 @@ int sendPOSI(XPCSocket sock, double values[], int size, char ac)
 		}
 		else /* attitude and gear */
 		{
-			float f = (float)val;
-		memcpy(&buffer[18 + i*4], &f, sizeof(float));
+            float f = (float)val;
+            memcpy(&buffer[18 + i*4], &f, sizeof(float));
 		}
 	}
 
@@ -640,83 +638,6 @@ int sendPOSI(XPCSocket sock, double values[], int size, char ac)
 }
 /*****************************************************************************/
 /****                        End POSI functions                           ****/
-/*****************************************************************************/
-
-/*****************************************************************************/
-/****                          TERR functions                             ****/
-/*****************************************************************************/
-int sendTERRRequest(XPCSocket sock, double posi[3], char ac)
-{
-	// Setup send command
-	char buffer[30] = "GETT";
-	buffer[5] = ac;
-	memcpy(&buffer[6], posi, 3 * sizeof(double));
-
-	// Send command
-	if (sendUDP(sock, buffer, 30) < 0)
-	{
-		printError("getTERR", "Failed to send command.");
-		return -1;
-	}
-	return 0;
-}
-
-int getTERRResponse(XPCSocket sock, double values[11], char ac)
-{
-	// Get response
-	char readBuffer[62];
-	int readResult = readUDP(sock, readBuffer, 62);
-	if (readResult < 0)
-	{
-		printError("getTERR", "Failed to read response.");
-		return -2;
-	}
-	if (readResult != 62)
-	{
-		printError("getTERR", "Unexpected response length.");
-		return -3;
-	}
-
-	// Copy response into outputs
-	float f[8];
-	ac = readBuffer[5];
-	memcpy(values, readBuffer + 6, 3 * sizeof(double));
-	memcpy(f, readBuffer + 30, 8 * sizeof(float));
-	values[ 3] = (double)f[0];
-	values[ 4] = (double)f[1];
-	values[ 5] = (double)f[2];
-	values[ 6] = (double)f[3];
-	values[ 7] = (double)f[4];
-	values[ 8] = (double)f[5];
-	values[ 9] = (double)f[6];
-	values[10] = (double)f[7];
-
-	return 0;
-}
-
-int getTERR(XPCSocket sock, double posi[3], double values[11], char ac)
-{
-	// Send Command
-	int result = sendTERRRequest(sock, posi, ac);
-	if (result < 0)
-	{
-		// An error ocurred while sending.
-		// sendTERRRequest will print an error message, so just return.
-		return result;
-	}
-
-	// Read Response
-	result = getTERRResponse(sock, values, ac);
-	if (result < 0)
-	{
-		// An error ocurred while reading the response.
-		// getTERRResponse will print an error message, so just return.
-		return result;
-	}
-	return 0;
-}
-/*****************************************************************************/
-/****                        End TERR functions                           ****/
 /*****************************************************************************/
 
 /*****************************************************************************/
@@ -775,7 +696,7 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac)
 	// 5 byte header + 5 float values * 4 + 2 byte values
 	char buffer[31] = "CTRL";
 	int cur = 5;
-	int i; // iterator
+    int i; // iterator
 	for (i = 0; i < 6; i++)
 	{
 		float val = -998;
