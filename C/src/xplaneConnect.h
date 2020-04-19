@@ -216,6 +216,24 @@ int getPOSI(XPCSocket sock, double values[7], char ac);
 /// \returns      0 if successful, otherwise a negative value.
 int sendPOSI(XPCSocket sock, double values[], int size, char ac);
 
+// Terrain
+
+/// Gets the terrain information of the specified aircraft.
+///
+/// \param sock   The socket to use to send the command.
+/// \param posi   A double array representing position data about the aircraft. The format of values is
+///               [Lat, Lon, Alt].
+///               -998 used for [Lat, Lon, Alt] to request terrain info at the current aircraft position.
+/// \param values A double array with the information for the terrain output. The format of values is
+///               [Lat, Lon, Alt, Nx, Ny, Nz, Vx, Vy, Vz, wet, result]. The first three are for output of
+///               the Lat and Lon of the aircraft with the terrain height directly below. The next three
+///               represent the terrain normal. The next three represent the velocity of the terrain.
+///               The wet variable is 0.0 if the terrain is dry and 1.0 if wet.
+///               The last output is the terrain probe result parameter.
+/// \param ac     The aircraft number to set the position of. 0 for the main/user's aircraft.
+/// \returns      0 if successful, otherwise a negative value.
+int getTERR(XPCSocket sock, double posi[3], double values[11], char ac);
+
 // Controls
 
 /// Gets the control surface information for the specified aircraft.
