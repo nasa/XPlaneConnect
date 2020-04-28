@@ -1,7 +1,6 @@
 import socket
 import struct
 
-
 class XPlaneConnect(object):
     """XPlaneConnect (XPC) facilitates communication to and from the XPCPlugin."""
     socket = None
@@ -158,10 +157,13 @@ class XPlaneConnect(object):
 
         # Read response
         resultBuf = self.readUDP()
-        if len(resultBuf) != 34:
+        if len(resultBuf) == 34:
+            result = struct.unpack(b"<4sxBfffffff", resultBuf)
+        elif len(resultBuf) == 46:
+            result = struct.unpack(b"<4sxBdddffff", resultBuf)
+        else:
             raise ValueError("Unexpected response length.")
 
-        result = struct.unpack(b"<4sxBfffffff", resultBuf)
         if result[0] != b"POSI":
             raise ValueError("Unexpected header: " + result[0])
 
@@ -197,7 +199,10 @@ class XPlaneConnect(object):
             val = -998
             if i < len(values):
                 val = values[i]
-            buffer += struct.pack(b"<f", val)
+            if i < 3:
+                buffer += struct.pack(b"<d", val)
+            else:
+                buffer += struct.pack(b"<f", val)
 
         # Send
         self.sendUDP(buffer)
@@ -257,7 +262,7 @@ class XPlaneConnect(object):
                 val = values[i]
             if i == 4:
                 val = -1 if (abs(val + 998) < 1e-4) else val
-                buffer += struct.pack(b"b", val)
+                buffer += struct.pack(b"b", int(val))
             else:
                 buffer += struct.pack(b"<f", val)
 

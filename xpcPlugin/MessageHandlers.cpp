@@ -24,14 +24,12 @@
 #include "XPLMScenery.h"
 #include "XPLMGraphics.h"
 
-
 #include <cmath>
 #include <cstring>
 #include <cstdint>
 
 #define MULTICAST_GROUP "239.255.1.1"
 #define MULITCAST_PORT 49710
-
 
 namespace XPC
 {
@@ -560,21 +558,20 @@ namespace XPC
 		unsigned char aircraft = buffer[5];
 		Log::FormatLine(LOG_TRACE, "GPOS", "Getting position information for aircraft %u", aircraft);
 
-		unsigned char response[34] = "POSI";
+		unsigned char response[46] = "POSI";
 		response[5] = (char)DataManager::GetInt(DREF_GearHandle, aircraft);
-		// TODO change lat/lon/h to double?
-		*((float*)(response + 6)) = (float)DataManager::GetDouble(DREF_Latitude, aircraft);
-		*((float*)(response + 10)) = (float)DataManager::GetDouble(DREF_Longitude, aircraft);
-		*((float*)(response + 14)) = (float)DataManager::GetDouble(DREF_Elevation, aircraft);
-		*((float*)(response + 18)) = DataManager::GetFloat(DREF_Pitch, aircraft);
-		*((float*)(response + 22)) = DataManager::GetFloat(DREF_Roll, aircraft);
-		*((float*)(response + 26)) = DataManager::GetFloat(DREF_HeadingTrue, aircraft);
+		*((double*)(response + 6)) = DataManager::GetDouble(DREF_Latitude, aircraft);
+		*((double*)(response + 14)) = DataManager::GetDouble(DREF_Longitude, aircraft);
+		*((double*)(response + 22)) = DataManager::GetDouble(DREF_Elevation, aircraft);
+		*((float*)(response + 30)) = DataManager::GetFloat(DREF_Pitch, aircraft);
+		*((float*)(response + 34)) = DataManager::GetFloat(DREF_Roll, aircraft);
+		*((float*)(response + 38)) = DataManager::GetFloat(DREF_HeadingTrue, aircraft);
 
 		float gear[10];
 		DataManager::GetFloatArray(DREF_GearDeploy, gear, 10, aircraft);
-		*((float*)(response + 30)) = gear[0];
+		*((float*)(response + 42)) = gear[0];
 
-		sock->SendTo(response, 34, &connection.addr);
+		sock->SendTo(response, 46, &connection.addr);
 	}
 
 	void MessageHandlers::HandlePosi(const Message& msg)
@@ -594,6 +591,7 @@ namespace XPC
 		{
 			float posd_32[3];
 			memcpy(posd_32, buffer + 6, 12);
+		/* convert float to double */
 			posd[0] = posd_32[0];
 			posd[1] = posd_32[1];
 			posd[2] = posd_32[2];
@@ -612,7 +610,6 @@ namespace XPC
 			return;
 		}
 
-		/* convert float to double */
 		DataManager::SetPosition(posd, aircraftNumber);
 		DataManager::SetOrientation(orient, aircraftNumber);
 		if (gear >= 0)
@@ -632,7 +629,7 @@ namespace XPC
 			}
 		}
 	}
-	
+
 	void MessageHandlers::HandleGetT(const Message& msg)
 	{
 		const unsigned char* buffer = msg.GetBuffer();

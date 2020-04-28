@@ -6,7 +6,7 @@
 #include "Test.h"
 #include "xplaneConnect.h"
 
-int doGETDTest(char* drefs[], float* expected[], int count, int sizes[])
+int doGETDTest(const char* drefs[], float* expected[], int count, int sizes[])
 {
 	// Setup memory
 	int* asizes = (int*)malloc(sizeof(int) * count);
@@ -37,7 +37,7 @@ int doGETDTest(char* drefs[], float* expected[], int count, int sizes[])
 	return result;
 }
 
-int doDREFTest(char* drefs[], float* values[], float* expected[], int count, int sizes[])
+int doDREFTest(const char* drefs[], float* values[], float* expected[], int count, int sizes[])
 {
 	// Setup memory
 	int* asizes = (int*)malloc(sizeof(int) * count);
@@ -74,7 +74,7 @@ int doDREFTest(char* drefs[], float* values[], float* expected[], int count, int
 
 int testGETD_Basic()
 {
-	char* drefs[] =
+	const char* drefs[] =
 	{
 		"sim/cockpit/switches/gear_handle_status", //int
 		"sim/cockpit/autopilot/altitude", //float
@@ -99,20 +99,20 @@ int testGETD_Basic()
 
 int testGETD_TestFloat()
 {
-	char* dref = "sim/test/test_float";
+	const char* dref = "sim/test/test_float";
 	int size = 1;
 	float* expected[1];
 	expected[0] = (float*)malloc(sizeof(float));
 	expected[0][0] = 0.0F;
 
-	int result = doGETDTest(&dref, &expected, 1, &size);
+	int result = doGETDTest(&dref, expected, 1, &size);
 	free(expected[0]);
 	return result;
 }
 
 int testGETD_Types()
 {
-	char* drefs[] =
+	const char* drefs[] =
 	{
 		"sim/cockpit/switches/gear_handle_status", //int
 		"sim/cockpit/autopilot/altitude", //float
@@ -173,7 +173,7 @@ int testGETD_Types()
 
 int testDREF()
 {
-	char* drefs[] =
+	const char* drefs[] =
 	{
 		"sim/cockpit/switches/gear_handle_status", //int
 		"sim/cockpit/autopilot/altitude", //float

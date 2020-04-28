@@ -10,7 +10,7 @@ int testDATA()
 {
 	// Initialize
 	int i, j; // Iterator
-	char* drefs[100] =
+	const char* drefs[100] =
 	{
 		"sim/aircraft/parts/acf_gear_deploy"
 	};
