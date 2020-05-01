@@ -685,6 +685,7 @@ namespace XPC
 		{
 			Log::FormatLine(LOG_ERROR, "TERR", "Probe failed. Return Value %u", rc);
 			XPLMDestroyProbe(Terrain_probe);
+			Terrain_probe = nullptr;
 			return;
 		}
 		
@@ -694,7 +695,7 @@ namespace XPC
 		Log::FormatLine(LOG_TRACE, "TERR", "Conv LLA=%f, %f, %f", lat, lon, alt);
 
 		// transform probe location to local coordinates
-		// Step 4. NOW convert your origina lat/lon with the elevation from step 3 to XYZ
+		// Step 4. NOW convert your original lat/lon with the elevation from step 3 to XYZ
 		XPLMWorldToLocal(pos[0], pos[1], alt, &X, &Y, &Z);
 
 		// query probe
