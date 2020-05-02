@@ -642,49 +642,72 @@ namespace XPC
 		unsigned char aircraft = buffer[5];
 		Log::FormatLine(LOG_TRACE, "GETT", "Getting terrain information for aircraft %u", aircraft);
 		
-		double loc[3];
-		double X;
-		double Y;
-		double Z;
-		memcpy(loc, buffer + 6, 24);
+		double pos[3];
+		memcpy(pos, buffer + 6, 24);
 		
-		if(loc[0] == -998 || loc[1] == -998 || loc[2] == -998)
+		if(pos[0] == -998 || pos[1] == -998 || pos[2] == -998)
 		{
 			// get terrain properties at aircraft location
-			// probe needs to be below terrain to work...
-			X = DataManager::GetDouble(DREF_LocalX, aircraft);
-			Z = DataManager::GetDouble(DREF_LocalZ, aircraft);
-			Y = -100.0;
+			pos[0] = DataManager::GetDouble(DREF_Latitude, aircraft);
+			pos[1] = DataManager::GetDouble(DREF_Longitude, aircraft);
+			pos[2] = 0.0;
 		}
-		else
-		{
-			// terrain probe at specified location
-			XPLMWorldToLocal(loc[0], loc[1], loc[2], &X, &Y, &Z);
-		}
+
+		MessageHandlers::SendTerr(pos, aircraft);
+	}
+
+	void MessageHandlers::SendTerr(double pos[3], char aircraft)
+	{
+		double lat, lon, alt, X, Y, Z;
 		
 		// Init terrain probe (if required) and probe data struct
-		XPLMProbeInfo_t probe_data;
+		static XPLMProbeInfo_t probe_data;
 		probe_data.structSize = sizeof(XPLMProbeInfo_t);
 		
 		if(Terrain_probe == nullptr)
 		{
-			Log::FormatLine(LOG_TRACE, "GETT", "Create terrain probe for aircraft %u", aircraft);
+			Log::FormatLine(LOG_TRACE, "TERR", "Create terrain probe for aircraft %u", aircraft);
 			Terrain_probe = XPLMCreateProbe(0);
 		}
 		
+		// terrain probe at specified location
+		// Follow the process in the following post to get accurate results
+		// https://forums.x-plane.org/index.php?/forums/topic/38688-how-do-i-use-xplmprobeterrainxyz/&page=2
+		
+		// transform probe location to local coordinates
+		// Step 1. Convert lat/lon/0 to XYZ
+		XPLMWorldToLocal(pos[0], pos[1], pos[2], &X, &Y, &Z);
+		
 		// query probe
+		// Step 2. Probe XYZ to get a new Y
 		int rc = XPLMProbeTerrainXYZ(Terrain_probe, X, Y, Z, &probe_data);
+		if(rc > 0)
+		{
+			Log::FormatLine(LOG_ERROR, "TERR", "Probe failed. Return Value %u", rc);
+			XPLMDestroyProbe(Terrain_probe);
+			Terrain_probe = nullptr;
+			return;
+		}
 		
 		// transform probe location to world coordinates
-		double lat;
-		double lon;
-		double alt;
-		
+		// Step 3. Convert that new XYZ back to LLE
+		XPLMLocalToWorld(probe_data.locationX, probe_data.locationY, probe_data.locationZ, &lat, &lon, &alt);
+		Log::FormatLine(LOG_TRACE, "TERR", "Conv LLA=%f, %f, %f", lat, lon, alt);
+
+		// transform probe location to local coordinates
+		// Step 4. NOW convert your original lat/lon with the elevation from step 3 to XYZ
+		XPLMWorldToLocal(pos[0], pos[1], alt, &X, &Y, &Z);
+
+		// query probe
+		// Step 5. Re-probe with the NEW XYZ
+		rc = XPLMProbeTerrainXYZ(Terrain_probe, X, Y, Z, &probe_data);
 		if(rc == 0)
 		{
+		// transform probe location to world coordinates
+		// Step 6. You now have a new Y, and your XYZ will be closer to correct for high elevations far from the origin.
 			XPLMLocalToWorld(probe_data.locationX, probe_data.locationY, probe_data.locationZ, &lat, &lon, &alt);
 			
-			Log::FormatLine(LOG_TRACE, "GETT", "Probe LLA %lf %lf %lf", lat, lon, alt);
+			Log::FormatLine(LOG_TRACE, "TERR", "Probe LLA %lf %lf %lf", lat, lon, alt);
 		}
 		else
 		{
@@ -692,31 +715,34 @@ namespace XPC
 			lon = -998;
 			alt = -998;
 			
-			Log::FormatLine(LOG_TRACE, "GETT", "Probe failed. Return Value %u", rc);
+			Log::FormatLine(LOG_TRACE, "TERR", "Probe failed. Return Value %u", rc);
 		}
-		
+
 		// keep probe for next query
-		// XPLMDestroyProbe(probe);
+		// XPLMDestroyProbe(Terrain_probe);
 		
 		// Assemble response message
-		unsigned char response[50] = "TERR";
+		unsigned char response[62] = "TERR";
 		response[5] = aircraft;
 		// terrain height over msl at lat/lon point
 		memcpy(response + 6,  &lat, 8);
 		memcpy(response + 14, &lon, 8);
 		memcpy(response + 22, &alt, 8);
-		// terrain incidence
+		// terrain normal vector
 		memcpy(response + 30, &probe_data.normalX, 4);
 		memcpy(response + 34, &probe_data.normalY, 4);
 		memcpy(response + 38, &probe_data.normalZ, 4);
+		// terrain velocity
+		memcpy(response + 42, &probe_data.velocityX, 4);
+		memcpy(response + 46, &probe_data.velocityY, 4);
+		memcpy(response + 50, &probe_data.velocityZ, 4);
 		// terrain type
-		memcpy(response + 42, &probe_data.is_wet, 4);
+		memcpy(response + 54, &probe_data.is_wet, 4);
 		// probe status
-		memcpy(response + 46, &rc, 4);
-		
-		sock->SendTo(response, 50, &connection.addr);
-	}
+		memcpy(response + 58, &rc, 4);
 
+		sock->SendTo(response, 62, &connection.addr);
+	}
 
 	void MessageHandlers::HandleSimu(const Message& msg)
 	{

@@ -57,6 +57,8 @@ namespace XPC
 		static void SetSocket(UDPSocket* socket);
 		
 		static void SendBeacon(const std::string& pluginVersion, unsigned short pluginReceivePort, int xplaneVersion);
+		
+		static void SendTerr(double pos[3], char aircraft);
 
 	private:
 		// One handler per message type. Message types are descripbed on the
