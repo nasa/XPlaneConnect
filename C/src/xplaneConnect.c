@@ -692,28 +692,6 @@ int getTERRResponse(XPCSocket sock, double values[11], char ac)
 	return 0;
 }
 
-int getTERR(XPCSocket sock, double posi[3], double values[11], char ac)
-{
-	// Send Command
-	int result = sendTERRRequest(sock, posi, ac);
-	if (result < 0)
-	{
-		// An error ocurred while sending.
-		// sendTERRRequest will print an error message, so just return.
-		return result;
-	}
-
-	// Read Response
-	result = getTERRResponse(sock, values, ac);
-	if (result < 0)
-	{
-		// An error ocurred while reading the response.
-		// getTERRResponse will print an error message, so just return.
-		return result;
-	}
-	return 0;
-}
-
 int sendPOST(XPCSocket sock, double posi[], int size, double values[11], char ac)
 {
 	// Validate input
@@ -765,6 +743,28 @@ int sendPOST(XPCSocket sock, double posi[], int size, double values[11], char ac
 	if (result < 0)
 	{
 		// A error ocurred while reading the response.
+		// getTERRResponse will print an error message, so just return.
+		return result;
+	}
+	return 0;
+}
+
+int getTERR(XPCSocket sock, double posi[3], double values[11], char ac)
+{
+	// Send Command
+	int result = sendTERRRequest(sock, posi, ac);
+	if (result < 0)
+	{
+		// An error ocurred while sending.
+		// sendTERRRequest will print an error message, so just return.
+		return result;
+	}
+
+	// Read Response
+	result = getTERRResponse(sock, values, ac);
+	if (result < 0)
+	{
+		// An error ocurred while reading the response.
 		// getTERRResponse will print an error message, so just return.
 		return result;
 	}
