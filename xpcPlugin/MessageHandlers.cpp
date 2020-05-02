@@ -63,6 +63,7 @@ namespace XPC
 			handlers.insert(std::make_pair("DREF", MessageHandlers::HandleDref));
 			handlers.insert(std::make_pair("GETD", MessageHandlers::HandleGetD));
 			handlers.insert(std::make_pair("POSI", MessageHandlers::HandlePosi));
+			handlers.insert(std::make_pair("POST", MessageHandlers::HandlePosT));
 			handlers.insert(std::make_pair("SIMU", MessageHandlers::HandleSimu));
 			handlers.insert(std::make_pair("TEXT", MessageHandlers::HandleText));
 			handlers.insert(std::make_pair("WYPT", MessageHandlers::HandleWypt));
@@ -70,7 +71,6 @@ namespace XPC
 			handlers.insert(std::make_pair("GETC", MessageHandlers::HandleGetC));
 			handlers.insert(std::make_pair("GETP", MessageHandlers::HandleGetP));
 			handlers.insert(std::make_pair("GETT", MessageHandlers::HandleGetT));
-			handlers.insert(std::make_pair("POST", MessageHandlers::HandlePosT));
 			// X-Plane data messages
 			handlers.insert(std::make_pair("DSEL", MessageHandlers::HandleXPlaneData));
 			handlers.insert(std::make_pair("USEL", MessageHandlers::HandleXPlaneData));
