@@ -76,6 +76,7 @@ namespace XPC
 		static void HandleWypt(const Message& msg);
 		static void HandleView(const Message& msg);
 		static void HandleGetT(const Message& msg);
+		static void HandlePosT(const Message& msg);
 
 		static void HandleXPlaneData(const Message& msg);
 		static void HandleUnknown(const Message& msg);
