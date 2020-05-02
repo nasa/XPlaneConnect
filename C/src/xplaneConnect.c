@@ -185,7 +185,7 @@ int sendUDP(XPCSocket sock, char buffer[], int len)
 /// \param sock   The socket to read from.
 /// \param buffer A pointer to the location to store the data.
 /// \param len    The number of bytes to read.
-/// \returns      If an error occurs, a negative number. Otehrwise, the number of bytes read.
+/// \returns      If an error occurs, a negative number. Otherwise, the number of bytes read.
 int readUDP(XPCSocket sock, char buffer[], int len)
 {
 #ifdef _WIN32
@@ -378,9 +378,9 @@ int readDATA(XPCSocket sock, float data[][9], int rows)
 /*****************************************************************************/
 /****                          DREF functions                             ****/
 /*****************************************************************************/
-int sendDREF(XPCSocket sock, const char* dref, float value[], int size)
+int sendDREF(XPCSocket sock, const char* dref, float values[], int size)
 {
-	return sendDREFs(sock, &dref, &value, &size, 1);
+	return sendDREFs(sock, &dref, &values, &size, 1);
 }
 
 int sendDREFs(XPCSocket sock, const char* drefs[], float* values[], int sizes[], int count)
@@ -516,7 +516,7 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
 	int result = sendDREFRequest(sock, drefs, count);
 	if (result < 0)
 	{
-		// A error ocurred while sending.
+		// An error ocurred while sending.
 		// sendDREFRequest will print an error message, so just return.
 		return -1;
 	}
@@ -524,7 +524,7 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
 	// Read Response
 	if (getDREFResponse(sock, values, count, sizes) < 0)
 	{
-		// A error ocurred while reading the response.
+		// An error ocurred while reading the response.
 		// getDREFResponse will print an error message, so just return.
 		return -2;
 	}
@@ -638,6 +638,83 @@ int sendPOSI(XPCSocket sock, double values[], int size, char ac)
 }
 /*****************************************************************************/
 /****                        End POSI functions                           ****/
+/*****************************************************************************/
+
+/*****************************************************************************/
+/****                          TERR functions                             ****/
+/*****************************************************************************/
+int sendTERRRequest(XPCSocket sock, double posi[3], char ac)
+{
+	// Setup send command
+	char buffer[30] = "GETT";
+	buffer[5] = ac;
+	memcpy(&buffer[6], posi, 3 * sizeof(double));
+
+	// Send command
+	if (sendUDP(sock, buffer, 30) < 0)
+	{
+		printError("getTERR", "Failed to send command.");
+		return -1;
+	}
+	return 0;
+}
+
+int getTERRResponse(XPCSocket sock, double values[11], char ac)
+{
+	// Get response
+	char readBuffer[62];
+	int readResult = readUDP(sock, readBuffer, 62);
+	if (readResult < 0)
+	{
+		printError("getTERR", "Failed to read response.");
+		return -2;
+	}
+	if (readResult != 62)
+	{
+		printError("getTERR", "Unexpected response length.");
+		return -3;
+	}
+
+	// Copy response into outputs
+	float f[8];
+	ac = readBuffer[5];
+	memcpy(values, readBuffer + 6, 3 * sizeof(double));
+	memcpy(f, readBuffer + 30, 8 * sizeof(float));
+	values[ 3] = (double)f[0];
+	values[ 4] = (double)f[1];
+	values[ 5] = (double)f[2];
+	values[ 6] = (double)f[3];
+	values[ 7] = (double)f[4];
+	values[ 8] = (double)f[5];
+	values[ 9] = (double)f[6];
+	values[10] = (double)f[7];
+
+	return 0;
+}
+
+int getTERR(XPCSocket sock, double posi[3], double values[11], char ac)
+{
+	// Send Command
+	int result = sendTERRRequest(sock, posi, ac);
+	if (result < 0)
+	{
+		// An error ocurred while sending.
+		// sendTERRRequest will print an error message, so just return.
+		return result;
+	}
+
+	// Read Response
+	result = getTERRResponse(sock, values, ac);
+	if (result < 0)
+	{
+		// An error ocurred while reading the response.
+		// getTERRResponse will print an error message, so just return.
+		return result;
+	}
+	return 0;
+}
+/*****************************************************************************/
+/****                        End TERR functions                           ****/
 /*****************************************************************************/
 
 /*****************************************************************************/
