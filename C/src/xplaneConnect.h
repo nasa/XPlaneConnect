@@ -159,7 +159,7 @@ int sendDREF(XPCSocket sock, const char* dref, float values[], int size);
 ///          the type described on the wiki. This doesn't cause any data loss for most datarefs.
 /// \param sock   The socket to use to send the command.
 /// \param drefs  The names of the datarefs to set.
-/// \param values A 2D array array containing the values for each dataref to set.
+/// \param values A 2D array containing the values for each dataref to set.
 /// \param sizes  The number of elements in each array in values
 /// \param count  The number of datarefs being set.
 /// \returns      0 if successful, otherwise a negative value.
@@ -208,7 +208,7 @@ int getPOSI(XPCSocket sock, double values[7], char ac);
 /// Sets the position and orientation of the specified aircraft.
 ///
 /// \param sock   The socket to use to send the command.
-/// \param values An array representing position data about the aircraft. The format of values is
+/// \param values A double array representing position data about the aircraft. The format of values is
 ///               [Lat, Lon, Alt, Pitch, Roll, Yaw, Gear]. If less than 7 values are specified,
 ///               the unspecified values will be left unchanged.
 /// \param size   The number of elements in values.
@@ -217,22 +217,6 @@ int getPOSI(XPCSocket sock, double values[7], char ac);
 int sendPOSI(XPCSocket sock, double values[], int size, char ac);
 
 // Terrain
-
-/// Gets the terrain information of the specified aircraft.
-///
-/// \param sock   The socket to use to send the command.
-/// \param posi   A double array representing position data about the aircraft. The format of values is
-///               [Lat, Lon, Alt].
-///               -998 used for [Lat, Lon, Alt] to request terrain info at the current aircraft position.
-/// \param values A double array with the information for the terrain output. The format of values is
-///               [Lat, Lon, Alt, Nx, Ny, Nz, Vx, Vy, Vz, wet, result]. The first three are for output of
-///               the Lat and Lon of the aircraft with the terrain height directly below. The next three
-///               represent the terrain normal. The next three represent the velocity of the terrain.
-///               The wet variable is 0.0 if the terrain is dry and 1.0 if wet.
-///               The last output is the terrain probe result parameter.
-/// \param ac     The aircraft number to get the terrain data of. 0 for the main/user's aircraft.
-/// \returns      0 if successful, otherwise a negative value.
-int getTERR(XPCSocket sock, double posi[3], double values[11], char ac);
 
 /// Sets the position and orientation and gets the terrain information of the specified aircraft.
 ///
@@ -250,6 +234,22 @@ int getTERR(XPCSocket sock, double posi[3], double values[11], char ac);
 /// \param ac     The aircraft number to set the position of. 0 for the main/user's aircraft.
 /// \returns      0 if successful, otherwise a negative value.
 int sendPOST(XPCSocket sock, double posi[], int size, double values[11], char ac);
+
+/// Gets the terrain information of the specified aircraft.
+///
+/// \param sock   The socket to use to send the command.
+/// \param posi   A double array representing position data about the aircraft. The format of values is
+///               [Lat, Lon, Alt].
+///               -998 used for [Lat, Lon, Alt] to request terrain info at the current aircraft position.
+/// \param values A double array with the information for the terrain output. The format of values is
+///               [Lat, Lon, Alt, Nx, Ny, Nz, Vx, Vy, Vz, wet, result]. The first three are for output of
+///               the Lat and Lon of the aircraft with the terrain height directly below. The next three
+///               represent the terrain normal. The next three represent the velocity of the terrain.
+///               The wet variable is 0.0 if the terrain is dry and 1.0 if wet.
+///               The last output is the terrain probe result parameter.
+/// \param ac     The aircraft number to get the terrain data of. 0 for the main/user's aircraft.
+/// \returns      0 if successful, otherwise a negative value.
+int getTERR(XPCSocket sock, double posi[3], double values[11], char ac);
 
 // Controls
 
