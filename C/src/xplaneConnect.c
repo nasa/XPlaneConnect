@@ -713,6 +713,63 @@ int getTERR(XPCSocket sock, double posi[3], double values[11], char ac)
 	}
 	return 0;
 }
+
+int sendPOST(XPCSocket sock, double posi[], int size, double values[11], char ac)
+{
+	// Validate input
+	if (ac < 0 || ac > 20)
+	{
+		printError("sendPOST", "aircraft should be a value between 0 and 20.");
+		return -1;
+	}
+	if (size < 1 || size > 7)
+	{
+		printError("sendPOST", "size should be a value between 1 and 7.");
+		return -2;
+	}
+
+	// Setup command
+	char buffer[46] = "POST";
+	buffer[4] = 0xff; //Placeholder for message length
+	buffer[5] = ac;
+	int i; // iterator
+
+	for (i = 0; i < 7; i++) // double for lat/lon/h
+	{
+		double val = -998;
+
+		if (i < size)
+		{
+			val = posi[i];
+		}
+		if (i < 3) /* lat/lon/h */
+		{
+			memcpy(&buffer[6 + i*8], &val, sizeof(double));
+		}
+		else /* attitude and gear */
+		{
+			float f = (float)val;
+			memcpy(&buffer[18 + i*4], &f, sizeof(float));
+		}
+	}
+
+	// Send Command
+	if (sendUDP(sock, buffer, 46) < 0)
+	{
+		printError("sendPOST", "Failed to send command");
+		return -3;
+	}
+	
+	// Read Response
+	int result = getTERRResponse(sock, values, ac);
+	if (result < 0)
+	{
+		// A error ocurred while reading the response.
+		// getTERRResponse will print an error message, so just return.
+		return result;
+	}
+	return 0;
+}
 /*****************************************************************************/
 /****                        End TERR functions                           ****/
 /*****************************************************************************/
