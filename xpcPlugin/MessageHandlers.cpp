@@ -63,6 +63,7 @@ namespace XPC
 			handlers.insert(std::make_pair("DREF", MessageHandlers::HandleDref));
 			handlers.insert(std::make_pair("GETD", MessageHandlers::HandleGetD));
 			handlers.insert(std::make_pair("POSI", MessageHandlers::HandlePosi));
+			handlers.insert(std::make_pair("POST", MessageHandlers::HandlePosT));
 			handlers.insert(std::make_pair("SIMU", MessageHandlers::HandleSimu));
 			handlers.insert(std::make_pair("TEXT", MessageHandlers::HandleText));
 			handlers.insert(std::make_pair("WYPT", MessageHandlers::HandleWypt));
@@ -628,6 +629,21 @@ namespace XPC
 				DataManager::Set(DREF_PauseAI, ai, 0, 20);
 			}
 		}
+	}
+
+	void MessageHandlers::HandlePosT(const Message& msg)
+	{
+		MessageHandlers::HandlePosi(msg);
+		
+		const unsigned char* buffer = msg.GetBuffer();
+		char aircraftNumber = buffer[5];
+		Log::FormatLine(LOG_TRACE, "POST", "Getting terrain information for aircraft %u", aircraftNumber);
+		
+		double pos[3];
+		pos[0] = DataManager::GetDouble(DREF_Latitude, aircraftNumber);
+		pos[1] = DataManager::GetDouble(DREF_Longitude, aircraftNumber);
+		pos[2] = 0.0;
+		MessageHandlers::SendTerr(pos, aircraftNumber);
 	}
 
 	void MessageHandlers::HandleGetT(const Message& msg)

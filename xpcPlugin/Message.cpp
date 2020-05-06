@@ -138,7 +138,7 @@ namespace XPC
 				cur += 1 + buffer[cur];
 			}
 		}
-		else if (head == "POSI")
+		else if (head == "POSI" || head == "POST")
 		{
 			char aircraft = buffer[5];
 			float gear;

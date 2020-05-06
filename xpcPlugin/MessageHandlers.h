@@ -70,12 +70,13 @@ namespace XPC
 		static void HandleGetC(const Message& msg);
 		static void HandleGetD(const Message& msg);
 		static void HandleGetP(const Message& msg);
+		static void HandleGetT(const Message& msg);
 		static void HandlePosi(const Message& msg);
+		static void HandlePosT(const Message& msg);
 		static void HandleSimu(const Message& msg);
 		static void HandleText(const Message& msg);
 		static void HandleWypt(const Message& msg);
 		static void HandleView(const Message& msg);
-		static void HandleGetT(const Message& msg);
 
 		static void HandleXPlaneData(const Message& msg);
 		static void HandleUnknown(const Message& msg);
