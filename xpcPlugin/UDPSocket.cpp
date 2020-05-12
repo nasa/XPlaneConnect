@@ -121,7 +121,7 @@ namespace XPC
 #endif
 			return -1;
 		}
-		if (result == 0)
+		if (status == 0)
 		{
 			// No data
 			return -1;
