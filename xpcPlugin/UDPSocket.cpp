@@ -110,7 +110,7 @@ namespace XPC
 		tv.tv_usec = 0;
 
 		// Select Command
-		int status = select(-1, &stReadFDS, (FD_SET *)0, &stExceptFDS, &tv);
+		int status = select(-1, &stReadFDS, (FD_SET*)0, &stExceptFDS, &tv);
 		if (status < 0)
 		{
 #ifdef _WIN32
