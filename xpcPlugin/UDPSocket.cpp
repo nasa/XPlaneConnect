@@ -56,22 +56,25 @@ namespace XPC
 			return;
 		}
 
-		// Set Timout
-		int usTimeOut = 500;
-
+		// Set timeout period for SendTo to 1 millisecond
+		// Without this, playback may become choppy due to process blocking
 #ifdef _WIN32
-		DWORD msTimeOutWin = 1; // Minimum socket timeout in Windows is 1ms
-		if(setsockopt(this->sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&msTimeOutWin, sizeof(msTimeOutWin)) != 0)
+		// Minimum socket timeout in Windows is 1 millisecond (0 makes it blocking)
+		DWORD timeout = 1;
+#else
+		struct timeval timeout;
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 1000;
+#endif
+		if (setsockopt(this->sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0)
 		{
+#ifdef _WIN32
 			int err = WSAGetLastError();
 			Log::FormatLine(LOG_ERROR, tag, "ERROR: Failed to set timeout. (Error code %i)", err);
-		}
 #else
-		struct timeval tv;
-		tv.tv_sec = 0;
-		tv.tv_usec = usTimeOut;
-		setsockopt(this->sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
+			Log::WriteLine(LOG_ERROR, tag, "ERROR: Failed to set timeout.");
 #endif
+		}
 	}
 
 	UDPSocket::~UDPSocket()
@@ -87,11 +90,9 @@ namespace XPC
 	int UDPSocket::Read(unsigned char* dst, int maxLen, sockaddr* recvAddr) const
 	{
 		socklen_t recvaddrlen = sizeof(*recvAddr);
-		int status = 0;
 
-#ifdef _WIN32
-		// Windows readUDP needs the select command- minimum timeout is 1ms.
-		// Without this playback becomes choppy
+		// For Read, use the select command - minimum timeout of 0 makes it polling.
+		// Without this, playback may become choppy due to process blocking
 
 		// Definitions
 		FD_SET stReadFDS;
@@ -103,27 +104,40 @@ namespace XPC
 		FD_SET(sock, &stReadFDS);
 		FD_ZERO(&stExceptFDS);
 		FD_SET(sock, &stExceptFDS);
+
+		// Set timeout period for select to 0 to poll the socket
 		tv.tv_sec = 0;
-		tv.tv_usec = 250;
+		tv.tv_usec = 0;
 
 		// Select Command
-		int result = select(-1, &stReadFDS, (FD_SET *)0, &stExceptFDS, &tv);
-		if (result == SOCKET_ERROR)
+		int status = select(-1, &stReadFDS, (FD_SET *)0, &stExceptFDS, &tv);
+		if (status < 0)
 		{
+#ifdef _WIN32
 			int err = WSAGetLastError();
 			Log::FormatLine(LOG_ERROR, tag, "ERROR: Select failed. (Error code %i)", err);
+#else
+			Log::WriteLine(LOG_ERROR, tag, "ERROR: Select failed.");
+#endif
+			return -1;
 		}
-		if (result <= 0) // No Data or error
+		if (result == 0)
 		{
+			// No data
 			return -1;
 		}
 
 		// If no error: Read Data
 		status = recvfrom(sock, (char*)dst, maxLen, 0, recvAddr, &recvaddrlen);
+		if (status < 0)
+		{
+#ifdef _WIN32
+			int err = WSAGetLastError();
+			Log::FormatLine(LOG_ERROR, tag, "ERROR: Receive failed. (Error code %i)", err);
 #else
-		// For apple or linux-just read - will timeout in 0.5 ms
-		status = (int)recvfrom(sock, dst, 5000, 0, recvAddr, &recvaddrlen);
+			Log::WriteLine(LOG_ERROR, tag, "ERROR: Receive failed.");
 #endif
+		}
 		return status;
 	}
 
