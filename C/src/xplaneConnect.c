@@ -117,13 +117,16 @@ XPCSocket aopenUDP(const char *xpIP, unsigned short xpPort, unsigned short port)
 		exit(EXIT_FAILURE);
 	}
 
-	// Set timeout to 100ms
+	// Set socket timeout period for sendUDP to 1 millisecond
+	// Without this, playback may become choppy due to process blocking
 #ifdef _WIN32
-	DWORD timeout = 100;
+	// Minimum socket timeout in Windows is 1 millisecond (0 makes it blocking)
+	DWORD timeout = 1;
 #else
+	// Set socket timeout to 1 millisecond = 1,000 microseconds to make it the same as Windows (0 makes it blocking)
 	struct timeval timeout;
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 250000;
+	timeout.tv_usec = 1000;
 #endif
 	if (setsockopt(sock.sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) < 0)
 	{
@@ -188,13 +191,13 @@ int sendUDP(XPCSocket sock, char buffer[], int len)
 /// \returns      If an error occurs, a negative number. Otherwise, the number of bytes read.
 int readUDP(XPCSocket sock, char buffer[], int len)
 {
-#ifdef _WIN32
-	// Windows readUDP needs the select command- minimum timeout is 1ms.
-	// Without this playback becomes choppy
+	// For readUDP, use the select command - minimum timeout of 0 makes it polling.
+	// Without this, playback may become choppy due to process blocking
 
 	// Definitions
 	FD_SET stReadFDS;
 	FD_SET stExceptFDS;
+	struct timeval tv;
 
 	// Setup for Select
 	FD_ZERO(&stReadFDS);
@@ -202,9 +205,10 @@ int readUDP(XPCSocket sock, char buffer[], int len)
 	FD_ZERO(&stExceptFDS);
 	FD_SET(sock.sock, &stExceptFDS);
 
-	struct timeval tv;
+	// Set timeout period for select to 0.05 sec = 50 milliseconds = 50,000 microseconds (0 makes it polling)
+	// TO DO - This could be set to 0 if a message handling system were implemented, like in the plugin.
 	tv.tv_sec = 0;
-	tv.tv_usec = 100000;
+	tv.tv_usec = 50000;
 
 	// Select Command
 	int status = select(-1, &stReadFDS, (FD_SET*)0, &stExceptFDS, &tv);
@@ -218,11 +222,9 @@ int readUDP(XPCSocket sock, char buffer[], int len)
 		// No data
 		return 0;
 	}
+
+	// If no error: Read Data
 	status = recv(sock.sock, buffer, len, 0);
-#else
-	// For apple or linux-just read - will timeout in 0.5 ms
-	int status = (int)recv(sock.sock, buffer, len, 0);
-#endif
 	if (status < 0)
 	{
 		printError("readUDP", "Error reading socket");
