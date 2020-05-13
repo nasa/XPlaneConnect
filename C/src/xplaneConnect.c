@@ -195,9 +195,9 @@ int readUDP(XPCSocket sock, char buffer[], int len)
 	// Without this, playback may become choppy due to process blocking
 
 	// Definitions
-	FD_SET stReadFDS;
-	FD_SET stExceptFDS;
-	struct timeval tv;
+	fd_set stReadFDS;
+	fd_set stExceptFDS;
+	struct timeval timeout;
 
 	// Setup for Select
 	FD_ZERO(&stReadFDS);
@@ -207,11 +207,11 @@ int readUDP(XPCSocket sock, char buffer[], int len)
 
 	// Set timeout period for select to 0.05 sec = 50 milliseconds = 50,000 microseconds (0 makes it polling)
 	// TO DO - This could be set to 0 if a message handling system were implemented, like in the plugin.
-	tv.tv_sec = 0;
-	tv.tv_usec = 50000;
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 50000;
 
 	// Select Command
-	int status = select(-1, &stReadFDS, (FD_SET*)0, &stExceptFDS, &tv);
+	int status = select(sock.sock+1, &stReadFDS, NULL, &stExceptFDS, &timeout);
 	if (status < 0)
 	{
 		printError("readUDP", "Select command error");
