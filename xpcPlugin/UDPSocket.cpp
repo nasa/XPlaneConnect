@@ -95,9 +95,9 @@ namespace XPC
 		// Without this, playback may become choppy due to process blocking
 
 		// Definitions
-		FD_SET stReadFDS;
-		FD_SET stExceptFDS;
-		timeval tv;
+		fd_set stReadFDS;
+		fd_set stExceptFDS;
+		struct timeval timeout;
 
 		// Setup for Select
 		FD_ZERO(&stReadFDS);
@@ -106,11 +106,11 @@ namespace XPC
 		FD_SET(sock, &stExceptFDS);
 
 		// Set timeout period for select to 0 to poll the socket
-		tv.tv_sec = 0;
-		tv.tv_usec = 0;
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 0;
 
 		// Select Command
-		int status = select(-1, &stReadFDS, (FD_SET*)0, &stExceptFDS, &tv);
+		int status = select(sock+1, &stReadFDS, NULL, &stExceptFDS, &timeout);
 		if (status < 0)
 		{
 #ifdef _WIN32
