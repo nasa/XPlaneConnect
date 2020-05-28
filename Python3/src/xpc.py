@@ -120,7 +120,7 @@ class XPlaneConnect(object):
         buffer = self.readUDP()
         if len(buffer) < 6:
             return None
-        rows = (len(buffer) - 5) / 36
+        rows = (len(buffer) - 5) // 36
         data = []
         for i in range(rows):
             data.append(struct.unpack_from(b"9f", buffer, 5 + 36*i))
