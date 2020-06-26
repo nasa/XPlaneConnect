@@ -19,6 +19,7 @@
 
 #include "XPLMDataAccess.h"
 #include "XPLMGraphics.h"
+#include "XPLMUtilities.h"
 
 #include <algorithm>
 #include <cmath>
@@ -779,6 +780,21 @@ namespace XPC
 		Set(DREF_FlapSetting, value);
 		Set(DREF_FlapActual, value);
 	}
+
+    void DataManager::Execute(const std::string& comm)
+    {
+        Log::FormatLine(LOG_INFO, "DMAN", "Executing command (value:%s)", comm.c_str());
+
+        XPLMCommandRef xcref = XPLMFindCommand(comm.c_str());
+        if (!xcref)
+        {
+            // COMM does not exist
+            Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: invalid COMM %s", comm.c_str());
+            return;
+        }
+
+        XPLMCommandOnce(xcref);
+    }
 
 	float DataManager::GetDefaultValue()
 	{

@@ -162,7 +162,12 @@ namespace XPC
 			ss << "Type:" << *((unsigned long*)(buffer + 5));
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
 		}
-		else
+        else if (head == "COMM")
+        {
+            ss << "Type:" << *((unsigned long*)(buffer + 5));
+            Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());
+        }
+        else
 		{
 			ss << " UNKNOWN HEADER ";
 			Log::WriteLine(LOG_DEBUG, "DBUG", ss.str());

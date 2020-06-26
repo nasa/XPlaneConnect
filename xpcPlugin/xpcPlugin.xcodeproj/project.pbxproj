@@ -220,6 +220,7 @@
 					"APL=1",
 					"IBM=0",
 					"LIN=0",
+					XPLM200,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";
@@ -269,6 +270,7 @@
 					"APL=1",
 					"IBM=0",
 					"LIN=0",
+					XPLM200,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";
