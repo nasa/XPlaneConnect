@@ -415,7 +415,7 @@ namespace XPC
 		/// \param comm   The name of the command to execute.
 		static void Execute(const std::string& comm);
 
-        /// Gets a default value that indicates that a dataref should not be changed.
+		/// Gets a default value that indicates that a dataref should not be changed.
 
 		/// Gets a default value that indicates that a dataref should not be changed.
 		static float GetDefaultValue();
