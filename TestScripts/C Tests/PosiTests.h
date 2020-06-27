@@ -6,7 +6,7 @@
 #include "Test.h"
 #include "xplaneConnect.h"
 
-int doPOSITest(char* drefs[7], double values[], int size, int ac, double expected[7])
+int doPOSITest(const char* drefs[7], double values[], int size, int ac, double expected[7])
 {
 	float* data[7];
 	int sizes[7];
@@ -43,7 +43,7 @@ int doPOSITest(char* drefs[7], double values[], int size, int ac, double expecte
 int doGETPTest(double values[7], int ac, double expected[7])
 {
 	// Execute Test
-	float actual[7];
+	double actual[7];
 	XPCSocket sock = openUDP(IP);
 	int result = sendPOSI(sock, values, 7, ac);
 	if (result >= 0)
@@ -67,7 +67,7 @@ int doGETPTest(double values[7], int ac, double expected[7])
 	return 0;
 }
 
-int basicPOSITest(char** drefs, int ac)
+int basicPOSITest(const char** drefs, int ac)
 {
 	// Set psoition and initial orientation
 	double POSI[7] = { 37.524, -122.06899, 2500, 0, 0, 0, 1 };
@@ -110,12 +110,12 @@ int basicPOSITest(char** drefs, int ac)
 	{
 		return -20000 + result;
 	}
-    return 0;
+	return 0;
 }
 
 int testPOSI_Player()
 {
-	char* drefs[] =
+	const char* drefs[] =
 	{
 		"sim/flightmodel/position/latitude",
 		"sim/flightmodel/position/longitude",
@@ -130,7 +130,7 @@ int testPOSI_Player()
 
 int testPOSI_NonPlayer()
 {
-	char* drefs[] =
+	const char* drefs[] =
 	{
 		"sim/multiplayer/position/plane1_lat",
 		"sim/multiplayer/position/plane1_lon",

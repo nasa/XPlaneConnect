@@ -113,7 +113,7 @@ int setCONN(XPCSocket* sock, unsigned short port);
 ///
 /// \param sock  The socket to use to send the command.
 /// \param pause 0 to unpause the sim; 1 to pause, 100:119 to pause a/c 0:19, 200:219 to unpause a/c 0:19.
-/// \returns    0 if successful, otherwise a negative value.
+/// \returns     0 if successful, otherwise a negative value.
 int pauseSim(XPCSocket sock, char pause);
 
 // X-Plane UDP DATA
@@ -122,7 +122,7 @@ int pauseSim(XPCSocket sock, char pause);
 ///
 /// \details This command is compatible with the X-Plane data API.
 /// \param sock    The socket to use to send the command.
-/// \param data A 2D array of data rows to read into.
+/// \param data    A 2D array of data rows to read into.
 /// \param rows    The number of rows in dataRef.
 /// \returns       0 if successful, otherwise a negative value.
 int readDATA(XPCSocket sock, float data[][9], int rows);
@@ -131,7 +131,7 @@ int readDATA(XPCSocket sock, float data[][9], int rows);
 ///
 /// \details This command is compatible with the X-Plane data API.
 /// \param sock    The socket to use to send the command.
-/// \param data A 2D array of data rows to send.
+/// \param data    A 2D array of data rows to send.
 /// \param rows    The number of rows in dataRef.
 /// \returns       0 if successful, otherwise a negative value.
 int sendDATA(XPCSocket sock, float data[][9], int rows);
@@ -144,12 +144,12 @@ int sendDATA(XPCSocket sock, float data[][9], int rows);
 ///          http://www.xsquawkbox.net/xpsdk/docs/DataRefs.html. The size of values should match
 ///          the size given on that page. XPC currently sends all values as floats regardless of
 ///          the type described on the wiki. This doesn't cause any data loss for most datarefs.
-/// \param sock  The socket to use to send the command.
-/// \param dref  The name of the dataref to set.
-/// \param value An array of values representing the data to set.
-/// \param size  The number of elements in values.
-/// \returns     0 if successful, otherwise a negative value.
-int sendDREF(XPCSocket sock, const char* dref, float value[], int size);
+/// \param sock   The socket to use to send the command.
+/// \param dref   The name of the dataref to set.
+/// \param values An array of values representing the data to set.
+/// \param size   The number of elements in values.
+/// \returns      0 if successful, otherwise a negative value.
+int sendDREF(XPCSocket sock, const char* dref, float values[], int size);
 
 /// Sets the specified datarefs to the specified values.
 ///
@@ -159,7 +159,7 @@ int sendDREF(XPCSocket sock, const char* dref, float value[], int size);
 ///          the type described on the wiki. This doesn't cause any data loss for most datarefs.
 /// \param sock   The socket to use to send the command.
 /// \param drefs  The names of the datarefs to set.
-/// \param values A multidimensional array containing the values for each dataref to set.
+/// \param values A 2D array containing the values for each dataref to set.
 /// \param sizes  The number of elements in each array in values
 /// \param count  The number of datarefs being set.
 /// \returns      0 if successful, otherwise a negative value.
@@ -173,13 +173,13 @@ int sendDREFs(XPCSocket sock, const char* drefs[], float* values[], int sizes[],
 ///          the type described on the wiki. This doesn't cause any data loss for most datarefs.
 /// \param sock   The socket to use to send the command.
 /// \param dref   The name of the dataref to get.
-/// \param values The array in which the value of the dataref will be stored.
+/// \param values The array in which the values of the dataref will be stored.
 /// \param size   The number of elements in values. The actual number of elements copied in will
 ///               be set when the function returns.
 /// \returns      0 if successful, otherwise a negative value.
 int getDREF(XPCSocket sock, const char* dref, float values[], int* size);
 
-/// Gets the value of the specified dataref.
+/// Gets the values of the specified datarefs.
 ///
 /// \details dref names and their associated data types can be found on the XPSDK wiki at
 ///          http://www.xsquawkbox.net/xpsdk/docs/DataRefs.html. The size of values should match
@@ -189,7 +189,7 @@ int getDREF(XPCSocket sock, const char* dref, float values[], int* size);
 /// \param drefs  The names of the datarefs to get.
 /// \param values A 2D array in which the values of the datarefs will be stored.
 /// \param count  The number of datarefs being requested.
-/// \param size   The number of elements in each row of values. The size of each row will be set
+/// \param sizes  The number of elements in each row of values. The size of each row will be set
 ///               to the actual number of elements copied in for that row.
 /// \returns      0 if successful, otherwise a negative value.
 int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char count, int sizes[]);
@@ -201,19 +201,55 @@ int getDREFs(XPCSocket sock, const char* drefs[], float* values[], unsigned char
 /// \param sock   The socket used to send the command and receive the response.
 /// \param values An array to store the position information returned by the
 ///               plugin. The format of values is [Lat, Lon, Alt, Pitch, Roll, Yaw, Gear]
+/// \param ac     The aircraft number to get the position of. 0 for the main/user's aircraft.
 /// \returns      0 if successful, otherwise a negative value.
-int getPOSI(XPCSocket sock, float values[7], char ac);
+int getPOSI(XPCSocket sock, double values[7], char ac);
 
 /// Sets the position and orientation of the specified aircraft.
 ///
 /// \param sock   The socket to use to send the command.
-/// \param values An array representing position data about the aircraft. The format of values is
+/// \param values A double array representing position data about the aircraft. The format of values is
 ///               [Lat, Lon, Alt, Pitch, Roll, Yaw, Gear]. If less than 7 values are specified,
 ///               the unspecified values will be left unchanged.
 /// \param size   The number of elements in values.
-/// \param ac     The aircraft number to set the position of. 0 for the player aircraft.
+/// \param ac     The aircraft number to set the position of. 0 for the main/user's aircraft.
 /// \returns      0 if successful, otherwise a negative value.
 int sendPOSI(XPCSocket sock, double values[], int size, char ac);
+
+// Terrain
+
+/// Sets the position and orientation and gets the terrain information of the specified aircraft.
+///
+/// \param sock   The socket to use to send the command.
+/// \param posi   A double array representing position data about the aircraft. The format of values is
+///               [Lat, Lon, Alt, Pitch, Roll, Yaw, Gear]. If less than 7 values are specified,
+///               the unspecified values will be left unchanged.
+/// \param size   The number of elements in posi.
+/// \param values A double array with the information for the terrain output. The format of values is
+///               [Lat, Lon, Alt, Nx, Ny, Nz, Vx, Vy, Vz, wet, result]. The first three are for output of
+///               the Lat and Lon of the aircraft with the terrain height directly below. The next three
+///               represent the terrain normal. The next three represent the velocity of the terrain.
+///               The wet variable is 0.0 if the terrain is dry and 1.0 if wet.
+///               The last output is the terrain probe result parameter.
+/// \param ac     The aircraft number to set the position of. 0 for the main/user's aircraft.
+/// \returns      0 if successful, otherwise a negative value.
+int sendPOST(XPCSocket sock, double posi[], int size, double values[11], char ac);
+
+/// Gets the terrain information of the specified aircraft.
+///
+/// \param sock   The socket to use to send the command.
+/// \param posi   A double array representing position data about the aircraft. The format of values is
+///               [Lat, Lon, Alt].
+///               -998 used for [Lat, Lon, Alt] to request terrain info at the current aircraft position.
+/// \param values A double array with the information for the terrain output. The format of values is
+///               [Lat, Lon, Alt, Nx, Ny, Nz, Vx, Vy, Vz, wet, result]. The first three are for output of
+///               the Lat and Lon of the aircraft with the terrain height directly below. The next three
+///               represent the terrain normal. The next three represent the velocity of the terrain.
+///               The wet variable is 0.0 if the terrain is dry and 1.0 if wet.
+///               The last output is the terrain probe result parameter.
+/// \param ac     The aircraft number to get the terrain data of. 0 for the main/user's aircraft.
+/// \returns      0 if successful, otherwise a negative value.
+int getTERR(XPCSocket sock, double posi[3], double values[11], char ac);
 
 // Controls
 
@@ -223,7 +259,7 @@ int sendPOSI(XPCSocket sock, double values[], int size, char ac);
 /// \param values An array to store the position information returned by the
 ///               plugin. The format of values is [Elevator, Aileron, Rudder,
 ///               Throttle, Gear, Flaps, Speed Brakes]
-/// \param ac     The aircraft to set the control surfaces of. 0 is the main/player aircraft.
+/// \param ac     The aircraft to get the control surfaces of. 0 is the main/user's aircraft.
 /// \returns      0 if successful, otherwise a negative value.
 int getCTRL(XPCSocket sock, float values[7], char ac);
 
@@ -234,7 +270,7 @@ int getCTRL(XPCSocket sock, float values[7], char ac);
 ///               [Elevator, Aileron, Rudder, Throttle, Gear, Flaps, Speed Brakes]. If less than
 ///               6 values are specified, the unspecified values will be left unchanged.
 /// \param size   The number of elements in values.
-/// \param ac     The aircraft number to set the control surfaces of. 0 for the player aircraft.
+/// \param ac     The aircraft to set the control surfaces of. 0 for the main/user's aircraft.
 /// \returns      0 if successful, otherwise a negative value.
 int sendCTRL(XPCSocket sock, float values[], int size, char ac);
 
@@ -246,7 +282,7 @@ int sendCTRL(XPCSocket sock, float values[], int size, char ac);
 /// \param msg  The message to print of the screen.
 /// \param x    The distance in pixels from the left edge of the screen to print the text.
 /// \param y    The distance in pixels from the bottom edge of the screen to print the top line of text.
-/// \returns      0 if successful, otherwise a negative value.
+/// \returns    0 if successful, otherwise a negative value.
 int sendTEXT(XPCSocket sock, char* msg, int x, int y);
 
 /// Sets the camera view in X-Plane.
@@ -266,6 +302,13 @@ int sendVIEW(XPCSocket sock, VIEW_TYPE view);
 /// \param count  The number of points. There should be 3 * count elements in points.
 /// \returns      0 if successful, otherwise a negative value.
 int sendWYPT(XPCSocket sock, WYPT_OP op, float points[], int count);
+
+/// Sends commands.
+///
+/// \param sock The socket to use to send the command.
+/// \param comm The command string.
+/// \returns    0 if successful, otherwise a negative value.
+int sendCOMM(XPCSocket sock, const char* comm);
 
 #ifdef __cplusplus
     }

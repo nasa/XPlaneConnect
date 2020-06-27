@@ -65,7 +65,7 @@ void record(char* path, int interval, int duration)
 	XPCSocket sock = openUDP("127.0.0.1");
 	for (int i = 0; i < count; ++i)
 	{
-		float posi[7];
+		double posi[7];
 		int result = getPOSI(sock, posi, 0);
 		playbackSleep(interval);
 		if (result < 0)

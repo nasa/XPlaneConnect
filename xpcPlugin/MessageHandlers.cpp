@@ -8,20 +8,21 @@
 // including without limitation the rights to use, copy, modify, merge, publish, distribute,
 // sublicense, and / or sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
-//   * Redistributions of source code must retain the above copyright notice,
-//     this list of conditions and the following disclaimer.
-//   * Neither the names of the authors nor that of X - Plane or Laminar Research
-//     may be used to endorse or promote products derived from this software
-//     without specific prior written permission from the authors or
-//     Laminar Research, respectively.
+//	 * Redistributions of source code must retain the above copyright notice,
+//	   this list of conditions and the following disclaimer.
+//	 * Neither the names of the authors nor that of X - Plane or Laminar Research
+//	   may be used to endorse or promote products derived from this software
+//	   without specific prior written permission from the authors or
+//	   Laminar Research, respectively.
+
 #include "MessageHandlers.h"
 #include "DataManager.h"
 #include "Drawing.h"
 #include "Log.h"
 
 #include "XPLMUtilities.h"
+#include "XPLMScenery.h"
 #include "XPLMGraphics.h"
-
 
 #include <cmath>
 #include <cstring>
@@ -29,7 +30,6 @@
 
 #define MULTICAST_GROUP "239.255.1.1"
 #define MULITCAST_PORT 49710
-
 
 namespace XPC
 {
@@ -39,8 +39,11 @@ namespace XPC
 	std::string MessageHandlers::connectionKey;
 	MessageHandlers::ConnectionInfo MessageHandlers::connection;
 	UDPSocket* MessageHandlers::sock;
-	
+
 	static sockaddr multicast_address = UDPSocket::GetAddr(MULTICAST_GROUP, MULITCAST_PORT);
+	
+	// define a static terrain probe handler (do not re-create probe for each query)
+	XPLMProbeRef Terrain_probe = nullptr;
 
 	void MessageHandlers::SetSocket(UDPSocket* socket)
 	{
@@ -60,12 +63,15 @@ namespace XPC
 			handlers.insert(std::make_pair("DREF", MessageHandlers::HandleDref));
 			handlers.insert(std::make_pair("GETD", MessageHandlers::HandleGetD));
 			handlers.insert(std::make_pair("POSI", MessageHandlers::HandlePosi));
+			handlers.insert(std::make_pair("POST", MessageHandlers::HandlePosT));
 			handlers.insert(std::make_pair("SIMU", MessageHandlers::HandleSimu));
 			handlers.insert(std::make_pair("TEXT", MessageHandlers::HandleText));
 			handlers.insert(std::make_pair("WYPT", MessageHandlers::HandleWypt));
 			handlers.insert(std::make_pair("VIEW", MessageHandlers::HandleView));
 			handlers.insert(std::make_pair("GETC", MessageHandlers::HandleGetC));
 			handlers.insert(std::make_pair("GETP", MessageHandlers::HandleGetP));
+			handlers.insert(std::make_pair("COMM", MessageHandlers::HandleComm));
+			handlers.insert(std::make_pair("GETT", MessageHandlers::HandleGetT));
 			// X-Plane data messages
 			handlers.insert(std::make_pair("DSEL", MessageHandlers::HandleXPlaneData));
 			handlers.insert(std::make_pair("USEL", MessageHandlers::HandleXPlaneData));
@@ -136,11 +142,11 @@ namespace XPC
 			MessageHandlers::HandleUnknown(msg);
 		}
 	}
-	
+
 	void MessageHandlers::SendBeacon(const std::string& pluginVersion, unsigned short  pluginReceivePort, int xplaneVersion) {
-		
+
 		unsigned char response[128] = "BECN";
-		
+
 		std::size_t cur = 5;
 
 		// 2 bytes plugin port
@@ -150,12 +156,12 @@ namespace XPC
 		// 4 bytes xplane version
 		*((uint32_t*)(response + cur)) = xplaneVersion;
 		cur += sizeof(uint32_t);
-		
+
 		// plugin version
 		int len = pluginVersion.length();
 		memcpy(response + cur, pluginVersion.c_str(), len);
 		cur += strlen(pluginVersion.c_str()) + len;
-		
+
 		sock->SendTo(response, cur, &multicast_address);
 	}
 
@@ -554,21 +560,20 @@ namespace XPC
 		unsigned char aircraft = buffer[5];
 		Log::FormatLine(LOG_TRACE, "GPOS", "Getting position information for aircraft %u", aircraft);
 
-		unsigned char response[34] = "POSI";
+		unsigned char response[46] = "POSI";
 		response[5] = (char)DataManager::GetInt(DREF_GearHandle, aircraft);
-		// TODO change lat/lon/h to double?
-		*((float*)(response + 6)) = (float)DataManager::GetDouble(DREF_Latitude, aircraft);
-		*((float*)(response + 10)) = (float)DataManager::GetDouble(DREF_Longitude, aircraft);
-		*((float*)(response + 14)) = (float)DataManager::GetDouble(DREF_Elevation, aircraft);
-		*((float*)(response + 18)) = DataManager::GetFloat(DREF_Pitch, aircraft);
-		*((float*)(response + 22)) = DataManager::GetFloat(DREF_Roll, aircraft);
-		*((float*)(response + 26)) = DataManager::GetFloat(DREF_HeadingTrue, aircraft);
+		*((double*)(response + 6)) = DataManager::GetDouble(DREF_Latitude, aircraft);
+		*((double*)(response + 14)) = DataManager::GetDouble(DREF_Longitude, aircraft);
+		*((double*)(response + 22)) = DataManager::GetDouble(DREF_Elevation, aircraft);
+		*((float*)(response + 30)) = DataManager::GetFloat(DREF_Pitch, aircraft);
+		*((float*)(response + 34)) = DataManager::GetFloat(DREF_Roll, aircraft);
+		*((float*)(response + 38)) = DataManager::GetFloat(DREF_HeadingTrue, aircraft);
 
 		float gear[10];
 		DataManager::GetFloatArray(DREF_GearDeploy, gear, 10, aircraft);
-		*((float*)(response + 30)) = gear[0];
+		*((float*)(response + 42)) = gear[0];
 
-		sock->SendTo(response, 34, &connection.addr);
+		sock->SendTo(response, 46, &connection.addr);
 	}
 
 	void MessageHandlers::HandlePosi(const Message& msg)
@@ -580,21 +585,26 @@ namespace XPC
 		const std::size_t size = msg.GetSize();
 
 		char aircraftNumber = buffer[5];
-		float gear = *((float*)(buffer + 42));
+		float gear;
 		double posd[3];
 		float orient[3];
 
 		if (size == 34) /* lat/lon/h as 32-bit float */
 		{
-			posd[0] = *((float*)&buffer[6]);
-			posd[1] = *((float*)&buffer[10]);
-			posd[2] = *((float*)&buffer[14]);
+			float posd_32[3];
+			memcpy(posd_32, buffer + 6, 12);
+		/* convert float to double */
+			posd[0] = posd_32[0];
+			posd[1] = posd_32[1];
+			posd[2] = posd_32[2];
 			memcpy(orient, buffer + 18, 12);
+			memcpy(&gear, buffer + 30, 4);
 		}
 		else if (size == 46) /* lat/lon/h as 64-bit double */
 		{
-			memcpy(posd, buffer + 6, 3*8);
+			memcpy(posd, buffer + 6, 24);
 			memcpy(orient, buffer + 30, 12);
+			memcpy(&gear, buffer + 42, 4);
 		}
 		else
 		{
@@ -602,7 +612,6 @@ namespace XPC
 			return;
 		}
 
-		/* convert float to double */
 		DataManager::SetPosition(posd, aircraftNumber);
 		DataManager::SetOrientation(orient, aircraftNumber);
 		if (gear >= 0)
@@ -621,6 +630,135 @@ namespace XPC
 				DataManager::Set(DREF_PauseAI, ai, 0, 20);
 			}
 		}
+	}
+
+	void MessageHandlers::HandlePosT(const Message& msg)
+	{
+		MessageHandlers::HandlePosi(msg);
+		
+		const unsigned char* buffer = msg.GetBuffer();
+		char aircraftNumber = buffer[5];
+		Log::FormatLine(LOG_TRACE, "POST", "Getting terrain information for aircraft %u", aircraftNumber);
+		
+		double pos[3];
+		pos[0] = DataManager::GetDouble(DREF_Latitude, aircraftNumber);
+		pos[1] = DataManager::GetDouble(DREF_Longitude, aircraftNumber);
+		pos[2] = 0.0;
+		MessageHandlers::SendTerr(pos, aircraftNumber);
+	}
+
+	void MessageHandlers::HandleGetT(const Message& msg)
+	{
+		const unsigned char* buffer = msg.GetBuffer();
+		std::size_t size = msg.GetSize();
+		if (size != 30)
+		{
+			Log::FormatLine(LOG_ERROR, "GETT", "Unexpected message length: %u", size);
+			return;
+		}
+		unsigned char aircraft = buffer[5];
+		Log::FormatLine(LOG_TRACE, "GETT", "Getting terrain information for aircraft %u", aircraft);
+		
+		double pos[3];
+		memcpy(pos, buffer + 6, 24);
+		
+		if(pos[0] == -998 || pos[1] == -998 || pos[2] == -998)
+		{
+			// get terrain properties at aircraft location
+			pos[0] = DataManager::GetDouble(DREF_Latitude, aircraft);
+			pos[1] = DataManager::GetDouble(DREF_Longitude, aircraft);
+			pos[2] = 0.0;
+		}
+
+		MessageHandlers::SendTerr(pos, aircraft);
+	}
+
+	void MessageHandlers::SendTerr(double pos[3], char aircraft)
+	{
+		double lat, lon, alt, X, Y, Z;
+		
+		// Init terrain probe (if required) and probe data struct
+		static XPLMProbeInfo_t probe_data;
+		probe_data.structSize = sizeof(XPLMProbeInfo_t);
+		
+		if(Terrain_probe == nullptr)
+		{
+			Log::FormatLine(LOG_TRACE, "TERR", "Create terrain probe for aircraft %u", aircraft);
+			Terrain_probe = XPLMCreateProbe(0);
+		}
+		
+		// terrain probe at specified location
+		// Follow the process in the following post to get accurate results
+		// https://forums.x-plane.org/index.php?/forums/topic/38688-how-do-i-use-xplmprobeterrainxyz/&page=2
+		
+		// transform probe location to local coordinates
+		// Step 1. Convert lat/lon/0 to XYZ
+		XPLMWorldToLocal(pos[0], pos[1], pos[2], &X, &Y, &Z);
+		
+		// query probe
+		// Step 2. Probe XYZ to get a new Y
+		int rc = XPLMProbeTerrainXYZ(Terrain_probe, X, Y, Z, &probe_data);
+		if(rc > 0)
+		{
+			Log::FormatLine(LOG_ERROR, "TERR", "Probe failed. Return Value %u", rc);
+			XPLMDestroyProbe(Terrain_probe);
+			Terrain_probe = nullptr;
+			return;
+		}
+		
+		// transform probe location to world coordinates
+		// Step 3. Convert that new XYZ back to LLE
+		XPLMLocalToWorld(probe_data.locationX, probe_data.locationY, probe_data.locationZ, &lat, &lon, &alt);
+		Log::FormatLine(LOG_TRACE, "TERR", "Conv LLA=%f, %f, %f", lat, lon, alt);
+
+		// transform probe location to local coordinates
+		// Step 4. NOW convert your original lat/lon with the elevation from step 3 to XYZ
+		XPLMWorldToLocal(pos[0], pos[1], alt, &X, &Y, &Z);
+
+		// query probe
+		// Step 5. Re-probe with the NEW XYZ
+		rc = XPLMProbeTerrainXYZ(Terrain_probe, X, Y, Z, &probe_data);
+		if(rc == 0)
+		{
+		// transform probe location to world coordinates
+		// Step 6. You now have a new Y, and your XYZ will be closer to correct for high elevations far from the origin.
+			XPLMLocalToWorld(probe_data.locationX, probe_data.locationY, probe_data.locationZ, &lat, &lon, &alt);
+			
+			Log::FormatLine(LOG_TRACE, "TERR", "Probe LLA %lf %lf %lf", lat, lon, alt);
+		}
+		else
+		{
+			lat = -998;
+			lon = -998;
+			alt = -998;
+			
+			Log::FormatLine(LOG_TRACE, "TERR", "Probe failed. Return Value %u", rc);
+		}
+
+		// keep probe for next query
+		// XPLMDestroyProbe(Terrain_probe);
+		
+		// Assemble response message
+		unsigned char response[62] = "TERR";
+		response[5] = aircraft;
+		// terrain height over msl at lat/lon point
+		memcpy(response + 6,  &lat, 8);
+		memcpy(response + 14, &lon, 8);
+		memcpy(response + 22, &alt, 8);
+		// terrain normal vector
+		memcpy(response + 30, &probe_data.normalX, 4);
+		memcpy(response + 34, &probe_data.normalY, 4);
+		memcpy(response + 38, &probe_data.normalZ, 4);
+		// terrain velocity
+		memcpy(response + 42, &probe_data.velocityX, 4);
+		memcpy(response + 46, &probe_data.velocityY, 4);
+		memcpy(response + 50, &probe_data.velocityZ, 4);
+		// terrain type
+		memcpy(response + 54, &probe_data.is_wet, 4);
+		// probe status
+		memcpy(response + 58, &rc, 4);
+
+		sock->SendTo(response, 62, &connection.addr);
 	}
 
 	void MessageHandlers::HandleSimu(const Message& msg)
@@ -717,112 +855,92 @@ namespace XPC
 			Log::WriteLine(LOG_INFO, "TEXT", "[TEXT] Text set");
 		}
 	}
-	
+
 	void MessageHandlers::HandleView(const Message& msg)
 	{
 		// Update Log
 		Log::FormatLine(LOG_TRACE, "VIEW", "Message Received(Conn %i)", connection.id);
-
-		int enable_camera_location = 0;
+		
+		bool enable_advanced_camera = false;
 		
 		const std::size_t size = msg.GetSize();
 		if (size == 9)
 		{
 			// default view switcher as before
 		}
-		else if (size == 37)
+		else if (size == 49)
 		{
 			// Allow camera location control
-			enable_camera_location = 1;
+			enable_advanced_camera = true;
 		}
 		else
 		{
-			Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 9 or 37.", size);
+			Log::FormatLine(LOG_ERROR, "VIEW", "Error: Unexpected length. Message was %d bytes, expected 9 or 49.", size);
 			return;
 		}
+		
+		// get msg data
 		const unsigned char* buffer = msg.GetBuffer();
-		int type = *((int*)(buffer + 5));
-		XPLMCommandKeyStroke(type);
 		
-		if(type == 79 && enable_camera_location == 1) // runway camera view
+		// get view type
+		int view_type;
+		memcpy(&view_type, buffer + 5, 4);
+		
+		// set view by calling the corresponding key stroke
+		XPLMCommandKeyStroke(view_type);
+		
+		
+		VIEW_TYPE viewRunway = VIEW_TYPE::XPC_VIEW_RUNWAY;
+		VIEW_TYPE viewChase	 = VIEW_TYPE::XPC_VIEW_CHASE;
+		
+		// advanced runway camera view
+		if(view_type == static_cast<int>(viewRunway) && enable_advanced_camera == true)
 		{
-			static struct CameraProperties campos;
-		
-			campos.loc[0] = *(double*)(buffer+9);
-			campos.loc[1] = *(double*)(buffer+17);
-			campos.loc[2] = *(double*)(buffer+25);
-			campos.direction[0] = -998;
-			campos.direction[1] = -998;
-			campos.direction[2] = -998;
-			campos.zoom	  = *(float*)(buffer+33);
+			static struct CameraProperties campos; // static variable for continuous callback access
 			
-			Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2],campos.zoom);
-		
-			XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamFunc, &campos);
+			memcpy(&campos, buffer+9 , sizeof(struct CameraProperties));
+			
+			Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2], campos.zoom);
+			
+			XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamCallback_RunwayCam, &campos);
+		}
+		// advanced chase camera view
+		else if(view_type == static_cast<int>(viewChase) && enable_advanced_camera == true)
+		{
+			static struct CameraProperties campos;	// static variable for continuous callback access
+			
+			memcpy(&campos, buffer+9 , sizeof(struct CameraProperties));
+			
+			Log::FormatLine(LOG_TRACE, "VIEW", "Cam pos %f %f %f zoom %f", campos.loc[0], campos.loc[1], campos.loc[2], campos.zoom);
+			
+			XPLMControlCamera(xplm_ControlCameraUntilViewChanges, CamCallback_ChaseCam, &campos);
 		}
 	}
-	
-	int MessageHandlers::CamFunc( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon)
-	{
-		if (outCameraPosition && !inIsLosingControl)
-		{
-			struct CameraProperties* campos = (struct CameraProperties*)inRefcon;
-			
-			// camera position
-			double clat = campos->loc[0];
-			double clon = campos->loc[1];
-			double calt = campos->loc[2];
-			
-			double cX, cY, cZ;
-			XPLMWorldToLocal(clat, clon, calt, &cX, &cY, &cZ);
-			
-			outCameraPosition->x = cX;
-			outCameraPosition->y = cY;
-			outCameraPosition->z = cZ;
-			
-//			  Log::FormatLine(LOG_TRACE, "CAM", "Cam pos %f %f %f", clat, clon, calt);
-			
-			if(campos->direction[0] == -998) // calculate camera direction
-			{
-				// aircraft position
-				double x = XPC::DataManager::GetDouble(XPC::DREF_LocalX, 0);
-				double y = XPC::DataManager::GetDouble(XPC::DREF_LocalY, 0);
-				double z = XPC::DataManager::GetDouble(XPC::DREF_LocalZ, 0);
-			
-				// relative position vector cam to plane
-				double dx = x - cX;
-				double dy = y - cY;
-				double dz = z - cZ;
-			
-//			    Log::FormatLine(LOG_TRACE, "CAM", "Cam vect %f %f %f", dx, dy, dz);
-			
-				double pi = 3.141592653589793;
-			
-				// horizontal distance
-				double dist = sqrt(dx*dx + dz*dz);
-			
-				outCameraPosition->pitch = atan2(dy, dist) * 180.0/pi;
-			
-				double angle = atan2(dz, dx) * 180.0/pi; // rel to pos right (pos X)
-			
-				outCameraPosition->heading = 90 + angle; // rel to north
-			
-//			    Log::FormatLine(LOG_TRACE, "CAM", "Cam p %f hdg %f ", outCameraPosition->pitch, outCameraPosition->heading);
-			
-				outCameraPosition->roll = 0;
-			}
-			else
-			{
-				outCameraPosition->roll     = campos->direction[0];
-				outCameraPosition->pitch    = campos->direction[1];
-				outCameraPosition->heading  = campos->direction[2];
-			}
-			
-			outCameraPosition->zoom = campos->zoom;
-		}
-		
-		return 1;
-	}
+
+	void MessageHandlers::HandleComm(const Message& msg)
+ 	{
+ 		Log::FormatLine(LOG_TRACE, "COMM", "Request to execute COMM command received (Conn %i)", connection.id);
+ 		const unsigned char* buffer = msg.GetBuffer();
+ 		std::size_t size = msg.GetSize();
+ 		std::size_t pos = 5;
+ 		while (pos < size)
+ 		{
+ 			unsigned char len = buffer[pos++];
+ 			if (pos + len > size)
+ 			{
+ 				break;
+ 			}
+ 			std::string comm = std::string((char*)buffer + pos, len);
+ 			pos += len;
+
+  			DataManager::Execute(comm);
+ 			Log::FormatLine(LOG_DEBUG, "COMM", "Execute command %s", comm.c_str());
+ 		}
+ 		if (pos != size)
+ 		{
+ 			Log::WriteLine(LOG_ERROR, "COMM", "ERROR: Command did not terminate at the expected position.");
+ 		}
+ 	}
 
 	void MessageHandlers::HandleWypt(const Message& msg)
 	{

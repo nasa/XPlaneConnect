@@ -14,6 +14,23 @@ namespace XPC
 {
 	/// A function that handles a message.
 	typedef void(*MessageHandler)(const Message&);
+    
+    enum class VIEW_TYPE
+    {
+        XPC_VIEW_FORWARDS = 73,
+        XPC_VIEW_DOWN,
+        XPC_VIEW_LEFT,
+        XPC_VIEW_RIGHT,
+        XPC_VIEW_BACK,
+        XPC_VIEW_TOWER,
+        XPC_VIEW_RUNWAY,
+        XPC_VIEW_CHASE,
+        XPC_VIEW_FOLLOW,
+        XPC_VIEW_FOLLOWWITHPANEL,
+        XPC_VIEW_SPOT,
+        XPC_VIEW_FULLSCREENWITHHUD,
+        XPC_VIEW_FULLSCREENNOHUD,
+    };
 
 	/// Handles incoming messages and manages connections.
 	///
@@ -40,6 +57,8 @@ namespace XPC
 		static void SetSocket(UDPSocket* socket);
 		
 		static void SendBeacon(const std::string& pluginVersion, unsigned short pluginReceivePort, int xplaneVersion);
+		
+		static void SendTerr(double pos[3], char aircraft);
 
 	private:
 		// One handler per message type. Message types are descripbed on the
@@ -51,16 +70,20 @@ namespace XPC
 		static void HandleGetC(const Message& msg);
 		static void HandleGetD(const Message& msg);
 		static void HandleGetP(const Message& msg);
+		static void HandleGetT(const Message& msg);
 		static void HandlePosi(const Message& msg);
+		static void HandlePosT(const Message& msg);
 		static void HandleSimu(const Message& msg);
 		static void HandleText(const Message& msg);
 		static void HandleWypt(const Message& msg);
 		static void HandleView(const Message& msg);
+		static void HandleComm(const Message& msg);
 
 		static void HandleXPlaneData(const Message& msg);
 		static void HandleUnknown(const Message& msg);
 		
-		static int CamFunc( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon);
+        static int CamCallback_RunwayCam( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon);
+        static int CamCallback_ChaseCam( XPLMCameraPosition_t * outCameraPosition, int inIsLosingControl, void *inRefcon);
 		
 		struct CameraProperties{
 			double loc[3];

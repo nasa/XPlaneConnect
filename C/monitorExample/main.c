@@ -26,6 +26,8 @@
 #include <sys/time.h>
 #include "stdio.h"
 
+struct timeval tv;
+
 #ifdef WIN32
 HANDLE hStdIn = NULL;
 INPUT_RECORD buffer;
@@ -51,7 +53,6 @@ int waitForInput()
 #else
 int fdstdin = 0;
 fd_set fds;
-struct timeval tv;
 
 int waitForInput()
 {
@@ -67,10 +68,10 @@ int main(void)
 {
 	XPCSocket client = openUDP("127.0.0.1");
 	const int aircraftNum = 0;
-    tv.tv_usec = 100 * 1000;
+	tv.tv_usec = 100 * 1000;
 	while (1)
 	{
-		float posi[7]; // FIXME: change this to the 64-bit lat/lon/h
+		double posi[7];
 		int result = getPOSI(client, posi, aircraftNum);
 		if (result < 0) // Error in getPOSI
 		{
