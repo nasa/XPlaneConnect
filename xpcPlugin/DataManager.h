@@ -410,6 +410,11 @@ namespace XPC
 		/// \param value The flaps settings. Should be between 0.0 (no flaps) and 1.0 (full flaps).
 		static void SetFlaps(float value);
 
+		/// Executes a command
+ 		///
+ 		/// \param comm   The name of the command to execute.
+ 		static void Execute(const std::string& comm);
+
 		/// Gets a default value that indicates that a dataref should not be changed.
 		static float GetDefaultValue();
 
