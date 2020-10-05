@@ -936,7 +936,7 @@ namespace XPC
  			pos += len;
 
   			DataManager::MomentaryCommand(comm);
- 			Log::FormatLine(LOG_DEBUG, "COMM", "Execute command %s", comm.c_str());
+ 			Log::FormatLine(LOG_DEBUG, "COMM", "Execute momentary command %s", comm.c_str());
  		}
  		if (pos != size)
  		{
@@ -961,11 +961,11 @@ namespace XPC
 			pos += len;
 
 			DataManager::BeginCommand(comm);
-			Log::FormatLine(LOG_DEBUG, "COMM", "Execute command %s", comm.c_str());
+			Log::FormatLine(LOG_DEBUG, "BCOM", "Begin command %s", comm.c_str());
 		}
 		if (pos != size)
 		{
-			Log::WriteLine(LOG_ERROR, "COMM", "ERROR: Command did not terminate at the expected position.");
+			Log::WriteLine(LOG_ERROR, "BCOM", "ERROR: Command did not terminate at the expected position.");
 		}
 	}
 
@@ -986,11 +986,11 @@ namespace XPC
 			pos += len;
 
 			DataManager::EndCommand(comm);
-			Log::FormatLine(LOG_DEBUG, "COMM", "Execute command %s", comm.c_str());
+			Log::FormatLine(LOG_DEBUG, "ECOM", "End command %s", comm.c_str());
 		}
 		if (pos != size)
 		{
-			Log::WriteLine(LOG_ERROR, "COMM", "ERROR: Command did not terminate at the expected position.");
+			Log::WriteLine(LOG_ERROR, "ECOM", "ERROR: Command did not terminate at the expected position.");
 		}
 	}
 
