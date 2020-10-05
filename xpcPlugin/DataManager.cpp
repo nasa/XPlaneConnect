@@ -34,6 +34,7 @@ namespace XPC
 	static map<DREF, XPLMDataRef> drefs;
 	static map<DREF, XPLMDataRef> mdrefs[PLANE_COUNT];
 	static map<string, XPLMDataRef> sdrefs;
+	static map<XPLMCommandRef, bool> commandStarted;
 
 	DREF XPData[134][8] = { DREF_None };
 
@@ -792,19 +793,59 @@ namespace XPC
 		Set(DREF_FlapActual, value);
 	}
 
-	void DataManager::Execute(const std::string& comm)
+	void DataManager::MomentaryCommand(const std::string& comm)
 	{
-		Log::FormatLine(LOG_INFO, "DMAN", "Executing command (value:%s)", comm.c_str());
+		Log::FormatLine(LOG_INFO, "DMAN", "Executing momentary command (value:%s)", comm.c_str());
 
  		XPLMCommandRef xcref = XPLMFindCommand(comm.c_str());
 		if (!xcref)
 		{
 			// COMM does not exist
-			Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: invalid COMM %s", comm.c_str());
+			Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: invalid command %s", comm.c_str());
 			return;
 		}
 
  		XPLMCommandOnce(xcref);
+	}
+
+	void DataManager::BeginCommand(const std::string& comm)
+	{
+		Log::FormatLine(LOG_INFO, "DMAN", "Starting command (value:%s)", comm.c_str());
+
+		XPLMCommandRef xcref = XPLMFindCommand(comm.c_str());
+		if (!xcref)
+		{
+			// Command does not exist
+			Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: invalid command %s", comm.c_str());
+			return;
+		}
+
+		// Flag the command as having been explicitly started by the plugin
+		commandStarted[xcref] = true;
+		XPLMCommandBegin(xcref);
+	}
+
+	void DataManager::EndCommand(const std::string& comm)
+	{
+		Log::FormatLine(LOG_INFO, "DMAN", "Ending command (value:%s)", comm.c_str());
+
+		XPLMCommandRef xcref = XPLMFindCommand(comm.c_str());
+		if (!xcref)
+		{
+			// Command does not exist
+			Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: invalid command %s", comm.c_str());
+			return;
+		}
+
+		// If the command had not been explicitly started by the plugin, do not send a command to X-Plane to end it -
+		// this is not allowed per the X-Plane SDK documentation
+		if (commandStarted.find(xcref) == commandStarted.end() || commandStarted[xcref] == false)
+		{
+			Log::FormatLine(LOG_ERROR, "DMAN", "ERROR: Attempted to end command %s that had not been explicitly started.", comm.c_str());
+		}
+
+		commandStarted[xcref] = false;
+		XPLMCommandEnd(xcref);
 	}
 
 	float DataManager::GetDefaultValue()

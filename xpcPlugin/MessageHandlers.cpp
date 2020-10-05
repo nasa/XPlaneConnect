@@ -72,6 +72,8 @@ namespace XPC
 			handlers.insert(std::make_pair("GETP", MessageHandlers::HandleGetP));
 			handlers.insert(std::make_pair("COMM", MessageHandlers::HandleComm));
 			handlers.insert(std::make_pair("GETT", MessageHandlers::HandleGetT));
+			handlers.insert(std::make_pair("BCOM", MessageHandlers::HandleBCom));
+			handlers.insert(std::make_pair("ECOM", MessageHandlers::HandleECom));
 			// X-Plane data messages
 			handlers.insert(std::make_pair("DSEL", MessageHandlers::HandleXPlaneData));
 			handlers.insert(std::make_pair("USEL", MessageHandlers::HandleXPlaneData));
@@ -933,7 +935,7 @@ namespace XPC
  			std::string comm = std::string((char*)buffer + pos, len);
  			pos += len;
 
-  			DataManager::Execute(comm);
+  			DataManager::MomentaryCommand(comm);
  			Log::FormatLine(LOG_DEBUG, "COMM", "Execute command %s", comm.c_str());
  		}
  		if (pos != size)
@@ -941,6 +943,56 @@ namespace XPC
  			Log::WriteLine(LOG_ERROR, "COMM", "ERROR: Command did not terminate at the expected position.");
  		}
  	}
+
+	void MessageHandlers::HandleBCom(const Message& msg)
+	{
+		Log::FormatLine(LOG_TRACE, "BCOM", "Request to execute BCOM command received (Conn %i)", connection.id);
+		const unsigned char* buffer = msg.GetBuffer();
+		std::size_t size = msg.GetSize();
+		std::size_t pos = 5;
+		while (pos < size)
+		{
+			unsigned char len = buffer[pos++];
+			if (pos + len > size)
+			{
+				break;
+			}
+			std::string comm = std::string((char*)buffer + pos, len);
+			pos += len;
+
+			DataManager::BeginCommand(comm);
+			Log::FormatLine(LOG_DEBUG, "COMM", "Execute command %s", comm.c_str());
+		}
+		if (pos != size)
+		{
+			Log::WriteLine(LOG_ERROR, "COMM", "ERROR: Command did not terminate at the expected position.");
+		}
+	}
+
+	void MessageHandlers::HandleECom(const Message& msg)
+	{
+		Log::FormatLine(LOG_TRACE, "ECOM", "Request to execute ECOM command received (Conn %i)", connection.id);
+		const unsigned char* buffer = msg.GetBuffer();
+		std::size_t size = msg.GetSize();
+		std::size_t pos = 5;
+		while (pos < size)
+		{
+			unsigned char len = buffer[pos++];
+			if (pos + len > size)
+			{
+				break;
+			}
+			std::string comm = std::string((char*)buffer + pos, len);
+			pos += len;
+
+			DataManager::EndCommand(comm);
+			Log::FormatLine(LOG_DEBUG, "COMM", "Execute command %s", comm.c_str());
+		}
+		if (pos != size)
+		{
+			Log::WriteLine(LOG_ERROR, "COMM", "ERROR: Command did not terminate at the expected position.");
+		}
+	}
 
 	void MessageHandlers::HandleWypt(const Message& msg)
 	{
