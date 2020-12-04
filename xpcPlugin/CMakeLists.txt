@@ -16,6 +16,7 @@ SET(XPC_OUTPUT_DIR "XPlaneConnect")
 SET(XPC_OUTPUT_NAME "lin")
 
 add_library(xpc64 SHARED XPCPlugin.cpp
+	CameraCallbacks.cpp
 	DataManager.cpp
 	Drawing.cpp
 	Log.cpp
@@ -29,6 +30,7 @@ set_target_properties(xpc64 PROPERTIES OUTPUT_NAME ${XPC_OUTPUT_NAME})
 set_target_properties(xpc64 PROPERTIES COMPILE_FLAGS "-m64 -fno-stack-protector" LINK_FLAGS "-shared -rdynamic -nodefaultlibs -undefined_warning -m64 -fno-stack-protector")
 
 add_library(xpc32 SHARED XPCPlugin.cpp
+	CameraCallbacks.cpp
 	DataManager.cpp
 	Drawing.cpp
 	Log.cpp
