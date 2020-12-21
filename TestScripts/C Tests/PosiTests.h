@@ -69,7 +69,7 @@ int doGETPTest(double values[7], int ac, double expected[7])
 
 int basicPOSITest(const char** drefs, int ac)
 {
-	// Set psoition and initial orientation
+	// Set position and initial orientation
 	double POSI[7] = { 37.524, -122.06899, 2500, 0, 0, 0, 1 };
 	double expected[7] = { 37.524, -122.06899, 2500, 0, 0, 0, 1 };
 	int result = doPOSITest(drefs, POSI, 7, ac, expected);
