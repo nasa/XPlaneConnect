@@ -415,7 +415,7 @@ namespace XPC
  		/// \param comm   The name of the command to momentarily execute.
 		/// 
 		/// \remarks This is the equivalent of calling BeginCommand() and EndCommand() back to back.
- 		static void MomentaryCommand(const std::string& comm);
+ 		static void ExecuteMomentaryCommand(const std::string& comm);
 
 		/// Starts the execution of a command. The command is "held down" until it is explicitly ended by EndCommand().
 		///

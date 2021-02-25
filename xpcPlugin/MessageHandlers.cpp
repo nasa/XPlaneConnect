@@ -935,7 +935,7 @@ namespace XPC
  			std::string comm = std::string((char*)buffer + pos, len);
  			pos += len;
 
-  			DataManager::MomentaryCommand(comm);
+  			DataManager::ExecuteMomentaryCommand(comm);
  			Log::FormatLine(LOG_DEBUG, "COMM", "Execute momentary command %s", comm.c_str());
  		}
  		if (pos != size)
