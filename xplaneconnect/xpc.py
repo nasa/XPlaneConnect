@@ -1,5 +1,6 @@
 import socket
 import struct
+from enum import IntEnum
 
 class XPlaneConnect(object):
     """XPlaneConnect (XPC) facilitates communication to and from the XPCPlugin."""
@@ -424,6 +425,59 @@ class XPlaneConnect(object):
         else:
             buffer = struct.pack(("<4sxBB" + str(len(points)) + "f").encode(), b"WYPT", op, len(points), *points)
         self.sendUDP(buffer)
+
+    def sendWTHR(
+        self,
+        low_layer = None,
+        middle_layer = None,
+        high_layer  = None,
+    ):
+        """Sets the weather in X-Plane.
+
+        Args:
+            low_layer: The type of clouds at the closer from ground layer,
+              values among clear, cirrus, scattered, broken, overcast, stratus.
+            middle_layer: The type of clouds at the middle layer,
+              values among clear, cirrus, scattered, broken, overcast, stratus.
+            high_layer: The type of clouds at the higher layer,
+              values among clear, cirrus, scattered, broken, overcast, stratus.
+        """
+        try:
+            if isinstance(low_layer, str):
+                low_layer = CloudType[low_layer]
+            if isinstance(middle_layer, str):
+                middle_layer = CloudType[middle_layer]
+            if isinstance(high_layer, str):
+                high_layer = CloudType[high_layer]
+        except KeyError:
+            raise ValueError(
+                f"Invalid weather value. Weather values should be one of "
+                f"{[cloud.name for cloud in CloudType]}"
+            )
+
+        for value in (low_layer, middle_layer, high_layer):
+            if value is not None and not (0 <= value <= 5):
+                raise ValueError(
+                    f"Invalid weather value: {value}. Should be an int between 0 and 5"
+                )
+
+        if low_layer is not None:
+            self.sendDREF("sim/weather/cloud_type[0]", low_layer)
+        if middle_layer is not None:
+            self.sendDREF("sim/weather/cloud_type[1]", middle_layer)
+        if high_layer is not None:
+            self.sendDREF("sim/weather/cloud_type[2]", high_layer)
+
+
+class CloudType(IntEnum):
+    """Match cloud types to associated IDs."""
+
+    clear = 0
+    cirrus = 1
+    scattered = 2
+    broken = 3
+    overcast = 4
+    stratus = 5
 
 
 class ViewType(object):
