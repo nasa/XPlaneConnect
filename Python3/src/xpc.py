@@ -358,6 +358,26 @@ class XPlaneConnect(object):
             offset += rowLen * 4
         return result
 
+    # Send Comm
+    def sendCOMM(self, comm):
+        '''Sets the specified datarefs to the specified values.
+            Args:
+            comm: Command to send.
+        '''
+        if comm == None:
+            raise ValueError("comm must be non-empty.")
+
+        buffer = struct.pack(b"<4sx", b"COMM")
+        if len(comm) == 0 or len(comm) > 255:
+            raise ValueError("comm must be a non-empty string less than 256 characters.")
+
+        # Pack message
+        fmt = "<B{0:d}s".format(len(comm))
+        buffer += struct.pack(fmt.encode(), len(comm), comm.encode())
+
+        # Send
+        self.sendUDP(buffer)
+
     # Drawing
     def sendTEXT(self, msg, x=-1, y=-1):
         """Sets a message that X-Plane will display on the screen.
