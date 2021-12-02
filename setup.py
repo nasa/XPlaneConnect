@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="xplaneconnect",
-    version="1.0.0",
+    version="1.3rc6",
     python_requires=">=3",
     packages=find_packages("Python3/src"),
     package_dir={"": "Python3/src"},
