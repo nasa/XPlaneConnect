@@ -540,6 +540,12 @@ namespace XPC
 		{
 			float values[255];
 			int count = DataManager::Get(connection.getdRequest[i], values, 255);
+			if ((cur + count * sizeof(float) + 1) > 4095)
+			{
+				Log::FormatLine(LOG_ERROR, "GETD", "ERROR: Too many data requested for connection %i.",
+					connection.id);
+				return;
+			}
 			response[cur++] = count;
 			memcpy(response + cur, values, count * sizeof(float));
 			cur += count * sizeof(float);
