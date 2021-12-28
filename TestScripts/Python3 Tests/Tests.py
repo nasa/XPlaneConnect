@@ -4,7 +4,7 @@ import importlib
 import time
 
 from importlib.machinery import SourceFileLoader
-xpc = SourceFileLoader('xpc', '../../Python3/src/xpc.py').load_module()
+xpc = SourceFileLoader('xpc', '../../Python3/src/xpc/__init__.py').load_module()
 
 class XPCTests(unittest.TestCase):
     """Tests the functionality of the XPlaneConnect class."""
