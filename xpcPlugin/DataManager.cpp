@@ -35,7 +35,7 @@ namespace XPC
 	static map<DREF, XPLMDataRef> mdrefs[PLANE_COUNT];
 	static map<string, XPLMDataRef> sdrefs;
 
-	DREF XPData[134][8] = { DREF_None };
+	DREF XPData[XPC_MAX_COLS][8] = { DREF_None };
 
 	void DataManager::Initialize()
 	{
@@ -357,7 +357,7 @@ namespace XPC
 		}
 		if ((dataType & 16) == 16) // Integer array
 		{
-			const std::size_t TMP_SIZE = 200;
+			const std::size_t TMP_SIZE = XPC_MAX_DREF_VALUES;
 			int iValues[TMP_SIZE];
 			int drefSize = XPLMGetDatavi(xdref, NULL, 0, 0);
 			if (drefSize > size)
@@ -382,7 +382,7 @@ namespace XPC
 		}
 		if ((dataType & 32) == 32) // Byte array
 		{
-			const std::size_t TMP_SIZE = 1024;
+			const std::size_t TMP_SIZE = XPC_MAX_DREF_VALUES;
 			char bValues[TMP_SIZE];
 			int drefSize = XPLMGetDatab(xdref, NULL, 0, 0);
 			if (drefSize > size)
@@ -561,7 +561,7 @@ namespace XPC
 		}
 		else if ((dataType & 16) == 16) // Integer Array
 		{
-			const std::size_t TMP_SIZE = 200;
+			const std::size_t TMP_SIZE = XPC_MAX_DREF_VALUES;
 			int iValues[TMP_SIZE];
 			int drefSize = XPLMGetDatavi(xdref, NULL, 0, 0);
 			if (size > drefSize)
@@ -587,7 +587,7 @@ namespace XPC
 		}
 		else if ((dataType & 32) == 32) // Byte Array
 		{
-			const std::size_t TMP_SIZE = 1024;
+			const std::size_t TMP_SIZE = XPC_MAX_DREF_VALUES;
 			char bValues[TMP_SIZE];
 			int drefSize = XPLMGetDatab(xdref, NULL, 0, 0);
 			if (size > drefSize)

@@ -4,6 +4,7 @@
 #define XPCPLUGIN_DATAMANAGER_H_
 
 #include <string>
+#include "XPCLimits.h"
 
 namespace XPC
 {
@@ -137,7 +138,7 @@ namespace XPC
 	};
 
 	/// Maps X-Plane dataref lines to XPC DREF values.
-	extern DREF XPData[134][8];
+	extern DREF XPData[XPC_MAX_COLS][8];
 
 	/// Contains methods to martial data between the plugin and X-Plane.
 	///

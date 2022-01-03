@@ -53,6 +53,7 @@ ipch/
 *.user
 *.sdf
 *.sbr
+.vs/
 
 # XCode Files #
 ###############

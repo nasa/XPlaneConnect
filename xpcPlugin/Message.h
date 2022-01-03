@@ -4,6 +4,7 @@
 #define XPCPLUGIN_MESSAGE_H_
 
 #include "UDPSocket.h"
+#include "XPCLimits.h"
 
 namespace XPC
 {
@@ -44,7 +45,7 @@ namespace XPC
 	private:
 		Message();
 
-		static const std::size_t bufferSize = 4096;
+		static const std::size_t bufferSize = XPC_MAX_MESSAGE_SIZE;
 		unsigned char buffer[bufferSize];
 		std::size_t size;
 		struct sockaddr source;
