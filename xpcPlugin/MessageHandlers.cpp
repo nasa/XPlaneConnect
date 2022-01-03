@@ -298,12 +298,12 @@ namespace XPC
 			return;
 		}
 
-		if (numCols > 134) // Error. Will overflow values
+		if (numCols > XPC_MAX_COLS) // Error. Will overflow values
 		{
 			Log::FormatLine(LOG_ERROR, "DATA", "ERROR: numCols to large.");
 			return;
 		}
-		float values[134][9];
+		float values[XPC_MAX_COLS][9];
 		for (int i = 0; i < numCols; ++i)
 		{
 			// 5 byte header + (9 * 4 = 36) bytes per row
@@ -318,9 +318,9 @@ namespace XPC
 		for (int i = 0; i < numCols; ++i)
 		{
 			unsigned char dataRef = (unsigned char)values[i][0];
-			if (dataRef >= 134)
+			if (dataRef >= XPC_MAX_COLS)
 			{
-				Log::FormatLine(LOG_ERROR, "DATA", "ERROR: DataRef # must be between 0 - 134 (Received: %hi)", (int)dataRef);
+				Log::FormatLine(LOG_ERROR, "DATA", "ERROR: DataRef # must be between 0 - %hi (Received: %hi)", (int)XPC_MAX_COLS, (int)dataRef);
 				continue;
 			}
 
@@ -533,16 +533,23 @@ namespace XPC
 			connections[connectionKey] = connection;
 		}
 
-		unsigned char response[4096] = "RESP";
+		unsigned char response[XPC_MAX_MESSAGE_SIZE] = "RESP";
 		response[5] = drefCount;
 		std::size_t cur = 6;
 		for (int i = 0; i < drefCount; ++i)
 		{
-			float values[255];
-			int count = DataManager::Get(connection.getdRequest[i], values, 255);
+			float values[XPC_MAX_DREF_VALUES];
+			int count = DataManager::Get(connection.getdRequest[i], values, XPC_MAX_DREF_VALUES);
+			int dataSize = count * sizeof(float);
+			if (cur + drefCount - i + dataSize > XPC_MAX_MESSAGE_SIZE) {
+				Log::FormatLine(LOG_ERROR, "GETD", "ERROR: omitting data (%i bytes) for dref %i to avoid exceeding message buffer for connection %i.",
+					dataSize, i, connection.id);
+				count = 0;
+				dataSize = 0;
+			}
 			response[cur++] = count;
-			memcpy(response + cur, values, count * sizeof(float));
-			cur += count * sizeof(float);
+			if (dataSize) memcpy(response + cur, values, dataSize);
+			cur += dataSize;
 		}
 
 		sock->SendTo(response, cur, &connection.addr);

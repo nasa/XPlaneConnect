@@ -96,7 +96,7 @@ namespace XPC
 			unsigned char id;
 			sockaddr addr;
 			unsigned char getdCount;
-			std::string getdRequest[255];
+			std::string getdRequest[XPC_MAX_DREF_COUNT];
 		} ConnectionInfo;
 
 		static std::map<std::string, ConnectionInfo> connections;
