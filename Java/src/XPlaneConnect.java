@@ -323,7 +323,9 @@ public class XPlaneConnect implements AutoCloseable
         int cur = 6;
         for(int j = 0; j < result.length; ++j)
         {
-            result[j] = new float[data[cur++]];
+            int data_size = (data[cur] > 0) ? data[cur] : 256 + data[cur]; 
+            result[j] = new float[data_size];
+            cur++;
             for(int k = 0; k < result[j].length; ++k) //TODO: There must be a better way to do this
             {
                 result[j][k] = bb.getFloat(cur);
@@ -588,9 +590,26 @@ public class XPlaneConnect implements AutoCloseable
         double[] result = new double[7];
         ByteBuffer bb = ByteBuffer.wrap(data);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        for(int i = 0; i < 7; ++i)
-        {
-            result[i] = bb.getFloat(6 + 4 * i);
+        
+        if (bb.capacity() == 34) { //In XPlane v10 --> latitude/longitude/elevation are floats
+            for(int i = 0; i < 7; ++i)
+            {
+                result[i] = bb.getFloat(6 + 4 * i);
+            }
+        }else if (bb.capacity() == 46) { //In XPlane v11 --> latitude/longitude/elevation are double
+            for(int i = 0; i < 7; ++i)
+            {
+                if(i<3)
+                {
+                    result[i] = bb.getDouble(6 + 8 * i);
+                }else
+                {
+                    result[i] = bb.getFloat(30 + 4 * (i-3));
+                }
+                
+            }
+        }else {
+            throw new IOException("Unexpected POSI message length received");
         }
         return result;
     }
