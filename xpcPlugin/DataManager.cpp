@@ -97,7 +97,7 @@ namespace XPC
 		drefs.insert(make_pair(DREF_Pitch, XPLMFindDataRef("sim/flightmodel/position/theta")));
 		drefs.insert(make_pair(DREF_Roll, XPLMFindDataRef("sim/flightmodel/position/phi")));
 		drefs.insert(make_pair(DREF_HeadingTrue, XPLMFindDataRef("sim/flightmodel/position/psi")));
-		drefs.insert(make_pair(DREF_HeadingMag, XPLMFindDataRef("sim/flightmodel/position/magpsi")));
+		drefs.insert(make_pair(DREF_HeadingMag, XPLMFindDataRef("sim/flightmodel/position/mag_psi")));
 		drefs.insert(make_pair(DREF_Quaternion, XPLMFindDataRef("sim/flightmodel/position/q")));
 
 		drefs.insert(make_pair(DREF_AngleOfAttack, XPLMFindDataRef("sim/flightmodel/position/alpha")));
@@ -121,6 +121,10 @@ namespace XPC
 
 		drefs.insert(make_pair(DREF_ThrottleSet, XPLMFindDataRef("sim/flightmodel/engine/ENGN_thro")));
 		drefs.insert(make_pair(DREF_ThrottleActual, XPLMFindDataRef("sim/flightmodel2/engines/throttle_used_ratio")));
+
+		drefs.insert(make_pair(DREF_YokePitch, XPLMFindDataRef("sim/multiplayer/controls/yoke_pitch_ratio")));
+		drefs.insert(make_pair(DREF_YokeRoll, XPLMFindDataRef("sim/multiplayer/controls/yoke_roll_ratio")));
+		drefs.insert(make_pair(DREF_YokeHeading, XPLMFindDataRef("sim/multiplayer/controls/yoke_heading_ratio")));
 
 		drefs.insert(make_pair(DREF_MP1Lat, XPLMFindDataRef("sim/multiplayer/position/plane1_lat")));
 		drefs.insert(make_pair(DREF_MP2Lat, XPLMFindDataRef("sim/multiplayer/position/plane2_lat")));
@@ -184,13 +188,7 @@ namespace XPC
 			mdrefs[i][DREF_Sweep] = XPLMFindDataRef(multi);
 			sprintf(multi, "sim/multiplayer/position/plane%i_throttle", i);
 			mdrefs[i][DREF_ThrottleActual] = XPLMFindDataRef(multi);
-			mdrefs[i][DREF_ThrottleSet] = mdrefs[i][DREF_ThrottleActual]; // No throttle set for multiplayer planes.
-			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_pitch", i);
-			mdrefs[i][DREF_YokePitch] = XPLMFindDataRef(multi);
-			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_roll", i);
-			mdrefs[i][DREF_YokeRoll] = XPLMFindDataRef(multi);
-			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_yaw", i);
-			mdrefs[i][DREF_YokeHeading] = XPLMFindDataRef(multi);
+			mdrefs[i][DREF_ThrottleSet] = mdrefs[i][DREF_ThrottleActual]; // No throttle set for multiplayer planes.			
 		}
 
 		// Row 0: Frame Rates
