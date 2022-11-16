@@ -139,6 +139,7 @@ void closeUDP(XPCSocket sock)
 {
 #ifdef _WIN32
 	int result = closesocket(sock.sock);
+	WSACleanup();
 #else
 	int result = close(sock.sock);
 #endif
