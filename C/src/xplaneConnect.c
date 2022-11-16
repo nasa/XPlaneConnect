@@ -139,6 +139,7 @@ void closeUDP(XPCSocket sock)
 {
 #ifdef _WIN32
 	int result = closesocket(sock.sock);
+	WSACleanup();
 #else
 	int result = close(sock.sock);
 #endif
@@ -146,7 +147,7 @@ void closeUDP(XPCSocket sock)
 	{
 		printError("closeUDP", "Failed to close socket");
 		exit(EXIT_FAILURE);
-	}
+	}	
 }
 
 /// Sends the given data to the X-Plane plugin.
@@ -208,7 +209,7 @@ int readUDP(XPCSocket sock, char buffer[], int len)
 	// Set timeout period for select to 0.05 sec = 50 milliseconds = 50,000 microseconds (0 makes it polling)
 	// TO DO - This could be set to 0 if a message handling system were implemented, like in the plugin.
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 50000;
+	timeout.tv_usec = 100000; // 50000
 
 	// Select Command
 	int status = select(sock.sock+1, &stReadFDS, NULL, &stExceptFDS, &timeout);
