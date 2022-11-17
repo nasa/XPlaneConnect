@@ -82,6 +82,7 @@ namespace XPC
 		Log::FormatLine(LOG_TRACE, tag, "Closing socket (%d)", this->sock);
 #ifdef _WIN32
 		closesocket(this->sock);
+		WSACleanup();
 #elif (__APPLE__ || __linux)
 		close(this->sock);
 #endif
