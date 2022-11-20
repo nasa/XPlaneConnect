@@ -445,6 +445,46 @@ class XPlaneConnect(object):
         # Send
         self.sendUDP(buffer)
 
+    # Terrain
+
+    def getTERR(self, values, ac=0):
+        """Gets terrain information for the specified aircraft.
+
+            Args:
+              values: The position values of the desired terrain location. `values` is a array
+                containing 2 elements. The elements in `values` correspond to the
+                following:
+                  * Latitude (deg)
+                  * Longitude (deg)
+              ac: The aircraft to set the position of. 0 is the main/player aircraft.
+        """
+        # Pack message
+        buffer = struct.pack(b"<4sxB", b"GETT", ac)
+        for i in range(3):
+            val = -998
+            if i < len(values):
+                val = values[i]
+            if i < 3:
+                buffer += struct.pack(b"<d", val)
+            else:
+                buffer += struct.pack(b"<f", val)
+
+        # Send
+        self.sendUDP(buffer)
+
+        # Read response
+        resultBuf = self.readUDP()
+        if len(resultBuf) == 62:
+            result = struct.unpack(b"<4sxBdddfffff",resultBuf[0:50])
+        else:
+            raise ValueError("Unexpected response length.")
+
+        if result[0] != b"TERR":
+            raise ValueError("Unexpected header: " + result[0])
+
+        # Drop the header & ac from the return value
+        return result[2:]
+
 class ViewType(object):
     Forwards = 73
     Down = 74
