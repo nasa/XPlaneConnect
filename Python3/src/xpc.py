@@ -446,7 +446,6 @@ class XPlaneConnect(object):
         self.sendUDP(buffer)
 
     # Terrain
-
     def getTERR(self, values, ac=0):
         """Gets terrain information for the specified aircraft.
 
@@ -461,6 +460,56 @@ class XPlaneConnect(object):
         # Pack message
         buffer = struct.pack(b"<4sxB", b"GETT", ac)
         for i in range(3):
+            val = -998
+            if i < len(values):
+                val = values[i]
+            if i < 3:
+                buffer += struct.pack(b"<d", val)
+            else:
+                buffer += struct.pack(b"<f", val)
+
+        # Send
+        self.sendUDP(buffer)
+
+        # Read response
+        resultBuf = self.readUDP()
+        if len(resultBuf) == 62:
+            result = struct.unpack(b"<4sxBdddfffff",resultBuf[0:50])
+        else:
+            raise ValueError("Unexpected response length.")
+
+        if result[0] != b"TERR":
+            raise ValueError("Unexpected header: " + result[0])
+
+        # Drop the header & ac from the return value
+        return result[2:]
+
+    def sendPOST(self, values, ac=0):
+        """Sets position information on the specified aircraft and returns terrain information.
+
+            Args:
+              values: The position values to set. `values` is a array containing up to
+                7 elements. If less than 7 elements are specified or any elment is set to `-998`,
+                those values will not be changed. The elements in `values` corespond to the
+                following:
+                  * Latitude (deg)
+                  * Longitude (deg)
+                  * Altitude (m above MSL)
+                  * Pitch (deg)
+                  * Roll (deg)
+                  * True Heading (deg)
+                  * Gear (0=up, 1=down)
+              ac: The aircraft to set the position of. 0 is the main/player aircraft.
+        """
+        # Preconditions
+        if len(values) < 1 or len(values) > 7:
+            raise ValueError("Must have between 0 and 7 items in values.")
+        if ac < 0 or ac > 20:
+            raise ValueError("Aircraft number must be between 0 and 20.")
+
+        # Pack message
+        buffer = struct.pack(b"<4sxB", b"POST", ac)
+        for i in range(7):
             val = -998
             if i < len(values):
                 val = values[i]
