@@ -445,6 +445,104 @@ class XPlaneConnect(object):
         # Send
         self.sendUDP(buffer)
 
+    # Terrain
+    def getTERR(self, values, ac=0):
+        """Gets terrain information for the specified aircraft.
+
+            Args:
+              values: The position values of the desired terrain location. `values` is a array
+                containing 2 elements. The elements in `values` correspond to the
+                following:
+                  * Latitude (deg)
+                  * Longitude (deg)
+              ac: The aircraft to set the position of. 0 is the main/player aircraft.
+
+            Returns: A 12-element array containing terrain information. The format of the output is
+             [Lat, Lon, Alt, Nx, Ny, Nz, Vx, Vy, Vz, wet result]. The first three are for output of
+             the Lat and Lon of the aircraft with the terrain height directly below. The next three
+             represent the terrain normal. The next three represent the velocity of the terrain.
+             The wet variable is 0.0 if the terrain is dry and 1.0 if wet.
+             The last element is the terrain probe result parameter.
+        """
+        # Pack message
+        buffer = struct.pack(b"<4sxB", b"GETT", ac)
+        for i in range(3):
+            val = -998
+            if i < len(values):
+                val = values[i]
+            if i < 3:
+                buffer += struct.pack(b"<d", val)
+            else:
+                buffer += struct.pack(b"<f", val)
+
+        # Send
+        self.sendUDP(buffer)
+
+        # Read response
+        resultBuf = self.readUDP()
+        if len(resultBuf) == 62:
+            result = struct.unpack(b"<4sxBdddffffffff",resultBuf[0:62])
+        else:
+            raise ValueError("Unexpected response length.")
+
+        if result[0] != b"TERR":
+            raise ValueError("Unexpected header: " + result[0])
+
+        # Drop the header & ac from the return value
+        return result[2:]
+
+    def sendPOST(self, values, ac=0):
+        """Sets position information on the specified aircraft and returns terrain information.
+
+            Args:
+              values: The position values to set. `values` is a array containing up to
+                7 elements. If less than 7 elements are specified or any element is set to `-998`,
+                those values will not be changed. The elements in `values` correspond to the
+                following:
+                  * Latitude (deg)
+                  * Longitude (deg)
+                  * Altitude (m above MSL)
+                  * Pitch (deg)
+                  * Roll (deg)
+                  * True Heading (deg)
+                  * Gear (0=up, 1=down)
+              ac: The aircraft to set the position of. 0 is the main/player aircraft.
+
+            Returns: A 12-element array containing terrain information (described in getTERR).
+        """
+        # Preconditions
+        if len(values) < 1 or len(values) > 7:
+            raise ValueError("Must have between 0 and 7 items in values.")
+        if ac < 0 or ac > 20:
+            raise ValueError("Aircraft number must be between 0 and 20.")
+
+        # Pack message
+        buffer = struct.pack(b"<4sxB", b"POST", ac)
+        for i in range(7):
+            val = -998
+            if i < len(values):
+                val = values[i]
+            if i < 3:
+                buffer += struct.pack(b"<d", val)
+            else:
+                buffer += struct.pack(b"<f", val)
+
+        # Send
+        self.sendUDP(buffer)
+
+        # Read response
+        resultBuf = self.readUDP()
+        if len(resultBuf) == 62:
+            result = struct.unpack(b"<4sxBdddffffffff",resultBuf[0:62])
+        else:
+            raise ValueError("Unexpected response length.")
+
+        if result[0] != b"TERR":
+            raise ValueError("Unexpected header: " + result[0])
+
+        # Drop the header & ac from the return value
+        return result[2:]
+
 class ViewType(object):
     Forwards = 73
     Down = 74
