@@ -456,6 +456,13 @@ class XPlaneConnect(object):
                   * Latitude (deg)
                   * Longitude (deg)
               ac: The aircraft to set the position of. 0 is the main/player aircraft.
+
+            Returns: A 12-element array containing terrain information. The format of the output is
+             [Lat, Lon, Alt, Nx, Ny, Nz, Vx, Vy, Vz, wet result]. The first three are for output of
+             the Lat and Lon of the aircraft with the terrain height directly below. The next three
+             represent the terrain normal. The next three represent the velocity of the terrain.
+             The wet variable is 0.0 if the terrain is dry and 1.0 if wet.
+             The last element is the terrain probe result parameter.
         """
         # Pack message
         buffer = struct.pack(b"<4sxB", b"GETT", ac)
@@ -474,7 +481,7 @@ class XPlaneConnect(object):
         # Read response
         resultBuf = self.readUDP()
         if len(resultBuf) == 62:
-            result = struct.unpack(b"<4sxBdddfffff",resultBuf[0:50])
+            result = struct.unpack(b"<4sxBdddffffffff",resultBuf[0:62])
         else:
             raise ValueError("Unexpected response length.")
 
@@ -489,8 +496,8 @@ class XPlaneConnect(object):
 
             Args:
               values: The position values to set. `values` is a array containing up to
-                7 elements. If less than 7 elements are specified or any elment is set to `-998`,
-                those values will not be changed. The elements in `values` corespond to the
+                7 elements. If less than 7 elements are specified or any element is set to `-998`,
+                those values will not be changed. The elements in `values` correspond to the
                 following:
                   * Latitude (deg)
                   * Longitude (deg)
@@ -500,6 +507,8 @@ class XPlaneConnect(object):
                   * True Heading (deg)
                   * Gear (0=up, 1=down)
               ac: The aircraft to set the position of. 0 is the main/player aircraft.
+
+            Returns: A 12-element array containing terrain information (described in getTERR).
         """
         # Preconditions
         if len(values) < 1 or len(values) > 7:
@@ -524,7 +533,7 @@ class XPlaneConnect(object):
         # Read response
         resultBuf = self.readUDP()
         if len(resultBuf) == 62:
-            result = struct.unpack(b"<4sxBdddfffff",resultBuf[0:50])
+            result = struct.unpack(b"<4sxBdddffffffff",resultBuf[0:62])
         else:
             raise ValueError("Unexpected response length.")
 
