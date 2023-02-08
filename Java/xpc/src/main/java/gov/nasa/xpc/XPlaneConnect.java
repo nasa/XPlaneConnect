@@ -323,10 +323,10 @@ public class XPlaneConnect implements AutoCloseable
         int cur = 6;
         for(int j = 0; j < result.length; ++j)
         {
-            int data_size = ((data[cur+1] & 0xff) << 8) | (data[cur] & 0xff);
+            int data_size = (data[cur] > 0) ? data[cur] : 256 + data[cur];
+            cur++;
             result[j] = new float[data_size];
-            cur += 2;
-            for(int k = 0; k < result[j].length; ++k) //TODO: There must be a better way to do this
+            for(int k = 0; k < result[j].length; ++k)
             {
                 result[j][k] = bb.getFloat(cur);
                 cur += 4;
@@ -408,6 +408,75 @@ public class XPlaneConnect implements AutoCloseable
 
             //Build and send message
             os.write(drefBytes.length);
+            os.write(drefBytes, 0, drefBytes.length);
+            os.write(value.length);
+            os.write(bb.array());
+        }
+        sendUDP(os.toByteArray());
+    }
+
+        /**
+     * Sends a command to X-Plane that request a periodic broadcast of the given DataRefs.
+     *
+     * @param freq     The frequency at which the data is requested.
+     * @param drefs    The names of the X-Plane datarefs to request.
+     * @param dref_idx An array of index whose length must match the number of requested datarefs.
+     * @throws IOException If the command cannot be sent.
+     */
+    public void sendRREFs(int freq, String[] drefs, int[] dref_idx) throws IOException
+    {
+        //Preconditions
+        if(freq == 0 )
+        {
+            throw new IllegalArgumentException(("request frequency cannot be zero."));
+        }
+        if(drefs == null || drefs.length == 0)
+        {
+            throw new IllegalArgumentException(("drefs must be non-empty."));
+        }
+        if(dref_idx.length != drefs.length)
+        {
+            throw new IllegalArgumentException("index must be of the same size as drefs.");
+        }
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write("RREF".getBytes(StandardCharsets.UTF_8));
+        os.write(0xFF); //Placeholder for message length
+        ByteBuffer freq_bb = ByteBuffer.allocate(4).putInt(freq);
+        freq_bb.order(ByteOrder.LITTLE_ENDIAN);
+        os.write(freq_bb);
+        for(int i = 0; i < drefs.length; ++i)
+        {
+            String dref = drefs[i];
+            int idx = dref_idx[i];
+
+            if (dref == null)
+            {
+                throw new IllegalArgumentException("dref must be a valid string.");
+            }
+
+
+
+            //Convert drefs to bytes.
+            byte[] drefBytes = dref.getBytes(StandardCharsets.UTF_8);
+            if (drefBytes.length == 0)
+            {
+                throw new IllegalArgumentException("DREF is an empty string!");
+            }
+            if (drefBytes.length > 255)
+            {
+                throw new IllegalArgumentException("dref must be less than 255 bytes in UTF-8. Are you sure this is a valid dref?");
+            }
+
+            //Values
+            ByteBuffer bb = ByteBuffer.allocate(4 * value.length);
+            bb.order(ByteOrder.LITTLE_ENDIAN);
+            for (int j = 0; j < value.length; ++j)
+            {
+                bb.putFloat(j * 4, value[j]);
+            }
+
+            //Build and send message
             os.write(drefBytes, 0, drefBytes.length);
             os.write(value.length);
             os.write(bb.array());
