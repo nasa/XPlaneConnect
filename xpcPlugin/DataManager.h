@@ -410,10 +410,26 @@ namespace XPC
 		/// \param value The flaps settings. Should be between 0.0 (no flaps) and 1.0 (full flaps).
 		static void SetFlaps(float value);
 
-		/// Executes a command
+		/// Executes a momentary command (begins and ends immediately).
  		///
- 		/// \param comm   The name of the command to execute.
- 		static void Execute(const std::string& comm);
+ 		/// \param comm   The name of the command to momentarily execute.
+		/// 
+		/// \remarks This is the equivalent of calling BeginCommand() and EndCommand() back to back.
+ 		static void ExecuteMomentaryCommand(const std::string& comm);
+
+		/// Starts the execution of a command. The command is "held down" until it is explicitly ended by EndCommand().
+		///
+		/// \param comm   The name of the command to begin.
+		/// 
+		/// \remarks Each BeginCommand call must be balanced with an associated EndCommand call.
+		static void BeginCommand(const std::string& comm);
+
+		/// Ends the execution of a command started with BeginCommand().
+		///
+		/// \param comm   The name of the command to end.
+		/// 
+		/// \remarks The EndCommand call must not be issued for a command that was not explicitly begun.
+		static void EndCommand(const std::string& comm);
 
 		/// Gets a default value that indicates that a dataref should not be changed.
 		static float GetDefaultValue();
