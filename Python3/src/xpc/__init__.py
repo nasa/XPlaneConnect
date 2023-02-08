@@ -425,6 +425,25 @@ class XPlaneConnect(object):
             buffer = struct.pack(("<4sxBB" + str(len(points)) + "f").encode(), b"WYPT", op, len(points), *points)
         self.sendUDP(buffer)
 
+    def sendCOMM(self, comm):
+        """Sets the specified datarefs to the specified values.
+
+            Args:
+            drefs: A list of names of the datarefs to set.
+        """
+        if comm is None:
+            raise ValueError("comm must be non-empty.")
+
+        buffer = struct.pack(b"<4sx", b"COMM")
+        if len(comm) == 0 or len(comm) > 255:
+            raise ValueError("comm must be a non-empty string less than 256 characters.")
+
+        # Pack message
+        fmt = "<B{0:d}s".format(len(comm))
+        buffer += struct.pack(fmt, len(comm), comm.encode())
+
+        # Send
+        self.sendUDP(buffer)
 
 class ViewType(object):
     Forwards = 73
