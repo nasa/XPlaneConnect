@@ -33,7 +33,7 @@ For detailed information about XPC and how to use the XPC clients, refer to the
 #### Capabilities
 The XPC Toolbox allows the user to manipulate the internal state of X-Plane by
 reading and setting DataRefs, a complete list of which can be found on the
-[X-Plane SDK wiki](http://www.xsquawkbox.net/xpsdk/docs/DataRefs.html).
+[X-Plane SDK wiki](https://developer.x-plane.com/sdk/).
 
 In addition, several convenience functions are provided, which allow the user to
 efficiently execute common commands. These functions include the ability to set
