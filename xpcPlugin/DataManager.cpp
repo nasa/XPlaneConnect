@@ -99,7 +99,7 @@ namespace XPC
 		drefs.insert(make_pair(DREF_Pitch, XPLMFindDataRef("sim/flightmodel/position/theta")));
 		drefs.insert(make_pair(DREF_Roll, XPLMFindDataRef("sim/flightmodel/position/phi")));
 		drefs.insert(make_pair(DREF_HeadingTrue, XPLMFindDataRef("sim/flightmodel/position/psi")));
-		drefs.insert(make_pair(DREF_HeadingMag, XPLMFindDataRef("sim/flightmodel/position/magpsi")));
+		drefs.insert(make_pair(DREF_HeadingMag, XPLMFindDataRef("sim/flightmodel/position/mag_psi")));
 		drefs.insert(make_pair(DREF_Quaternion, XPLMFindDataRef("sim/flightmodel/position/q")));
 
 		drefs.insert(make_pair(DREF_AngleOfAttack, XPLMFindDataRef("sim/flightmodel/position/alpha")));
@@ -187,11 +187,11 @@ namespace XPC
 			sprintf(multi, "sim/multiplayer/position/plane%i_throttle", i);
 			mdrefs[i][DREF_ThrottleActual] = XPLMFindDataRef(multi);
 			mdrefs[i][DREF_ThrottleSet] = mdrefs[i][DREF_ThrottleActual]; // No throttle set for multiplayer planes.
-			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_pitch", i);
+			sprintf(multi, "sim/multiplayer/controls/yolk_pitch_ratio[%i]", i);
 			mdrefs[i][DREF_YokePitch] = XPLMFindDataRef(multi);
-			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_roll", i);
+			sprintf(multi, "sim/multiplayer/controls/yolk_roll_ratio[%i]", i);
 			mdrefs[i][DREF_YokeRoll] = XPLMFindDataRef(multi);
-			sprintf(multi, "sim/multiplayer/position/plane%i_yolk_yaw", i);
+			sprintf(multi, "sim/multiplayer/controls/yolk_heading_ratio[%i]", i);
 			mdrefs[i][DREF_YokeHeading] = XPLMFindDataRef(multi);
 		}
 
