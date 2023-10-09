@@ -236,7 +236,7 @@ namespace XPC
 		numWaypoints = 0;
 		if (routeEnabled)
 		{
-			XPLMUnregisterDrawCallback(RouteDrawCallback, xplm_Phase_Objects, 0, NULL);
+			XPLMUnregisterDrawCallback(RouteDrawCallback, xplm_Phase_Modern3D, 0, NULL);
 		}
 		return;
 	}
@@ -256,7 +256,7 @@ namespace XPC
 
 		if (!routeEnabled)
 		{
-			XPLMRegisterDrawCallback(RouteDrawCallback, xplm_Phase_Objects, 0, NULL);
+			XPLMRegisterDrawCallback(RouteDrawCallback, xplm_Phase_Modern3D, 0, NULL);
 		}
 		if (!planeXref)
 		{

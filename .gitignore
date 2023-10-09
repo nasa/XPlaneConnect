@@ -94,3 +94,6 @@ out/
 #################
 Docs/~$Capability Matrix.xlsx
 *.xpl
+*.egg-info
+build
+dist

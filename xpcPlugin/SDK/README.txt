@@ -5,23 +5,11 @@
 This download contains the files necessary to build plugins for X-Plane.  The 
 X-Plane plugin website is:
 
-http://www.xsquawkbox.net/xpsdk/
+https://developer.x-plane.com/sdk/
 
 The website contains full documentation on the SDK including tech notes, sample
 plugins, sample code, contact information, and links to the latest versions of
 this SDK.
-
-The X-Plane SDK authors can be reached at:
-
-xplanesdk@xsquawkbox.net
-
-Please do not email Austin or Laminar Research for SDK questions or support;
-the SDK is a third party effort.
-
-the X-Plane developer mailing list is an unlisted yahoo group frequented by 
-many X-Plane developers.
-
-x-plane-dev@yahoogroups.com
 
 -------------------------------------------------------------------------------
                                   SDK FILES
@@ -32,24 +20,73 @@ README.txt	This document
 CHeaders	Header files for compiling C/C++ plugins
 Delphi		Interfaces for compiling Pascal plugins
 Libraries	Import libraries for linking on Windows
-		and frameworks for linking on Mac.
+            and frameworks for linking on Mac.
 
 Note: there are no import/link-time libraries for Linux; on Linux, plugins
 simply leave SDK symbols undefined and they are discovered at runtime.  The 
 SDK website explains this process in more detail.
-
-Mac CFM plugins are not supported by the SDK versions 2.0 and higher; the 
-2.0 SDK requires X-Plane 9.0 or newer, and X-Plane 9 will not run on 
-Mac OS 9.  Therefore CFM plugins are not useful (and are probably 
-counterproductive since they cannot support x86 code).  If you have a CFM 
-plugin, continue to use the 1.0 SDK to build it. You will have to port to 
-Mach-O if you want to use 2.0 features.
 
 -------------------------------------------------------------------------------
                               RELEASE NOTES
 -------------------------------------------------------------------------------
 
 This section contains per-release notes for the history of the X-Plane SDK.
+
+X-Plane SDK Release 4.0.1 3/16/2023
+
+The 4.0.1 SDK fixes the XPLMSound.h header, which contained invalid C code
+(C++ struct definitons for FMOD_VECTOR and FMOD_ enums.)
+
+X-Plane SDK Release 4.0.0 3/8/2023
+
+The 4.0.0 SDK adds support for ARM64 Macs.  The 4.0 SDK is supported by X-Plane
+12.04 (but can be used with X-Plane 12.00 if not using the weather, sound or 
+dataref introspection APIs). New features:
+
+ - M1/ARM64 support for Mac
+ - Avionics display callbacks provide direct drawing to avionic "devices"
+ - New XPLMSound API
+ - New XPLMWeather API
+ - New dataref APIs to get the set of all datarefs programmatically and be 
+   notified of new datarefs ("introspection").  
+
+X-Plane SDK Release 3.0.2 4/29/2020
+
+The SDK 3.0.2 adds the modern 3-d drawing callback for interoperability with
+Metal and Vulkan, and deprecates most older drawing callbacks.
+
+X-Plane SDK Release 3.0.1 3/5/2018
+
+The SDK 3.0.1 API adds new messages and APIs to support VR.
+
+X-Plane SDK Release 3.0.0 11/2/7/2017
+
+The SDK 3.0 API supports new features and new packaging for plugins. The 3.0
+SDK requires X-Plane 11.0 or newer. New features include:
+
+ - Display APIs to match X-Plane 11's UI.
+ - New map APIs. Legacy 2-d map draw callbacks are deprecated.
+ - Aircraft-plugins get their own menu
+ - Aircraft placement by lat-lon-elevation.
+ - Magnetic variation queries
+ - Chinese language support
+ - New instancing API
+
+The 3.0 SDK supports a new plugin packaging schema:
+
+    <plugin name>/<ABI>/<plugin name>.xpl
+
+where ABI is one of mac_x64, win_x64 or lin_x64. The new schema is preferred,
+so you can pack a version of your plugin that requires 3.0 with this scheme
+and include a legacy 2.x plugin using hte old scheme for X-Plane 10 
+compatibility.
+
+Please use the new scheme where possible - having a unique file name for each
+DLL makes crash reports easier to read and triage.
+
+The 3.0 SDK drops support for 32-bit plugins; if you need to ship a 32-bit 
+plugin for 32-bit X-Plane 10, shipping using two schemes and two binaries may
+be the best option.
 
 X-Plane SDK Release 2.1.3 11/14/13
 
