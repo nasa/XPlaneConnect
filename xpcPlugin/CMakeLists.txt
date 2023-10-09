@@ -6,7 +6,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(SDK/CHeaders/XPLM)
 include_directories(../C/src)
 
-add_definitions(-DXPLM200 -DLIN=1)
+add_definitions(-DXPLM400 -DXPLM303 -DXPLM302 -DXPLM301 -DXPLM300 -DXPLM210 -DXPLM200 -DLIN=1)
 
 SET(CMAKE_C_COMPILER gcc)
 SET(CMAKE_CXX_COMPILER g++)
