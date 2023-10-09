@@ -221,7 +221,13 @@
 					"APL=1",
 					"IBM=0",
 					"LIN=0",
-					XPLM200,
+					XPLM400,
+                                        XPLM303,
+                                        XPLM302,
+                                        XPLM301,
+                                        XPLM300,
+                                        XPLM210,
+                                        XPLM200,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";
@@ -235,7 +241,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-DXPLM200",
+					"-DXPLM400 -DXPLM303 -DXPLM302 -DXPLM301 -DXPLM300 -DXPLM210 -DXPLM200",
 				);
 				OTHER_LDFLAGS = (
 					"$(OTHER_LDFLAGS)",
@@ -275,8 +281,14 @@
 					"APL=1",
 					"IBM=0",
 					"LIN=0",
-					XPLM200,
-				);
+					XPLM400,
+                                        XPLM303,
+                                        XPLM302,
+                                        XPLM301,
+                                        XPLM300,
+                                        XPLM210,
+                                        XPLM200,
+                                );
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
@@ -288,7 +300,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-DXPLM200",
+					"-DXPLM400 -DXPLM303 -DXPLM302 -DXPLM301 -DXPLM300 -DXPLM210 -DXPLM200",
 				);
 				OTHER_LDFLAGS = (
 					"$(OTHER_LDFLAGS)",
