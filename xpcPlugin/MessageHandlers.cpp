@@ -887,9 +887,10 @@ namespace XPC
 		// get view type
 		int view_type;
 		memcpy(&view_type, buffer + 5, 4);
-		
+
+		// Below command has been deprecated.  All view modes can be set by using the MessageHandlers::HandleComm command below.
 		// set view by calling the corresponding key stroke
-		XPLMCommandKeyStroke(view_type);
+		// XPLMCommandKeyStroke(view_type);
 		
 		
 		VIEW_TYPE viewRunway = VIEW_TYPE::XPC_VIEW_RUNWAY;
