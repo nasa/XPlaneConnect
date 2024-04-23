@@ -41,6 +41,22 @@ Thumbs.db
 *.rc
 *.idb
 
+# Gradle Files #
+################
+.gradle
+**/build/
+!src/**/build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+.gradletasknamecache
+# Eclipse Gradle plugin generated files
+.project
+.classpath
+# IntelliJ Gradle generated files
+/**/.idea/**/gradle.xml
+/**/.idea/**/libraries
+
 # VS Files #
 #################
 bin/
@@ -74,9 +90,19 @@ xcshareddata
 
 # IntelliJ Files #
 ##################
-/**/.idea/workspace.xml
-/**/.idea/tasks.xml
-/**/.idea/dictionaries/
+/**/.idea/**/workspace.xml
+/**/.idea/**/tasks.xml
+/**/.idea/**/dictionaries
+/**/.idea/**/usage.statistics.xml
+/**/.idea/**/shelf
+/**/.idea/**/contentModel.xml
+/**/.idea/**/dataSources/
+/**/.idea/**/dataSources.ids
+/**/.idea/**/dataSources.local.xml
+/**/.idea/**/sqlDataSources.xml
+/**/.idea/**/dynamic.xml
+/**/.idea/**/uiDesigner.xml
+/**/.idea/**/dbnavigator.xml
 out/
 
 # MATLAB backup files #

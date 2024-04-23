@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Examples/DiscoveryExample/DiscoveryExample.iml" filepath="$PROJECT_DIR$/Examples/DiscoveryExample/DiscoveryExample.iml" />
-      <module fileurl="file://$PROJECT_DIR$/XPlaneConnect.iml" filepath="$PROJECT_DIR$/XPlaneConnect.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/341065100/xpc-parent.tests.test.iml" filepath="$PROJECT_DIR$/.idea/modules/341065100/xpc-parent.tests.test.iml" />
     </modules>
   </component>
 </project>
